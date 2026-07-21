@@ -8,3 +8,4 @@ and our contributions are logged in the git history, which we are being marked o
 Names:
 Sam Koehler
 Amir Hassanpour
+Humzah Ahmed
