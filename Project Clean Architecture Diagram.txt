@@ -6,7 +6,7 @@
 | FRAMEWORKS & DRIVERS (Outer Layer)                                                                                  |
 |                                                                                                                     |
 |   +-----------------------+     +--------------------------+     +------------------------+     +----------------+  |
-|   |  GitBuffDesktopView   |     |  GoogleCalendarService   |     |    NinjaExerciseAPI    |     |   FirebaseDB   |  |
+|   |  GitBuffDesktopView   |     |  GoogleCalendarService   |     |    NinjaExerciseAPI    |     |   SQLite       |  |
 |   |       < View >        |     |      (REST Client)       |     |   (HTTP JSON Client)   |     |   (Database)   |  |
 |   +-----------+-----------+     +------------+-------------+     +-----------+------------+     +-------+--------+  |
 +---------------|------------------------------|-------------------------------|----------------------------|---------+
