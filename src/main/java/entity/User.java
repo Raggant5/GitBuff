@@ -50,4 +50,37 @@ public interface User {
         return 0.0d;
     }
 
+    /**
+     * Sets the user's typical activity level, used to personalize recommendations.
+     */
+    void setActivityLevel(ActivityLevel activityLevel);
+
+    /**
+     * Returns the user's typical activity level.
+     * @return the activity level of the user.
+     */
+    ActivityLevel getActivityLevel();
+
+    /**
+     * Sets the user's fitness goal, used to personalize recommendations.
+     */
+    void setGoal(FitnessGoal goal);
+
+    /**
+     * Returns the user's fitness goal.
+     * @return the fitness goal of the user.
+     */
+    FitnessGoal getGoal();
+
+    /**
+     * Sets the file path of the user's custom profile picture.
+     */
+    void setProfilePicturePath(String profilePicturePath);
+
+    /**
+     * Returns the file path of the user's custom profile picture, or null if none is set.
+     * @return the profile picture path of the user.
+     */
+    String getProfilePicturePath();
+
 }

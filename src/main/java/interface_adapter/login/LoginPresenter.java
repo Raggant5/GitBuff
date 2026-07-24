@@ -3,6 +3,7 @@ package interface_adapter.login;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
+import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.signup.SignupViewModel;
 import use_case.login.LoginOutputBoundary;
 import use_case.login.LoginOutputData;
@@ -13,18 +14,21 @@ import use_case.login.LoginOutputData;
 public class LoginPresenter implements LoginOutputBoundary {
 
     private final LoginViewModel loginViewModel;
-    private final ProfileViewModel profileViewModel;
     private final ViewManagerModel viewManagerModel;
     private final SignupViewModel signupViewModel;
+    private final ProfileViewModel profileViewModel;
+    private final RecommendationController recommendationController;
 
     public LoginPresenter(ViewManagerModel viewManagerModel,
                           LoginViewModel loginViewModel,
+                          SignupViewModel signupViewModel,
                           ProfileViewModel profileViewModel,
-                          SignupViewModel signupViewModel) {
+                          RecommendationController recommendationController) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
         this.profileViewModel = profileViewModel;
+        this.recommendationController = recommendationController;
     }
 
     @Override
@@ -32,9 +36,14 @@ public class LoginPresenter implements LoginOutputBoundary {
         final LoginState loginState = loginViewModel.getState();
         loginState.setUsername(response.getUsername());
         loginViewModel.firePropertyChanged();
-        this.viewManagerModel.setState("app shell");
-        ProfileState profileState = profileViewModel.getState();
+
+        final ProfileState profileState = profileViewModel.getState();
         profileState.setUsername(response.getUsername());
+        profileViewModel.firePropertyChanged();
+
+        recommendationController.execute();
+
+        this.viewManagerModel.setState("app shell");
         this.viewManagerModel.firePropertyChanged();
     }
 

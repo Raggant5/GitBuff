@@ -18,7 +18,11 @@ import interface_adapter.login.LoginViewModel;
 import interface_adapter.logout.LogoutController;
 import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.nutrition.NutritionViewModel;
+import interface_adapter.profile.ProfileController;
+import interface_adapter.profile.ProfilePresenter;
 import interface_adapter.profile.ProfileViewModel;
+import interface_adapter.recommendation.RecommendationController;
+import interface_adapter.recommendation.RecommendationPresenter;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
@@ -29,6 +33,12 @@ import use_case.login.LoginOutputBoundary;
 import use_case.logout.LogoutInputBoundary;
 import use_case.logout.LogoutInteractor;
 import use_case.logout.LogoutOutputBoundary;
+import use_case.profile.EditProfileInputBoundary;
+import use_case.profile.EditProfileInteractor;
+import use_case.profile.EditProfileOutputBoundary;
+import use_case.recommendation.RecommendationInputBoundary;
+import use_case.recommendation.RecommendationInteractor;
+import use_case.recommendation.RecommendationOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
@@ -68,10 +78,12 @@ public class AppBuilder {
     private WorkoutsView workoutsView;
     private NutritionViewModel nutritionViewModel;
     private NutritionView nutritionView;
-    private ProfileView profileView;
     private ProfileViewModel profileViewModel;
+    private ProfileView profileView;
     private NavbarView navbarView;
     private AppShellView appShellView;
+    private RecommendationController recommendationController;
+    private RecommendationInputBoundary recommendationInteractor;
 
 
     public AppBuilder() {
@@ -160,13 +172,42 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addLoginUseCase() {
-        final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(viewManagerModel, loginViewModel,
-                profileViewModel, signupViewModel);
+        final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
+                viewManagerModel, loginViewModel, signupViewModel, profileViewModel, recommendationController);
         final LoginInputBoundary loginInteractor = new LoginInteractor(
                 userDataAccessObject, loginOutputBoundary);
 
         final LoginController loginController = new LoginController(loginInteractor);
         loginView.setLoginController(loginController);
+        return this;
+    }
+
+    /**
+     * Adds the Recommendation Use Case to the application. Must be added before the
+     * Login and Profile use cases, since both refresh recommendations after they run.
+     * @return this builder
+     */
+    public AppBuilder addRecommendationUseCase() {
+        final RecommendationOutputBoundary recommendationOutputBoundary = new RecommendationPresenter(
+                nutritionViewModel, workoutViewModel);
+        recommendationInteractor = new RecommendationInteractor(userDataAccessObject, recommendationOutputBoundary);
+        recommendationController = new RecommendationController(recommendationInteractor);
+        nutritionView.setRecommendationController(recommendationController);
+        workoutsView.setRecommendationController(recommendationController);
+        return this;
+    }
+
+    /**
+     * Adds the Edit Profile Use Case to the application.
+     * @return this builder
+     */
+    public AppBuilder addProfileUseCase() {
+        final EditProfileOutputBoundary profileOutputBoundary = new ProfilePresenter(profileViewModel);
+        final EditProfileInputBoundary editProfileInteractor = new EditProfileInteractor(
+                userDataAccessObject, profileOutputBoundary, recommendationInteractor);
+
+        final ProfileController profileController = new ProfileController(editProfileInteractor);
+        profileView.setProfileController(profileController);
         return this;
     }
 

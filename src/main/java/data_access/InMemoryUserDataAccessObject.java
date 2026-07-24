@@ -6,6 +6,8 @@ import java.util.Map;
 import entity.User;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
+import use_case.profile.ProfileUserDataAccessInterface;
+import use_case.recommendation.RecommendationUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
 /**
@@ -13,7 +15,8 @@ import use_case.signup.SignupUserDataAccessInterface;
  * NOT persist data between runs of the program.
  */
 public class InMemoryUserDataAccessObject implements SignupUserDataAccessInterface,
-        LoginUserDataAccessInterface, LogoutUserDataAccessInterface {
+        LoginUserDataAccessInterface, LogoutUserDataAccessInterface, ProfileUserDataAccessInterface,
+        RecommendationUserDataAccessInterface {
 
     private final Map<String, User> users = new HashMap<>();
 

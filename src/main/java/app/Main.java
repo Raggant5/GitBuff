@@ -20,6 +20,8 @@ public class Main {
                 .addNavbarView()
                 .addShellView()
                 .addSignupUseCase()
+                .addRecommendationUseCase()
+                .addProfileUseCase()
                 .addLoginUseCase()
                 .addLogoutUseCase()
                 .build();
