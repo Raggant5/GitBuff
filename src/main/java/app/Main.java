@@ -21,6 +21,7 @@ public class Main {
                 .addShellView()
                 .addSignupUseCase()
                 .addLoginUseCase()
+                .addLogoutUseCase()
                 .build();
 
         application.pack();

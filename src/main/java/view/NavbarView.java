@@ -1,6 +1,10 @@
 package view;
 
 import interface_adapter.MainViewManagerModel;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.logout.LogoutController;
+import interface_adapter.profile.ProfileState;
+import interface_adapter.profile.ProfileViewModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,9 +17,12 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
     private final JButton toDashboard = new JButton("Dashboard");
     private final JButton toWorkouts = new JButton("Workouts");
     private final JButton toNutrition = new JButton("Nutrition");
+    private final JButton toProfile = new JButton("Profile");
     private final JButton logOut = new JButton("Log Out");
+    private LogoutController logoutController;
 
-    public NavbarView(MainViewManagerModel mainViewManagerModel) {
+    public NavbarView(MainViewManagerModel mainViewManagerModel, ViewManagerModel viewManagerModel,
+                      ProfileViewModel profileViewModel) {
         toDashboard.addActionListener(evt -> {
             mainViewManagerModel.setState("dashboard");
             mainViewManagerModel.firePropertyChanged();
@@ -31,14 +38,24 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
             mainViewManagerModel.firePropertyChanged();
         });
 
+        toProfile.addActionListener(evt -> {
+            mainViewManagerModel.setState("profile");
+            mainViewManagerModel.firePropertyChanged();
+        });
+
         logOut.addActionListener(evt -> {
             mainViewManagerModel.setState("dashboard");
             mainViewManagerModel.firePropertyChanged();
+            final ProfileState profileState = profileViewModel.getState();
+            this.logoutController.execute(profileState.getUsername());
+            viewManagerModel.setState("log in");
+            viewManagerModel.firePropertyChanged();
         });
 
         this.add(toDashboard);
         this.add(toWorkouts);
         this.add(toNutrition);
+        this.add(toProfile);
         this.add(logOut);
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     }
@@ -46,16 +63,17 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
     private void updateSelectedButton(String page) {
 
         Color defaultColor = UIManager.getColor("Button.background");
-        Color selectedColor = Color.LIGHT_GRAY;
+        Color selectedColour = Color.LIGHT_GRAY;
 
         toDashboard.setBackground(defaultColor);
         toWorkouts.setBackground(defaultColor);
         toNutrition.setBackground(defaultColor);
 
         switch (page) {
-            case "dashboard": toDashboard.setBackground(selectedColor);
-            case "workouts": toWorkouts.setBackground(selectedColor);
-            case "nutrition": toNutrition.setBackground(selectedColor);
+            case "dashboard": toDashboard.setBackground(selectedColour);
+            case "workouts": toWorkouts.setBackground(selectedColour);
+            case "nutrition": toNutrition.setBackground(selectedColour);
+            case "profile": toProfile.setBackground(selectedColour);
         }
     }
 
@@ -69,6 +87,10 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
     }
     public String getViewName() {
         return viewName;
+    }
+
+    public void setLogoutController(LogoutController logoutController) {
+        this.logoutController = logoutController;
     }
 
 }

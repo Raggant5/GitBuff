@@ -15,7 +15,10 @@ import interface_adapter.dashboard.DashboardViewModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
+import interface_adapter.logout.LogoutController;
+import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.nutrition.NutritionViewModel;
+import interface_adapter.profile.ProfileViewModel;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
@@ -23,6 +26,9 @@ import interface_adapter.workouts.WorkoutsViewModel;
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
+import use_case.logout.LogoutInputBoundary;
+import use_case.logout.LogoutInteractor;
+import use_case.logout.LogoutOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
@@ -62,9 +68,10 @@ public class AppBuilder {
     private WorkoutsView workoutsView;
     private NutritionViewModel nutritionViewModel;
     private NutritionView nutritionView;
+    private ProfileView profileView;
+    private ProfileViewModel profileViewModel;
     private NavbarView navbarView;
     private AppShellView appShellView;
-
 
 
     public AppBuilder() {
@@ -105,9 +112,12 @@ public class AppBuilder {
         workoutsView = new WorkoutsView(workoutViewModel);
         nutritionViewModel = new NutritionViewModel();
         nutritionView = new NutritionView(nutritionViewModel);
+        profileViewModel = new ProfileViewModel();
+        profileView = new ProfileView(profileViewModel);
         mainPanel.add(dashboardView, dashboardView.getViewName());
         mainPanel.add(workoutsView, workoutsView.getViewName());
         mainPanel.add(nutritionView, nutritionView.getViewName());
+        mainPanel.add(profileView, profileView.getViewName());
         return this;
     }
 
@@ -116,7 +126,7 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addNavbarView() {
-        navbarView = new NavbarView(mainViewManagerModel);
+        navbarView = new NavbarView(mainViewManagerModel, viewManagerModel, profileViewModel);
         return this;
     }
 
@@ -136,7 +146,7 @@ public class AppBuilder {
      */
     public AppBuilder addSignupUseCase() {
         final SignupOutputBoundary signupOutputBoundary = new SignupPresenter(viewManagerModel,
-                signupViewModel, loginViewModel);
+                signupViewModel, loginViewModel, profileViewModel, mainViewManagerModel);
         final SignupInputBoundary userSignupInteractor = new SignupInteractor(
                 userDataAccessObject, signupOutputBoundary, userFactory);
 
@@ -150,7 +160,8 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addLoginUseCase() {
-        final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(viewManagerModel, loginViewModel, signupViewModel);
+        final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(viewManagerModel, loginViewModel,
+                profileViewModel, signupViewModel);
         final LoginInputBoundary loginInteractor = new LoginInteractor(
                 userDataAccessObject, loginOutputBoundary);
 
@@ -159,6 +170,21 @@ public class AppBuilder {
         return this;
     }
 
+    /**
+     * Adds the Logout Use Case to the application.
+     * @return this builder
+     */
+    public AppBuilder addLogoutUseCase() {
+        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(viewManagerModel,
+                profileViewModel, loginViewModel);
+
+        final LogoutInputBoundary logoutInteractor =
+                new LogoutInteractor(userDataAccessObject, logoutOutputBoundary);
+
+        final LogoutController logoutController = new LogoutController(logoutInteractor);
+        navbarView.setLogoutController(logoutController);
+        return this;
+    }
 
     /**
      * Creates the JFrame for the application and initially sets the SignupView to be displayed.
