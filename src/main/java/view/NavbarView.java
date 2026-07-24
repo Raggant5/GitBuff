@@ -68,12 +68,14 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
         toDashboard.setBackground(defaultColor);
         toWorkouts.setBackground(defaultColor);
         toNutrition.setBackground(defaultColor);
+        toProfile.setBackground(defaultColor);
 
         switch (page) {
-            case "dashboard": toDashboard.setBackground(selectedColour);
-            case "workouts": toWorkouts.setBackground(selectedColour);
-            case "nutrition": toNutrition.setBackground(selectedColour);
-            case "profile": toProfile.setBackground(selectedColour);
+            case "dashboard": toDashboard.setBackground(selectedColour); break;
+            case "workouts": toWorkouts.setBackground(selectedColour); break;
+            case "nutrition": toNutrition.setBackground(selectedColour); break;
+            case "profile": toProfile.setBackground(selectedColour); break;
+            default: break;
         }
     }
 
