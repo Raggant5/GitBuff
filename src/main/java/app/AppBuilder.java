@@ -6,7 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import data_access.InMemoryUserDataAccessObject;
+import data_access.SQLiteUserDataAccessObject;
 import entity.CommonUserFactory;
 import entity.UserFactory;
 import interface_adapter.MainViewManagerModel;
@@ -66,8 +66,7 @@ public class AppBuilder {
     private final MainViewManager mainViewManager = new MainViewManager(mainPanel, mainCardLayout, mainViewManagerModel);
 
     private final UserFactory userFactory = new CommonUserFactory();
-    private final InMemoryUserDataAccessObject userDataAccessObject = new InMemoryUserDataAccessObject();
-
+    private final SQLiteUserDataAccessObject userDataAccessObject = new SQLiteUserDataAccessObject();
     private SignupView signupView;
     private SignupViewModel signupViewModel;
     private LoginView loginView;
