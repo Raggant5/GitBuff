@@ -14,8 +14,8 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
     private final RecommendationInputBoundary recommendationInteractor;
 
     public EditProfileInteractor(ProfileUserDataAccessInterface userDataAccessObject,
-                                  EditProfileOutputBoundary profileOutputBoundary,
-                                  RecommendationInputBoundary recommendationInteractor) {
+                                 EditProfileOutputBoundary profileOutputBoundary,
+                                 RecommendationInputBoundary recommendationInteractor) {
         this.userDataAccessObject = userDataAccessObject;
         this.profilePresenter = profileOutputBoundary;
         this.recommendationInteractor = recommendationInteractor;
@@ -40,11 +40,25 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
         user.setActivityLevel(editProfileInputData.getActivityLevel());
         user.setGoal(editProfileInputData.getGoal());
         user.setProfilePicturePath(editProfileInputData.getProfilePicturePath());
+        user.setDateOfBirth(editProfileInputData.getDateOfBirth());
+        user.setGender(editProfileInputData.getGender());
+        user.setBio(editProfileInputData.getBio());
+        user.setPreferredUnitSystem(editProfileInputData.getPreferredUnitSystem());
+        user.setEquipment(editProfileInputData.getEquipment());
+        user.setDietaryRestrictions(editProfileInputData.getDietaryRestrictions());
+        user.setPreferredWorkoutDays(editProfileInputData.getPreferredWorkoutDays());
+        user.setPreferredWorkoutDurationMinutes(editProfileInputData.getPreferredWorkoutDurationMinutes());
+        user.setPrivacySettings(editProfileInputData.getPrivacySettings());
+
         userDataAccessObject.save(user);
 
         final EditProfileOutputData outputData = new EditProfileOutputData(
                 user.getName(), user.getHeight(), user.getWeight(),
-                user.getActivityLevel(), user.getGoal(), user.getProfilePicturePath());
+                user.getActivityLevel(), user.getGoal(), user.getProfilePicturePath(),
+                user.getDateOfBirth(), user.getGender(), user.getBio(),
+                user.getPreferredUnitSystem(), user.getEquipment(), user.getDietaryRestrictions(),
+                user.getPreferredWorkoutDays(), user.getPreferredWorkoutDurationMinutes(),
+                user.getPrivacySettings());
         profilePresenter.prepareSuccessView(outputData);
 
         recommendationInteractor.execute();

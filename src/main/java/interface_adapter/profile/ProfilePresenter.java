@@ -23,6 +23,15 @@ public class ProfilePresenter implements EditProfileOutputBoundary {
         profileState.setActivityLevel(outputData.getActivityLevel());
         profileState.setGoal(outputData.getGoal());
         profileState.setProfilePicturePath(outputData.getProfilePicturePath());
+        profileState.setDateOfBirth(outputData.getDateOfBirth());
+        profileState.setGender(outputData.getGender());
+        profileState.setBio(outputData.getBio());
+        profileState.setPreferredUnitSystem(outputData.getPreferredUnitSystem());
+        profileState.setEquipment(outputData.getEquipment());
+        profileState.setDietaryRestrictions(outputData.getDietaryRestrictions());
+        profileState.setPreferredWorkoutDays(outputData.getPreferredWorkoutDays());
+        profileState.setPreferredWorkoutDurationMinutes(outputData.getPreferredWorkoutDurationMinutes());
+        profileState.setPrivacySettings(outputData.getPrivacySettings());
         profileState.setProfileError(null);
         profileState.setSaveConfirmation("Profile saved.");
         profileViewModel.firePropertyChanged();
