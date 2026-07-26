@@ -3,7 +3,7 @@ package app;
 import javax.swing.JFrame;
 
 /**
- * The Main class of our application
+ * The Main class of our application.
  */
 public class Main {
     /**
