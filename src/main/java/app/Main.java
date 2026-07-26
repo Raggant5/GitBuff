@@ -1,5 +1,7 @@
 package app;
 
+import data_access.Datainitializer;
+
 import javax.swing.JFrame;
 
 /**
@@ -25,6 +27,11 @@ public class Main {
                 .addLoginUseCase()
                 .addLogoutUseCase()
                 .build();
+        try {
+            Datainitializer.initialize();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         application.pack();
         application.setVisible(true);
