@@ -35,18 +35,27 @@ public class LoginPresenter implements LoginOutputBoundary {
     public void prepareSuccessView(LoginOutputData response) {
         final LoginState loginState = loginViewModel.getState();
         loginState.setUsername(response.getUsername());
+        loginState.setLoginError(null);
         loginViewModel.firePropertyChanged();
 
         final ProfileState profileState = profileViewModel.getState();
+
         profileState.setUsername(response.getUsername());
+        profileState.setHeightText(String.valueOf(response.getHeight()));
+        profileState.setWeightText(String.valueOf(response.getWeight()));
+        profileState.setActivityLevel(response.getActivityLevel());
+        profileState.setGoal(response.getGoal());
+        profileState.setProfilePicturePath(response.getProfilePicturePath());
+        profileState.setProfileError(null);
+        profileState.setSaveConfirmation(null);
+
         profileViewModel.firePropertyChanged();
 
         recommendationController.execute();
 
-        this.viewManagerModel.setState("app shell");
-        this.viewManagerModel.firePropertyChanged();
+        viewManagerModel.setState("app shell");
+        viewManagerModel.firePropertyChanged();
     }
-
     @Override
     public void prepareFailView(String error) {
         final LoginState loginState = loginViewModel.getState();

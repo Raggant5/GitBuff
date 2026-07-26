@@ -27,6 +27,8 @@ public class Datainitializer {
                 );
             """);
 
+
+
             System.out.println("Database initialized.");
         }
     }
