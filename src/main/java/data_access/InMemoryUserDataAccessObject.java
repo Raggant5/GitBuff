@@ -11,9 +11,11 @@ import use_case.recommendation.RecommendationUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
 /**
- * In-memory implementation of the DAO for storing user data. This implementation does
- * NOT persist data between runs of the program.
+ * SQLite implementation of the DAO for storing user data.
+ * This implementation persists user data in the GitBuff database,
+ * allowing users to log in across application sessions.
  */
+
 public class InMemoryUserDataAccessObject implements SignupUserDataAccessInterface,
         LoginUserDataAccessInterface, LogoutUserDataAccessInterface, ProfileUserDataAccessInterface,
         RecommendationUserDataAccessInterface {
