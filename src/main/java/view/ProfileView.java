@@ -1,7 +1,6 @@
 package view;
 
-import entity.ActivityLevel;
-import entity.FitnessGoal;
+import entity.*;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
@@ -13,24 +12,45 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * The View for editing the current user's profile: height, weight, activity level,
- * fitness goal, and a custom profile picture.
+ * The View for editing the current user's profile.
  */
 public class ProfileView extends JPanel implements PropertyChangeListener {
 
     private static final int PICTURE_PREVIEW_SIZE = 96;
     private static final float CM_PER_METRE = 100f;
+    private static final float LBS_PER_KG = 2.20462f;
+    private static final float INCHES_PER_METRE = 39.3701f;
 
     private final String viewName = "profile";
     private final ProfileViewModel profileViewModel;
 
     private final JLabel usernameLabel = new JLabel();
     private final JTextField heightField = new JTextField(8);
+    private final JLabel heightLabel = new JLabel("Height (cm)");
     private final JTextField weightField = new JTextField(8);
+    private final JLabel weightLabel = new JLabel("Weight (kg)");
     private final JComboBox<ActivityLevel> activityLevelBox = new JComboBox<>(ActivityLevel.values());
     private final JComboBox<FitnessGoal> goalBox = new JComboBox<>(FitnessGoal.values());
+    private final JComboBox<Gender> genderBox = new JComboBox<>(Gender.values());
+    private final JComboBox<UnitSystem> unitSystemBox = new JComboBox<>(UnitSystem.values());
+    private final JTextField dobField = new JTextField(10);
+    private final JTextArea bioArea = new JTextArea(3, 20);
+    private final JTextField durationField = new JTextField(5);
+
+    private final Map<Equipment, JCheckBox> equipmentCheckBoxes = new HashMap<>();
+    private final Map<DietaryRestriction, JCheckBox> dietaryCheckBoxes = new HashMap<>();
+    private final Map<DayOfWeek, JCheckBox> dayCheckBoxes = new HashMap<>();
+    private final Map<PrivacySetting, JCheckBox> privacyCheckBoxes = new HashMap<>();
+
     private final JLabel pictureLabel = new JLabel("No picture selected");
     private final JButton choosePictureButton = new JButton("Choose Profile Picture");
     private final JButton saveButton = new JButton("Save Profile");
@@ -40,51 +60,99 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     private ProfileController profileController;
 
     public ProfileView(ProfileViewModel profileViewModel) {
-
         this.profileViewModel = profileViewModel;
         profileViewModel.addPropertyChangeListener(this);
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BorderLayout());
+
+        final JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
         final JLabel title = new JLabel("My Profile");
+        title.setFont(new Font("SansSerif", Font.BOLD, 18));
 
         choosePictureButton.addActionListener(this::onChoosePicture);
         saveButton.addActionListener(this::onSave);
+        unitSystemBox.addActionListener(e -> updateUnitLabels());
 
         final Dimension comboBoxSize = new Dimension(300, 30);
         activityLevelBox.setMaximumSize(comboBoxSize);
-        activityLevelBox.setPreferredSize(comboBoxSize);
-        activityLevelBox.setAlignmentX(Component.LEFT_ALIGNMENT);
         goalBox.setMaximumSize(comboBoxSize);
-        goalBox.setPreferredSize(comboBoxSize);
-        goalBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        genderBox.setMaximumSize(comboBoxSize);
+        unitSystemBox.setMaximumSize(comboBoxSize);
 
         final Dimension rowSize = new Dimension(300, 40);
-        final LabelTextPanel heightInfo = new LabelTextPanel(new JLabel("Height (cm)"), heightField);
-        final LabelTextPanel weightInfo = new LabelTextPanel(new JLabel("Weight (kg)"), weightField);
+        final LabelTextPanel heightInfo = new LabelTextPanel(heightLabel, heightField);
+        final LabelTextPanel weightInfo = new LabelTextPanel(weightLabel, weightField);
+        final LabelTextPanel dobInfo = new LabelTextPanel(new JLabel("Date of Birth (YYYY-MM-DD)"), dobField);
+        final LabelTextPanel durationInfo = new LabelTextPanel(new JLabel("Preferred Duration (mins)"), durationField);
+
         heightInfo.setMaximumSize(rowSize);
         weightInfo.setMaximumSize(rowSize);
+        dobInfo.setMaximumSize(rowSize);
+        durationInfo.setMaximumSize(rowSize);
 
-        this.add(title);
-        this.add(usernameLabel);
-        this.add(heightInfo);
-        this.add(weightInfo);
-        this.add(new JLabel("Activity Level"));
-        this.add(activityLevelBox);
-        this.add(new JLabel("Fitness Goal"));
-        this.add(goalBox);
-        this.add(pictureLabel);
-        this.add(choosePictureButton);
-        this.add(saveButton);
-        this.add(statusLabel);
+        contentPanel.add(title);
+        contentPanel.add(usernameLabel);
+        contentPanel.add(new JLabel("Unit System"));
+        contentPanel.add(unitSystemBox);
+        contentPanel.add(heightInfo);
+        contentPanel.add(weightInfo);
+        contentPanel.add(dobInfo);
+        contentPanel.add(new JLabel("Gender"));
+        contentPanel.add(genderBox);
+        contentPanel.add(new JLabel("Bio"));
+        bioArea.setLineWrap(true);
+        contentPanel.add(new JScrollPane(bioArea));
+        contentPanel.add(new JLabel("Activity Level"));
+        contentPanel.add(activityLevelBox);
+        contentPanel.add(new JLabel("Fitness Goal"));
+        contentPanel.add(goalBox);
+
+        // Checkbox Panels
+        contentPanel.add(createCheckBoxPanel("Available Equipment", Equipment.values(), equipmentCheckBoxes));
+        contentPanel.add(createCheckBoxPanel("Dietary Restrictions", DietaryRestriction.values(), dietaryCheckBoxes));
+        contentPanel.add(createCheckBoxPanel("Preferred Workout Days", DayOfWeek.values(), dayCheckBoxes));
+        contentPanel.add(durationInfo);
+        contentPanel.add(createCheckBoxPanel("Privacy Settings", PrivacySetting.values(), privacyCheckBoxes));
+
+        contentPanel.add(pictureLabel);
+        contentPanel.add(choosePictureButton);
+        contentPanel.add(saveButton);
+        contentPanel.add(statusLabel);
+
+        final JScrollPane scrollPane = new JScrollPane(contentPanel);
+        add(scrollPane, BorderLayout.CENTER);
 
         displayState(profileViewModel.getState());
     }
 
+    private <E extends Enum<E>> JPanel createCheckBoxPanel(String title, E[] values, Map<E, JCheckBox> checkBoxMap) {
+        final JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createTitledBorder(title));
+        for (E value : values) {
+            final JCheckBox checkBox = new JCheckBox(value.toString());
+            checkBoxMap.put(value, checkBox);
+            panel.add(checkBox);
+        }
+        return panel;
+    }
+
+    private void updateUnitLabels() {
+        final UnitSystem selectedUnit = (UnitSystem) unitSystemBox.getSelectedItem();
+        if (selectedUnit == UnitSystem.IMPERIAL) {
+            heightLabel.setText("Height (in)");
+            weightLabel.setText("Weight (lbs)");
+        } else {
+            heightLabel.setText("Height (cm)");
+            weightLabel.setText("Weight (kg)");
+        }
+    }
+
     private void onChoosePicture(ActionEvent evt) {
         final JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new FileNameExtensionFilter(
-                "Image files", "png", "jpg", "jpeg", "gif"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Image files", "png", "jpg", "jpeg", "gif"));
         final int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             final File selectedFile = fileChooser.getSelectedFile();
@@ -98,14 +166,56 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
             return;
         }
         try {
-            final float heightCm = Float.parseFloat(heightField.getText().trim());
-            final float weight = Float.parseFloat(weightField.getText().trim());
-            final ActivityLevel activityLevel = (ActivityLevel) activityLevelBox.getSelectedItem();
-            final FitnessGoal goal = (FitnessGoal) goalBox.getSelectedItem();
-            profileController.execute(heightCm / CM_PER_METRE, weight, activityLevel, goal, selectedProfilePicturePath);
+            final UnitSystem selectedUnit = (UnitSystem) unitSystemBox.getSelectedItem();
+            float rawHeight = Float.parseFloat(heightField.getText().trim());
+            float rawWeight = Float.parseFloat(weightField.getText().trim());
+
+            float heightMetres = (selectedUnit == UnitSystem.IMPERIAL) ? (rawHeight / INCHES_PER_METRE) : (rawHeight / CM_PER_METRE);
+            float weightKg = (selectedUnit == UnitSystem.IMPERIAL) ? (rawWeight / LBS_PER_KG) : rawWeight;
+
+            LocalDate dob = null;
+            if (!dobField.getText().trim().isEmpty()) {
+                dob = LocalDate.parse(dobField.getText().trim());
+            }
+
+            final int duration = Integer.parseInt(durationField.getText().trim());
+
+            profileController.execute(
+                    heightMetres,
+                    weightKg,
+                    (ActivityLevel) activityLevelBox.getSelectedItem(),
+                    (FitnessGoal) goalBox.getSelectedItem(),
+                    selectedProfilePicturePath,
+                    dob,
+                    (Gender) genderBox.getSelectedItem(),
+                    bioArea.getText().trim(),
+                    selectedUnit,
+                    getSelectedItems(equipmentCheckBoxes),
+                    getSelectedItems(dietaryCheckBoxes),
+                    getSelectedItems(dayCheckBoxes),
+                    duration,
+                    getSelectedItems(privacyCheckBoxes)
+            );
+        } catch (NumberFormatException ex) {
+            statusLabel.setText("Height, weight, and duration must be valid numbers.");
+        } catch (DateTimeParseException ex) {
+            statusLabel.setText("Date of birth must be in YYYY-MM-DD format.");
         }
-        catch (NumberFormatException ex) {
-            statusLabel.setText("Height and weight must be numbers.");
+    }
+
+    private <E extends Enum<E>> Set<E> getSelectedItems(Map<E, JCheckBox> map) {
+        final Set<E> selected = new HashSet<>();
+        for (Map.Entry<E, JCheckBox> entry : map.entrySet()) {
+            if (entry.getValue().isSelected()) {
+                selected.add(entry.getKey());
+            }
+        }
+        return selected;
+    }
+
+    private <E extends Enum<E>> void setSelectedItems(Map<E, JCheckBox> map, Set<E> selected) {
+        for (Map.Entry<E, JCheckBox> entry : map.entrySet()) {
+            entry.getValue().setSelected(selected != null && selected.contains(entry.getKey()));
         }
     }
 
@@ -116,41 +226,51 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
             return;
         }
         final ImageIcon icon = new ImageIcon(path);
-        final Image scaled = icon.getImage().getScaledInstance(
-                PICTURE_PREVIEW_SIZE, PICTURE_PREVIEW_SIZE, Image.SCALE_SMOOTH);
+        final Image scaled = icon.getImage().getScaledInstance(PICTURE_PREVIEW_SIZE, PICTURE_PREVIEW_SIZE, Image.SCALE_SMOOTH);
         pictureLabel.setIcon(new ImageIcon(scaled));
         pictureLabel.setText(null);
     }
 
-    private String heightMetresTextToCentimetresText(String heightMetresText) {
-        if (heightMetresText == null || heightMetresText.isEmpty()) {
-            return "";
-        }
-        try {
-            final float heightMetres = Float.parseFloat(heightMetresText);
-            return String.valueOf(Math.round(heightMetres * CM_PER_METRE));
-        }
-        catch (NumberFormatException ex) {
-            return heightMetresText;
-        }
-    }
-
     private void displayState(ProfileState state) {
         usernameLabel.setText("Username: " + state.getUsername());
-        heightField.setText(heightMetresTextToCentimetresText(state.getHeightText()));
-        weightField.setText(state.getWeightText());
+        unitSystemBox.setSelectedItem(state.getPreferredUnitSystem());
+        updateUnitLabels();
+
+        try {
+            float heightM = Float.parseFloat(state.getHeightText());
+            float weightKg = Float.parseFloat(state.getWeightText());
+            if (state.getPreferredUnitSystem() == UnitSystem.IMPERIAL) {
+                heightField.setText(String.valueOf(Math.round(heightM * INCHES_PER_METRE)));
+                weightField.setText(String.valueOf(Math.round(weightKg * LBS_PER_KG)));
+            } else {
+                heightField.setText(String.valueOf(Math.round(heightM * CM_PER_METRE)));
+                weightField.setText(state.getWeightText());
+            }
+        } catch (NumberFormatException ex) {
+            heightField.setText("");
+            weightField.setText("");
+        }
+
+        dobField.setText(state.getDateOfBirth() != null ? state.getDateOfBirth().toString() : "");
+        genderBox.setSelectedItem(state.getGender());
+        bioArea.setText(state.getBio());
         activityLevelBox.setSelectedItem(state.getActivityLevel());
         goalBox.setSelectedItem(state.getGoal());
+        durationField.setText(String.valueOf(state.getPreferredWorkoutDurationMinutes()));
+
+        setSelectedItems(equipmentCheckBoxes, state.getEquipment());
+        setSelectedItems(dietaryCheckBoxes, state.getDietaryRestrictions());
+        setSelectedItems(dayCheckBoxes, state.getPreferredWorkoutDays());
+        setSelectedItems(privacyCheckBoxes, state.getPrivacySettings());
+
         selectedProfilePicturePath = state.getProfilePicturePath();
         setPicturePreview(selectedProfilePicturePath);
 
         if (state.getProfileError() != null) {
             statusLabel.setText(state.getProfileError());
-        }
-        else if (state.getSaveConfirmation() != null) {
+        } else if (state.getSaveConfirmation() != null) {
             statusLabel.setText(state.getSaveConfirmation());
-        }
-        else {
+        } else {
             statusLabel.setText("");
         }
     }

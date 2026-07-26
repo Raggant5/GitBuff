@@ -6,7 +6,7 @@ package entity;
  */
 public enum ActivityLevel {
 
-    SEDENTARY(1.2, "Sedentary (little or no exercise)"),
+    NOT_ACTIVE(1.2, "Not active (little or no exercise)"),
     LIGHTLY_ACTIVE(1.375, "Lightly active (light exercise 1-3 days/week)"),
     MODERATELY_ACTIVE(1.55, "Moderately active (moderate exercise 3-5 days/week)"),
     VERY_ACTIVE(1.725, "Very active (hard exercise 6-7 days/week)"),
