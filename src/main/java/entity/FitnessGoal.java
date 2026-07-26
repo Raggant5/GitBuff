@@ -8,10 +8,14 @@ public enum FitnessGoal {
 
     LOSE_WEIGHT("Lose Weight", -500, 2.2,
             "Push/Pull/Legs with added cardio to support a calorie deficit"),
-    MAINTAIN("Maintain", 0, 1.6,
-            "Balanced full-body training to maintain current fitness"),
-    GAIN_MUSCLE("Gain Muscle", 300, 2.0,
-            "Upper/Lower split focused on progressive overload");
+    MAINTAIN_GENERAL_FITNESS("Maintain Weight & General Fitness", 0, 1.6,
+            "Balanced full-body training to maintain overall fitness and health"),
+    MUSCLE_AND_STRENGTH_GAIN("Muscle & Strength Gain", 300, 2.0,
+            "Upper/Lower split focused on progressive overload and strength milestones"),
+    INCREASE_ENDURANCE("Increase Endurance", -100, 1.8,
+            "Cardio, stamina, and aerobic conditioning focused routines"),
+    FLEXIBILITY_AND_MOBILITY("Flexibility & Mobility", 0, 1.4,
+            "Yoga, stretching, core stability, and joint recovery routines");
 
     private final String displayName;
     private final int dailyCalorieAdjustment;
@@ -25,19 +29,10 @@ public enum FitnessGoal {
         this.workoutFocus = workoutFocus;
     }
 
-    /**
-     * Returns the number of calories to add to (or subtract from) a user's
-     * maintenance calories to work towards this goal.
-     * @return the daily calorie adjustment, in kcal.
-     */
     public int getDailyCalorieAdjustment() {
         return dailyCalorieAdjustment;
     }
 
-    /**
-     * Returns the recommended protein intake per kilogram of body weight for this goal.
-     * @return grams of protein per kilogram of body weight.
-     */
     public double getProteinGramsPerKg() {
         return proteinGramsPerKg;
     }

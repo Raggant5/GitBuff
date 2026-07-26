@@ -3,12 +3,16 @@ package use_case.profile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import entity.ActivityLevel;
 import entity.CommonUser;
 import entity.FitnessGoal;
+import entity.Gender;
+import entity.UnitSystem;
 import entity.User;
 import org.junit.jupiter.api.Test;
 import use_case.recommendation.RecommendationInputBoundary;
@@ -52,7 +56,7 @@ public class EditProfileInteractorTest {
                 assertEquals(1.8f, outputData.getHeight(), 0.0001);
                 assertEquals(80f, outputData.getWeight(), 0.0001);
                 assertEquals(ActivityLevel.VERY_ACTIVE, outputData.getActivityLevel());
-                assertEquals(FitnessGoal.GAIN_MUSCLE, outputData.getGoal());
+                assertEquals(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, outputData.getGoal());
             }
 
             @Override
@@ -62,7 +66,9 @@ public class EditProfileInteractorTest {
         };
 
         final EditProfileInputData inputData = new EditProfileInputData(
-                1.8f, 80f, ActivityLevel.VERY_ACTIVE, FitnessGoal.GAIN_MUSCLE, "/tmp/pic.png");
+                1.8f, 80f, ActivityLevel.VERY_ACTIVE, FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, "/tmp/pic.png",
+                LocalDate.of(2000, 1, 1), Gender.MALE, "Hello world", UnitSystem.METRIC,
+                new HashSet<>(), new HashSet<>(), new HashSet<>(), 45, new HashSet<>());
 
         new EditProfileInteractor(dataAccessObject, presenter, recommendationInteractor).execute(inputData);
 
@@ -95,7 +101,9 @@ public class EditProfileInteractorTest {
         };
 
         final EditProfileInputData inputData = new EditProfileInputData(
-                0f, 80f, ActivityLevel.VERY_ACTIVE, FitnessGoal.GAIN_MUSCLE, null);
+                0f, 80f, ActivityLevel.VERY_ACTIVE, FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, null,
+                null, Gender.PREFER_NOT_TO_SAY, "", UnitSystem.METRIC,
+                new HashSet<>(), new HashSet<>(), new HashSet<>(), 45, new HashSet<>());
 
         new EditProfileInteractor(dataAccessObject, presenter, recommendationInteractor).execute(inputData);
         assertTrue(failed[0]);

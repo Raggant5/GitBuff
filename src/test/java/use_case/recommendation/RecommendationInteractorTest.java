@@ -46,7 +46,7 @@ public class RecommendationInteractorTest {
         user.setHeight(1.8f);
         user.setWeight(80f);
         user.setActivityLevel(ActivityLevel.MODERATELY_ACTIVE);
-        user.setGoal(FitnessGoal.GAIN_MUSCLE);
+        user.setGoal(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN);
         dataAccessObject.save(user);
         dataAccessObject.setCurrentUsername("aahir");
 
@@ -58,7 +58,7 @@ public class RecommendationInteractorTest {
                 // protein = 80 * 2.0 g/kg = 160
                 assertEquals(160, outputData.getDailyProteinGrams());
                 assertEquals(user.getBMI(), outputData.getBmi(), 0.0001);
-                assertEquals(FitnessGoal.GAIN_MUSCLE.getWorkoutFocus(), outputData.getWorkoutFocus());
+                assertEquals(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN.getWorkoutFocus(), outputData.getWorkoutFocus());
             }
 
             @Override

@@ -9,7 +9,7 @@ public class ActivityLevelFitnessGoalTest {
 
     @Test
     public void moreActiveLevelsHaveHigherCalorieMultipliers() {
-        assertTrue(ActivityLevel.SEDENTARY.getCalorieMultiplier()
+        assertTrue(ActivityLevel.NOT_ACTIVE.getCalorieMultiplier()
                 < ActivityLevel.LIGHTLY_ACTIVE.getCalorieMultiplier());
         assertTrue(ActivityLevel.LIGHTLY_ACTIVE.getCalorieMultiplier()
                 < ActivityLevel.MODERATELY_ACTIVE.getCalorieMultiplier());
@@ -26,11 +26,11 @@ public class ActivityLevelFitnessGoalTest {
 
     @Test
     public void gainMuscleGoalHasPositiveCalorieAdjustment() {
-        assertTrue(FitnessGoal.GAIN_MUSCLE.getDailyCalorieAdjustment() > 0);
+        assertTrue(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN.getDailyCalorieAdjustment() > 0);
     }
 
     @Test
     public void maintainGoalHasNoCalorieAdjustment() {
-        assertEquals(0, FitnessGoal.MAINTAIN.getDailyCalorieAdjustment());
+        assertEquals(0, FitnessGoal.MAINTAIN_GENERAL_FITNESS.getDailyCalorieAdjustment());
     }
 }
