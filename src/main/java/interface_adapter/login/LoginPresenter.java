@@ -1,6 +1,7 @@
 package interface_adapter.login;
 
 import interface_adapter.ViewManagerModel;
+import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
 import interface_adapter.recommendation.RecommendationController;
@@ -17,17 +18,19 @@ public class LoginPresenter implements LoginOutputBoundary {
     private final ViewManagerModel viewManagerModel;
     private final SignupViewModel signupViewModel;
     private final ProfileViewModel profileViewModel;
+    private final ViewMealsViewModel mealsViewModel;
     private final RecommendationController recommendationController;
 
     public LoginPresenter(ViewManagerModel viewManagerModel,
                           LoginViewModel loginViewModel,
                           SignupViewModel signupViewModel,
-                          ProfileViewModel profileViewModel,
+                          ProfileViewModel profileViewModel, ViewMealsViewModel mealsViewModel,
                           RecommendationController recommendationController) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
         this.profileViewModel = profileViewModel;
+        this.mealsViewModel = mealsViewModel;
         this.recommendationController = recommendationController;
     }
 
@@ -50,6 +53,9 @@ public class LoginPresenter implements LoginOutputBoundary {
         profileState.setSaveConfirmation(null);
 
         profileViewModel.firePropertyChanged();
+
+        mealsViewModel.getState().setMeals(response.getMeals());
+        mealsViewModel.firePropertyChanged();
 
         recommendationController.execute();
 

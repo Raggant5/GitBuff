@@ -1,18 +1,23 @@
 package view;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import interface_adapter.nutrition.NutritionState;
 import interface_adapter.nutrition.NutritionViewModel;
 import interface_adapter.recommendation.RecommendationController;
-
-import javax.swing.*;
-import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 public class NutritionView extends JPanel implements PropertyChangeListener {
 
     private final String viewName = "nutrition";
     private final NutritionViewModel nutritionViewModel;
+    private final AddMealView addMealView;
+    private final ViewMealsView viewMealsView;
 
     private final JLabel calorieLabel = new JLabel();
     private final JLabel proteinLabel = new JLabel();
@@ -22,13 +27,19 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
 
     private RecommendationController recommendationController;
 
-    public NutritionView(NutritionViewModel nutritionViewModel) {
-
+    public NutritionView(NutritionViewModel nutritionViewModel, AddMealView addMealView, ViewMealsView viewMealsView) {
+        this.viewMealsView = viewMealsView;
         this.nutritionViewModel = nutritionViewModel;
+        this.addMealView = addMealView;
         nutritionViewModel.addPropertyChangeListener(this);
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         final JLabel title = new JLabel("Nutrition Recommendations");
+        final JButton addMealButton = new JButton("Add Meal");
+
+        addMealButton.addActionListener(evt -> {
+            this.addMealView.setVisible(true);
+        });
 
         refreshButton.addActionListener(evt -> {
             if (recommendationController != null) {
@@ -42,6 +53,9 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         this.add(bmiLabel);
         this.add(messageLabel);
         this.add(refreshButton);
+        this.add(addMealButton);
+        this.add(addMealView);
+        this.add(viewMealsView);
 
         displayState(nutritionViewModel.getState());
     }

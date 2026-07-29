@@ -6,9 +6,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import data_access.SQLiteUserDataAccessObject;
+import data_access.InMemoryDataAccessObject;
+
 import entity.CommonUserFactory;
+import entity.FoodEntryFactory;
+import entity.MealFactory;
 import entity.UserFactory;
+
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.dashboard.DashboardViewModel;
@@ -17,7 +21,14 @@ import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
 import interface_adapter.logout.LogoutController;
 import interface_adapter.logout.LogoutPresenter;
-import interface_adapter.nutrition.NutritionViewModel;
+import interface_adapter.nutrition.*;
+import interface_adapter.nutrition.food.AddFoodController;
+import interface_adapter.nutrition.food.AddFoodPresenter;
+import interface_adapter.nutrition.food.FoodViewModel;
+import interface_adapter.nutrition.meal.AddMealController;
+import interface_adapter.nutrition.meal.AddMealPresenter;
+import interface_adapter.nutrition.meal.AddMealViewModel;
+import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfilePresenter;
 import interface_adapter.profile.ProfileViewModel;
@@ -27,12 +38,17 @@ import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
 import interface_adapter.workouts.WorkoutsViewModel;
+
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
 import use_case.logout.LogoutInputBoundary;
 import use_case.logout.LogoutInteractor;
 import use_case.logout.LogoutOutputBoundary;
+import use_case.nutrition.food.AddFoodEntryInputBoundary;
+import use_case.nutrition.food.AddFoodEntryInteractor;
+import use_case.nutrition.food.AddFoodEntryOutputBoundary;
+import use_case.nutrition.meal.*;
 import use_case.profile.EditProfileInputBoundary;
 import use_case.profile.EditProfileInteractor;
 import use_case.profile.EditProfileOutputBoundary;
@@ -66,20 +82,33 @@ public class AppBuilder {
     private final MainViewManager mainViewManager = new MainViewManager(mainPanel, mainCardLayout, mainViewManagerModel);
 
     private final UserFactory userFactory = new CommonUserFactory();
-    private final SQLiteUserDataAccessObject userDataAccessObject = new SQLiteUserDataAccessObject();
+    private final InMemoryDataAccessObject userDataAccessObject = new InMemoryDataAccessObject();
     private SignupView signupView;
     private SignupViewModel signupViewModel;
     private LoginView loginView;
     private LoginViewModel loginViewModel;
+
     private DashboardViewModel dashboardViewModel;
     private DashboardView dashboardView;
     private WorkoutsViewModel workoutViewModel;
     private WorkoutsView workoutsView;
+    private ViewMealsView viewMealsView;
+    private ViewMealsViewModel viewMealsViewModel;
     private NutritionViewModel nutritionViewModel;
     private NutritionView nutritionView;
     private ProfileViewModel profileViewModel;
     private ProfileView profileView;
     private NavbarView navbarView;
+
+    private final FoodEntryFactory foodEntryFactory = new FoodEntryFactory();
+    private final MealFactory mealFactory = new MealFactory();
+    private final AddMealDataAccessInterface addMealDataAccessObject = new InMemoryDataAccessObject();
+    private final ViewNutritionDataAccessInterface viewNutritionDataAccessObject = new InMemoryDataAccessObject();
+    private AddMealView addMealView;
+    private AddFoodView addFoodView;
+    private AddMealViewModel addMealViewModel;
+    private FoodViewModel foodViewModel;
+
     private AppShellView appShellView;
     private RecommendationController recommendationController;
     private RecommendationInputBoundary recommendationInteractor;
@@ -121,8 +150,16 @@ public class AppBuilder {
         dashboardView = new DashboardView(dashboardViewModel);
         workoutViewModel = new WorkoutsViewModel();
         workoutsView = new WorkoutsView(workoutViewModel);
+
+        addMealViewModel = new AddMealViewModel();
+        foodViewModel = new FoodViewModel();
+        addFoodView = new AddFoodView(foodViewModel);
+        addMealView = new AddMealView(addMealViewModel, addFoodView);
         nutritionViewModel = new NutritionViewModel();
-        nutritionView = new NutritionView(nutritionViewModel);
+        viewMealsViewModel = new ViewMealsViewModel();
+        viewMealsView = new ViewMealsView(viewMealsViewModel);
+        nutritionView = new NutritionView(nutritionViewModel, addMealView, viewMealsView);
+
         profileViewModel = new ProfileViewModel();
         profileView = new ProfileView(profileViewModel);
         mainPanel.add(dashboardView, dashboardView.getViewName());
@@ -172,9 +209,10 @@ public class AppBuilder {
      */
     public AppBuilder addLoginUseCase() {
         final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
-                viewManagerModel, loginViewModel, signupViewModel, profileViewModel, recommendationController);
+                viewManagerModel, loginViewModel, signupViewModel, profileViewModel, viewMealsViewModel,
+                recommendationController);
         final LoginInputBoundary loginInteractor = new LoginInteractor(
-                userDataAccessObject, loginOutputBoundary);
+                userDataAccessObject, loginOutputBoundary, viewNutritionDataAccessObject);
 
         final LoginController loginController = new LoginController(loginInteractor);
         loginView.setLoginController(loginController);
@@ -220,9 +258,34 @@ public class AppBuilder {
 
         final LogoutInputBoundary logoutInteractor =
                 new LogoutInteractor(userDataAccessObject, logoutOutputBoundary);
-
         final LogoutController logoutController = new LogoutController(logoutInteractor);
         navbarView.setLogoutController(logoutController);
+        return this;
+    }
+
+    /**
+     * Adds the Add Food Use Case to the application.
+     * @return this builder
+     */
+    public AppBuilder addFoodUseCase() {
+        final AddFoodEntryOutputBoundary addFoodPresenter = new AddFoodPresenter(addMealViewModel, foodViewModel);
+        final AddFoodEntryInputBoundary addFoodEntryInteractor = new AddFoodEntryInteractor(addFoodPresenter,
+                foodEntryFactory);
+        final AddFoodController addFoodController = new AddFoodController(addFoodEntryInteractor);
+        addFoodView.setAddFoodController(addFoodController);
+        return this;
+    }
+
+    /**
+     * Adds the Add Meal Use Case to the application.
+     * @return this builder
+     */
+    public AppBuilder addMealUseCase() {
+        final AddMealOutputBoundary addMealPresenter = new AddMealPresenter(addMealViewModel, viewMealsViewModel);
+        final AddMealInputBoundary addMealInteractor = new AddMealInteractor(addMealPresenter,
+                addMealDataAccessObject, mealFactory);
+        final AddMealController addMealController = new AddMealController(addMealInteractor, loginViewModel);
+        addMealView.setAddMealController(addMealController);
         return this;
     }
 

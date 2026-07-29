@@ -26,6 +26,8 @@ public class Main {
                 .addProfileUseCase()
                 .addLoginUseCase()
                 .addLogoutUseCase()
+                .addFoodUseCase()
+                .addMealUseCase()
                 .build();
         try {
             Datainitializer.initialize();
