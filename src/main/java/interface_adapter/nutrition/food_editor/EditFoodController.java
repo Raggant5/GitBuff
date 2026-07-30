@@ -28,12 +28,4 @@ public class EditFoodController {
                         String grams) {
         editFoodInteractor.execute(new EditFoodInputData(food, foodName, nutrition, quantity, unit, grams));
     }
-
-    /**
-     * Executes the "Switch To Edit Food" Use Case.
-     * @param food the food to edit
-     */
-    public void switchToEdit(FoodEntry food) {
-
-    }
 }

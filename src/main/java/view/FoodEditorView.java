@@ -104,7 +104,6 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
             addFoodController.execute(state.getFoodName(), new FoodNutritionInputData(state.getCalories(),
                             state.getProtein(), state.getCarbs(), state.getFat()), state.getQuantity(),
                     state.getUnit(), state.getGrams());
-            errorLabel.setText("");
         }
         else {
             editFoodController.execute(state.getEditingFood(), state.getFoodName(), new FoodNutritionInputData(

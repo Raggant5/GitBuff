@@ -34,6 +34,7 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
     private final CardLayout cardLayout;
 
     private final FoodEditorView foodEditorView;
+    private final JLabel errorLabel;
 
     public MealEditorView(MealEditorViewModel mealEditorViewModel, FoodEditorView foodEditorView,
                           PrepareEditFoodController prepareEditFoodController) {
@@ -45,6 +46,7 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
 
         mealNameField = new JTextField(20);
         final JLabel mealNameLabel = new JLabel("Meal Name");
+        errorLabel = new JLabel("");
         setLayout(new BorderLayout());
 
         final LabelTextPanel topPanel = new LabelTextPanel(mealNameLabel, mealNameField);
@@ -84,6 +86,7 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
 
         buttonPanel.add(addFoodButton);
         buttonPanel.add(saveButton);
+        buttonPanel.add(errorLabel);
 
         add(buttonPanel, BorderLayout.SOUTH);
 
@@ -125,6 +128,7 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
         else {
             cardLayout.show(foodPanelContainer, foodsListName);
         }
+        errorLabel.setText(currentState.getErrorMessage());
     }
 
     public void setAddMealController(AddMealController addMealController) {

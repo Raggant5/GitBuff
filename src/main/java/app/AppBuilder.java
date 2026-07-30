@@ -1,18 +1,17 @@
 package app;
 
-import java.awt.*;
+import java.awt.CardLayout;
+import java.awt.Dimension;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import data_access.InMemoryDataAccessObject;
-
 import entity.CommonUserFactory;
 import entity.FoodEntryFactory;
 import entity.MealFactory;
 import entity.UserFactory;
-
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.dashboard.DashboardViewModel;
@@ -21,9 +20,19 @@ import interface_adapter.login.LoginPresenter;
 import interface_adapter.login.LoginViewModel;
 import interface_adapter.logout.LogoutController;
 import interface_adapter.logout.LogoutPresenter;
-import interface_adapter.nutrition.*;
-import interface_adapter.nutrition.food_editor.*;
-import interface_adapter.nutrition.meal_editor.*;
+import interface_adapter.nutrition.NutritionViewModel;
+import interface_adapter.nutrition.food_editor.AddFoodController;
+import interface_adapter.nutrition.food_editor.AddFoodPresenter;
+import interface_adapter.nutrition.food_editor.EditFoodController;
+import interface_adapter.nutrition.food_editor.EditFoodPresenter;
+import interface_adapter.nutrition.food_editor.FoodEditorViewModel;
+import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
+import interface_adapter.nutrition.food_editor.PrepareEditFoodPresenter;
+import interface_adapter.nutrition.meal_editor.AddMealController;
+import interface_adapter.nutrition.meal_editor.AddMealPresenter;
+import interface_adapter.nutrition.meal_editor.EditMealController;
+import interface_adapter.nutrition.meal_editor.EditMealPresenter;
+import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
 import interface_adapter.nutrition.meals.ViewMealsViewModel;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfilePresenter;
@@ -34,7 +43,6 @@ import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
 import interface_adapter.workouts.WorkoutsViewModel;
-
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
@@ -68,7 +76,19 @@ import use_case.recommendation.RecommendationOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
-import view.*;
+import view.AppShellView;
+import view.DashboardView;
+import view.FoodEditorView;
+import view.LoginView;
+import view.MainViewManager;
+import view.MealEditorView;
+import view.NavbarView;
+import view.NutritionView;
+import view.ProfileView;
+import view.SignupView;
+import view.ViewManager;
+import view.ViewMealsView;
+import view.WorkoutsView;
 
 /**
  * The AppBuilder class is responsible for putting together the pieces of
@@ -81,16 +101,21 @@ import view.*;
 //                  think about ways to refactor the code to resolve these if you decide
 //                  to work with this as starter code for your final project this term.
 public class AppBuilder {
+
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
+    private final int displayWidth = 1000;
+    private final int displayHeight = 700;
+
     private AppShellView appShellView;
     private final JPanel mainPanel = new JPanel();
     private final CardLayout mainCardLayout = new CardLayout();
     private final MainViewManagerModel mainViewManagerModel = new MainViewManagerModel();
-    private final MainViewManager mainViewManager = new MainViewManager(mainPanel, mainCardLayout, mainViewManagerModel);
+    private final MainViewManager mainViewManager = new MainViewManager(mainPanel, mainCardLayout,
+            mainViewManagerModel);
 
     private final UserFactory userFactory = new CommonUserFactory();
     private final InMemoryDataAccessObject userDataAccessObject = new InMemoryDataAccessObject();
@@ -166,8 +191,10 @@ public class AppBuilder {
         foodEditorView = new FoodEditorView(foodEditorViewModel);
         final PrepareEditFoodPresenter prepareEditFoodPresenter = new PrepareEditFoodPresenter(foodEditorViewModel,
                 mealEditorViewModel);
-        final PrepareEditFoodInputBoundary prepareEditFoodInteractor = new PrepareEditFoodInteractor(prepareEditFoodPresenter);
-        final PrepareEditFoodController prepareEditFoodController = new PrepareEditFoodController(prepareEditFoodInteractor);
+        final PrepareEditFoodInputBoundary prepareEditFoodInteractor = new PrepareEditFoodInteractor(
+                prepareEditFoodPresenter);
+        final PrepareEditFoodController prepareEditFoodController = new PrepareEditFoodController(
+                prepareEditFoodInteractor);
         mealEditorView = new MealEditorView(mealEditorViewModel, foodEditorView, prepareEditFoodController);
         nutritionViewModel = new NutritionViewModel();
         viewMealsViewModel = new ViewMealsViewModel();
@@ -284,7 +311,8 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addAddFoodUseCase() {
-        final AddFoodEntryOutputBoundary addFoodPresenter = new AddFoodPresenter(mealEditorViewModel, foodEditorViewModel);
+        final AddFoodEntryOutputBoundary addFoodPresenter = new AddFoodPresenter(mealEditorViewModel,
+                foodEditorViewModel);
         final AddFoodEntryInputBoundary addFoodEntryInteractor = new AddFoodEntryInteractor(addFoodPresenter,
                 foodEntryFactory);
         final AddFoodController addFoodController = new AddFoodController(addFoodEntryInteractor);
@@ -340,7 +368,7 @@ public class AppBuilder {
     public JFrame build() {
         final JFrame application = new JFrame("GitBuff");
         application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        cardPanel.setPreferredSize(new Dimension(1000, 700));
+        cardPanel.setPreferredSize(new Dimension(displayWidth, displayHeight));
         application.add(cardPanel);
 
         viewManagerModel.setState(signupView.getViewName());
