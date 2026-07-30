@@ -1,4 +1,4 @@
-package use_case.nutrition.food;
+package use_case.nutrition.food.delete_food;
 
 /**
  * DAO for deleting food entries.

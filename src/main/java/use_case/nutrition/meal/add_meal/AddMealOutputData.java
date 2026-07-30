@@ -1,4 +1,4 @@
-package use_case.nutrition.meal;
+package use_case.nutrition.meal.add_meal;
 
 import java.time.LocalDate;
 

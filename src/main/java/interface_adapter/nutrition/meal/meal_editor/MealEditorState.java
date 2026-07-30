@@ -1,4 +1,4 @@
-package interface_adapter.nutrition.meal;
+package interface_adapter.nutrition.meal.meal_editor;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import entity.FoodEntry;
 /**
  * The state for the Add FoodEntry View Model / Add Meal Use Case.
  */
-public class MealState {
+public class MealEditorState {
     private Integer id;
     private LocalDate date;
     private String name = "";

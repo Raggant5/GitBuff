@@ -1,4 +1,4 @@
-package use_case.nutrition.meal;
+package use_case.nutrition.meal.delete_meal;
 
 /**
  * DAO for deleting meals.

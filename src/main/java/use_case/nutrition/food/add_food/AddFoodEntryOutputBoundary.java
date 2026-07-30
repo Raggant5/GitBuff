@@ -1,4 +1,4 @@
-package use_case.nutrition.food;
+package use_case.nutrition.food.add_food;
 
 /**
  * The output boundary for the Add Food Entry Use Case.

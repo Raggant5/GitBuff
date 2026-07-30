@@ -8,6 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import interface_adapter.MainViewManagerModel;
 import interface_adapter.nutrition.NutritionState;
 import interface_adapter.nutrition.NutritionViewModel;
 import interface_adapter.recommendation.RecommendationController;
@@ -16,8 +17,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
 
     private final String viewName = "nutrition";
     private final NutritionViewModel nutritionViewModel;
-    private final AddMealView addMealView;
-    private final ViewMealsView viewMealsView;
+    private final MainViewManagerModel mainViewManagerModel;
 
     private final JLabel calorieLabel = new JLabel();
     private final JLabel proteinLabel = new JLabel();
@@ -27,10 +27,9 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
 
     private RecommendationController recommendationController;
 
-    public NutritionView(NutritionViewModel nutritionViewModel, AddMealView addMealView, ViewMealsView viewMealsView) {
-        this.viewMealsView = viewMealsView;
+    public NutritionView(NutritionViewModel nutritionViewModel, MainViewManagerModel mainViewManagerModel) {
         this.nutritionViewModel = nutritionViewModel;
-        this.addMealView = addMealView;
+        this.mainViewManagerModel = mainViewManagerModel;
         nutritionViewModel.addPropertyChangeListener(this);
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -38,7 +37,14 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         final JButton addMealButton = new JButton("Add Meal");
 
         addMealButton.addActionListener(evt -> {
-            this.addMealView.setVisible(true);
+            mainViewManagerModel.setState("add meal");
+            mainViewManagerModel.firePropertyChanged();
+        });
+
+        final JButton viewMealsButton =  new JButton("View Meals");
+        viewMealsButton.addActionListener(evt -> {
+            mainViewManagerModel.setState("view meals");
+            mainViewManagerModel.firePropertyChanged();
         });
 
         refreshButton.addActionListener(evt -> {
@@ -54,8 +60,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         this.add(messageLabel);
         this.add(refreshButton);
         this.add(addMealButton);
-        this.add(addMealView);
-        this.add(viewMealsView);
+        this.add(viewMealsButton);
 
         displayState(nutritionViewModel.getState());
     }

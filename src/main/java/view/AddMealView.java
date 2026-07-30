@@ -12,25 +12,24 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import interface_adapter.nutrition.meal.AddMealController;
-import interface_adapter.nutrition.meal.AddMealViewModel;
-import interface_adapter.nutrition.meal.MealState;
+import interface_adapter.nutrition.meal.meal_editor.AddMealController;
+import interface_adapter.nutrition.meal.meal_editor.MealEditorViewModel;
+import interface_adapter.nutrition.meal.meal_editor.MealEditorState;
 
 public class AddMealView extends JPanel implements PropertyChangeListener {
-    // View Name currently not applicable
     private final String viewName = "add meal";
     private final JTextField mealNameField;
-    private final AddMealViewModel addMealViewModel;
+    private final MealEditorViewModel mealEditorViewModel;
     private final FoodEntryListPanel foodEntryListPanel;
     private AddMealController addMealController;
 
     private final AddFoodView addFoodView;
 
-    public AddMealView(AddMealViewModel addMealViewModel, AddFoodView addFoodView) {
+    public AddMealView(MealEditorViewModel mealEditorViewModel, AddFoodView addFoodView) {
         setVisible(false);
-        this.addMealViewModel = addMealViewModel;
+        this.mealEditorViewModel = mealEditorViewModel;
         this.addFoodView = addFoodView;
-        addMealViewModel.addPropertyChangeListener(this);
+        mealEditorViewModel.addPropertyChangeListener(this);
 
         mealNameField = new JTextField(20);
         final JLabel mealNameLabel = new JLabel("Meal Name");
@@ -52,10 +51,9 @@ public class AddMealView extends JPanel implements PropertyChangeListener {
 
         final JButton saveButton = new JButton("Save Meal");
         saveButton.addActionListener(evt -> {
-            final MealState mealState = addMealViewModel.getState();
-            this.addMealController.execute(mealState.getName(),
-                mealState.getFoodEntriesForMeal());
-            this.setVisible(false);
+            final MealEditorState mealEditorState = mealEditorViewModel.getState();
+            this.addMealController.execute(mealEditorState.getName(),
+                mealEditorState.getFoodEntriesForMeal());
         });
 
         buttonPanel.add(addFoodButton);
@@ -69,9 +67,9 @@ public class AddMealView extends JPanel implements PropertyChangeListener {
         mealNameField.getDocument().addDocumentListener(new DocumentListener() {
 
             private void update() {
-                final MealState state = addMealViewModel.getState();
+                final MealEditorState state = mealEditorViewModel.getState();
                 state.setName(mealNameField.getText());
-                addMealViewModel.setState(state);
+                mealEditorViewModel.setState(state);
             }
 
             @Override
@@ -93,7 +91,7 @@ public class AddMealView extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        final MealState currentState = (MealState) evt.getNewValue();
+        final MealEditorState currentState = (MealEditorState) evt.getNewValue();
         foodEntryListPanel.setFoodEntries(currentState.getFoodEntriesForMeal());
         if (!mealNameField.getText().equals(currentState.getName())) {
             mealNameField.setText(currentState.getName());
@@ -102,5 +100,9 @@ public class AddMealView extends JPanel implements PropertyChangeListener {
 
     public void setAddMealController(AddMealController addMealController) {
         this.addMealController = addMealController;
+    }
+
+    public String getViewName() {
+        return viewName;
     }
 }

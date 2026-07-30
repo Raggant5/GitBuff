@@ -29,8 +29,8 @@ public class MealPanel extends JPanel {
         add(foodEntryListPanel, BorderLayout.CENTER);
 
         final JPanel buttonPanel = new JPanel();
-        final JButton editButton = new JButton("Edit");
-        final JButton deleteButton = new JButton("Delete");
+        final JButton editButton = new JButton("Edit Meal");
+        final JButton deleteButton = new JButton("Delete Meal");
 
         editButton.addActionListener(evt -> {
         });

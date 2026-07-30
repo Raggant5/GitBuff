@@ -16,14 +16,14 @@ import javax.swing.event.DocumentListener;
 
 import entity.FoodNutrition;
 import entity.FoodUnit;
-import interface_adapter.nutrition.food.AddFoodController;
-import interface_adapter.nutrition.food.FoodState;
-import interface_adapter.nutrition.food.FoodViewModel;
+import interface_adapter.nutrition.food.add_food.AddFoodController;
+import interface_adapter.nutrition.food.FoodEditorState;
+import interface_adapter.nutrition.food.FoodEditorViewModel;
 
 public class AddFoodView extends JPanel implements PropertyChangeListener {
 
     private AddFoodController addFoodController;
-    private final FoodViewModel foodViewModel;
+    private final FoodEditorViewModel foodEditorViewModel;
 
     private final JTextField foodNameField;
     private final JTextField caloriesField;
@@ -35,10 +35,10 @@ public class AddFoodView extends JPanel implements PropertyChangeListener {
     private final JComboBox<FoodUnit> unitBox;
     private final JLabel errorLabel;
 
-    public AddFoodView(FoodViewModel foodViewModel) {
+    public AddFoodView(FoodEditorViewModel foodEditorViewModel) {
         setVisible(false);
-        this.foodViewModel = foodViewModel;
-        this.foodViewModel.addPropertyChangeListener(this);
+        this.foodEditorViewModel = foodEditorViewModel;
+        this.foodEditorViewModel.addPropertyChangeListener(this);
         errorLabel = new JLabel("");
 
         foodNameField = new JTextField();
@@ -76,56 +76,56 @@ public class AddFoodView extends JPanel implements PropertyChangeListener {
         formPanel.add(gramsField);
 
         addTextListener(foodNameField, () -> {
-            final FoodState state = foodViewModel.getState();
+            final FoodEditorState state = foodEditorViewModel.getState();
             state.setFoodName(foodNameField.getText());
-            foodViewModel.setState(state);
+            foodEditorViewModel.setState(state);
         });
 
         addTextListener(caloriesField, () -> {
-            final FoodState state = foodViewModel.getState();
+            final FoodEditorState state = foodEditorViewModel.getState();
             state.setCalories(caloriesField.getText());
-            foodViewModel.setState(state);
+            foodEditorViewModel.setState(state);
         });
 
         addTextListener(proteinField, () -> {
-            final FoodState state = foodViewModel.getState();
+            final FoodEditorState state = foodEditorViewModel.getState();
             state.setProtein(proteinField.getText());
-            foodViewModel.setState(state);
+            foodEditorViewModel.setState(state);
         });
 
         addTextListener(carbsField, () -> {
-            final FoodState state = foodViewModel.getState();
+            final FoodEditorState state = foodEditorViewModel.getState();
             state.setCarbs(carbsField.getText());
-            foodViewModel.setState(state);
+            foodEditorViewModel.setState(state);
         });
 
         addTextListener(fatField, () -> {
-            final FoodState state = foodViewModel.getState();
+            final FoodEditorState state = foodEditorViewModel.getState();
             state.setFat(fatField.getText());
-            foodViewModel.setState(state);
+            foodEditorViewModel.setState(state);
         });
 
         addTextListener(quantityField, () -> {
-            final FoodState state = foodViewModel.getState();
+            final FoodEditorState state = foodEditorViewModel.getState();
             state.setQuantity(quantityField.getText());
-            foodViewModel.setState(state);
+            foodEditorViewModel.setState(state);
         });
 
         addTextListener(gramsField, () -> {
-            final FoodState state = foodViewModel.getState();
+            final FoodEditorState state = foodEditorViewModel.getState();
             state.setGrams(gramsField.getText());
-            foodViewModel.setState(state);
+            foodEditorViewModel.setState(state);
         });
 
         unitBox.addActionListener(evt -> {
-            final FoodState state = foodViewModel.getState();
+            final FoodEditorState state = foodEditorViewModel.getState();
             state.setUnit((FoodUnit) unitBox.getSelectedItem());
-            foodViewModel.setState(state);
+            foodEditorViewModel.setState(state);
         });
 
         final JButton saveButton = new JButton("Save Food");
         saveButton.addActionListener(evt -> {
-            final FoodState state = foodViewModel.getState();
+            final FoodEditorState state = foodEditorViewModel.getState();
             try {
                 addFoodController.execute(
                         state.getFoodName(),
@@ -192,7 +192,7 @@ public class AddFoodView extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        final FoodState state = (FoodState) evt.getNewValue();
+        final FoodEditorState state = (FoodEditorState) evt.getNewValue();
         updateField(foodNameField, state.getFoodName());
         updateField(caloriesField, state.getCalories());
         updateField(proteinField, state.getProtein());

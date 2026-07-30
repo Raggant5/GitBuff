@@ -8,7 +8,7 @@ import entity.Meal;
 /**
  * DAO for viewing nutrition data.
  */
-public interface ViewNutritionDataAccessInterface {
+public interface ViewMealDataAccessInterface {
 
     /**
      * Gets all meals for a user.

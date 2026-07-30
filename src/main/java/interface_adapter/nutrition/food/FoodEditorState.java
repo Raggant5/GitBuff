@@ -2,7 +2,7 @@ package interface_adapter.nutrition.food;
 
 import entity.FoodUnit;
 
-public class FoodState {
+public class FoodEditorState {
     private Integer id;
     private String foodName = "";
     private String calories = "";

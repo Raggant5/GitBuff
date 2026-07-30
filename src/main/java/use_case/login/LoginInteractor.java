@@ -4,7 +4,7 @@ import java.util.List;
 
 import entity.Meal;
 import entity.User;
-import use_case.nutrition.meal.ViewNutritionDataAccessInterface;
+import use_case.nutrition.meal.ViewMealDataAccessInterface;
 
 /**
  * The Login Interactor.
@@ -12,10 +12,10 @@ import use_case.nutrition.meal.ViewNutritionDataAccessInterface;
 public class LoginInteractor implements LoginInputBoundary {
     private final LoginUserDataAccessInterface userDataAccessObject;
     private final LoginOutputBoundary loginPresenter;
-    private final ViewNutritionDataAccessInterface mealsDataAccessObject;
+    private final ViewMealDataAccessInterface mealsDataAccessObject;
 
     public LoginInteractor(LoginUserDataAccessInterface userDataAccessInterface,
-                           LoginOutputBoundary loginOutputBoundary, ViewNutritionDataAccessInterface mealsDataAccessObject) {
+                           LoginOutputBoundary loginOutputBoundary, ViewMealDataAccessInterface mealsDataAccessObject) {
         this.userDataAccessObject = userDataAccessInterface;
         this.loginPresenter = loginOutputBoundary;
         this.mealsDataAccessObject = mealsDataAccessObject;

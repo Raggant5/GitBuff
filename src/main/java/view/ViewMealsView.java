@@ -9,11 +9,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import entity.Meal;
-import interface_adapter.nutrition.meal.ViewMealsState;
-import interface_adapter.nutrition.meal.ViewMealsViewModel;
+import interface_adapter.nutrition.meal.view_meals.ViewMealsState;
+import interface_adapter.nutrition.meal.view_meals.ViewMealsViewModel;
 
 public class ViewMealsView extends JPanel implements PropertyChangeListener {
-
+    private final String viewName = "view meals";
     private final ViewMealsViewModel viewMealsViewModel;
 
     private final JPanel mealPanelContainer;
@@ -25,12 +25,20 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
         this.viewMealsViewModel.addPropertyChangeListener(this);
 
         setLayout(new BorderLayout());
+        final JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
 
+        final JLabel titleLabel = new JLabel("View Meals");
         errorLabel = new JLabel("");
-        add(errorLabel, BorderLayout.NORTH);
+
+        headerPanel.add(titleLabel);
+        headerPanel.add(errorLabel);
+
+        add(headerPanel, BorderLayout.NORTH);
 
         mealPanelContainer = new JPanel();
         mealPanelContainer.setLayout(new BoxLayout(mealPanelContainer, BoxLayout.Y_AXIS));
+
         add(mealPanelContainer, BorderLayout.CENTER);
     }
 
@@ -50,5 +58,9 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
 
         mealPanelContainer.revalidate();
         mealPanelContainer.repaint();
+    }
+
+    public String getViewName() {
+        return viewName;
     }
 }

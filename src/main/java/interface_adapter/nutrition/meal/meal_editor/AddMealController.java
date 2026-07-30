@@ -1,12 +1,12 @@
-package interface_adapter.nutrition.meal;
+package interface_adapter.nutrition.meal.meal_editor;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import entity.FoodEntry;
 import interface_adapter.login.LoginViewModel;
-import use_case.nutrition.meal.AddMealInputBoundary;
-import use_case.nutrition.meal.AddMealInputData;
+import use_case.nutrition.meal.add_meal.AddMealInputBoundary;
+import use_case.nutrition.meal.add_meal.AddMealInputData;
 
 public class AddMealController {
 

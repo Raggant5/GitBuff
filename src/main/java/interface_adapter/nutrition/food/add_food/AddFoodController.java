@@ -1,9 +1,9 @@
-package interface_adapter.nutrition.food;
+package interface_adapter.nutrition.food.add_food;
 
 import entity.FoodNutrition;
 import entity.FoodUnit;
-import use_case.nutrition.food.AddFoodEntryInputBoundary;
-import use_case.nutrition.food.AddFoodEntryInputData;
+import use_case.nutrition.food.add_food.AddFoodEntryInputBoundary;
+import use_case.nutrition.food.add_food.AddFoodEntryInputData;
 
 public class AddFoodController {
 
