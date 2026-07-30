@@ -1,7 +1,7 @@
 package interface_adapter.nutrition.food_editor;
 
-import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
 import interface_adapter.nutrition.meal_editor.MealEditorState;
+import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
 import use_case.nutrition.food.create_food.AddFoodEntryOutputBoundary;
 import use_case.nutrition.food.create_food.AddFoodEntryOutputData;
 
@@ -14,6 +14,7 @@ public class AddFoodPresenter implements AddFoodEntryOutputBoundary {
         this.foodEditorViewModel = foodEditorViewModel;
     }
 
+    @Override
     public void prepareSuccessView(AddFoodEntryOutputData outputData) {
         final MealEditorState currentState = mealEditorViewModel.getState();
         currentState.addFoodEntry(outputData.getFood());
@@ -23,7 +24,11 @@ public class AddFoodPresenter implements AddFoodEntryOutputBoundary {
         foodEditorViewModel.firePropertyChanged();
     }
 
+    @Override
     public void prepareFailView(String errorMessage) {
+        final MealEditorState currentState = mealEditorViewModel.getState();
+        currentState.setErrorMessage(errorMessage);
+        mealEditorViewModel.firePropertyChanged();
     }
 
 }

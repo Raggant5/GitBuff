@@ -86,6 +86,7 @@ public class AppBuilder {
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
     private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
 
+    private AppShellView appShellView;
     private final JPanel mainPanel = new JPanel();
     private final CardLayout mainCardLayout = new CardLayout();
     private final MainViewManagerModel mainViewManagerModel = new MainViewManagerModel();
@@ -102,8 +103,6 @@ public class AppBuilder {
     private DashboardView dashboardView;
     private WorkoutsViewModel workoutViewModel;
     private WorkoutsView workoutsView;
-    private ViewMealsView viewMealsView;
-    private ViewMealsViewModel viewMealsViewModel;
     private NutritionViewModel nutritionViewModel;
     private NutritionView nutritionView;
     private ProfileViewModel profileViewModel;
@@ -116,15 +115,15 @@ public class AppBuilder {
     private final ViewMealDataAccessInterface viewMealsDataAccessObject = new InMemoryDataAccessObject();
     private final EditMealDataAccessInterface editMealDataAccessObject = new InMemoryDataAccessObject();
     private final EditFoodDataAccessInterface editFoodDataAccessObject = new InMemoryDataAccessObject();
+    private ViewMealsView viewMealsView;
     private MealEditorView mealEditorView;
     private FoodEditorView foodEditorView;
     private MealEditorViewModel mealEditorViewModel;
     private FoodEditorViewModel foodEditorViewModel;
+    private ViewMealsViewModel viewMealsViewModel;
 
-    private AppShellView appShellView;
     private RecommendationController recommendationController;
     private RecommendationInputBoundary recommendationInteractor;
-
 
     public AppBuilder() {
         cardPanel.setLayout(cardLayout);

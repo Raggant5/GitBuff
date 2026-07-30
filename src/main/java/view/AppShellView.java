@@ -1,7 +1,8 @@
 package view;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+
+import javax.swing.JPanel;
 
 /**
  * The view for when the user is logged into the program, combining the navbar with the appropriate page.
@@ -17,6 +18,8 @@ public class AppShellView extends JPanel {
         this.add(mainPanel, BorderLayout.CENTER);
     }
 
-    public String getViewName() { return this.viewName; }
+    public String getViewName() {
+        return this.viewName;
+    }
 }
 

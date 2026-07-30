@@ -18,6 +18,11 @@ public class AddMealController {
         this.loginViewModel = loginViewModel;
     }
 
+    /**
+     * Executes the Add Meal Use Case.
+     * @param name the name of the meal to be added
+     * @param foodEntriesForMeal every food associated with the meal
+     */
     public void execute(String name, List<FoodEntry> foodEntriesForMeal) {
         addMealInteractor.execute(new AddMealInputData(name, loginViewModel.getState().getUsername(),
                 LocalDate.now(), foodEntriesForMeal));

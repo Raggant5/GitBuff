@@ -22,6 +22,7 @@ public class AddMealPresenter implements AddMealOutputBoundary {
         this.mainViewManagerModel = mainViewManagerModel;
     }
 
+    @Override
     public void prepareSuccessView(AddMealOutputData outputData) {
         final MealEditorState currentState = mealEditorViewModel.getState();
         currentState.reset();
@@ -36,8 +37,10 @@ public class AddMealPresenter implements AddMealOutputBoundary {
         mainViewManagerModel.firePropertyChanged();
     }
 
+    @Override
     public void prepareFailView(String errorMessage) {
-
+        mealEditorViewModel.getState().setErrorMessage(errorMessage);
+        mealEditorViewModel.firePropertyChanged();
     }
 
 }

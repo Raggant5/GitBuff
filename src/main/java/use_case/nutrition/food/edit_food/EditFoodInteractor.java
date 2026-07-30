@@ -33,15 +33,16 @@ public class EditFoodInteractor implements EditFoodInputBoundary {
 
             presenter.prepareSuccessView(new EditFoodOutputData(food));
         }
-        catch (NumberFormatException e) {
+        catch (NumberFormatException exc) {
             presenter.prepareFailView("Please enter valid numbers.");
         }
     }
 
     private double parseDoubleOrZero(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return 0.0;
+        double result = 0.0;
+        if (value != null && !value.isEmpty()) {
+            result = Double.parseDouble(value);
         }
-        return Double.parseDouble(value);
+        return result;
     }
 }

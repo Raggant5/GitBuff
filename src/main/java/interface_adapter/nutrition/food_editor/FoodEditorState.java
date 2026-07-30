@@ -18,6 +18,9 @@ public class FoodEditorState {
 
     private String error = "";
 
+    /**
+     * Setting values back to their defaults as to reuse the object for more adding/editing foods.
+     */
     public void reset() {
         editingFood = null;
         searchQuery = "";

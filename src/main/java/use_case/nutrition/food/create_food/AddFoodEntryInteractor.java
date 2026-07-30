@@ -15,39 +15,37 @@ public class AddFoodEntryInteractor implements AddFoodEntryInputBoundary {
         this.addFoodPresenter = addFoodPresenter;
         this.foodEntryFactory = foodEntryFactory;
     }
+
     @Override
     public void execute(AddFoodEntryInputData inputData) {
         try {
-            FoodNutritionInputData nutritionInput = inputData.getFoodNutrition();
+            final FoodNutritionInputData nutritionInput = inputData.getFoodNutrition();
 
-            FoodNutrition nutrition = new FoodNutrition(
+            final FoodNutrition nutrition = new FoodNutrition(
                     parseDoubleOrZero(nutritionInput.getCalories()),
                     parseDoubleOrZero(nutritionInput.getProtein()),
                     parseDoubleOrZero(nutritionInput.getCarbs()),
-                    parseDoubleOrZero(nutritionInput.getFat())
-            );
+                    parseDoubleOrZero(nutritionInput.getFat()));
 
-            FoodEntry food = foodEntryFactory.create(
+            final FoodEntry food = foodEntryFactory.create(
                     inputData.getFoodName(),
                     nutrition,
                     parseDoubleOrZero(inputData.getQuantity()),
                     inputData.getUnit(),
-                    parseDoubleOrZero(inputData.getGrams())
-            );
+                    parseDoubleOrZero(inputData.getGrams()));
 
-            addFoodPresenter.prepareSuccessView(
-                    new AddFoodEntryOutputData(food)
-            );
+            addFoodPresenter.prepareSuccessView(new AddFoodEntryOutputData(food));
         }
-        catch (NumberFormatException e) {
+        catch (NumberFormatException exc) {
             addFoodPresenter.prepareFailView("Please enter valid numbers.");
         }
     }
 
     private double parseDoubleOrZero(String value) {
-        if (value == null || value.isEmpty()) {
-            return 0.0;
+        double result = 0.0;
+        if (value != null && !value.isEmpty()) {
+            result = Double.parseDouble(value);
         }
-        return Double.parseDouble(value);
+        return result;
     }
 }

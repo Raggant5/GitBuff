@@ -16,6 +16,7 @@ public class PrepareEditFoodInteractor implements PrepareEditFoodInputBoundary {
         presenter.prepareSuccessView(new PrepareEditFoodOutputData(food));
     }
 
+    @Override
     public void switchToAddFoodEditor() {
         presenter.switchToAddFoodEditor();
     }

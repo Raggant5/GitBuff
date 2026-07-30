@@ -1,6 +1,7 @@
 package interface_adapter.nutrition.meal_editor;
 
 import java.util.List;
+import java.util.Objects;
 
 import entity.Meal;
 import interface_adapter.nutrition.meals.ViewMealsState;
@@ -24,7 +25,7 @@ public class EditMealPresenter implements EditMealOutputBoundary {
         final ViewMealsState viewMealsState = viewMealsViewModel.getState();
         final List<Meal> meals = viewMealsState.getMeals();
         for (int i = 0; i < meals.size(); i++) {
-            if (meals.get(i).getId() == outputData.getMeal().getId()) {
+            if (Objects.equals(meals.get(i).getId(), outputData.getMeal().getId())) {
                 meals.set(i, outputData.getMeal());
                 break;
             }

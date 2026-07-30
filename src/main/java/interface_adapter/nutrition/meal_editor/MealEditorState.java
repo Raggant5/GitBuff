@@ -23,6 +23,10 @@ public class MealEditorState {
         return foodEntriesForMeal;
     }
 
+    /**
+     * Adding another food entry into the list of foods associated with the meal.
+     * @param foodEntry the food to be added
+     */
     public void addFoodEntry(FoodEntry foodEntry) {
         foodEntriesForMeal.add(foodEntry);
     }
@@ -31,6 +35,9 @@ public class MealEditorState {
         this.foodEntriesForMeal = foodEntriesForMeal;
     }
 
+    /**
+     * Setting values back to their defaults as to reuse the object for more adding/editing meals.
+     */
     public void reset() {
         editingMeal = null;
         date = null;

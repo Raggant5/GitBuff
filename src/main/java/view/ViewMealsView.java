@@ -63,10 +63,6 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
         mealPanelContainer.repaint();
     }
 
-    public void setPrepareEditFoodController(PrepareEditFoodController prepareEditFoodController) {
-        this.prepareEditFoodController = prepareEditFoodController;
-    }
-
     public String getViewName() {
         return viewName;
     }

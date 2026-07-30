@@ -8,7 +8,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import entity.FoodEntry;
-import interface_adapter.nutrition.food_editor.EditFoodController;
 import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
 
 public class FoodEntryPanel extends JPanel {

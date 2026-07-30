@@ -1,6 +1,5 @@
 package use_case.nutrition.food.create_food;
 
-import entity.FoodNutrition;
 import entity.FoodUnit;
 import use_case.nutrition.food.FoodNutritionInputData;
 

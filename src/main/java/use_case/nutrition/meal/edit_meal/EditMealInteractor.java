@@ -7,7 +7,7 @@ public class EditMealInteractor implements EditMealInputBoundary {
     private final EditMealOutputBoundary presenter;
     private final EditMealDataAccessInterface dataAccess;
 
-    public EditMealInteractor(EditMealOutputBoundary presenter,  EditMealDataAccessInterface dataAccess) {
+    public EditMealInteractor(EditMealOutputBoundary presenter, EditMealDataAccessInterface dataAccess) {
         this.presenter = presenter;
         this.dataAccess = dataAccess;
     }
