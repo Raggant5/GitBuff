@@ -1,9 +1,9 @@
 package interface_adapter.nutrition.food_editor;
 
-import entity.FoodNutrition;
 import entity.FoodUnit;
 import use_case.nutrition.food.create_food.AddFoodEntryInputBoundary;
 import use_case.nutrition.food.create_food.AddFoodEntryInputData;
+import use_case.nutrition.food.FoodNutritionInputData;
 
 public class AddFoodController {
 
@@ -21,7 +21,7 @@ public class AddFoodController {
      * @param unit the units of which the quantity was consumed
      * @param grams total amount in grams
      */
-    public void execute(String foodName, FoodNutrition nutrition, double quantity, FoodUnit unit, double grams) {
+    public void execute(String foodName, FoodNutritionInputData nutrition, String quantity, FoodUnit unit, String grams) {
         addFoodInteractor.execute(new AddFoodEntryInputData(foodName, nutrition,
                 quantity, unit, grams));
     }

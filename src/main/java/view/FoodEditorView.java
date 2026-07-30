@@ -20,6 +20,7 @@ import interface_adapter.nutrition.food_editor.AddFoodController;
 import interface_adapter.nutrition.food_editor.EditFoodController;
 import interface_adapter.nutrition.food_editor.FoodEditorState;
 import interface_adapter.nutrition.food_editor.FoodEditorViewModel;
+import use_case.nutrition.food.FoodNutritionInputData;
 
 public class FoodEditorView extends JPanel implements PropertyChangeListener {
 
@@ -131,15 +132,14 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
                 try {
                     addFoodController.execute(
                             state.getFoodName(),
-                            new FoodNutrition(
-                                    Double.parseDouble(state.getCalories()),
-                                    Double.parseDouble(state.getProtein()),
-                                    Double.parseDouble(state.getCarbs()),
-                                    Double.parseDouble(state.getFat())
-                            ),
-                            Double.parseDouble(state.getQuantity()),
+                            new FoodNutritionInputData(
+                                    state.getCalories(),
+                                    state.getProtein(),
+                                    state.getCarbs(),
+                                    state.getFat()),
+                            state.getQuantity(),
                             state.getUnit(),
-                            Double.parseDouble(state.getGrams())
+                            state.getGrams()
                     );
 
                     errorLabel.setText("");
@@ -151,15 +151,14 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
             }
             else {
                 editFoodController.execute(state.getEditingFood(), state.getFoodName(),
-                        new FoodNutrition(
-                                Double.parseDouble(state.getCalories()),
-                                Double.parseDouble(state.getProtein()),
-                                Double.parseDouble(state.getCarbs()),
-                                Double.parseDouble(state.getFat())
-                        ),
-                        Double.parseDouble(state.getQuantity()),
-                        state.getUnit(),
-                        Double.parseDouble(state.getGrams()));
+                                new FoodNutritionInputData(
+                                        state.getCalories(),
+                                        state.getProtein(),
+                                        state.getCarbs(),
+                                        state.getFat()),
+                                state.getQuantity(),
+                                state.getUnit(),
+                                state.getGrams());
             }
         });
 
