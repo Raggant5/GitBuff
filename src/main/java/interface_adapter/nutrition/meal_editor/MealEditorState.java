@@ -4,19 +4,29 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.awt.CardLayout;
+
 import entity.FoodEntry;
+import entity.Meal;
 
 /**
  * The state for the Add FoodEntry View Model / Add Meal Use Case.
  */
 public class MealEditorState {
-    private Integer id;
+
+    private Meal editingMeal;
     private LocalDate date;
     private String name = "";
     private List<FoodEntry> foodEntriesForMeal = new ArrayList<>();
+    private String errorMessage = "";
+    private Boolean showFoodEditor = false;
 
     public List<FoodEntry> getFoodEntriesForMeal() {
         return foodEntriesForMeal;
+    }
+
+    public void addFoodEntry(FoodEntry foodEntry) {
+        foodEntriesForMeal.add(foodEntry);
     }
 
     public void setFoodEntriesForMeal(List<FoodEntry> foodEntriesForMeal) {
@@ -24,18 +34,27 @@ public class MealEditorState {
     }
 
     public void reset() {
-        id = null;
+        editingMeal = null;
         date = null;
         name = "";
         foodEntriesForMeal = new ArrayList<>();
+        errorMessage = "";
     }
 
-    public Integer getId() {
-        return id;
+    public boolean getShowFoodEditor() {
+        return showFoodEditor;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setShowFoodEditor(boolean showFoodEditor) {
+        this.showFoodEditor = showFoodEditor;
+    }
+
+    public Meal getEditingMeal() {
+        return editingMeal;
+    }
+
+    public void setEditingMeal(Meal editingMeal) {
+        this.editingMeal = editingMeal;
     }
 
     public LocalDate getDate() {
@@ -54,4 +73,11 @@ public class MealEditorState {
         this.name = name;
     }
 
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 }

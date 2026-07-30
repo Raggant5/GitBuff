@@ -1,9 +1,12 @@
 package interface_adapter.nutrition.food_editor;
 
+import entity.FoodEntry;
 import entity.FoodUnit;
 
 public class FoodEditorState {
-    private Integer id;
+
+    private FoodEntry editingFood;
+    private String searchQuery = "";
     private String foodName = "";
     private String calories = "";
     private String protein = "";
@@ -16,7 +19,8 @@ public class FoodEditorState {
     private String error = "";
 
     public void reset() {
-        id = null;
+        editingFood = null;
+        searchQuery = "";
         foodName = "";
         calories = "";
         protein = "";
@@ -27,12 +31,12 @@ public class FoodEditorState {
         unit = FoodUnit.GRAM;
     }
 
-    public Integer getId() {
-        return id;
+    public FoodEntry getEditingFood() {
+        return editingFood;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setEditingFood(FoodEntry editingFood) {
+        this.editingFood = editingFood;
     }
 
     public String getFoodName() {

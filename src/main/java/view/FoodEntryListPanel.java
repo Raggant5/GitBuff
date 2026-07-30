@@ -6,6 +6,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import entity.FoodEntry;
+import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
 
 public class FoodEntryListPanel extends JPanel {
 
@@ -17,14 +18,14 @@ public class FoodEntryListPanel extends JPanel {
      * Refreshes the list of food entries displayed on the screen given a new list.
      * @param foodsList the list of new food entries to display
      */
-    public void setFoodEntries(List<FoodEntry> foodsList) {
+    public void setFoodEntries(List<FoodEntry> foodsList, PrepareEditFoodController prepareEditFoodController) {
         removeAll();
         if (foodsList != null) {
             for (FoodEntry food : foodsList) {
-                this.add(new FoodEntryPanel(food));
+                this.add(new FoodEntryPanel(food, prepareEditFoodController));
             }
-            revalidate();
-            repaint();
         }
+        revalidate();
+        repaint();
     }
 }

@@ -1,8 +1,5 @@
 package interface_adapter.nutrition.food_editor;
 
-import java.util.List;
-
-import entity.FoodEntry;
 import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
 import interface_adapter.nutrition.meal_editor.MealEditorState;
 import use_case.nutrition.food.create_food.AddFoodEntryOutputBoundary;
@@ -19,11 +16,9 @@ public class AddFoodPresenter implements AddFoodEntryOutputBoundary {
 
     public void prepareSuccessView(AddFoodEntryOutputData outputData) {
         final MealEditorState currentState = mealEditorViewModel.getState();
-        final List<FoodEntry> foodEntriesForMeal = currentState.getFoodEntriesForMeal();
-        foodEntriesForMeal.add(outputData.getFood());
-        currentState.setFoodEntriesForMeal(foodEntriesForMeal);
+        currentState.addFoodEntry(outputData.getFood());
+        currentState.setShowFoodEditor(false);
         mealEditorViewModel.firePropertyChanged();
-
         foodEditorViewModel.getState().reset();
         foodEditorViewModel.firePropertyChanged();
     }

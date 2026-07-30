@@ -11,7 +11,9 @@ import entity.Meal;
 import entity.User;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
+import use_case.nutrition.food.edit_food.EditFoodDataAccessInterface;
 import use_case.nutrition.meal.add_meal.AddMealDataAccessInterface;
+import use_case.nutrition.meal.edit_meal.EditMealDataAccessInterface;
 import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 import use_case.profile.ProfileUserDataAccessInterface;
 import use_case.recommendation.RecommendationUserDataAccessInterface;
@@ -25,7 +27,8 @@ import use_case.signup.SignupUserDataAccessInterface;
 
 public class InMemoryDataAccessObject implements SignupUserDataAccessInterface,
         LoginUserDataAccessInterface, LogoutUserDataAccessInterface, ProfileUserDataAccessInterface,
-        RecommendationUserDataAccessInterface, ViewMealDataAccessInterface, AddMealDataAccessInterface {
+        RecommendationUserDataAccessInterface, ViewMealDataAccessInterface, AddMealDataAccessInterface,
+        EditMealDataAccessInterface, EditFoodDataAccessInterface {
 
     private final Map<String, User> users = new HashMap<>();
     private final Map<Integer, Meal> meals = new HashMap<>();
@@ -103,5 +106,15 @@ public class InMemoryDataAccessObject implements SignupUserDataAccessInterface,
             }
         }
         return result;
+    }
+
+    @Override
+    public void editMeal(Meal meal) {
+        meals.put(meal.getId(), meal);
+    }
+
+    @Override
+    public void editFoodEntry(FoodEntry foodEntry) {
+        foodEntries.put(foodEntry.getId(), foodEntry);
     }
 }

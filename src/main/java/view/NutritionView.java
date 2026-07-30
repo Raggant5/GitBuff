@@ -37,7 +37,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         final JButton addMealButton = new JButton("Add Meal");
 
         addMealButton.addActionListener(evt -> {
-            mainViewManagerModel.setState("add meal");
+            mainViewManagerModel.setState("meal editor");
             mainViewManagerModel.firePropertyChanged();
         });
 

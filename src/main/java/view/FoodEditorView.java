@@ -17,12 +17,14 @@ import javax.swing.event.DocumentListener;
 import entity.FoodNutrition;
 import entity.FoodUnit;
 import interface_adapter.nutrition.food_editor.AddFoodController;
+import interface_adapter.nutrition.food_editor.EditFoodController;
 import interface_adapter.nutrition.food_editor.FoodEditorState;
 import interface_adapter.nutrition.food_editor.FoodEditorViewModel;
 
 public class FoodEditorView extends JPanel implements PropertyChangeListener {
 
     private AddFoodController addFoodController;
+    private EditFoodController editFoodController;
     private final FoodEditorViewModel foodEditorViewModel;
 
     private final JTextField foodNameField;
@@ -36,7 +38,6 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
     private final JLabel errorLabel;
 
     public FoodEditorView(FoodEditorViewModel foodEditorViewModel) {
-        setVisible(false);
         this.foodEditorViewModel = foodEditorViewModel;
         this.foodEditorViewModel.addPropertyChangeListener(this);
         errorLabel = new JLabel("");
@@ -126,9 +127,30 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
         final JButton saveButton = new JButton("Save Food");
         saveButton.addActionListener(evt -> {
             final FoodEditorState state = foodEditorViewModel.getState();
-            try {
-                addFoodController.execute(
-                        state.getFoodName(),
+            if (state.getEditingFood() == null) {
+                try {
+                    addFoodController.execute(
+                            state.getFoodName(),
+                            new FoodNutrition(
+                                    Double.parseDouble(state.getCalories()),
+                                    Double.parseDouble(state.getProtein()),
+                                    Double.parseDouble(state.getCarbs()),
+                                    Double.parseDouble(state.getFat())
+                            ),
+                            Double.parseDouble(state.getQuantity()),
+                            state.getUnit(),
+                            Double.parseDouble(state.getGrams())
+                    );
+
+                    errorLabel.setText("");
+
+                }
+                catch (NumberFormatException exc) {
+                    errorLabel.setText("Please enter valid numbers.");
+                }
+            }
+            else {
+                editFoodController.execute(state.getEditingFood(), state.getFoodName(),
                         new FoodNutrition(
                                 Double.parseDouble(state.getCalories()),
                                 Double.parseDouble(state.getProtein()),
@@ -137,15 +159,7 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
                         ),
                         Double.parseDouble(state.getQuantity()),
                         state.getUnit(),
-                        Double.parseDouble(state.getGrams())
-                );
-
-                errorLabel.setText("");
-                setVisible(false);
-
-            }
-            catch (NumberFormatException exc) {
-                errorLabel.setText("Please enter valid numbers.");
+                        Double.parseDouble(state.getGrams()));
             }
         });
 
@@ -208,5 +222,9 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
 
     public void setAddFoodController(AddFoodController addFoodController) {
         this.addFoodController = addFoodController;
+    }
+
+    public void setEditFoodController(EditFoodController editFoodController) {
+        this.editFoodController = editFoodController;
     }
 }

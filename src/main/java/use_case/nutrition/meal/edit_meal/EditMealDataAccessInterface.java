@@ -11,5 +11,5 @@ public interface EditMealDataAccessInterface {
      * Updates a meal.
      * @param meal the updated meal
      */
-    void updateMeal(Meal meal);
+    void editMeal(Meal meal);
 }

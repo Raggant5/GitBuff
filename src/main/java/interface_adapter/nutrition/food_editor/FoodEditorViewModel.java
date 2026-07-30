@@ -8,7 +8,8 @@ import interface_adapter.ViewModel;
 public class FoodEditorViewModel extends ViewModel<FoodEditorState> {
 
     public FoodEditorViewModel() {
-        super("add food");
+        // viewName not currently used by view manager model due to being built into the MealEditorView
+        super("food editor");
         setState(new FoodEditorState());
     }
 

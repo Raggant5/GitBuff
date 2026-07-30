@@ -8,7 +8,7 @@ import interface_adapter.ViewModel;
 public class MealEditorViewModel extends ViewModel<MealEditorState> {
 
     public MealEditorViewModel() {
-        super("add meal");
+        super("meal editor");
         setState(new MealEditorState());
     }
 

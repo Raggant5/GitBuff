@@ -7,7 +7,7 @@ public class FoodEntry {
 
     private Integer id;
     private Integer mealId;
-    private String foodName;
+    private String foodName = "";
     private FoodNutrition nutrition;
     private double quantity;
     private FoodUnit unit;

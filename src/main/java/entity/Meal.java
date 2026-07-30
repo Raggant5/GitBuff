@@ -30,6 +30,15 @@ public class Meal {
     }
 
     /**
+     * Replace the whole list of food entries.
+     * @param foodEntries the new list of food entries
+     */
+    public void setFoodEntries(List<FoodEntry> foodEntries) {
+        this.foodEntries.clear();
+        this.foodEntries.addAll(foodEntries);
+    }
+
+    /**
      * Add food to the list of foods.
      * @param foodEntry the food being added to foods
      */
@@ -76,4 +85,5 @@ public class Meal {
     public void setName(String name) {
         this.name = name;
     }
+
 }

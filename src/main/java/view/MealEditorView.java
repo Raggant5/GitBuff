@@ -1,7 +1,6 @@
 package view;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -12,20 +11,28 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
 import interface_adapter.nutrition.meal_editor.AddMealController;
-import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
+import interface_adapter.nutrition.meal_editor.EditMealController;
 import interface_adapter.nutrition.meal_editor.MealEditorState;
+import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
 
 public class MealEditorView extends JPanel implements PropertyChangeListener {
-    private final String viewName = "add meal";
+    private final String viewName = "meal editor";
     private final JTextField mealNameField;
     private final MealEditorViewModel mealEditorViewModel;
     private final FoodEntryListPanel foodEntryListPanel;
     private AddMealController addMealController;
+    private EditMealController editMealController;
+    private PrepareEditFoodController prepareEditFoodController;
+    private final JPanel foodPanelContainer;
+    private final CardLayout cardLayout;
 
     private final FoodEditorView foodEditorView;
 
-    public MealEditorView(MealEditorViewModel mealEditorViewModel, FoodEditorView foodEditorView) {
+    public MealEditorView(MealEditorViewModel mealEditorViewModel, FoodEditorView foodEditorView,
+                          PrepareEditFoodController prepareEditFoodController) {
+        this.prepareEditFoodController = prepareEditFoodController;
         setVisible(false);
         this.mealEditorViewModel = mealEditorViewModel;
         this.foodEditorView = foodEditorView;
@@ -41,28 +48,40 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
         add(topPanel, BorderLayout.NORTH);
 
         foodEntryListPanel = new FoodEntryListPanel();
-        add(foodEntryListPanel, BorderLayout.CENTER);
+
+        cardLayout = new CardLayout();
+        foodPanelContainer = new JPanel(cardLayout);
+
+        foodPanelContainer.add(foodEntryListPanel, "foodList");
+        foodPanelContainer.add(foodEditorView, "foodEditor");
+
+        add(foodPanelContainer, BorderLayout.CENTER);
+
+        cardLayout.show(foodPanelContainer, "foodList");
 
         final JPanel buttonPanel = new JPanel(new FlowLayout());
         final JButton addFoodButton = new JButton("Add Food");
         addFoodButton.addActionListener(evt -> {
-            foodEditorView.setVisible(true);
+            prepareEditFoodController.switchToAddFoodEditor();
         });
 
         final JButton saveButton = new JButton("Save Meal");
         saveButton.addActionListener(evt -> {
             final MealEditorState mealEditorState = mealEditorViewModel.getState();
-            this.addMealController.execute(mealEditorState.getName(),
-                mealEditorState.getFoodEntriesForMeal());
+            if (mealEditorState.getEditingMeal() == null) {
+                this.addMealController.execute(mealEditorState.getName(),
+                        mealEditorState.getFoodEntriesForMeal());
+            }
+            else {
+                this.editMealController.execute(mealEditorState.getEditingMeal(), mealEditorState.getName(),
+                        mealEditorState.getFoodEntriesForMeal());
+            }
         });
 
         buttonPanel.add(addFoodButton);
         buttonPanel.add(saveButton);
-        final JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.add(foodEditorView, BorderLayout.CENTER);
-        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        add(bottomPanel, BorderLayout.SOUTH);
+        add(buttonPanel, BorderLayout.SOUTH);
 
         mealNameField.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -92,14 +111,24 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         final MealEditorState currentState = (MealEditorState) evt.getNewValue();
-        foodEntryListPanel.setFoodEntries(currentState.getFoodEntriesForMeal());
+        foodEntryListPanel.setFoodEntries(currentState.getFoodEntriesForMeal(), prepareEditFoodController);
         if (!mealNameField.getText().equals(currentState.getName())) {
             mealNameField.setText(currentState.getName());
+        }
+        if (currentState.getShowFoodEditor()) {
+            cardLayout.show(foodPanelContainer, "foodEditor");
+        }
+        else {
+            cardLayout.show(foodPanelContainer, "foodList");
         }
     }
 
     public void setAddMealController(AddMealController addMealController) {
         this.addMealController = addMealController;
+    }
+
+    public void setEditMealController(EditMealController editMealController) {
+        this.editMealController = editMealController;
     }
 
     public String getViewName() {

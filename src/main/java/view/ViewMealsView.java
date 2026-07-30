@@ -9,19 +9,22 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import entity.Meal;
+import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
 import interface_adapter.nutrition.meals.ViewMealsState;
 import interface_adapter.nutrition.meals.ViewMealsViewModel;
 
 public class ViewMealsView extends JPanel implements PropertyChangeListener {
     private final String viewName = "view meals";
     private final ViewMealsViewModel viewMealsViewModel;
+    private PrepareEditFoodController prepareEditFoodController;
 
     private final JPanel mealPanelContainer;
     private final JLabel errorLabel;
 
-    public ViewMealsView(ViewMealsViewModel viewMealsViewModel) {
+    public ViewMealsView(ViewMealsViewModel viewMealsViewModel, PrepareEditFoodController prepareEditFoodController) {
 
         this.viewMealsViewModel = viewMealsViewModel;
+        this.prepareEditFoodController = prepareEditFoodController;
         this.viewMealsViewModel.addPropertyChangeListener(this);
 
         setLayout(new BorderLayout());
@@ -53,11 +56,15 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
         mealPanelContainer.removeAll();
         errorLabel.setText(state.getError());
         for (Meal meal : state.getMeals()) {
-            mealPanelContainer.add(new MealPanel(meal));
+            mealPanelContainer.add(new MealPanel(meal, prepareEditFoodController));
         }
 
         mealPanelContainer.revalidate();
         mealPanelContainer.repaint();
+    }
+
+    public void setPrepareEditFoodController(PrepareEditFoodController prepareEditFoodController) {
+        this.prepareEditFoodController = prepareEditFoodController;
     }
 
     public String getViewName() {
