@@ -12,7 +12,7 @@ import entity.User;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
 import use_case.nutrition.meal.add_meal.AddMealDataAccessInterface;
-import use_case.nutrition.meal.ViewMealDataAccessInterface;
+import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 import use_case.profile.ProfileUserDataAccessInterface;
 import use_case.recommendation.RecommendationUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;

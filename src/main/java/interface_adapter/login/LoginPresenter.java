@@ -1,7 +1,7 @@
 package interface_adapter.login;
 
 import interface_adapter.ViewManagerModel;
-import interface_adapter.nutrition.meal.view_meals.ViewMealsViewModel;
+import interface_adapter.nutrition.meals.ViewMealsViewModel;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
 import interface_adapter.recommendation.RecommendationController;

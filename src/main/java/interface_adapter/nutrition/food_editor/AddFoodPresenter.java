@@ -1,13 +1,12 @@
-package interface_adapter.nutrition.food.add_food;
+package interface_adapter.nutrition.food_editor;
 
 import java.util.List;
 
 import entity.FoodEntry;
-import interface_adapter.nutrition.food.FoodEditorViewModel;
-import interface_adapter.nutrition.meal.meal_editor.MealEditorViewModel;
-import interface_adapter.nutrition.meal.meal_editor.MealEditorState;
-import use_case.nutrition.food.add_food.AddFoodEntryOutputBoundary;
-import use_case.nutrition.food.add_food.AddFoodEntryOutputData;
+import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
+import interface_adapter.nutrition.meal_editor.MealEditorState;
+import use_case.nutrition.food.create_food.AddFoodEntryOutputBoundary;
+import use_case.nutrition.food.create_food.AddFoodEntryOutputData;
 
 public class AddFoodPresenter implements AddFoodEntryOutputBoundary {
     private final MealEditorViewModel mealEditorViewModel;

@@ -1,4 +1,4 @@
-package use_case.nutrition.meal;
+package use_case.nutrition.meal.get_meals;
 
 import java.util.List;
 

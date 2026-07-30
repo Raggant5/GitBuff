@@ -9,8 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import entity.Meal;
-import interface_adapter.nutrition.meal.view_meals.ViewMealsState;
-import interface_adapter.nutrition.meal.view_meals.ViewMealsViewModel;
+import interface_adapter.nutrition.meals.ViewMealsState;
+import interface_adapter.nutrition.meals.ViewMealsViewModel;
 
 public class ViewMealsView extends JPanel implements PropertyChangeListener {
     private final String viewName = "view meals";

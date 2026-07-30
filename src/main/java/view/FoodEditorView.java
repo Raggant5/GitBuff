@@ -16,11 +16,11 @@ import javax.swing.event.DocumentListener;
 
 import entity.FoodNutrition;
 import entity.FoodUnit;
-import interface_adapter.nutrition.food.add_food.AddFoodController;
-import interface_adapter.nutrition.food.FoodEditorState;
-import interface_adapter.nutrition.food.FoodEditorViewModel;
+import interface_adapter.nutrition.food_editor.AddFoodController;
+import interface_adapter.nutrition.food_editor.FoodEditorState;
+import interface_adapter.nutrition.food_editor.FoodEditorViewModel;
 
-public class AddFoodView extends JPanel implements PropertyChangeListener {
+public class FoodEditorView extends JPanel implements PropertyChangeListener {
 
     private AddFoodController addFoodController;
     private final FoodEditorViewModel foodEditorViewModel;
@@ -35,7 +35,7 @@ public class AddFoodView extends JPanel implements PropertyChangeListener {
     private final JComboBox<FoodUnit> unitBox;
     private final JLabel errorLabel;
 
-    public AddFoodView(FoodEditorViewModel foodEditorViewModel) {
+    public FoodEditorView(FoodEditorViewModel foodEditorViewModel) {
         setVisible(false);
         this.foodEditorViewModel = foodEditorViewModel;
         this.foodEditorViewModel.addPropertyChangeListener(this);

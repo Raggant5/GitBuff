@@ -1,4 +1,4 @@
-package interface_adapter.nutrition.meal.meal_editor;
+package interface_adapter.nutrition.meal_editor;
 
 import java.time.LocalDate;
 import java.util.List;

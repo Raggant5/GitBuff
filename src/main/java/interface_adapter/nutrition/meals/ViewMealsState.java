@@ -1,4 +1,4 @@
-package interface_adapter.nutrition.meal.view_meals;
+package interface_adapter.nutrition.meals;
 
 import java.util.ArrayList;
 import java.util.List;

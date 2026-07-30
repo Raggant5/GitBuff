@@ -12,23 +12,23 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import interface_adapter.nutrition.meal.meal_editor.AddMealController;
-import interface_adapter.nutrition.meal.meal_editor.MealEditorViewModel;
-import interface_adapter.nutrition.meal.meal_editor.MealEditorState;
+import interface_adapter.nutrition.meal_editor.AddMealController;
+import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
+import interface_adapter.nutrition.meal_editor.MealEditorState;
 
-public class AddMealView extends JPanel implements PropertyChangeListener {
+public class MealEditorView extends JPanel implements PropertyChangeListener {
     private final String viewName = "add meal";
     private final JTextField mealNameField;
     private final MealEditorViewModel mealEditorViewModel;
     private final FoodEntryListPanel foodEntryListPanel;
     private AddMealController addMealController;
 
-    private final AddFoodView addFoodView;
+    private final FoodEditorView foodEditorView;
 
-    public AddMealView(MealEditorViewModel mealEditorViewModel, AddFoodView addFoodView) {
+    public MealEditorView(MealEditorViewModel mealEditorViewModel, FoodEditorView foodEditorView) {
         setVisible(false);
         this.mealEditorViewModel = mealEditorViewModel;
-        this.addFoodView = addFoodView;
+        this.foodEditorView = foodEditorView;
         mealEditorViewModel.addPropertyChangeListener(this);
 
         mealNameField = new JTextField(20);
@@ -46,7 +46,7 @@ public class AddMealView extends JPanel implements PropertyChangeListener {
         final JPanel buttonPanel = new JPanel(new FlowLayout());
         final JButton addFoodButton = new JButton("Add Food");
         addFoodButton.addActionListener(evt -> {
-            addFoodView.setVisible(true);
+            foodEditorView.setVisible(true);
         });
 
         final JButton saveButton = new JButton("Save Meal");
@@ -59,7 +59,7 @@ public class AddMealView extends JPanel implements PropertyChangeListener {
         buttonPanel.add(addFoodButton);
         buttonPanel.add(saveButton);
         final JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.add(addFoodView, BorderLayout.CENTER);
+        bottomPanel.add(foodEditorView, BorderLayout.CENTER);
         bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         add(bottomPanel, BorderLayout.SOUTH);

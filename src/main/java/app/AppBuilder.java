@@ -22,13 +22,13 @@ import interface_adapter.login.LoginViewModel;
 import interface_adapter.logout.LogoutController;
 import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.nutrition.*;
-import interface_adapter.nutrition.food.add_food.AddFoodController;
-import interface_adapter.nutrition.food.add_food.AddFoodPresenter;
-import interface_adapter.nutrition.food.FoodEditorViewModel;
-import interface_adapter.nutrition.meal.meal_editor.AddMealController;
-import interface_adapter.nutrition.meal.meal_editor.AddMealPresenter;
-import interface_adapter.nutrition.meal.meal_editor.MealEditorViewModel;
-import interface_adapter.nutrition.meal.view_meals.ViewMealsViewModel;
+import interface_adapter.nutrition.food_editor.AddFoodController;
+import interface_adapter.nutrition.food_editor.AddFoodPresenter;
+import interface_adapter.nutrition.food_editor.FoodEditorViewModel;
+import interface_adapter.nutrition.meal_editor.AddMealController;
+import interface_adapter.nutrition.meal_editor.AddMealPresenter;
+import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
+import interface_adapter.nutrition.meals.ViewMealsViewModel;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfilePresenter;
 import interface_adapter.profile.ProfileViewModel;
@@ -45,14 +45,14 @@ import use_case.login.LoginOutputBoundary;
 import use_case.logout.LogoutInputBoundary;
 import use_case.logout.LogoutInteractor;
 import use_case.logout.LogoutOutputBoundary;
-import use_case.nutrition.food.add_food.AddFoodEntryInputBoundary;
-import use_case.nutrition.food.add_food.AddFoodEntryInteractor;
-import use_case.nutrition.food.add_food.AddFoodEntryOutputBoundary;
-import use_case.nutrition.meal.*;
+import use_case.nutrition.food.create_food.AddFoodEntryInputBoundary;
+import use_case.nutrition.food.create_food.AddFoodEntryInteractor;
+import use_case.nutrition.food.create_food.AddFoodEntryOutputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealDataAccessInterface;
 import use_case.nutrition.meal.add_meal.AddMealInputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealInteractor;
 import use_case.nutrition.meal.add_meal.AddMealOutputBoundary;
+import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 import use_case.profile.EditProfileInputBoundary;
 import use_case.profile.EditProfileInteractor;
 import use_case.profile.EditProfileOutputBoundary;
@@ -108,8 +108,8 @@ public class AppBuilder {
     private final MealFactory mealFactory = new MealFactory();
     private final AddMealDataAccessInterface addMealDataAccessObject = new InMemoryDataAccessObject();
     private final ViewMealDataAccessInterface viewNutritionDataAccessObject = new InMemoryDataAccessObject();
-    private AddMealView addMealView;
-    private AddFoodView addFoodView;
+    private MealEditorView mealEditorView;
+    private FoodEditorView foodEditorView;
     private MealEditorViewModel mealEditorViewModel;
     private FoodEditorViewModel foodEditorViewModel;
 
@@ -157,8 +157,8 @@ public class AppBuilder {
 
         mealEditorViewModel = new MealEditorViewModel();
         foodEditorViewModel = new FoodEditorViewModel();
-        addFoodView = new AddFoodView(foodEditorViewModel);
-        addMealView = new AddMealView(mealEditorViewModel, addFoodView);
+        foodEditorView = new FoodEditorView(foodEditorViewModel);
+        mealEditorView = new MealEditorView(mealEditorViewModel, foodEditorView);
         nutritionViewModel = new NutritionViewModel();
         viewMealsViewModel = new ViewMealsViewModel();
         viewMealsView = new ViewMealsView(viewMealsViewModel);
@@ -171,7 +171,7 @@ public class AppBuilder {
         mainPanel.add(nutritionView, nutritionView.getViewName());
         mainPanel.add(profileView, profileView.getViewName());
         mainPanel.add(viewMealsView, viewMealsView.getViewName());
-        mainPanel.add(addMealView, addMealView.getViewName());
+        mainPanel.add(mealEditorView, mealEditorView.getViewName());
         return this;
     }
 
@@ -278,7 +278,7 @@ public class AppBuilder {
         final AddFoodEntryInputBoundary addFoodEntryInteractor = new AddFoodEntryInteractor(addFoodPresenter,
                 foodEntryFactory);
         final AddFoodController addFoodController = new AddFoodController(addFoodEntryInteractor);
-        addFoodView.setAddFoodController(addFoodController);
+        foodEditorView.setAddFoodController(addFoodController);
         return this;
     }
 
@@ -292,7 +292,7 @@ public class AppBuilder {
         final AddMealInputBoundary addMealInteractor = new AddMealInteractor(addMealPresenter,
                 addMealDataAccessObject, mealFactory);
         final AddMealController addMealController = new AddMealController(addMealInteractor, loginViewModel);
-        addMealView.setAddMealController(addMealController);
+        mealEditorView.setAddMealController(addMealController);
         return this;
     }
 

@@ -1,4 +1,4 @@
-package use_case.nutrition.food.add_food;
+package use_case.nutrition.food.create_food;
 
 import entity.FoodEntry;
 

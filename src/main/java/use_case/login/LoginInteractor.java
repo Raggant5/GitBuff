@@ -4,7 +4,7 @@ import java.util.List;
 
 import entity.Meal;
 import entity.User;
-import use_case.nutrition.meal.ViewMealDataAccessInterface;
+import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 
 /**
  * The Login Interactor.

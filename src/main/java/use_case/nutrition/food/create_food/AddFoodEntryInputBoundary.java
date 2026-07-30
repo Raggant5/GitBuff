@@ -1,4 +1,4 @@
-package use_case.nutrition.food.add_food;
+package use_case.nutrition.food.create_food;
 
 /**
  * Input Boundary for actions which are related to adding food within a meal consumed.
