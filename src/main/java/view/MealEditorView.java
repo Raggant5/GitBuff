@@ -28,13 +28,13 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
 
     private final JTextField mealNameField;
     private final MealEditorViewModel mealEditorViewModel;
-    private final FoodEntryListPanel foodEntryListPanel;
+    private FoodEntryListPanel foodEntryListPanel;
     private AddMealController addMealController;
     private EditMealController editMealController;
     private PrepareEditFoodController prepareEditFoodController;
     private DeleteFoodController deleteFoodController;
-    private final JPanel foodPanelContainer;
-    private final CardLayout cardLayout;
+    private JPanel foodPanelContainer;
+    private CardLayout cardLayout;
 
     private final FoodEditorView foodEditorView;
     private final JLabel errorLabel;
@@ -67,17 +67,7 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
         topPanel.add(mealNameField);
         add(topPanel, BorderLayout.NORTH);
 
-        foodEntryListPanel = new FoodEntryListPanel();
-
-        cardLayout = new CardLayout();
-        foodPanelContainer = new JPanel(cardLayout);
-
-        foodPanelContainer.add(foodEntryListPanel, foodsListName);
-        foodPanelContainer.add(foodEditorView, foodEditorName);
-
-        add(foodPanelContainer, BorderLayout.CENTER);
-
-        cardLayout.show(foodPanelContainer, foodsListName);
+        createFoodPanel();
 
         final JPanel buttonPanel = new JPanel(new FlowLayout());
         final JButton addFoodButton = new JButton("Add Food");
@@ -126,6 +116,17 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
                 update();
             }
         });
+    }
+
+    private void createFoodPanel() {
+        foodEntryListPanel = new FoodEntryListPanel();
+        cardLayout = new CardLayout();
+        foodPanelContainer = new JPanel(cardLayout);
+        foodPanelContainer.add(foodEntryListPanel, foodsListName);
+        foodPanelContainer.add(foodEditorView, foodEditorName);
+
+        add(foodPanelContainer, BorderLayout.CENTER);
+        cardLayout.show(foodPanelContainer, foodsListName);
     }
 
     @Override

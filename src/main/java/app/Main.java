@@ -1,8 +1,10 @@
 package app;
 
-import data_access.Datainitializer;
+import java.sql.SQLException;
 
 import javax.swing.JFrame;
+
+import data_access.Datainitializer;
 
 /**
  * The Main class of our application.
@@ -35,8 +37,9 @@ public class Main {
                 .build();
         try {
             Datainitializer.initialize();
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+        catch (SQLException exc) {
+            exc.printStackTrace();
         }
 
         application.pack();
