@@ -1,7 +1,7 @@
-package interface_adapter.nutrition.food_editor;
+package interface_adapter.nutrition.food;
 
-import interface_adapter.nutrition.meal_editor.MealEditorState;
-import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
+import interface_adapter.nutrition.meal.MealEditorState;
+import interface_adapter.nutrition.meal.MealEditorViewModel;
 import use_case.nutrition.food.create_food.AddFoodEntryOutputBoundary;
 import use_case.nutrition.food.create_food.AddFoodEntryOutputData;
 

@@ -11,8 +11,10 @@ import entity.Meal;
 import entity.User;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
+import use_case.nutrition.food.delete_food.DeleteFoodDataAccessInterface;
 import use_case.nutrition.food.edit_food.EditFoodDataAccessInterface;
 import use_case.nutrition.meal.add_meal.AddMealDataAccessInterface;
+import use_case.nutrition.meal.delete_meal.DeleteMealDataAccessInterface;
 import use_case.nutrition.meal.edit_meal.EditMealDataAccessInterface;
 import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 import use_case.profile.ProfileUserDataAccessInterface;
@@ -28,7 +30,8 @@ import use_case.signup.SignupUserDataAccessInterface;
 public class InMemoryDataAccessObject implements SignupUserDataAccessInterface,
         LoginUserDataAccessInterface, LogoutUserDataAccessInterface, ProfileUserDataAccessInterface,
         RecommendationUserDataAccessInterface, ViewMealDataAccessInterface, AddMealDataAccessInterface,
-        EditMealDataAccessInterface, EditFoodDataAccessInterface {
+        EditMealDataAccessInterface, EditFoodDataAccessInterface, DeleteMealDataAccessInterface,
+        DeleteFoodDataAccessInterface {
 
     private final Map<String, User> users = new HashMap<>();
     private final Map<Integer, Meal> meals = new HashMap<>();
@@ -97,11 +100,7 @@ public class InMemoryDataAccessObject implements SignupUserDataAccessInterface,
         for (Meal meal : meals.values()) {
             if (meal.getUserId().equals(userId)
                     && !meal.getDate().isBefore(cutoff)) {
-                for (FoodEntry foodEntry : foodEntries.values()) {
-                    if (foodEntry.getMealId().equals(meal.getId())) {
-                        meal.addFoodEntry(foodEntry);
-                    }
-                }
+                meal.setFoodEntries(getFoodEntriesForMeal(meal.getId()));
                 result.add(meal);
             }
         }
@@ -116,5 +115,22 @@ public class InMemoryDataAccessObject implements SignupUserDataAccessInterface,
     @Override
     public void editFoodEntry(FoodEntry foodEntry) {
         foodEntries.put(foodEntry.getId(), foodEntry);
+    }
+
+    @Override
+    public void deleteMeal(int mealId) {
+        meals.remove(mealId);
+        foodEntries.values().removeIf(foodEntry -> foodEntry.getMealId().equals(mealId));
+    }
+
+    @Override
+    public void deleteFoodEntry(int foodEntryId) {
+        final FoodEntry entry = foodEntries.remove(foodEntryId);
+        if (entry != null) {
+            final Meal meal = meals.get(entry.getMealId());
+            if (meal != null) {
+                meal.removeFoodEntry(entry);
+            }
+        }
     }
 }

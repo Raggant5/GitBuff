@@ -1,4 +1,4 @@
-package interface_adapter.nutrition.food_editor;
+package interface_adapter.nutrition.food;
 
 import interface_adapter.ViewModel;
 

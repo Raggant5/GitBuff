@@ -30,6 +30,8 @@ public class Main {
                 .addAddMealUseCase()
                 .addEditFoodUseCase()
                 .addEditMealUseCase()
+                .addDeleteMealUseCase()
+                .addDeleteFoodUseCase()
                 .build();
         try {
             Datainitializer.initialize();

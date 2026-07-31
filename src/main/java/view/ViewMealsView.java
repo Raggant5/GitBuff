@@ -9,14 +9,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import entity.Meal;
-import interface_adapter.nutrition.meal_editor.PrepareEditMealController;
-import interface_adapter.nutrition.meals.ViewMealsState;
-import interface_adapter.nutrition.meals.ViewMealsViewModel;
+import interface_adapter.nutrition.meal.DeleteMealController;
+import interface_adapter.nutrition.meal.PrepareEditMealController;
+import interface_adapter.nutrition.meal.ViewMealsState;
+import interface_adapter.nutrition.meal.ViewMealsViewModel;
 
 public class ViewMealsView extends JPanel implements PropertyChangeListener {
     private final String viewName = "view meals";
     private final ViewMealsViewModel viewMealsViewModel;
     private final PrepareEditMealController prepareEditMealController;
+    private DeleteMealController deleteMealController;
 
     private final JPanel mealListContainer;
     private final JLabel errorLabel;
@@ -55,11 +57,15 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
         mealListContainer.removeAll();
         errorLabel.setText(state.getError());
         for (Meal meal : state.getMeals()) {
-            mealListContainer.add(new MealPanel(meal, prepareEditMealController));
+            mealListContainer.add(new MealPanel(meal, prepareEditMealController, deleteMealController));
         }
 
         mealListContainer.revalidate();
         mealListContainer.repaint();
+    }
+
+    public void setDeleteMealController(DeleteMealController deleteMealController) {
+        this.deleteMealController = deleteMealController;
     }
 
     public String getViewName() {

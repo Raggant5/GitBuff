@@ -14,11 +14,12 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import interface_adapter.MainViewManagerModel;
-import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
-import interface_adapter.nutrition.meal_editor.AddMealController;
-import interface_adapter.nutrition.meal_editor.EditMealController;
-import interface_adapter.nutrition.meal_editor.MealEditorState;
-import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
+import interface_adapter.nutrition.food.DeleteFoodController;
+import interface_adapter.nutrition.food.PrepareEditFoodController;
+import interface_adapter.nutrition.meal.AddMealController;
+import interface_adapter.nutrition.meal.EditMealController;
+import interface_adapter.nutrition.meal.MealEditorState;
+import interface_adapter.nutrition.meal.MealEditorViewModel;
 
 public class MealEditorView extends JPanel implements PropertyChangeListener {
     private final String viewName = "meal editor";
@@ -31,6 +32,7 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
     private AddMealController addMealController;
     private EditMealController editMealController;
     private PrepareEditFoodController prepareEditFoodController;
+    private DeleteFoodController deleteFoodController;
     private final JPanel foodPanelContainer;
     private final CardLayout cardLayout;
 
@@ -129,7 +131,8 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         final MealEditorState currentState = (MealEditorState) evt.getNewValue();
-        foodEntryListPanel.setFoodEntries(currentState.getFoodEntriesForMeal(), prepareEditFoodController);
+        foodEntryListPanel.setFoodEntries(currentState.getFoodEntriesForMeal(), prepareEditFoodController,
+                deleteFoodController);
         if (!mealNameField.getText().equals(currentState.getName())) {
             mealNameField.setText(currentState.getName());
         }
@@ -148,6 +151,10 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
 
     public void setEditMealController(EditMealController editMealController) {
         this.editMealController = editMealController;
+    }
+
+    public void setDeleteFoodController(DeleteFoodController deleteFoodController) {
+        this.deleteFoodController = deleteFoodController;
     }
 
     public String getViewName() {

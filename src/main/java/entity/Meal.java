@@ -55,6 +55,14 @@ public class Meal {
         foodEntries.remove(foodEntry);
     }
 
+    /**
+     * Remove the food entry matching the given id, if present.
+     * @param foodId the id of the food entry to remove
+     */
+    public void removeFoodEntryById(int foodId) {
+        foodEntries.removeIf(foodEntry -> foodEntry.getId() == foodId);
+    }
+
     public Integer getId() {
         return id;
     }

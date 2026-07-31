@@ -1,4 +1,4 @@
-package interface_adapter.nutrition.meal_editor;
+package interface_adapter.nutrition.meal;
 
 import java.util.List;
 

@@ -8,12 +8,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import entity.FoodEntry;
-import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
+import interface_adapter.nutrition.food.DeleteFoodController;
+import interface_adapter.nutrition.food.PrepareEditFoodController;
 
 public class FoodEntryPanel extends JPanel {
     private final String gramsUnit = " g";
 
-    public FoodEntryPanel(FoodEntry food, PrepareEditFoodController prepareEditFoodController) {
+    public FoodEntryPanel(FoodEntry food, PrepareEditFoodController prepareEditFoodController,
+                          DeleteFoodController deleteFoodController) {
         setLayout(new BorderLayout());
         final JLabel foodNameLabel = new JLabel("Name: " + food.getFoodName());
         final JLabel caloriesLabel = new JLabel("Calories: " + food.getNutrition().getCalories());
@@ -41,6 +43,7 @@ public class FoodEntryPanel extends JPanel {
         });
 
         deleteButton.addActionListener(evt -> {
+            deleteFoodController.execute(food.getId());
         });
 
         final JPanel buttonPanel = new JPanel();

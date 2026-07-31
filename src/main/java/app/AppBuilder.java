@@ -21,15 +21,9 @@ import interface_adapter.login.LoginViewModel;
 import interface_adapter.logout.LogoutController;
 import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.nutrition.NutritionViewModel;
-import interface_adapter.nutrition.food_editor.AddFoodController;
-import interface_adapter.nutrition.food_editor.AddFoodPresenter;
-import interface_adapter.nutrition.food_editor.EditFoodController;
-import interface_adapter.nutrition.food_editor.EditFoodPresenter;
-import interface_adapter.nutrition.food_editor.FoodEditorViewModel;
-import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
-import interface_adapter.nutrition.food_editor.PrepareEditFoodPresenter;
-import interface_adapter.nutrition.meal_editor.*;
-import interface_adapter.nutrition.meals.ViewMealsViewModel;
+import interface_adapter.nutrition.food.*;
+import interface_adapter.nutrition.meal.*;
+import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfilePresenter;
 import interface_adapter.profile.ProfileViewModel;
@@ -48,6 +42,10 @@ import use_case.logout.LogoutOutputBoundary;
 import use_case.nutrition.food.create_food.AddFoodEntryInputBoundary;
 import use_case.nutrition.food.create_food.AddFoodEntryInteractor;
 import use_case.nutrition.food.create_food.AddFoodEntryOutputBoundary;
+import use_case.nutrition.food.delete_food.DeleteFoodDataAccessInterface;
+import use_case.nutrition.food.delete_food.DeleteFoodInputBoundary;
+import use_case.nutrition.food.delete_food.DeleteFoodInteractor;
+import use_case.nutrition.food.delete_food.DeleteFoodOutputBoundary;
 import use_case.nutrition.food.edit_food.EditFoodDataAccessInterface;
 import use_case.nutrition.food.edit_food.EditFoodInputBoundary;
 import use_case.nutrition.food.edit_food.EditFoodInteractor;
@@ -58,6 +56,10 @@ import use_case.nutrition.meal.add_meal.AddMealDataAccessInterface;
 import use_case.nutrition.meal.add_meal.AddMealInputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealInteractor;
 import use_case.nutrition.meal.add_meal.AddMealOutputBoundary;
+import use_case.nutrition.meal.delete_meal.DeleteMealDataAccessInterface;
+import use_case.nutrition.meal.delete_meal.DeleteMealInputBoundary;
+import use_case.nutrition.meal.delete_meal.DeleteMealInteractor;
+import use_case.nutrition.meal.delete_meal.DeleteMealOutputBoundary;
 import use_case.nutrition.meal.edit_meal.EditMealDataAccessInterface;
 import use_case.nutrition.meal.edit_meal.EditMealInputBoundary;
 import use_case.nutrition.meal.edit_meal.EditMealInteractor;
@@ -138,6 +140,8 @@ public class AppBuilder {
     private final ViewMealDataAccessInterface viewMealsDataAccessObject = userDataAccessObject;
     private final EditMealDataAccessInterface editMealDataAccessObject = userDataAccessObject;
     private final EditFoodDataAccessInterface editFoodDataAccessObject = userDataAccessObject;
+    private final DeleteMealDataAccessInterface deleteMealDataAccessObject = userDataAccessObject;
+    private final DeleteFoodDataAccessInterface deleteFoodDataAccessObject = userDataAccessObject;
     private ViewMealsView viewMealsView;
     private MealEditorView mealEditorView;
     private FoodEditorView foodEditorView;
@@ -364,6 +368,33 @@ public class AppBuilder {
                 editFoodDataAccessObject);
         final EditFoodController editFoodController = new EditFoodController(editFoodInteractor);
         foodEditorView.setEditFoodController(editFoodController);
+        return this;
+    }
+
+    /**
+     * Adds the Delete Meal Use Case to the application.
+     * @return this builder
+     */
+    public AppBuilder addDeleteMealUseCase() {
+        final DeleteMealOutputBoundary deleteMealPresenter = new DeleteMealPresenter(viewMealsViewModel);
+        final DeleteMealInputBoundary deleteMealInteractor = new DeleteMealInteractor(deleteMealPresenter,
+                deleteMealDataAccessObject);
+        final DeleteMealController deleteMealController = new DeleteMealController(deleteMealInteractor);
+        viewMealsView.setDeleteMealController(deleteMealController);
+        return this;
+    }
+
+    /**
+     * Adds the Delete Food Use Case to the application.
+     * @return this builder
+     */
+    public AppBuilder addDeleteFoodUseCase() {
+        final DeleteFoodOutputBoundary deleteFoodPresenter = new DeleteFoodPresenter(mealEditorViewModel,
+                viewMealsViewModel);
+        final DeleteFoodInputBoundary deleteFoodInteractor = new DeleteFoodInteractor(deleteFoodPresenter,
+                deleteFoodDataAccessObject);
+        final DeleteFoodController deleteFoodController = new DeleteFoodController(deleteFoodInteractor);
+        mealEditorView.setDeleteFoodController(deleteFoodController);
         return this;
     }
 

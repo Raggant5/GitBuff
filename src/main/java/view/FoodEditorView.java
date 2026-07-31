@@ -15,10 +15,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import entity.FoodUnit;
-import interface_adapter.nutrition.food_editor.AddFoodController;
-import interface_adapter.nutrition.food_editor.EditFoodController;
-import interface_adapter.nutrition.food_editor.FoodEditorState;
-import interface_adapter.nutrition.food_editor.FoodEditorViewModel;
+import interface_adapter.nutrition.food.AddFoodController;
+import interface_adapter.nutrition.food.EditFoodController;
+import interface_adapter.nutrition.food.FoodEditorState;
+import interface_adapter.nutrition.food.FoodEditorViewModel;
 import use_case.nutrition.food.FoodNutritionInputData;
 
 public class FoodEditorView extends JPanel implements PropertyChangeListener {

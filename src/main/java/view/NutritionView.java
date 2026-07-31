@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.nutrition.NutritionState;
 import interface_adapter.nutrition.NutritionViewModel;
-import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
+import interface_adapter.nutrition.meal.MealEditorViewModel;
 import interface_adapter.recommendation.RecommendationController;
 
 public class NutritionView extends JPanel implements PropertyChangeListener {

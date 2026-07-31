@@ -1,12 +1,10 @@
-package interface_adapter.nutrition.meal_editor;
+package interface_adapter.nutrition.meal;
 
 import java.util.List;
 import java.util.Objects;
 
 import entity.Meal;
 import interface_adapter.MainViewManagerModel;
-import interface_adapter.nutrition.meals.ViewMealsState;
-import interface_adapter.nutrition.meals.ViewMealsViewModel;
 import use_case.nutrition.meal.edit_meal.EditMealOutputBoundary;
 import use_case.nutrition.meal.edit_meal.EditMealOutputData;
 

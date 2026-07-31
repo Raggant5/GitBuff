@@ -1,4 +1,4 @@
-package interface_adapter.nutrition.meal_editor;
+package interface_adapter.nutrition.meal;
 
 import entity.Meal;
 import use_case.nutrition.meal.prepare_edit_meal.PrepareEditMealInputBoundary;

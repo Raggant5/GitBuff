@@ -1,4 +1,4 @@
-package interface_adapter.nutrition.meal_editor;
+package interface_adapter.nutrition.meal;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,6 +33,14 @@ public class MealEditorState {
 
     public void setFoodEntriesForMeal(List<FoodEntry> foodEntriesForMeal) {
         this.foodEntriesForMeal = foodEntriesForMeal;
+    }
+
+    /**
+     * Remove the food associated with an id.
+     * @param foodId the food id of food to be removed
+     */
+    public void removeFoodEntry(int foodId) {
+        foodEntriesForMeal.removeIf(foodEntry -> foodEntry.getId() == foodId);
     }
 
     /**
