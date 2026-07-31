@@ -48,6 +48,7 @@ import use_case.signup.SignupOutputBoundary;
 import view.AppShellView;
 import view.DashboardView;
 import view.LoginView;
+import view.MainViewManager;
 import view.NavbarView;
 import view.NutritionView;
 import view.ProfileView;
@@ -67,16 +68,16 @@ public class AppBuilder {
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
-    private final ViewManager viewManager = new ViewManager(cardPanel, cardLayout, viewManagerModel);
+    private final ViewManager viewManager = new ViewManager(this.cardPanel, this.cardLayout, this.viewManagerModel);
 
     private final JPanel mainPanel = new JPanel();
     private final CardLayout mainCardLayout = new CardLayout();
     private final MainViewManagerModel mainViewManagerModel = new MainViewManagerModel();
+    private final MainViewManager mainViewManager;
 
     private final UserFactory userFactory = new CommonUserFactory();
     private final SQLiteUserDataAccessObject userDataAccessObject = new SQLiteUserDataAccessObject();
 
-    // Method 1: Hardcoded AI API key for development/testing
     private final String aiApiKey = "AQ.Ab8RN6Inu0Wu2JRz3iykliAk3LF0gzpWFxAYAYYJDuJBSHQJww";
     private final AiWorkoutDataAccessInterface aiWorkoutDao =
             new AiWorkoutDataAccessObject(this.aiApiKey);
@@ -99,11 +100,14 @@ public class AppBuilder {
     private RecommendationInputBoundary recommendationInteractor;
 
     /**
-     * Constructs the AppBuilder instance and sets panel layouts.
+     * Constructs the AppBuilder instance, sets panel layouts, and wires view managers.
      */
     public AppBuilder() {
         this.cardPanel.setLayout(this.cardLayout);
         this.mainPanel.setLayout(this.mainCardLayout);
+
+        // Connect MainViewManager to mainPanel CardLayout so tab switching works!
+        this.mainViewManager = new MainViewManager(this.mainPanel, this.mainCardLayout, this.mainViewManagerModel);
     }
 
     /**
@@ -141,6 +145,7 @@ public class AppBuilder {
         this.nutritionView = new NutritionView(this.nutritionViewModel);
         this.profileViewModel = new ProfileViewModel();
         this.profileView = new ProfileView(this.profileViewModel);
+
         this.mainPanel.add(this.dashboardView, this.dashboardView.getViewName());
         this.mainPanel.add(this.workoutsView, this.workoutsView.getViewName());
         this.mainPanel.add(this.nutritionView, this.nutritionView.getViewName());

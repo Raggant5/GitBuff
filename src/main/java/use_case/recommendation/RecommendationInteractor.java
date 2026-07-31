@@ -38,9 +38,18 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
         }
 
         final User user = this.userDataAccessObject.get(username);
+
+        // If user hasn't set height/weight yet, gracefully provide defaults rather than aborting UI execution
         if (user == null || user.getWeight() <= 0.0f || user.getHeight() <= 0.0f) {
-            this.recommendationPresenter.prepareFailView(
-                    "Please set your height and weight in your profile before viewing recommendations.");
+            final RecommendationOutputData defaultOutput = new RecommendationOutputData(
+                    0.0,
+                    0,
+                    0,
+                    "General Fitness",
+                    "Please update your profile details.",
+                    "Complete your profile (height & weight) to generate your personalized AI workout plan!"
+            );
+            this.recommendationPresenter.prepareSuccessView(defaultOutput);
             return;
         }
 
