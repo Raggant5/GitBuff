@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.nutrition.NutritionState;
 import interface_adapter.nutrition.NutritionViewModel;
+import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
 import interface_adapter.recommendation.RecommendationController;
 
 public class NutritionView extends JPanel implements PropertyChangeListener {
@@ -18,6 +19,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
     private final String viewName = "nutrition";
     private final NutritionViewModel nutritionViewModel;
     private final MainViewManagerModel mainViewManagerModel;
+    private final MealEditorViewModel mealEditorViewModel;
 
     private final JLabel calorieLabel = new JLabel();
     private final JLabel proteinLabel = new JLabel();
@@ -27,9 +29,11 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
 
     private RecommendationController recommendationController;
 
-    public NutritionView(NutritionViewModel nutritionViewModel, MainViewManagerModel mainViewManagerModel) {
+    public NutritionView(NutritionViewModel nutritionViewModel, MainViewManagerModel mainViewManagerModel,
+                         MealEditorViewModel mealEditorViewModel) {
         this.nutritionViewModel = nutritionViewModel;
         this.mainViewManagerModel = mainViewManagerModel;
+        this.mealEditorViewModel = mealEditorViewModel;
         nutritionViewModel.addPropertyChangeListener(this);
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -37,6 +41,8 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         final JButton addMealButton = new JButton("Add Meal");
 
         addMealButton.addActionListener(evt -> {
+            mealEditorViewModel.getState().reset();
+            mealEditorViewModel.firePropertyChanged();
             mainViewManagerModel.setState("meal editor");
             mainViewManagerModel.firePropertyChanged();
         });

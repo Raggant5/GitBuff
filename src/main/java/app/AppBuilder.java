@@ -28,11 +28,7 @@ import interface_adapter.nutrition.food_editor.EditFoodPresenter;
 import interface_adapter.nutrition.food_editor.FoodEditorViewModel;
 import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
 import interface_adapter.nutrition.food_editor.PrepareEditFoodPresenter;
-import interface_adapter.nutrition.meal_editor.AddMealController;
-import interface_adapter.nutrition.meal_editor.AddMealPresenter;
-import interface_adapter.nutrition.meal_editor.EditMealController;
-import interface_adapter.nutrition.meal_editor.EditMealPresenter;
-import interface_adapter.nutrition.meal_editor.MealEditorViewModel;
+import interface_adapter.nutrition.meal_editor.*;
 import interface_adapter.nutrition.meals.ViewMealsViewModel;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfilePresenter;
@@ -67,6 +63,8 @@ import use_case.nutrition.meal.edit_meal.EditMealInputBoundary;
 import use_case.nutrition.meal.edit_meal.EditMealInteractor;
 import use_case.nutrition.meal.edit_meal.EditMealOutputBoundary;
 import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
+import use_case.nutrition.meal.prepare_edit_meal.PrepareEditMealInputBoundary;
+import use_case.nutrition.meal.prepare_edit_meal.PrepareEditMealInteractor;
 import use_case.profile.EditProfileInputBoundary;
 import use_case.profile.EditProfileInteractor;
 import use_case.profile.EditProfileOutputBoundary;
@@ -136,10 +134,10 @@ public class AppBuilder {
 
     private final FoodEntryFactory foodEntryFactory = new FoodEntryFactory();
     private final MealFactory mealFactory = new MealFactory();
-    private final AddMealDataAccessInterface addMealDataAccessObject = new InMemoryDataAccessObject();
-    private final ViewMealDataAccessInterface viewMealsDataAccessObject = new InMemoryDataAccessObject();
-    private final EditMealDataAccessInterface editMealDataAccessObject = new InMemoryDataAccessObject();
-    private final EditFoodDataAccessInterface editFoodDataAccessObject = new InMemoryDataAccessObject();
+    private final AddMealDataAccessInterface addMealDataAccessObject = userDataAccessObject;
+    private final ViewMealDataAccessInterface viewMealsDataAccessObject = userDataAccessObject;
+    private final EditMealDataAccessInterface editMealDataAccessObject = userDataAccessObject;
+    private final EditFoodDataAccessInterface editFoodDataAccessObject = userDataAccessObject;
     private ViewMealsView viewMealsView;
     private MealEditorView mealEditorView;
     private FoodEditorView foodEditorView;
@@ -195,11 +193,18 @@ public class AppBuilder {
                 prepareEditFoodPresenter);
         final PrepareEditFoodController prepareEditFoodController = new PrepareEditFoodController(
                 prepareEditFoodInteractor);
-        mealEditorView = new MealEditorView(mealEditorViewModel, foodEditorView, prepareEditFoodController);
+        mealEditorView = new MealEditorView(mealEditorViewModel, foodEditorView, prepareEditFoodController,
+                mainViewManagerModel);
         nutritionViewModel = new NutritionViewModel();
         viewMealsViewModel = new ViewMealsViewModel();
-        viewMealsView = new ViewMealsView(viewMealsViewModel, prepareEditFoodController);
-        nutritionView = new NutritionView(nutritionViewModel, mainViewManagerModel);
+        final PrepareEditMealPresenter prepareEditMealPresenter = new PrepareEditMealPresenter(mealEditorViewModel,
+                mainViewManagerModel);
+        final PrepareEditMealInputBoundary prepareEditMealInteractor = new PrepareEditMealInteractor(
+                prepareEditMealPresenter);
+        final PrepareEditMealController prepareEditMealController = new PrepareEditMealController(
+                prepareEditMealInteractor);
+        viewMealsView = new ViewMealsView(viewMealsViewModel, prepareEditMealController);
+        nutritionView = new NutritionView(nutritionViewModel, mainViewManagerModel, mealEditorViewModel);
 
         profileViewModel = new ProfileViewModel();
         profileView = new ProfileView(profileViewModel);
@@ -339,7 +344,8 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addEditMealUseCase() {
-        final EditMealOutputBoundary editMealPresenter = new EditMealPresenter(viewMealsViewModel, mealEditorViewModel);
+        final EditMealOutputBoundary editMealPresenter = new EditMealPresenter(viewMealsViewModel, mealEditorViewModel,
+                mainViewManagerModel);
         final EditMealInputBoundary editMealInteractor = new EditMealInteractor(editMealPresenter,
                 editMealDataAccessObject);
         final EditMealController editMealController = new EditMealController(editMealInteractor);

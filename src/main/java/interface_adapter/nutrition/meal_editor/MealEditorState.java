@@ -44,6 +44,7 @@ public class MealEditorState {
         name = "";
         foodEntriesForMeal = new ArrayList<>();
         errorMessage = "";
+        showFoodEditor = false;
     }
 
     public boolean getShowFoodEditor() {

@@ -34,8 +34,9 @@ public class Meal {
      * @param foodEntries the new list of food entries
      */
     public void setFoodEntries(List<FoodEntry> foodEntries) {
+        final List<FoodEntry> copy = new ArrayList<>(foodEntries);
         this.foodEntries.clear();
-        this.foodEntries.addAll(foodEntries);
+        this.foodEntries.addAll(copy);
     }
 
     /**

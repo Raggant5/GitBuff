@@ -17,10 +17,7 @@ public class PrepareEditFoodController {
      * @param food the food to be edited
      */
     public void execute(FoodEntry food) {
-
-        prepareEditFoodInteractor.execute(
-                new PrepareEditFoodInputData(food)
-        );
+        prepareEditFoodInteractor.execute(new PrepareEditFoodInputData(food));
     }
 
     /**

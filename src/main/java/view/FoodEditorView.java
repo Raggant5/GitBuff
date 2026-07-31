@@ -208,4 +208,12 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
     public void setEditFoodController(EditFoodController editFoodController) {
         this.editFoodController = editFoodController;
     }
+
+    /**
+     * Clears any in-progress food form state, even when navigating away without saving.
+     */
+    public void resetState() {
+        foodEditorViewModel.getState().reset();
+        foodEditorViewModel.firePropertyChanged();
+    }
 }

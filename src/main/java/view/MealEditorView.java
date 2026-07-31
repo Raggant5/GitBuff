@@ -13,6 +13,7 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import interface_adapter.MainViewManagerModel;
 import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
 import interface_adapter.nutrition.meal_editor.AddMealController;
 import interface_adapter.nutrition.meal_editor.EditMealController;
@@ -37,12 +38,22 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
     private final JLabel errorLabel;
 
     public MealEditorView(MealEditorViewModel mealEditorViewModel, FoodEditorView foodEditorView,
-                          PrepareEditFoodController prepareEditFoodController) {
+                          PrepareEditFoodController prepareEditFoodController,
+                          MainViewManagerModel mainViewManagerModel) {
         this.prepareEditFoodController = prepareEditFoodController;
-        setVisible(false);
         this.mealEditorViewModel = mealEditorViewModel;
         this.foodEditorView = foodEditorView;
         mealEditorViewModel.addPropertyChangeListener(this);
+        mainViewManagerModel.addPropertyChangeListener(evt -> {
+            if (!"meal editor".equals(evt.getNewValue())) {
+                final MealEditorState state = mealEditorViewModel.getState();
+                if (state.getShowFoodEditor()) {
+                    state.setShowFoodEditor(false);
+                    mealEditorViewModel.firePropertyChanged();
+                }
+                foodEditorView.resetState();
+            }
+        });
 
         mealNameField = new JTextField(20);
         final JLabel mealNameLabel = new JLabel("Meal Name");

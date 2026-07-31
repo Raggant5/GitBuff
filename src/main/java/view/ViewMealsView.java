@@ -1,6 +1,6 @@
 package view;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -9,22 +9,22 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import entity.Meal;
-import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
+import interface_adapter.nutrition.meal_editor.PrepareEditMealController;
 import interface_adapter.nutrition.meals.ViewMealsState;
 import interface_adapter.nutrition.meals.ViewMealsViewModel;
 
 public class ViewMealsView extends JPanel implements PropertyChangeListener {
     private final String viewName = "view meals";
     private final ViewMealsViewModel viewMealsViewModel;
-    private PrepareEditFoodController prepareEditFoodController;
+    private final PrepareEditMealController prepareEditMealController;
 
-    private final JPanel mealPanelContainer;
+    private final JPanel mealListContainer;
     private final JLabel errorLabel;
 
-    public ViewMealsView(ViewMealsViewModel viewMealsViewModel, PrepareEditFoodController prepareEditFoodController) {
+    public ViewMealsView(ViewMealsViewModel viewMealsViewModel, PrepareEditMealController prepareEditMealController) {
 
+        this.prepareEditMealController = prepareEditMealController;
         this.viewMealsViewModel = viewMealsViewModel;
-        this.prepareEditFoodController = prepareEditFoodController;
         this.viewMealsViewModel.addPropertyChangeListener(this);
 
         setLayout(new BorderLayout());
@@ -39,10 +39,9 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
 
         add(headerPanel, BorderLayout.NORTH);
 
-        mealPanelContainer = new JPanel();
-        mealPanelContainer.setLayout(new BoxLayout(mealPanelContainer, BoxLayout.Y_AXIS));
-
-        add(mealPanelContainer, BorderLayout.CENTER);
+        mealListContainer = new JPanel();
+        mealListContainer.setLayout(new BoxLayout(mealListContainer, BoxLayout.Y_AXIS));
+        add(mealListContainer, BorderLayout.CENTER);
     }
 
     @Override
@@ -53,14 +52,14 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
 
     private void displayMeals(ViewMealsState state) {
 
-        mealPanelContainer.removeAll();
+        mealListContainer.removeAll();
         errorLabel.setText(state.getError());
         for (Meal meal : state.getMeals()) {
-            mealPanelContainer.add(new MealPanel(meal, prepareEditFoodController));
+            mealListContainer.add(new MealPanel(meal, prepareEditMealController));
         }
 
-        mealPanelContainer.revalidate();
-        mealPanelContainer.repaint();
+        mealListContainer.revalidate();
+        mealListContainer.repaint();
     }
 
     public String getViewName() {

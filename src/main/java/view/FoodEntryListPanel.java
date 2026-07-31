@@ -17,6 +17,7 @@ public class FoodEntryListPanel extends JPanel {
     /**
      * Refreshes the list of food entries displayed on the screen given a new list.
      * @param foodsList the list of new food entries to display
+     * @param prepareEditFoodController executes the Prepare Switch to Edit Food View Use Case
      */
     public void setFoodEntries(List<FoodEntry> foodsList, PrepareEditFoodController prepareEditFoodController) {
         removeAll();

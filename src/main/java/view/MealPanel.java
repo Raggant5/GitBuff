@@ -8,12 +8,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import entity.Meal;
-import interface_adapter.nutrition.food_editor.PrepareEditFoodController;
+import interface_adapter.nutrition.meal_editor.PrepareEditMealController;
 
 public class MealPanel extends JPanel {
-    private final FoodEntryListPanel foodEntryListPanel;
 
-    public MealPanel(Meal meal, PrepareEditFoodController controller) {
+    public MealPanel(Meal meal, PrepareEditMealController prepareEditMealController) {
 
         setLayout(new BorderLayout());
         final JLabel nameLabel = new JLabel("Meal: " + meal.getName());
@@ -25,15 +24,12 @@ public class MealPanel extends JPanel {
         mealInfoPanel.add(dateLabel);
         add(mealInfoPanel, BorderLayout.NORTH);
 
-        foodEntryListPanel = new FoodEntryListPanel();
-        foodEntryListPanel.setFoodEntries(meal.getFoodEntries(), controller);
-        add(foodEntryListPanel, BorderLayout.CENTER);
-
         final JPanel buttonPanel = new JPanel();
         final JButton editButton = new JButton("Edit Meal");
         final JButton deleteButton = new JButton("Delete Meal");
 
         editButton.addActionListener(evt -> {
+            prepareEditMealController.execute(meal);
         });
 
         deleteButton.addActionListener(evt -> {
@@ -42,6 +38,6 @@ public class MealPanel extends JPanel {
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        add(buttonPanel, BorderLayout.CENTER);
     }
 }
