@@ -1,18 +1,20 @@
 package app;
 
-import data_access.Datainitializer;
-
 import javax.swing.JFrame;
+
+import data_access.Datainitializer;
 
 /**
  * The Main class of our application.
  */
 public class Main {
+
     /**
-     * Builds and runs the CA architecture of the application.
+     * Builds and runs the Clean Architecture implementation of the application.
+     *
      * @param args unused arguments
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         final AppBuilder appBuilder = new AppBuilder();
 
         final JFrame application = appBuilder
@@ -27,10 +29,12 @@ public class Main {
                 .addLoginUseCase()
                 .addLogoutUseCase()
                 .build();
+
         try {
             Datainitializer.initialize();
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+        catch (final Exception ex) {
+            ex.printStackTrace();
         }
 
         application.pack();

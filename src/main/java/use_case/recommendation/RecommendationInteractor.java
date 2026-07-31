@@ -3,9 +3,8 @@ package use_case.recommendation;
 import entity.User;
 
 /**
- * The Recommendation Interactor. Computes a personalized daily calorie target,
- * protein target, and workout focus for the current user, based on their
- * height, weight, activity level, and fitness goal.
+ * The Recommendation Interactor. Computes personalized daily calorie and protein targets,
+ * and calls the AI API for an AI workout plan.
  */
 public class RecommendationInteractor implements RecommendationInputBoundary {
 
@@ -13,24 +12,34 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
 
     private final RecommendationUserDataAccessInterface userDataAccessObject;
     private final RecommendationOutputBoundary recommendationPresenter;
+    private final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject;
 
-    public RecommendationInteractor(RecommendationUserDataAccessInterface userDataAccessObject,
-                                     RecommendationOutputBoundary recommendationOutputBoundary) {
+    /**
+     * Constructs a RecommendationInteractor instance.
+     *
+     * @param userDataAccessObject the user DAO
+     * @param recommendationOutputBoundary the recommendation presenter
+     * @param aiWorkoutDataAccessObject the AI service adapter
+     */
+    public RecommendationInteractor(final RecommendationUserDataAccessInterface userDataAccessObject,
+                                    final RecommendationOutputBoundary recommendationOutputBoundary,
+                                    final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject) {
         this.userDataAccessObject = userDataAccessObject;
         this.recommendationPresenter = recommendationOutputBoundary;
+        this.aiWorkoutDataAccessObject = aiWorkoutDataAccessObject;
     }
 
     @Override
     public void execute() {
-        final String username = userDataAccessObject.getCurrentUsername();
+        final String username = this.userDataAccessObject.getCurrentUsername();
         if (username == null) {
-            recommendationPresenter.prepareFailView("No user is currently logged in.");
+            this.recommendationPresenter.prepareFailView("No user is currently logged in.");
             return;
         }
 
-        final User user = userDataAccessObject.get(username);
+        final User user = this.userDataAccessObject.get(username);
         if (user == null || user.getWeight() <= 0.0f || user.getHeight() <= 0.0f) {
-            recommendationPresenter.prepareFailView(
+            this.recommendationPresenter.prepareFailView(
                     "Please set your height and weight in your profile before viewing recommendations.");
             return;
         }
@@ -41,13 +50,19 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 (int) Math.round(maintenanceCalories + user.getGoal().getDailyCalorieAdjustment());
         final int dailyProteinGrams = (int) Math.round(user.getWeight() * user.getGoal().getProteinGramsPerKg());
 
+        String aiWorkoutPlan = "No AI plan generated.";
+        if (this.aiWorkoutDataAccessObject != null) {
+            aiWorkoutPlan = this.aiWorkoutDataAccessObject.generateWorkoutPlan(user);
+        }
+
         final RecommendationOutputData outputData = new RecommendationOutputData(
                 user.getBMI(),
                 dailyCalorieTarget,
                 dailyProteinGrams,
                 user.getGoal().getWorkoutFocus(),
-                user.getActivityLevel().getDescription());
+                user.getActivityLevel().getDescription(),
+                aiWorkoutPlan);
 
-        recommendationPresenter.prepareSuccessView(outputData);
+        this.recommendationPresenter.prepareSuccessView(outputData);
     }
 }

@@ -8,44 +8,50 @@ import use_case.recommendation.RecommendationOutputBoundary;
 import use_case.recommendation.RecommendationOutputData;
 
 /**
- * The Presenter for the Recommendation Use Case. Updates both the Nutrition
- * and Workouts view models, since a single profile-based recommendation
- * feeds both screens.
+ * The Presenter for the Recommendation Use Case. Updates both Nutrition and Workouts view models.
  */
 public class RecommendationPresenter implements RecommendationOutputBoundary {
 
     private final NutritionViewModel nutritionViewModel;
     private final WorkoutsViewModel workoutsViewModel;
 
-    public RecommendationPresenter(NutritionViewModel nutritionViewModel, WorkoutsViewModel workoutsViewModel) {
+    /**
+     * Constructs a RecommendationPresenter instance.
+     *
+     * @param nutritionViewModel the nutrition view model
+     * @param workoutsViewModel the workouts view model
+     */
+    public RecommendationPresenter(final NutritionViewModel nutritionViewModel,
+                                   final WorkoutsViewModel workoutsViewModel) {
         this.nutritionViewModel = nutritionViewModel;
         this.workoutsViewModel = workoutsViewModel;
     }
 
     @Override
-    public void prepareSuccessView(RecommendationOutputData outputData) {
-        final NutritionState nutritionState = nutritionViewModel.getState();
+    public void prepareSuccessView(final RecommendationOutputData outputData) {
+        final NutritionState nutritionState = this.nutritionViewModel.getState();
         nutritionState.setBmi(outputData.getBmi());
         nutritionState.setDailyCalorieTarget(outputData.getDailyCalorieTarget());
         nutritionState.setDailyProteinGrams(outputData.getDailyProteinGrams());
         nutritionState.setMessage("");
-        nutritionViewModel.firePropertyChanged();
+        this.nutritionViewModel.firePropertyChanged();
 
-        final WorkoutsState workoutsState = workoutsViewModel.getState();
+        final WorkoutsState workoutsState = this.workoutsViewModel.getState();
         workoutsState.setWorkoutFocus(outputData.getWorkoutFocus());
         workoutsState.setActivityLevelDescription(outputData.getActivityLevelDescription());
+        workoutsState.setAiWorkoutPlan(outputData.getAiWorkoutPlan());
         workoutsState.setMessage("");
-        workoutsViewModel.firePropertyChanged();
+        this.workoutsViewModel.firePropertyChanged();
     }
 
     @Override
-    public void prepareFailView(String errorMessage) {
-        final NutritionState nutritionState = nutritionViewModel.getState();
+    public void prepareFailView(final String errorMessage) {
+        final NutritionState nutritionState = this.nutritionViewModel.getState();
         nutritionState.setMessage(errorMessage);
-        nutritionViewModel.firePropertyChanged();
+        this.nutritionViewModel.firePropertyChanged();
 
-        final WorkoutsState workoutsState = workoutsViewModel.getState();
+        final WorkoutsState workoutsState = this.workoutsViewModel.getState();
         workoutsState.setMessage(errorMessage);
-        workoutsViewModel.firePropertyChanged();
+        this.workoutsViewModel.firePropertyChanged();
     }
 }
