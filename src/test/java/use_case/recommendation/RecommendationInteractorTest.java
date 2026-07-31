@@ -5,15 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import entity.ActivityLevel;
 import entity.CommonUser;
+import entity.Exercise;
 import entity.FitnessGoal;
 import entity.User;
+import entity.WorkoutPlan;
 
 /**
  * Unit tests for the Recommendation Interactor.
@@ -45,8 +49,12 @@ public class RecommendationInteractorTest {
 
     private static class FakeAiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         @Override
-        public String generateWorkoutPlan(final User user) {
-            return "Mock AI Workout Plan for " + user.getName();
+        public List<WorkoutPlan> generateWorkoutPlans(final User user) {
+            final List<WorkoutPlan> plans = new ArrayList<>();
+            final List<Exercise> exercises = new ArrayList<>();
+            exercises.add(new Exercise("Push-Ups", "3 sets of 10", "Lower chest to ground.", "http://example.com"));
+            plans.add(new WorkoutPlan("Monday, Aug 3", "Upper Body", "Chest focus", exercises));
+            return plans;
         }
     }
 
@@ -68,11 +76,11 @@ public class RecommendationInteractorTest {
             public void prepareSuccessView(final RecommendationOutputData outputData) {
                 // resting calories = 22 * 80 = 1760; TDEE = 1760 * 1.55 = 2728; +300 for muscle gain = 3028
                 assertEquals(3028, outputData.getDailyCalorieTarget());
-                // protein = 80 * 2.0 g/kg = 160
                 assertEquals(160, outputData.getDailyProteinGrams());
                 assertEquals(user.getBMI(), outputData.getBmi(), 0.0001);
                 assertEquals(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN.getWorkoutFocus(), outputData.getWorkoutFocus());
-                assertEquals("Mock AI Workout Plan for aahir", outputData.getAiWorkoutPlan());
+                assertEquals(1, outputData.getWorkoutPlans().size());
+                assertEquals("Upper Body", outputData.getWorkoutPlans().get(0).getTitle());
             }
 
             @Override
@@ -123,7 +131,7 @@ public class RecommendationInteractorTest {
                 succeeded[0] = true;
                 assertEquals(0.0, outputData.getBmi());
                 assertEquals(0, outputData.getDailyCalorieTarget());
-                assertTrue(outputData.getAiWorkoutPlan().contains("Complete your profile"));
+                assertTrue(outputData.getWorkoutPlans().isEmpty());
             }
 
             @Override

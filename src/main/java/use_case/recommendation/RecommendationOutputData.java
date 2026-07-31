@@ -1,7 +1,10 @@
 package use_case.recommendation;
 
+import java.util.List;
+import entity.WorkoutPlan;
+
 /**
- * Output Data for the Recommendation Use Case.
+ * Output Data for Recommendation Use Case.
  */
 public class RecommendationOutputData {
 
@@ -10,27 +13,17 @@ public class RecommendationOutputData {
     private final int dailyProteinGrams;
     private final String workoutFocus;
     private final String activityLevelDescription;
-    private final String aiWorkoutPlan;
+    private final List<WorkoutPlan> workoutPlans;
 
-    /**
-     * Constructs a RecommendationOutputData instance.
-     *
-     * @param bmi calculated BMI
-     * @param dailyCalorieTarget target daily calorie intake
-     * @param dailyProteinGrams target daily protein intake
-     * @param workoutFocus default focus text
-     * @param activityLevelDescription activity level description
-     * @param aiWorkoutPlan AI generated workout plan from Gemini
-     */
     public RecommendationOutputData(final double bmi, final int dailyCalorieTarget, final int dailyProteinGrams,
                                     final String workoutFocus, final String activityLevelDescription,
-                                    final String aiWorkoutPlan) {
+                                    final List<WorkoutPlan> workoutPlans) {
         this.bmi = bmi;
         this.dailyCalorieTarget = dailyCalorieTarget;
         this.dailyProteinGrams = dailyProteinGrams;
         this.workoutFocus = workoutFocus;
         this.activityLevelDescription = activityLevelDescription;
-        this.aiWorkoutPlan = aiWorkoutPlan;
+        this.workoutPlans = workoutPlans;
     }
 
     public double getBmi() {
@@ -53,7 +46,7 @@ public class RecommendationOutputData {
         return this.activityLevelDescription;
     }
 
-    public String getAiWorkoutPlan() {
-        return this.aiWorkoutPlan;
+    public List<WorkoutPlan> getWorkoutPlans() {
+        return this.workoutPlans;
     }
 }

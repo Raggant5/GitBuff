@@ -1,17 +1,20 @@
 package use_case.recommendation;
 
+import java.util.List;
+
 import entity.User;
+import entity.WorkoutPlan;
 
 /**
- * Interface for generating personalized workout plans via external AI API.
+ * Interface for generating structured AI workout plans via external API.
  */
 public interface AiWorkoutDataAccessInterface {
 
     /**
-     * Generates a workout recommendation for the given user using AI.
+     * Generates a list of structured workout plans for the given user.
      *
      * @param user the user requesting recommendations
-     * @return a structured workout recommendation string
+     * @return a list of structured workout plans
      */
-    String generateWorkoutPlan(final User user);
+    List<WorkoutPlan> generateWorkoutPlans(final User user);
 }

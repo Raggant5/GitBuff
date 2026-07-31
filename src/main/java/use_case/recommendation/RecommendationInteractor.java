@@ -1,10 +1,13 @@
 package use_case.recommendation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import entity.User;
+import entity.WorkoutPlan;
 
 /**
- * The Recommendation Interactor. Computes personalized daily calorie and protein targets,
- * and calls the AI API for an AI workout plan.
+ * Interactor that computes target macros and generates structured AI workout routines.
  */
 public class RecommendationInteractor implements RecommendationInputBoundary {
 
@@ -14,13 +17,6 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
     private final RecommendationOutputBoundary recommendationPresenter;
     private final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject;
 
-    /**
-     * Constructs a RecommendationInteractor instance.
-     *
-     * @param userDataAccessObject the user DAO
-     * @param recommendationOutputBoundary the recommendation presenter
-     * @param aiWorkoutDataAccessObject the AI service adapter
-     */
     public RecommendationInteractor(final RecommendationUserDataAccessInterface userDataAccessObject,
                                     final RecommendationOutputBoundary recommendationOutputBoundary,
                                     final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject) {
@@ -38,16 +34,9 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
         }
 
         final User user = this.userDataAccessObject.get(username);
-
-        // If user hasn't set height/weight yet, gracefully provide defaults rather than aborting UI execution
         if (user == null || user.getWeight() <= 0.0f || user.getHeight() <= 0.0f) {
             final RecommendationOutputData defaultOutput = new RecommendationOutputData(
-                    0.0,
-                    0,
-                    0,
-                    "General Fitness",
-                    "Please update your profile details.",
-                    "Complete your profile (height & weight) to generate your personalized AI workout plan!"
+                    0.0, 0, 0, "General Fitness", "Please update your profile details.", new ArrayList<>()
             );
             this.recommendationPresenter.prepareSuccessView(defaultOutput);
             return;
@@ -59,9 +48,9 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 (int) Math.round(maintenanceCalories + user.getGoal().getDailyCalorieAdjustment());
         final int dailyProteinGrams = (int) Math.round(user.getWeight() * user.getGoal().getProteinGramsPerKg());
 
-        String aiWorkoutPlan = "No AI plan generated.";
+        List<WorkoutPlan> plans = new ArrayList<>();
         if (this.aiWorkoutDataAccessObject != null) {
-            aiWorkoutPlan = this.aiWorkoutDataAccessObject.generateWorkoutPlan(user);
+            plans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user);
         }
 
         final RecommendationOutputData outputData = new RecommendationOutputData(
@@ -70,7 +59,7 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 dailyProteinGrams,
                 user.getGoal().getWorkoutFocus(),
                 user.getActivityLevel().getDescription(),
-                aiWorkoutPlan);
+                plans);
 
         this.recommendationPresenter.prepareSuccessView(outputData);
     }

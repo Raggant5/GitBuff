@@ -6,6 +6,7 @@ import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -21,9 +22,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The View for editing the current user's profile.
+ * The View for editing the current user's profile with matching modern styling and horizontal grids.
  */
 public class ProfileView extends JPanel implements PropertyChangeListener {
+
+    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
+    private static final Color ACCENT_COLOR = new Color(52, 152, 219);
+    private static final Color BG_DARK = new Color(245, 247, 250);
+    private static final Color CARD_BORDER = new Color(220, 224, 230);
 
     private static final int PICTURE_PREVIEW_SIZE = 96;
     private static final float CM_PER_METRE = 100f;
@@ -44,12 +50,25 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     private final JComboBox<UnitSystem> unitSystemBox = new JComboBox<>(UnitSystem.values());
     private final JTextField dobField = new JTextField(10);
     private final JTextArea bioArea = new JTextArea(3, 20);
-    private final JTextField durationField = new JTextField(5);
 
     private final Map<Equipment, JCheckBox> equipmentCheckBoxes = new HashMap<>();
+    private final JCheckBox eqCombinedBikeCheckBox = new JCheckBox("Bike (stationary or outdoor)");
+
     private final Map<DietaryRestriction, JCheckBox> dietaryCheckBoxes = new HashMap<>();
     private final Map<DayOfWeek, JCheckBox> dayCheckBoxes = new HashMap<>();
     private final Map<PrivacySetting, JCheckBox> privacyCheckBoxes = new HashMap<>();
+
+    // Duration Multi-Select Checkboxes + Custom Text Field
+    private final JCheckBox dur15 = new JCheckBox("15mins");
+    private final JCheckBox dur30 = new JCheckBox("30mins");
+    private final JCheckBox dur45 = new JCheckBox("45mins");
+    private final JCheckBox dur60 = new JCheckBox("1h");
+    private final JCheckBox dur75 = new JCheckBox("1h 15mins");
+    private final JCheckBox dur90 = new JCheckBox("1h 30mins");
+    private final JCheckBox dur105 = new JCheckBox("1h 45mins");
+    private final JCheckBox dur120 = new JCheckBox("2h");
+    private final JCheckBox durOther = new JCheckBox("Other (in minutes):");
+    private final JTextField customDurationField = new JTextField(6);
 
     private final JLabel pictureLabel = new JLabel("No picture selected");
     private final JButton choosePictureButton = new JButton("Choose Profile Picture");
@@ -64,79 +83,225 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         profileViewModel.addPropertyChangeListener(this);
 
         setLayout(new BorderLayout());
+        setBackground(BG_DARK);
 
-        final JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        // Header Banner
+        final JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.setBackground(PRIMARY_COLOR);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
-        final JLabel title = new JLabel("My Profile");
-        title.setFont(new Font("SansSerif", Font.BOLD, 18));
+        final JLabel title = new JLabel("User Profile Settings");
+        title.setFont(new Font("SansSerif", Font.BOLD, 20));
+        title.setForeground(Color.WHITE);
+
+        usernameLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        usernameLabel.setForeground(new Color(236, 240, 241));
+
+        topPanel.add(title);
+        topPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        topPanel.add(usernameLabel);
+
+        final JPanel formContainer = new JPanel();
+        formContainer.setLayout(new BoxLayout(formContainer, BoxLayout.Y_AXIS));
+        formContainer.setBackground(BG_DARK);
+        formContainer.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
         choosePictureButton.addActionListener(this::onChoosePicture);
         saveButton.addActionListener(this::onSave);
         unitSystemBox.addActionListener(e -> updateUnitLabels());
 
-        final Dimension comboBoxSize = new Dimension(300, 30);
-        activityLevelBox.setMaximumSize(comboBoxSize);
-        goalBox.setMaximumSize(comboBoxSize);
-        genderBox.setMaximumSize(comboBoxSize);
-        unitSystemBox.setMaximumSize(comboBoxSize);
+        styleButton(choosePictureButton, PRIMARY_COLOR);
+        styleButton(saveButton, ACCENT_COLOR);
+        saveButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        saveButton.setPreferredSize(new Dimension(800, 42));
 
-        final Dimension rowSize = new Dimension(300, 40);
-        final LabelTextPanel heightInfo = new LabelTextPanel(heightLabel, heightField);
-        final LabelTextPanel weightInfo = new LabelTextPanel(weightLabel, weightField);
-        final LabelTextPanel dobInfo = new LabelTextPanel(new JLabel("Date of Birth (YYYY-MM-DD)"), dobField);
-        final LabelTextPanel durationInfo = new LabelTextPanel(new JLabel("Preferred Duration (mins)"), durationField);
+        // 1. Profile Picture Card
+        final JPanel picCard = createCardPanel("Profile Picture");
+        picCard.add(pictureLabel);
+        picCard.add(Box.createRigidArea(new Dimension(0, 5)));
+        picCard.add(choosePictureButton);
+        formContainer.add(picCard);
+        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
 
-        heightInfo.setMaximumSize(rowSize);
-        weightInfo.setMaximumSize(rowSize);
-        dobInfo.setMaximumSize(rowSize);
-        durationInfo.setMaximumSize(rowSize);
-
-        contentPanel.add(title);
-        contentPanel.add(usernameLabel);
-        contentPanel.add(new JLabel("Unit System"));
-        contentPanel.add(unitSystemBox);
-        contentPanel.add(heightInfo);
-        contentPanel.add(weightInfo);
-        contentPanel.add(dobInfo);
-        contentPanel.add(new JLabel("Gender"));
-        contentPanel.add(genderBox);
-        contentPanel.add(new JLabel("Bio"));
+        // 2. Separate Bio Card
+        final JPanel bioCard = createCardPanel("Bio");
         bioArea.setLineWrap(true);
-        contentPanel.add(new JScrollPane(bioArea));
-        contentPanel.add(new JLabel("Activity Level"));
-        contentPanel.add(activityLevelBox);
-        contentPanel.add(new JLabel("Fitness Goal"));
-        contentPanel.add(goalBox);
+        bioArea.setWrapStyleWord(true);
+        bioCard.add(new JScrollPane(bioArea));
+        formContainer.add(bioCard);
+        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
 
-        // Checkbox Panels
-        contentPanel.add(createCheckBoxPanel("Available Equipment", Equipment.values(), equipmentCheckBoxes));
-        contentPanel.add(createCheckBoxPanel("Dietary Restrictions", DietaryRestriction.values(), dietaryCheckBoxes));
-        contentPanel.add(createCheckBoxPanel("Preferred Workout Days", DayOfWeek.values(), dayCheckBoxes));
-        contentPanel.add(durationInfo);
-        contentPanel.add(createCheckBoxPanel("Privacy Settings", PrivacySetting.values(), privacyCheckBoxes));
+        // 3. Basic Metrics Card
+        formContainer.add(createMetricsCard());
+        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
 
-        contentPanel.add(pictureLabel);
-        contentPanel.add(choosePictureButton);
-        contentPanel.add(saveButton);
-        contentPanel.add(statusLabel);
+        // 4. Fitness Strategy Card
+        formContainer.add(createStrategyCard());
+        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
 
-        final JScrollPane scrollPane = new JScrollPane(contentPanel);
+        // 5. Equipment Panel
+        formContainer.add(createEquipmentPanel());
+        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+
+        // 6. Dietary Restrictions
+        formContainer.add(createCheckBoxGridPanel("Dietary Restrictions", DietaryRestriction.values(), dietaryCheckBoxes, 3));
+        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+
+        // 7. Preferred Workout Days
+        formContainer.add(createCheckBoxGridPanel("Preferred Workout Days", DayOfWeek.values(), dayCheckBoxes, 3));
+        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+
+        // 8. Duration Panel
+        formContainer.add(createDurationPresetPanel());
+        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+
+        // 9. Privacy Settings Panel
+        formContainer.add(createPrivacyPanel());
+        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+
+        statusLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        statusLabel.setForeground(PRIMARY_COLOR);
+        formContainer.add(statusLabel);
+
+        final JScrollPane scrollPane = new JScrollPane(formContainer);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(null);
+
+        add(topPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
+        add(saveButton, BorderLayout.SOUTH);
 
         displayState(profileViewModel.getState());
     }
 
-    private <E extends Enum<E>> JPanel createCheckBoxPanel(String title, E[] values, Map<E, JCheckBox> checkBoxMap) {
+    private JPanel createCardPanel(String title) {
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createTitledBorder(title));
+        panel.setBackground(Color.WHITE);
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        final TitledBorder border = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(CARD_BORDER, 1), title);
+        border.setTitleFont(new Font("SansSerif", Font.BOLD, 13));
+        border.setTitleColor(PRIMARY_COLOR);
+        panel.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+        return panel;
+    }
+
+    private JPanel createMetricsCard() {
+        final JPanel card = createCardPanel("Basic Metrics");
+        final JPanel grid = new JPanel(new GridLayout(2, 4, 10, 8));
+        grid.setBackground(Color.WHITE);
+
+        grid.add(new JLabel("Unit System:"));
+        grid.add(unitSystemBox);
+        grid.add(heightLabel);
+        grid.add(heightField);
+
+        grid.add(weightLabel);
+        grid.add(weightField);
+        grid.add(new JLabel("DOB (YYYY-MM-DD):"));
+        grid.add(dobField);
+
+        card.add(grid);
+        return card;
+    }
+
+    private JPanel createStrategyCard() {
+        final JPanel card = createCardPanel("Fitness Strategy");
+        final JPanel grid = new JPanel(new GridLayout(3, 2, 10, 8));
+        grid.setBackground(Color.WHITE);
+
+        grid.add(new JLabel("Gender:"));
+        grid.add(genderBox);
+
+        grid.add(new JLabel("Activity Level:"));
+        grid.add(activityLevelBox);
+
+        grid.add(new JLabel("Fitness Goal:"));
+        grid.add(goalBox);
+
+        card.add(grid);
+        return card;
+    }
+
+    private JPanel createEquipmentPanel() {
+        final JPanel card = createCardPanel("Available Equipment");
+        final JPanel grid = new JPanel(new GridLayout(0, 3, 8, 4));
+        grid.setBackground(Color.WHITE);
+
+        for (Equipment e : Equipment.values()) {
+            // Filter out individual stationary bike to replace with combined option
+            if (e.name().equalsIgnoreCase("STATIONARY_BIKE") || e.toString().equalsIgnoreCase("Stationary Bike")) {
+                continue;
+            }
+            final JCheckBox cb = new JCheckBox(e.toString());
+            cb.setBackground(Color.WHITE);
+            equipmentCheckBoxes.put(e, cb);
+            grid.add(cb);
+        }
+        eqCombinedBikeCheckBox.setBackground(Color.WHITE);
+        grid.add(eqCombinedBikeCheckBox);
+
+        card.add(grid);
+        return card;
+    }
+
+    private <E extends Enum<E>> JPanel createCheckBoxGridPanel(String title, E[] values, Map<E, JCheckBox> checkBoxMap, int columns) {
+        final JPanel card = createCardPanel(title);
+        final JPanel grid = new JPanel(new GridLayout(0, columns, 8, 4));
+        grid.setBackground(Color.WHITE);
+
         for (E value : values) {
             final JCheckBox checkBox = new JCheckBox(value.toString());
+            checkBox.setBackground(Color.WHITE);
             checkBoxMap.put(value, checkBox);
-            panel.add(checkBox);
+            grid.add(checkBox);
         }
-        return panel;
+        card.add(grid);
+        return card;
+    }
+
+    private JPanel createDurationPresetPanel() {
+        final JPanel card = createCardPanel("Preferred Workout Duration");
+        final JPanel flow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        flow.setBackground(Color.WHITE);
+
+        final JCheckBox[] boxes = {dur15, dur30, dur45, dur60, dur75, dur90, dur105, dur120, durOther};
+        for (JCheckBox cb : boxes) {
+            cb.setBackground(Color.WHITE);
+            flow.add(cb);
+        }
+        flow.add(customDurationField);
+        card.add(flow);
+        return card;
+    }
+
+    private JPanel createPrivacyPanel() {
+        final JPanel card = createCardPanel("Privacy Settings");
+        for (PrivacySetting setting : PrivacySetting.values()) {
+            String labelText = setting.toString();
+            if (setting.name().equalsIgnoreCase("SHARE_WORKOUT_ACTIVITY") ||
+                    labelText.toLowerCase().contains("workout activity")) {
+                labelText = "Share workout activity (includes completed workouts, calories burned, progress stats, graphs)";
+            } else if (labelText.toLowerCase().contains("meal logs")) {
+                continue;
+            }
+            final JCheckBox checkBox = new JCheckBox(labelText);
+            checkBox.setBackground(Color.WHITE);
+            privacyCheckBoxes.put(setting, checkBox);
+            card.add(checkBox);
+        }
+        return card;
+    }
+
+    private void styleButton(JButton btn, Color bg) {
+        btn.setBackground(bg);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     private void updateUnitLabels() {
@@ -161,6 +326,21 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         }
     }
 
+    private int calculateSelectedDurationMinutes() {
+        if (durOther.isSelected() && !customDurationField.getText().trim().isEmpty()) {
+            return Integer.parseInt(customDurationField.getText().trim());
+        }
+        if (dur120.isSelected()) return 120;
+        if (dur105.isSelected()) return 105;
+        if (dur90.isSelected()) return 90;
+        if (dur75.isSelected()) return 75;
+        if (dur60.isSelected()) return 60;
+        if (dur45.isSelected()) return 45;
+        if (dur30.isSelected()) return 30;
+        if (dur15.isSelected()) return 15;
+        return 45;
+    }
+
     private void onSave(ActionEvent evt) {
         if (profileController == null) {
             return;
@@ -178,7 +358,17 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
                 dob = LocalDate.parse(dobField.getText().trim());
             }
 
-            final int duration = Integer.parseInt(durationField.getText().trim());
+            final int durationMinutes = calculateSelectedDurationMinutes();
+
+            // Map combined bike checkbox to Equipment enum state if selected
+            final Set<Equipment> selectedEquipment = getSelectedItems(equipmentCheckBoxes);
+            if (eqCombinedBikeCheckBox.isSelected()) {
+                for (Equipment e : Equipment.values()) {
+                    if (e.name().equalsIgnoreCase("STATIONARY_BIKE") || e.toString().equalsIgnoreCase("Stationary Bike")) {
+                        selectedEquipment.add(e);
+                    }
+                }
+            }
 
             profileController.execute(
                     heightMetres,
@@ -190,10 +380,10 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
                     (Gender) genderBox.getSelectedItem(),
                     bioArea.getText().trim(),
                     selectedUnit,
-                    getSelectedItems(equipmentCheckBoxes),
+                    selectedEquipment,
                     getSelectedItems(dietaryCheckBoxes),
                     getSelectedItems(dayCheckBoxes),
-                    duration,
+                    durationMinutes,
                     getSelectedItems(privacyCheckBoxes)
             );
         } catch (NumberFormatException ex) {
@@ -256,12 +446,23 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         bioArea.setText(state.getBio());
         activityLevelBox.setSelectedItem(state.getActivityLevel());
         goalBox.setSelectedItem(state.getGoal());
-        durationField.setText(String.valueOf(state.getPreferredWorkoutDurationMinutes()));
 
         setSelectedItems(equipmentCheckBoxes, state.getEquipment());
         setSelectedItems(dietaryCheckBoxes, state.getDietaryRestrictions());
         setSelectedItems(dayCheckBoxes, state.getPreferredWorkoutDays());
         setSelectedItems(privacyCheckBoxes, state.getPrivacySettings());
+
+        // Sync combined bike checkbox state
+        if (state.getEquipment() != null) {
+            boolean hasBike = false;
+            for (Equipment e : state.getEquipment()) {
+                if (e.name().contains("BIKE") || e.toString().toLowerCase().contains("bike")) {
+                    hasBike = true;
+                    break;
+                }
+            }
+            eqCombinedBikeCheckBox.setSelected(hasBike);
+        }
 
         selectedProfilePicturePath = state.getProfilePicturePath();
         setPicturePreview(selectedProfilePicturePath);
