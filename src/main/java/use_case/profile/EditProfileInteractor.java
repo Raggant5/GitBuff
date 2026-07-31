@@ -4,8 +4,7 @@ import entity.User;
 import use_case.recommendation.RecommendationInputBoundary;
 
 /**
- * The Edit Profile Interactor. Saves the current user's profile details and
- * refreshes their personalized recommendations.
+ * The Edit Profile Interactor. Saves profile details and refreshes personalized recommendations.
  */
 public class EditProfileInteractor implements EditProfileInputBoundary {
 
@@ -13,28 +12,35 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
     private final EditProfileOutputBoundary profilePresenter;
     private final RecommendationInputBoundary recommendationInteractor;
 
-    public EditProfileInteractor(ProfileUserDataAccessInterface userDataAccessObject,
-                                 EditProfileOutputBoundary profileOutputBoundary,
-                                 RecommendationInputBoundary recommendationInteractor) {
+    /**
+     * Constructs an EditProfileInteractor instance.
+     *
+     * @param userDataAccessObject profile data access object
+     * @param profileOutputBoundary profile output boundary presenter
+     * @param recommendationInteractor interactor boundary for refreshing recommendations
+     */
+    public EditProfileInteractor(final ProfileUserDataAccessInterface userDataAccessObject,
+                                 final EditProfileOutputBoundary profileOutputBoundary,
+                                 final RecommendationInputBoundary recommendationInteractor) {
         this.userDataAccessObject = userDataAccessObject;
         this.profilePresenter = profileOutputBoundary;
         this.recommendationInteractor = recommendationInteractor;
     }
 
     @Override
-    public void execute(EditProfileInputData editProfileInputData) {
-        final String username = userDataAccessObject.getCurrentUsername();
+    public void execute(final EditProfileInputData editProfileInputData) {
+        final String username = this.userDataAccessObject.getCurrentUsername();
         if (username == null) {
-            profilePresenter.prepareFailView("No user is currently logged in.");
+            this.profilePresenter.prepareFailView("No user is currently logged in.");
             return;
         }
 
         if (editProfileInputData.getHeight() <= 0.0f || editProfileInputData.getWeight() <= 0.0f) {
-            profilePresenter.prepareFailView("Height and weight must both be greater than zero.");
+            this.profilePresenter.prepareFailView("Height and weight must both be greater than zero.");
             return;
         }
 
-        final User user = userDataAccessObject.get(username);
+        final User user = this.userDataAccessObject.get(username);
         user.setHeight(editProfileInputData.getHeight());
         user.setWeight(editProfileInputData.getWeight());
         user.setActivityLevel(editProfileInputData.getActivityLevel());
@@ -50,7 +56,7 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
         user.setPreferredWorkoutDurationMinutes(editProfileInputData.getPreferredWorkoutDurationMinutes());
         user.setPrivacySettings(editProfileInputData.getPrivacySettings());
 
-        userDataAccessObject.save(user);
+        this.userDataAccessObject.save(user);
 
         final EditProfileOutputData outputData = new EditProfileOutputData(
                 user.getName(), user.getHeight(), user.getWeight(),
@@ -59,8 +65,8 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
                 user.getPreferredUnitSystem(), user.getEquipment(), user.getDietaryRestrictions(),
                 user.getPreferredWorkoutDays(), user.getPreferredWorkoutDurationMinutes(),
                 user.getPrivacySettings());
-        profilePresenter.prepareSuccessView(outputData);
+        this.profilePresenter.prepareSuccessView(outputData);
 
-        recommendationInteractor.execute();
+        this.recommendationInteractor.execute();
     }
 }

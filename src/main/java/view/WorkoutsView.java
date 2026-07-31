@@ -32,7 +32,7 @@ import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
 
 /**
- * Modern Workouts View with clean Cal unit labels and image-free burn banners.
+ * Modern Workouts View displaying daily AI workout plans, exercise details, and calorie burn estimates.
  */
 public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
@@ -42,6 +42,10 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private static final Color REST_COLOR = new Color(149, 165, 166);
     private static final Color CARD_BORDER = new Color(220, 224, 230);
     private static final Color BURN_BG = new Color(245, 247, 250);
+
+    private static final int MODAL_WIDTH = 450;
+    private static final int MODAL_HEIGHT = 320;
+    private static final int DAYS_IN_WEEK = 7;
 
     private final String viewName = "workouts";
     private final WorkoutsViewModel workoutsViewModel;
@@ -53,12 +57,17 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
     private RecommendationController recommendationController;
 
+    /**
+     * Constructs a WorkoutsView instance.
+     *
+     * @param workoutsViewModel view model for managing workout schedule state
+     */
     public WorkoutsView(final WorkoutsViewModel workoutsViewModel) {
         this.workoutsViewModel = workoutsViewModel;
         this.workoutsViewModel.addPropertyChangeListener(this);
 
-        setLayout(new BorderLayout());
-        setBackground(BG_DARK);
+        this.setLayout(new BorderLayout());
+        this.setBackground(BG_DARK);
 
         final JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
@@ -111,9 +120,9 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             }
         });
 
-        add(topPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
-        add(this.refreshButton, BorderLayout.SOUTH);
+        this.add(topPanel, BorderLayout.NORTH);
+        this.add(scrollPane, BorderLayout.CENTER);
+        this.add(this.refreshButton, BorderLayout.SOUTH);
 
         displayState(this.workoutsViewModel.getState());
     }
@@ -141,7 +150,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         else {
             for (int i = 0; i < plans.size(); i++) {
                 final WorkoutPlan plan = plans.get(i);
-                final JPanel targetWeekContainer = (i < 7) ? this.week1Container : this.week2Container;
+                final JPanel targetWeekContainer = (i < DAYS_IN_WEEK) ? this.week1Container : this.week2Container;
 
                 final JPanel planCard = new JPanel();
                 planCard.setLayout(new BoxLayout(planCard, BoxLayout.Y_AXIS));
@@ -189,8 +198,9 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                     final JPanel exercisesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
                     exercisesPanel.setBackground(Color.WHITE);
 
-                    for (Exercise exercise : plan.getExercises()) {
-                        final JButton exButton = new JButton(exercise.getName() + " [" + exercise.getSetsAndReps() + "]");
+                    for (final Exercise exercise : plan.getExercises()) {
+                        final JButton exButton = new JButton(exercise.getName() + " ["
+                                + exercise.getSetsAndReps() + "]");
                         exButton.setFont(new Font("SansSerif", Font.PLAIN, 12));
                         exButton.setBackground(new Color(235, 243, 250));
                         exButton.setForeground(PRIMARY_COLOR);
@@ -211,14 +221,15 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
         this.week1Container.revalidate();
         this.week2Container.revalidate();
-        revalidate();
-        repaint();
+        this.revalidate();
+        this.repaint();
     }
 
     private void showExerciseGuideModal(final Exercise exercise) {
-        final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Exercise Guide: " + exercise.getName());
+        final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this),
+                "Exercise Guide: " + exercise.getName());
         dialog.setModal(true);
-        dialog.setSize(450, 320);
+        dialog.setSize(MODAL_WIDTH, MODAL_HEIGHT);
         dialog.setLocationRelativeTo(this);
 
         final JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
@@ -257,7 +268,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                 try {
                     Desktop.getDesktop().browse(new URI(exercise.getVideoUrl()));
                 }
-                catch (Exception ex) {
+                catch (final Exception ex) {
                     JOptionPane.showMessageDialog(dialog, "Could not open URL: " + exercise.getVideoUrl());
                 }
             }
@@ -278,10 +289,20 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         displayState((WorkoutsState) evt.getNewValue());
     }
 
+    /**
+     * Gets the view name.
+     *
+     * @return view name string
+     */
     public String getViewName() {
         return this.viewName;
     }
 
+    /**
+     * Sets the recommendation controller.
+     *
+     * @param recommendationController controller instance
+     */
     public void setRecommendationController(final RecommendationController recommendationController) {
         this.recommendationController = recommendationController;
     }

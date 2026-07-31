@@ -1,6 +1,10 @@
 package entity;
 
+/**
+ * Options for configuring user privacy and data sharing settings.
+ */
 public enum PrivacySetting {
+
     SHARE_PROFILE("Share Profile Bio & Picture"),
     SHARE_WORKOUT_LOGS("Share Workout Activity"),
     SHARE_PERSONAL_RECORDS("Share Personal Records (PRs)"),
@@ -9,16 +13,21 @@ public enum PrivacySetting {
 
     private final String displayName;
 
-    PrivacySetting(String displayName) {
+    PrivacySetting(final String displayName) {
         this.displayName = displayName;
     }
 
+    /**
+     * Gets the display string for privacy setting.
+     *
+     * @return display string
+     */
     public String getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     @Override
     public String toString() {
-        return displayName;
+        return this.displayName;
     }
 }

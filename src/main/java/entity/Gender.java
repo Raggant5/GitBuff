@@ -1,6 +1,10 @@
 package entity;
 
+/**
+ * Represents gender identity choices for a user profile.
+ */
 public enum Gender {
+
     MALE("Male"),
     FEMALE("Female"),
     OTHER("Other"),
@@ -8,16 +12,21 @@ public enum Gender {
 
     private final String displayName;
 
-    Gender(String displayName) {
+    Gender(final String displayName) {
         this.displayName = displayName;
     }
 
+    /**
+     * Gets the display string for gender.
+     *
+     * @return display string
+     */
     public String getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     @Override
     public String toString() {
-        return displayName;
+        return this.displayName;
     }
 }

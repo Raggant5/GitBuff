@@ -1,12 +1,19 @@
 package view;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -19,21 +26,31 @@ import interface_adapter.login.LoginViewModel;
  */
 public class LoginView extends JPanel implements ActionListener, PropertyChangeListener {
 
+    private static final int ROW_WIDTH = 450;
+    private static final int ROW_HEIGHT = 45;
+    private static final int INPUT_WIDTH = 250;
+    private static final int INPUT_HEIGHT = 30;
+    private static final int ERROR_HEIGHT = 25;
+    private static final int FIELD_COLUMNS = 15;
+
     private final String viewName = "log in";
     private final LoginViewModel loginViewModel;
 
-    private final JTextField usernameInputField = new JTextField(15);
+    private final JTextField usernameInputField = new JTextField(FIELD_COLUMNS);
     private final JLabel usernameErrorField = new JLabel();
 
-    private final JPasswordField passwordInputField = new JPasswordField(15);
-    private final JLabel passwordErrorField = new JLabel();
+    private final JPasswordField passwordInputField = new JPasswordField(FIELD_COLUMNS);
 
     private final JButton logIn;
     private final JButton signup;
     private LoginController loginController;
 
-    public LoginView(LoginViewModel loginViewModel) {
-
+    /**
+     * Constructs a LoginView instance.
+     *
+     * @param loginViewModel view model for managing login state
+     */
+    public LoginView(final LoginViewModel loginViewModel) {
         this.loginViewModel = loginViewModel;
         this.loginViewModel.addPropertyChangeListener(this);
 
@@ -41,104 +58,95 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         final LabelTextPanel usernameInfo = new LabelTextPanel(
-                new JLabel("Username"), usernameInputField);
+                new JLabel("Username"), this.usernameInputField);
         final LabelTextPanel passwordInfo = new LabelTextPanel(
-                new JLabel("Password"), passwordInputField);
+                new JLabel("Password"), this.passwordInputField);
 
         final JPanel buttons = new JPanel();
-        logIn = new JButton("log in");
-        buttons.add(logIn);
-        signup = new JButton("signup");
-        buttons.add(signup);
+        this.logIn = new JButton("log in");
+        buttons.add(this.logIn);
+        this.signup = new JButton("signup");
+        buttons.add(this.signup);
 
-        logIn.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) {
-                        if (evt.getSource().equals(logIn)) {
-                            final LoginState currentState = loginViewModel.getState();
-
-                            loginController.execute(
-                                    currentState.getUsername(),
-                                    currentState.getPassword()
-                            );
-                        }
-                    }
-                }
-        );
-
-        signup.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                if (evt.getSource().equals(signup)) {
-                    final LoginState currentState = loginViewModel.getState();
-                    currentState.setUsername("");
-                    currentState.setPassword("");
-                    currentState.setLoginError("");
-                    loginViewModel.firePropertyChanged();
-                    loginController.switchToSignupView();
-                }
+        this.logIn.addActionListener(evt -> {
+            if (evt.getSource().equals(LoginView.this.logIn) && LoginView.this.loginController != null) {
+                final LoginState currentState = LoginView.this.loginViewModel.getState();
+                LoginView.this.loginController.execute(
+                        currentState.getUsername(),
+                        currentState.getPassword()
+                );
             }
         });
 
-        usernameInputField.getDocument().addDocumentListener(new DocumentListener() {
+        this.signup.addActionListener(evt -> {
+            if (evt.getSource().equals(LoginView.this.signup) && LoginView.this.loginController != null) {
+                final LoginState currentState = LoginView.this.loginViewModel.getState();
+                currentState.setUsername("");
+                currentState.setPassword("");
+                currentState.setLoginError("");
+                LoginView.this.loginViewModel.firePropertyChanged();
+                LoginView.this.loginController.switchToSignupView();
+            }
+        });
 
+        this.usernameInputField.getDocument().addDocumentListener(new DocumentListener() {
             private void documentListenerHelper() {
-                final LoginState currentState = loginViewModel.getState();
-                currentState.setUsername(usernameInputField.getText());
-                loginViewModel.setState(currentState);
+                final LoginState currentState = LoginView.this.loginViewModel.getState();
+                currentState.setUsername(LoginView.this.usernameInputField.getText());
+                LoginView.this.loginViewModel.setState(currentState);
             }
 
             @Override
-            public void insertUpdate(DocumentEvent e) {
+            public void insertUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent e) {
+            public void removeUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e) {
+            public void changedUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
         });
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        passwordInputField.getDocument().addDocumentListener(new DocumentListener() {
-
+        this.passwordInputField.getDocument().addDocumentListener(new DocumentListener() {
             private void documentListenerHelper() {
-                final LoginState currentState = loginViewModel.getState();
-                currentState.setPassword(new String(passwordInputField.getPassword()));
-                loginViewModel.setState(currentState);
+                final LoginState currentState = LoginView.this.loginViewModel.getState();
+                currentState.setPassword(new String(LoginView.this.passwordInputField.getPassword()));
+                LoginView.this.loginViewModel.setState(currentState);
             }
 
             @Override
-            public void insertUpdate(DocumentEvent e) {
+            public void insertUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent e) {
+            public void removeUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e) {
+            public void changedUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
         });
 
-        Dimension rowSize = new Dimension(450, 45);
-        Dimension inputSize = new Dimension(250, 30);
+        final Dimension rowSize = new Dimension(ROW_WIDTH, ROW_HEIGHT);
+        final Dimension inputSize = new Dimension(INPUT_WIDTH, INPUT_HEIGHT);
 
-        usernameInputField.setPreferredSize(inputSize);
-        usernameInputField.setMinimumSize(inputSize);
-        usernameInputField.setMaximumSize(inputSize);
+        this.usernameInputField.setPreferredSize(inputSize);
+        this.usernameInputField.setMinimumSize(inputSize);
+        this.usernameInputField.setMaximumSize(inputSize);
 
-        passwordInputField.setPreferredSize(inputSize);
-        passwordInputField.setMinimumSize(inputSize);
-        passwordInputField.setMaximumSize(inputSize);
+        this.passwordInputField.setPreferredSize(inputSize);
+        this.passwordInputField.setMinimumSize(inputSize);
+        this.passwordInputField.setMaximumSize(inputSize);
 
         usernameInfo.setPreferredSize(rowSize);
         usernameInfo.setMinimumSize(rowSize);
@@ -148,46 +156,53 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         passwordInfo.setMinimumSize(rowSize);
         passwordInfo.setMaximumSize(rowSize);
 
-        usernameErrorField.setPreferredSize(new Dimension(450, 25));
-        usernameErrorField.setMinimumSize(new Dimension(450, 25));
-        usernameErrorField.setMaximumSize(new Dimension(450, 25));
+        this.usernameErrorField.setPreferredSize(new Dimension(ROW_WIDTH, ERROR_HEIGHT));
+        this.usernameErrorField.setMinimumSize(new Dimension(ROW_WIDTH, ERROR_HEIGHT));
+        this.usernameErrorField.setMaximumSize(new Dimension(ROW_WIDTH, ERROR_HEIGHT));
 
         buttons.setMaximumSize(buttons.getPreferredSize());
 
         this.add(Box.createVerticalGlue());
         this.add(title);
         this.add(usernameInfo);
-        this.add(usernameErrorField);
+        this.add(this.usernameErrorField);
         this.add(passwordInfo);
         this.add(buttons);
         this.add(Box.createVerticalGlue());
     }
 
-    /**
-     * React to a button click that results in evt.
-     * @param evt the ActionEvent to react to
-     */
-    public void actionPerformed(ActionEvent evt) {
-        System.out.println("Click " + evt.getActionCommand());
+    @Override
+    public void actionPerformed(final ActionEvent evt) {
+        // Reserved for direct action command listening if required
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(final PropertyChangeEvent evt) {
         final LoginState state = (LoginState) evt.getNewValue();
         setFields(state);
-        usernameErrorField.setText(state.getLoginError());
+        this.usernameErrorField.setText(state.getLoginError());
     }
 
-    private void setFields(LoginState state) {
-        usernameInputField.setText(state.getUsername());
-        passwordInputField.setText(state.getPassword());
+    private void setFields(final LoginState state) {
+        this.usernameInputField.setText(state.getUsername());
+        this.passwordInputField.setText(state.getPassword());
     }
 
+    /**
+     * Gets the view name.
+     *
+     * @return view name string
+     */
     public String getViewName() {
-        return viewName;
+        return this.viewName;
     }
 
-    public void setLoginController(LoginController loginController) {
+    /**
+     * Sets the controller for executing login actions.
+     *
+     * @param loginController controller instance
+     */
+    public void setLoginController(final LoginController loginController) {
         this.loginController = loginController;
     }
 }

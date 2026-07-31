@@ -38,30 +38,65 @@ public class WorkoutPlan {
         this.exercises = exercises;
     }
 
+    /**
+     * Gets the date or day label of the plan.
+     *
+     * @return date string
+     */
     public String getDate() {
         return this.date;
     }
 
+    /**
+     * Gets the title of the workout plan.
+     *
+     * @return title string
+     */
     public String getTitle() {
         return this.title;
     }
 
+    /**
+     * Gets the description summary of the workout.
+     *
+     * @return description string
+     */
     public String getDescription() {
         return this.description;
     }
 
+    /**
+     * Gets the estimated total calories burned.
+     *
+     * @return calories burned
+     */
     public int getEstimatedCaloriesBurned() {
         return this.estimatedCaloriesBurned;
     }
 
+    /**
+     * Gets the estimated fat burned in grams.
+     *
+     * @return fat burned in grams
+     */
     public int getEstimatedFatBurnedGrams() {
         return this.estimatedFatBurnedGrams;
     }
 
+    /**
+     * Gets the estimated carbs burned in grams.
+     *
+     * @return carbs burned in grams
+     */
     public int getEstimatedCarbsBurnedGrams() {
         return this.estimatedCarbsBurnedGrams;
     }
 
+    /**
+     * Gets the list of prescribed exercises.
+     *
+     * @return list of exercise objects
+     */
     public List<Exercise> getExercises() {
         return this.exercises;
     }

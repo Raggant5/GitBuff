@@ -3,35 +3,42 @@ package use_case.login;
 import entity.User;
 
 /**
- * The Login Interactor.
+ * Interactor implementing business logic for the Login Use Case.
  */
 public class LoginInteractor implements LoginInputBoundary {
+
     private final LoginUserDataAccessInterface userDataAccessObject;
     private final LoginOutputBoundary loginPresenter;
 
-    public LoginInteractor(LoginUserDataAccessInterface userDataAccessInterface,
-                           LoginOutputBoundary loginOutputBoundary) {
+    /**
+     * Constructs a LoginInteractor instance.
+     *
+     * @param userDataAccessInterface user data access persistence object
+     * @param loginOutputBoundary output boundary presenter
+     */
+    public LoginInteractor(final LoginUserDataAccessInterface userDataAccessInterface,
+                           final LoginOutputBoundary loginOutputBoundary) {
         this.userDataAccessObject = userDataAccessInterface;
         this.loginPresenter = loginOutputBoundary;
     }
 
     @Override
-    public void execute(LoginInputData loginInputData) {
+    public void execute(final LoginInputData loginInputData) {
         final String username = loginInputData.getUsername();
         final String password = loginInputData.getPassword();
-        if (!userDataAccessObject.existsByName(username)) {
-            loginPresenter.prepareFailView(username + ": Account does not exist.");
+
+        if (!this.userDataAccessObject.existsByName(username)) {
+            this.loginPresenter.prepareFailView(username + ": Account does not exist.");
         }
         else {
-            final String pwd = userDataAccessObject.get(username).getPassword();
+            final String pwd = this.userDataAccessObject.get(username).getPassword();
             if (!password.equals(pwd)) {
-                loginPresenter.prepareFailView("Incorrect password for \"" + username + "\".");
+                this.loginPresenter.prepareFailView("Incorrect password for \"" + username + "\".");
             }
             else {
+                final User user = this.userDataAccessObject.get(username);
+                this.userDataAccessObject.setCurrentUsername(username);
 
-                final User user = userDataAccessObject.get(loginInputData.getUsername());
-
-                userDataAccessObject.setCurrentUsername(username);
                 final LoginOutputData loginOutputData = new LoginOutputData(
                         user.getName(),
                         user.getHeight(),
@@ -41,12 +48,13 @@ public class LoginInteractor implements LoginInputBoundary {
                         user.getProfilePicturePath(),
                         false
                 );
-                loginPresenter.prepareSuccessView(loginOutputData);
+                this.loginPresenter.prepareSuccessView(loginOutputData);
             }
         }
     }
+
     @Override
     public void switchToSignupView() {
-        loginPresenter.switchToSignupView();
+        this.loginPresenter.switchToSignupView();
     }
 }

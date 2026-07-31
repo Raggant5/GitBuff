@@ -17,6 +17,13 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
     private final RecommendationOutputBoundary recommendationPresenter;
     private final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject;
 
+    /**
+     * Constructs a RecommendationInteractor instance.
+     *
+     * @param userDataAccessObject user data access interface
+     * @param recommendationOutputBoundary presenter output boundary
+     * @param aiWorkoutDataAccessObject AI workout generation data access interface
+     */
     public RecommendationInteractor(final RecommendationUserDataAccessInterface userDataAccessObject,
                                     final RecommendationOutputBoundary recommendationOutputBoundary,
                                     final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject) {

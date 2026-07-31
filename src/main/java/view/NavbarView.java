@@ -1,16 +1,23 @@
 package view;
 
+import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.logout.LogoutController;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
 
-import javax.swing.*;
-import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
+/**
+ * The View for the navigation bar, allowing switching between main views and logging out.
+ */
 public class NavbarView extends JPanel implements PropertyChangeListener {
 
     private final String viewName = "navbar";
@@ -21,78 +28,105 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
     private final JButton logOut = new JButton("Log Out");
     private LogoutController logoutController;
 
-    public NavbarView(MainViewManagerModel mainViewManagerModel, ViewManagerModel viewManagerModel,
-                      ProfileViewModel profileViewModel) {
-        toDashboard.addActionListener(evt -> {
+    /**
+     * Constructs a NavbarView instance.
+     *
+     * @param mainViewManagerModel manager model for active main tab view
+     * @param viewManagerModel manager model for top-level view navigation
+     * @param profileViewModel view model for logged-in user profile state
+     */
+    public NavbarView(final MainViewManagerModel mainViewManagerModel,
+                      final ViewManagerModel viewManagerModel,
+                      final ProfileViewModel profileViewModel) {
+        this.toDashboard.addActionListener(evt -> {
             mainViewManagerModel.setState("dashboard");
             mainViewManagerModel.firePropertyChanged();
         });
 
-        toWorkouts.addActionListener(evt -> {
+        this.toWorkouts.addActionListener(evt -> {
             mainViewManagerModel.setState("workouts");
             mainViewManagerModel.firePropertyChanged();
         });
 
-        toNutrition.addActionListener(evt -> {
+        this.toNutrition.addActionListener(evt -> {
             mainViewManagerModel.setState("nutrition");
             mainViewManagerModel.firePropertyChanged();
         });
 
-        toProfile.addActionListener(evt -> {
+        this.toProfile.addActionListener(evt -> {
             mainViewManagerModel.setState("profile");
             mainViewManagerModel.firePropertyChanged();
         });
 
-        logOut.addActionListener(evt -> {
+        this.logOut.addActionListener(evt -> {
             mainViewManagerModel.setState("dashboard");
             mainViewManagerModel.firePropertyChanged();
             final ProfileState profileState = profileViewModel.getState();
-            this.logoutController.execute(profileState.getUsername());
+            if (this.logoutController != null) {
+                this.logoutController.execute(profileState.getUsername());
+            }
             viewManagerModel.setState("log in");
             viewManagerModel.firePropertyChanged();
         });
 
-        this.add(toDashboard);
-        this.add(toWorkouts);
-        this.add(toNutrition);
-        this.add(toProfile);
-        this.add(logOut);
+        this.add(this.toDashboard);
+        this.add(this.toWorkouts);
+        this.add(this.toNutrition);
+        this.add(this.toProfile);
+        this.add(this.logOut);
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     }
 
-    private void updateSelectedButton(String page) {
+    private void updateSelectedButton(final String page) {
+        final Color defaultColor = UIManager.getColor("Button.background");
+        final Color selectedColour = Color.LIGHT_GRAY;
 
-        Color defaultColor = UIManager.getColor("Button.background");
-        Color selectedColour = Color.LIGHT_GRAY;
-
-        toDashboard.setBackground(defaultColor);
-        toWorkouts.setBackground(defaultColor);
-        toNutrition.setBackground(defaultColor);
-        toProfile.setBackground(defaultColor);
+        this.toDashboard.setBackground(defaultColor);
+        this.toWorkouts.setBackground(defaultColor);
+        this.toNutrition.setBackground(defaultColor);
+        this.toProfile.setBackground(defaultColor);
 
         switch (page) {
-            case "dashboard": toDashboard.setBackground(selectedColour); break;
-            case "workouts": toWorkouts.setBackground(selectedColour); break;
-            case "nutrition": toNutrition.setBackground(selectedColour); break;
-            case "profile": toProfile.setBackground(selectedColour); break;
-            default: break;
+            case "dashboard":
+                this.toDashboard.setBackground(selectedColour);
+                break;
+            case "workouts":
+                this.toWorkouts.setBackground(selectedColour);
+                break;
+            case "nutrition":
+                this.toNutrition.setBackground(selectedColour);
+                break;
+            case "profile":
+                this.toProfile.setBackground(selectedColour);
+                break;
+            default:
+                break;
         }
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals("state")) {
-            String currentPage = (String) evt.getNewValue();
+    public void propertyChange(final PropertyChangeEvent evt) {
+        if ("state".equals(evt.getPropertyName())) {
+            final String currentPage = (String) evt.getNewValue();
             updateSelectedButton(currentPage);
         }
-
     }
+
+    /**
+     * Gets the view name.
+     *
+     * @return view name string
+     */
     public String getViewName() {
-        return viewName;
+        return this.viewName;
     }
 
-    public void setLogoutController(LogoutController logoutController) {
+    /**
+     * Sets the logout controller.
+     *
+     * @param logoutController controller instance
+     */
+    public void setLogoutController(final LogoutController logoutController) {
         this.logoutController = logoutController;
     }
-
 }

@@ -26,18 +26,38 @@ public class Exercise {
         this.videoUrl = videoUrl;
     }
 
+    /**
+     * Gets the exercise name.
+     *
+     * @return exercise name
+     */
     public String getName() {
         return this.name;
     }
 
+    /**
+     * Gets the sets and reps requirement.
+     *
+     * @return sets and reps string
+     */
     public String getSetsAndReps() {
         return this.setsAndReps;
     }
 
+    /**
+     * Gets step-by-step exercise instructions.
+     *
+     * @return instructions string
+     */
     public String getInstructions() {
         return this.instructions;
     }
 
+    /**
+     * Gets the link to video or visual demonstration.
+     *
+     * @return video URL string
+     */
     public String getVideoUrl() {
         return this.videoUrl;
     }

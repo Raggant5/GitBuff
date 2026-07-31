@@ -29,7 +29,6 @@ public class RecommendationPresenter implements RecommendationOutputBoundary {
 
     @Override
     public void prepareSuccessView(final RecommendationOutputData outputData) {
-        // Update Nutrition ViewModel strictly with methods that exist on NutritionState
         final NutritionState nutritionState = this.nutritionViewModel.getState();
         nutritionState.setBmi(outputData.getBmi());
         nutritionState.setDailyCalorieTarget(outputData.getDailyCalorieTarget());
@@ -37,7 +36,6 @@ public class RecommendationPresenter implements RecommendationOutputBoundary {
         nutritionState.setMessage("");
         this.nutritionViewModel.firePropertyChanged();
 
-        // Update Workouts ViewModel with structured 2-week AI plans
         final WorkoutsState workoutsState = this.workoutsViewModel.getState();
         workoutsState.setWorkoutFocus(outputData.getWorkoutFocus());
         workoutsState.setActivityLevelDescription(outputData.getActivityLevelDescription());

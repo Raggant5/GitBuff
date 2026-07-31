@@ -57,30 +57,27 @@ import view.ViewManager;
 import view.WorkoutsView;
 
 /**
- * The AppBuilder class is responsible for putting together the pieces of
- * our Clean Architecture setup step by step.
+ * The AppBuilder class is responsible for assembling Clean Architecture components step by step.
  */
 public class AppBuilder {
 
     private static final int APP_WIDTH = 1000;
     private static final int APP_HEIGHT = 700;
+    private static final String DEFAULT_AI_KEY = "AQ.Ab8RN6Inu0Wu2JRz3iykliAk3LF0gzpWFxAYAYYJDuJBSHQJww";
 
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
-    private final ViewManager viewManager = new ViewManager(this.cardPanel, this.cardLayout, this.viewManagerModel);
 
     private final JPanel mainPanel = new JPanel();
     private final CardLayout mainCardLayout = new CardLayout();
     private final MainViewManagerModel mainViewManagerModel = new MainViewManagerModel();
-    private final MainViewManager mainViewManager;
 
     private final UserFactory userFactory = new CommonUserFactory();
     private final SQLiteUserDataAccessObject userDataAccessObject = new SQLiteUserDataAccessObject();
 
-    private final String aiApiKey = "AQ.Ab8RN6Inu0Wu2JRz3iykliAk3LF0gzpWFxAYAYYJDuJBSHQJww";
     private final AiWorkoutDataAccessInterface aiWorkoutDao =
-            new AiWorkoutDataAccessObject(this.aiApiKey);
+            new AiWorkoutDataAccessObject(DEFAULT_AI_KEY);
 
     private SignupView signupView;
     private SignupViewModel signupViewModel;
@@ -106,12 +103,13 @@ public class AppBuilder {
         this.cardPanel.setLayout(this.cardLayout);
         this.mainPanel.setLayout(this.mainCardLayout);
 
-        // Connect MainViewManager to mainPanel CardLayout so tab switching works!
-        this.mainViewManager = new MainViewManager(this.mainPanel, this.mainCardLayout, this.mainViewManagerModel);
+        new ViewManager(this.cardPanel, this.cardLayout, this.viewManagerModel);
+        new MainViewManager(this.mainPanel, this.mainCardLayout, this.mainViewManagerModel);
     }
 
     /**
      * Adds the Signup View to the application.
+     *
      * @return this builder
      */
     public AppBuilder addSignupView() {
@@ -123,6 +121,7 @@ public class AppBuilder {
 
     /**
      * Adds the Login View to the application.
+     *
      * @return this builder
      */
     public AppBuilder addLoginView() {
@@ -133,7 +132,8 @@ public class AppBuilder {
     }
 
     /**
-     * Adds the Main View to the application.
+     * Adds the Main Views to the application.
+     *
      * @return this builder
      */
     public AppBuilder addMainViews() {
@@ -155,6 +155,7 @@ public class AppBuilder {
 
     /**
      * Adds the Navbar View to the application.
+     *
      * @return this builder
      */
     public AppBuilder addNavbarView() {
@@ -163,7 +164,8 @@ public class AppBuilder {
     }
 
     /**
-     * Adds the Navbar + Main View to the application.
+     * Adds the App Shell View to the application.
+     *
      * @return this builder
      */
     public AppBuilder addShellView() {
@@ -174,6 +176,7 @@ public class AppBuilder {
 
     /**
      * Adds the Signup Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addSignupUseCase() {
@@ -189,6 +192,7 @@ public class AppBuilder {
 
     /**
      * Adds the Login Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addLoginUseCase() {
@@ -204,7 +208,8 @@ public class AppBuilder {
     }
 
     /**
-     * Adds the Recommendation Use Case to the application, incorporating the AI DAO.
+     * Adds the Recommendation Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addRecommendationUseCase() {
@@ -220,6 +225,7 @@ public class AppBuilder {
 
     /**
      * Adds the Edit Profile Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addProfileUseCase() {
@@ -234,6 +240,7 @@ public class AppBuilder {
 
     /**
      * Adds the Logout Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addLogoutUseCase() {
@@ -250,6 +257,7 @@ public class AppBuilder {
 
     /**
      * Creates the JFrame for the application and sets initial view.
+     *
      * @return the application frame
      */
     public JFrame build() {

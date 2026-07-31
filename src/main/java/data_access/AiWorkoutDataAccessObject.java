@@ -23,6 +23,13 @@ import use_case.recommendation.AiWorkoutDataAccessInterface;
 public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
     private static final int HTTP_OK = 200;
+    private static final int TIMEOUT_MILLIS = 6000;
+    private static final int SEED_MAX = 100000;
+    private static final int DEFAULT_CALORIES = 320;
+    private static final int DEFAULT_FAT = 15;
+    private static final int DEFAULT_CARBS = 45;
+    private static final int FALLBACK_DAYS = 14;
+
     private final String apiKey;
     private final Random random = new Random();
 
@@ -48,15 +55,16 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
-            connection.setConnectTimeout(6000);
-            connection.setReadTimeout(6000);
+            connection.setConnectTimeout(TIMEOUT_MILLIS);
+            connection.setReadTimeout(TIMEOUT_MILLIS);
             connection.setDoOutput(true);
 
             final LocalDate today = LocalDate.now();
             final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEEE, MMM d");
             final String startDateStr = today.format(fmt);
 
-            final String preferredDaysStr = (user.getPreferredWorkoutDays() == null || user.getPreferredWorkoutDays().isEmpty())
+            final String preferredDaysStr = (user.getPreferredWorkoutDays() == null
+                    || user.getPreferredWorkoutDays().isEmpty())
                     ? "Monday, Wednesday, Friday"
                     : user.getPreferredWorkoutDays().toString();
 
@@ -64,35 +72,31 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                     ? user.getPreferredWorkoutDurationMinutes() + " minutes"
                     : "45 minutes";
 
-            final int seed = this.random.nextInt(100000);
+            final int seed = this.random.nextInt(SEED_MAX);
 
             final String systemPrompt = String.format(
                     "Act as an expert athletic trainer. Generate a full 14-day (2-week) workout plan starting from %s. "
-                            + "VARIETY SEED: %d. DO NOT repeat the exact same exercise routine structure; mix up exercise selection and movement variations.\\n"
+                            + "VARIETY SEED: %d. Mix up exercise selection and movement variations.\\n"
                             + "CRITICAL RULE 1: ONLY schedule active workout plans on preferred days matching [%s]. "
                             + "All non-preferred days MUST be 'Rest & Recovery' with zero exercises [].\\n"
-                            + "CRITICAL RULE 2: Design each active routine to fit the user's preferred duration target of [%s].\\n"
-                            + "CRITICAL RULE 3: For every active routine, calculate estimated burn values for total calories (Cal), fat (g), and carbs (g).\\n"
-                            + "Output ONLY a valid JSON array matching this exact schema:\\n"
+                            + "CRITICAL RULE 2: Design active routines to fit duration target of [%s].\\n"
+                            + "CRITICAL RULE 3: Calculate burn values for total calories (Cal), fat (g), and carbs (g).\\n"
+                            + "Output ONLY a valid JSON array matching exact schema:\\n"
                             + "[{\\\"date\\\": \\\"Monday, Aug 3\\\", \\\"title\\\": \\\"Upper Body Focus\\\", "
-                            + "\\\"description\\\": \\\"Hypertrophy push/pull session\\\", \\\"estimatedCaloriesBurned\\\": 380, "
+                            + "\\\"description\\\": \\\"Hypertrophy session\\\", \\\"estimatedCaloriesBurned\\\": 380, "
                             + "\\\"estimatedFatBurnedGrams\\\": 18, \\\"estimatedCarbsBurnedGrams\\\": 55, "
                             + "\\\"exercises\\\": [{\\\"name\\\": \\\"Push-Ups\\\", \\\"setsAndReps\\\": \\\"3 sets of 12\\\", "
-                            + "\\\"instructions\\\": \\\"Lower chest smoothly to ground, keeping core tight.\\\", "
-                            + "\\\"videoUrl\\\": \\\"https://www.youtube.com/results?search_query=how+to+do+Push-Ups\\\"}]}]",
-                    startDateStr,
-                    seed,
-                    preferredDaysStr,
-                    preferredDurationStr
+                            + "\\\"instructions\\\": \\\"Lower chest smoothly.\\\", "
+                            + "\\\"videoUrl\\\": \\\"https://www.youtube.com/results?search_query=Push-Ups\\\"}]}]",
+                    startDateStr, seed, preferredDaysStr, preferredDurationStr
             );
 
             final String userContext = String.format(
                     "Goal: %s | Weight: %.1f kg | Equipment: %s | Preferred Days: %s | Target Duration: %s",
-                    user.getGoal().toString(),
-                    user.getWeight(),
-                    (user.getEquipment() == null || user.getEquipment().isEmpty()) ? "None" : user.getEquipment().toString(),
-                    preferredDaysStr,
-                    preferredDurationStr
+                    user.getGoal().toString(), user.getWeight(),
+                    (user.getEquipment() == null || user.getEquipment().isEmpty())
+                            ? "None" : user.getEquipment().toString(),
+                    preferredDaysStr, preferredDurationStr
             );
 
             final String jsonInputString = String.format(
@@ -122,7 +126,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             }
         }
         catch (final Throwable ex) {
-            // Fallback on timeout or API error
+            // Fallback gracefully on communication error
         }
         return getFallback2WeekPlans(user);
     }
@@ -142,7 +146,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                     .replace("\\\\", "\\");
 
             final String[] routineBlocks = rawJson.split("\\{\"date\":");
-            for (String block : routineBlocks) {
+            for (final String block : routineBlocks) {
                 if (!block.contains("title")) {
                     continue;
                 }
@@ -152,13 +156,13 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 }
                 final String title = extractVal(block, "title");
                 final String desc = extractVal(block, "description");
-                final int calories = extractInt(block, "estimatedCaloriesBurned", 320);
-                final int fat = extractInt(block, "estimatedFatBurnedGrams", 15);
-                final int carbs = extractInt(block, "estimatedCarbsBurnedGrams", 45);
+                final int calories = extractInt(block, "estimatedCaloriesBurned", DEFAULT_CALORIES);
+                final int fat = extractInt(block, "estimatedFatBurnedGrams", DEFAULT_FAT);
+                final int carbs = extractInt(block, "estimatedCarbsBurnedGrams", DEFAULT_CARBS);
 
                 final List<Exercise> exercises = new ArrayList<>();
                 final String[] exBlocks = block.split("\\{\"name\":");
-                for (String exBlock : exBlocks) {
+                for (final String exBlock : exBlocks) {
                     if (!exBlock.contains("setsAndReps")) {
                         continue;
                     }
@@ -175,7 +179,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             }
         }
         catch (final Exception ex) {
-            // Parsing fallback
+            // Return empty list if parsing encounters structure mismatch
         }
         return plans;
     }
@@ -213,7 +217,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         try {
             return Integer.parseInt(numStr.toString());
         }
-        catch (Exception e) {
+        catch (final Exception ex) {
             return defaultVal;
         }
     }
@@ -223,7 +227,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         final LocalDate today = LocalDate.now();
         final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEEE, MMM d");
 
-        for (int dayOffset = 0; dayOffset < 14; dayOffset++) {
+        for (int dayOffset = 0; dayOffset < FALLBACK_DAYS; dayOffset++) {
             final LocalDate date = today.plusDays(dayOffset);
             final String dateLabel = date.format(fmt);
 
@@ -238,7 +242,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
                 plans.add(new WorkoutPlan(dateLabel, "Full Body Conditioning",
                         "Focused routine targetting endurance and core stability.",
-                        350, 15, 50, exercises));
+                        DEFAULT_CALORIES, DEFAULT_FAT, DEFAULT_CARBS, exercises));
             }
             else {
                 plans.add(new WorkoutPlan(dateLabel, "Rest & Recovery",

@@ -24,6 +24,17 @@ import entity.WorkoutPlan;
  */
 public class RecommendationInteractorTest {
 
+    private static final float TEST_HEIGHT = 1.8f;
+    private static final float TEST_WEIGHT = 80f;
+    private static final int EXPECTED_CALORIES = 3028;
+    private static final int EXPECTED_PROTEIN = 160;
+    private static final int ESTIMATED_CALORIES_BURN = 350;
+    private static final int ESTIMATED_FAT_BURN = 15;
+    private static final int ESTIMATED_CARBS_BURN = 45;
+
+    /**
+     * Fake data access object implementing RecommendationUserDataAccessInterface for unit testing.
+     */
     private static class FakeDataAccessObject implements RecommendationUserDataAccessInterface {
         private final Map<String, User> users = new HashMap<>();
         private String currentUsername;
@@ -47,13 +58,17 @@ public class RecommendationInteractorTest {
         }
     }
 
+    /**
+     * Fake AI Workout data access object implementing AiWorkoutDataAccessInterface for unit testing.
+     */
     private static class FakeAiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         @Override
         public List<WorkoutPlan> generateWorkoutPlans(final User user) {
             final List<WorkoutPlan> plans = new ArrayList<>();
             final List<Exercise> exercises = new ArrayList<>();
             exercises.add(new Exercise("Push-Ups", "3 sets of 10", "Lower chest to ground.", "http://example.com"));
-            plans.add(new WorkoutPlan("Monday, Aug 3", "Upper Body", "Chest focus", exercises));
+            plans.add(new WorkoutPlan("Monday, Aug 3", "Upper Body", "Chest focus",
+                    ESTIMATED_CALORIES_BURN, ESTIMATED_FAT_BURN, ESTIMATED_CARBS_BURN, exercises));
             return plans;
         }
     }
@@ -64,8 +79,8 @@ public class RecommendationInteractorTest {
         final FakeAiWorkoutDataAccessObject aiDao = new FakeAiWorkoutDataAccessObject();
 
         final User user = new CommonUser("aahir", "password");
-        user.setHeight(1.8f);
-        user.setWeight(80f);
+        user.setHeight(TEST_HEIGHT);
+        user.setWeight(TEST_WEIGHT);
         user.setActivityLevel(ActivityLevel.MODERATELY_ACTIVE);
         user.setGoal(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN);
         dataAccessObject.save(user);
@@ -74,13 +89,13 @@ public class RecommendationInteractorTest {
         final RecommendationOutputBoundary presenter = new RecommendationOutputBoundary() {
             @Override
             public void prepareSuccessView(final RecommendationOutputData outputData) {
-                // resting calories = 22 * 80 = 1760; TDEE = 1760 * 1.55 = 2728; +300 for muscle gain = 3028
-                assertEquals(3028, outputData.getDailyCalorieTarget());
-                assertEquals(160, outputData.getDailyProteinGrams());
+                assertEquals(EXPECTED_CALORIES, outputData.getDailyCalorieTarget());
+                assertEquals(EXPECTED_PROTEIN, outputData.getDailyProteinGrams());
                 assertEquals(user.getBMI(), outputData.getBmi(), 0.0001);
                 assertEquals(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN.getWorkoutFocus(), outputData.getWorkoutFocus());
                 assertEquals(1, outputData.getWorkoutPlans().size());
                 assertEquals("Upper Body", outputData.getWorkoutPlans().get(0).getTitle());
+                assertEquals(ESTIMATED_CALORIES_BURN, outputData.getWorkoutPlans().get(0).getEstimatedCaloriesBurned());
             }
 
             @Override

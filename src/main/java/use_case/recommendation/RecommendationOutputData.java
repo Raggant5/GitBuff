@@ -1,6 +1,7 @@
 package use_case.recommendation;
 
 import java.util.List;
+
 import entity.WorkoutPlan;
 
 /**
@@ -15,6 +16,16 @@ public class RecommendationOutputData {
     private final String activityLevelDescription;
     private final List<WorkoutPlan> workoutPlans;
 
+    /**
+     * Constructs a RecommendationOutputData instance.
+     *
+     * @param bmi calculated Body Mass Index
+     * @param dailyCalorieTarget calculated daily calorie target
+     * @param dailyProteinGrams calculated daily protein target in grams
+     * @param workoutFocus text strategy summary of workout goal
+     * @param activityLevelDescription activity level explanation
+     * @param workoutPlans list of structured 2-week AI workout plans
+     */
     public RecommendationOutputData(final double bmi, final int dailyCalorieTarget, final int dailyProteinGrams,
                                     final String workoutFocus, final String activityLevelDescription,
                                     final List<WorkoutPlan> workoutPlans) {

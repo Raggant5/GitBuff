@@ -6,9 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A simple implementation of the User interface.
+ * Standard implementation of the User domain entity.
  */
 public class CommonUser implements User {
+
+    private static final int DEFAULT_DURATION = 45;
 
     private final String name;
     private final String password;
@@ -18,7 +20,6 @@ public class CommonUser implements User {
     private FitnessGoal goal;
     private String profilePicturePath;
 
-    // --- Profile Expansion Fields ---
     private LocalDate dateOfBirth;
     private Gender gender;
     private String bio;
@@ -29,7 +30,7 @@ public class CommonUser implements User {
     private int preferredWorkoutDurationMinutes;
     private Set<PrivacySetting> privacySettings;
 
-    public CommonUser(String name, String password) {
+    public CommonUser(final String name, final String password) {
         this.name = name;
         this.password = password;
         this.height = 0.0f;
@@ -45,7 +46,7 @@ public class CommonUser implements User {
         this.equipment = new HashSet<>();
         this.dietaryRestrictions = new HashSet<>();
         this.preferredWorkoutDays = new HashSet<>();
-        this.preferredWorkoutDurationMinutes = 45;
+        this.preferredWorkoutDurationMinutes = DEFAULT_DURATION;
         this.privacySettings = new HashSet<>();
     }
 
@@ -60,86 +61,142 @@ public class CommonUser implements User {
     }
 
     @Override
-    public void setWeight(float weight) { this.weight = weight; }
+    public void setWeight(final float weight) {
+        this.weight = weight;
+    }
 
     @Override
-    public float getWeight() { return this.weight; }
+    public float getWeight() {
+        return this.weight;
+    }
 
     @Override
-    public void setHeight(float height) { this.height = height; }
+    public void setHeight(final float height) {
+        this.height = height;
+    }
 
     @Override
-    public float getHeight() { return this.height; }
+    public float getHeight() {
+        return this.height;
+    }
 
     @Override
-    public void setActivityLevel(ActivityLevel activityLevel) { this.activityLevel = activityLevel; }
+    public void setActivityLevel(final ActivityLevel activityLevel) {
+        this.activityLevel = activityLevel;
+    }
 
     @Override
-    public ActivityLevel getActivityLevel() { return this.activityLevel; }
+    public ActivityLevel getActivityLevel() {
+        return this.activityLevel;
+    }
 
     @Override
-    public void setGoal(FitnessGoal goal) { this.goal = goal; }
+    public void setGoal(final FitnessGoal goal) {
+        this.goal = goal;
+    }
 
     @Override
-    public FitnessGoal getGoal() { return this.goal; }
+    public FitnessGoal getGoal() {
+        return this.goal;
+    }
 
     @Override
-    public void setProfilePicturePath(String profilePicturePath) { this.profilePicturePath = profilePicturePath; }
+    public void setProfilePicturePath(final String profilePicturePath) {
+        this.profilePicturePath = profilePicturePath;
+    }
 
     @Override
-    public String getProfilePicturePath() { return this.profilePicturePath; }
+    public String getProfilePicturePath() {
+        return this.profilePicturePath;
+    }
 
     @Override
-    public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+    public void setDateOfBirth(final LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
 
     @Override
-    public LocalDate getDateOfBirth() { return this.dateOfBirth; }
+    public LocalDate getDateOfBirth() {
+        return this.dateOfBirth;
+    }
 
     @Override
-    public void setGender(Gender gender) { this.gender = gender; }
+    public void setGender(final Gender gender) {
+        this.gender = gender;
+    }
 
     @Override
-    public Gender getGender() { return this.gender; }
+    public Gender getGender() {
+        return this.gender;
+    }
 
     @Override
-    public void setBio(String bio) { this.bio = bio; }
+    public void setBio(final String bio) {
+        this.bio = bio;
+    }
 
     @Override
-    public String getBio() { return this.bio; }
+    public String getBio() {
+        return this.bio;
+    }
 
     @Override
-    public void setPreferredUnitSystem(UnitSystem preferredUnitSystem) { this.preferredUnitSystem = preferredUnitSystem; }
+    public void setPreferredUnitSystem(final UnitSystem preferredUnitSystem) {
+        this.preferredUnitSystem = preferredUnitSystem;
+    }
 
     @Override
-    public UnitSystem getPreferredUnitSystem() { return this.preferredUnitSystem; }
+    public UnitSystem getPreferredUnitSystem() {
+        return this.preferredUnitSystem;
+    }
 
     @Override
-    public void setEquipment(Set<Equipment> equipment) { this.equipment = equipment; }
+    public void setEquipment(final Set<Equipment> equipment) {
+        this.equipment = equipment;
+    }
 
     @Override
-    public Set<Equipment> getEquipment() { return this.equipment; }
+    public Set<Equipment> getEquipment() {
+        return this.equipment;
+    }
 
     @Override
-    public void setDietaryRestrictions(Set<DietaryRestriction> dietaryRestrictions) { this.dietaryRestrictions = dietaryRestrictions; }
+    public void setDietaryRestrictions(final Set<DietaryRestriction> dietaryRestrictions) {
+        this.dietaryRestrictions = dietaryRestrictions;
+    }
 
     @Override
-    public Set<DietaryRestriction> getDietaryRestrictions() { return this.dietaryRestrictions; }
+    public Set<DietaryRestriction> getDietaryRestrictions() {
+        return this.dietaryRestrictions;
+    }
 
     @Override
-    public void setPreferredWorkoutDays(Set<DayOfWeek> preferredWorkoutDays) { this.preferredWorkoutDays = preferredWorkoutDays; }
+    public void setPreferredWorkoutDays(final Set<DayOfWeek> preferredWorkoutDays) {
+        this.preferredWorkoutDays = preferredWorkoutDays;
+    }
 
     @Override
-    public Set<DayOfWeek> getPreferredWorkoutDays() { return this.preferredWorkoutDays; }
+    public Set<DayOfWeek> getPreferredWorkoutDays() {
+        return this.preferredWorkoutDays;
+    }
 
     @Override
-    public void setPreferredWorkoutDurationMinutes(int preferredWorkoutDurationMinutes) { this.preferredWorkoutDurationMinutes = preferredWorkoutDurationMinutes; }
+    public void setPreferredWorkoutDurationMinutes(final int preferredWorkoutDurationMinutes) {
+        this.preferredWorkoutDurationMinutes = preferredWorkoutDurationMinutes;
+    }
 
     @Override
-    public int getPreferredWorkoutDurationMinutes() { return this.preferredWorkoutDurationMinutes; }
+    public int getPreferredWorkoutDurationMinutes() {
+        return this.preferredWorkoutDurationMinutes;
+    }
 
     @Override
-    public void setPrivacySettings(Set<PrivacySetting> privacySettings) { this.privacySettings = privacySettings; }
+    public void setPrivacySettings(final Set<PrivacySetting> privacySettings) {
+        this.privacySettings = privacySettings;
+    }
 
     @Override
-    public Set<PrivacySetting> getPrivacySettings() { return this.privacySettings; }
+    public Set<PrivacySetting> getPrivacySettings() {
+        return this.privacySettings;
+    }
 }
