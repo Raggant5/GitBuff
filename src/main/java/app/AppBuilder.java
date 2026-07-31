@@ -77,7 +77,7 @@ public class AppBuilder {
     private final SQLiteUserDataAccessObject userDataAccessObject = new SQLiteUserDataAccessObject();
 
     private final AiWorkoutDataAccessInterface aiWorkoutDao =
-            new AiWorkoutDataAccessObject(DEFAULT_AI_KEY);
+            new AiWorkoutDataAccessObject();
 
     private SignupView signupView;
     private SignupViewModel signupViewModel;

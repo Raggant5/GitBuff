@@ -1,6 +1,7 @@
 package data_access;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -11,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 import entity.Exercise;
 import entity.User;
@@ -29,16 +31,48 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     private static final int DEFAULT_FAT = 15;
     private static final int DEFAULT_CARBS = 45;
     private static final int FALLBACK_DAYS = 14;
+    private static final int TEXT_KEY_OFFSET = 9;
 
     private final String apiKey;
     private final Random random = new Random();
 
+    /**
+     * Constructs an AiWorkoutDataAccessObject reading key from local .env file or system environment.
+     */
     public AiWorkoutDataAccessObject() {
-        this.apiKey = System.getenv("GEMINI_API_KEY");
+        String key = loadKeyFromDotEnv();
+        if (key == null || key.trim().isEmpty()) {
+            key = System.getenv("GEMINI_API_KEY");
+        }
+        this.apiKey = key;
     }
 
+    /**
+     * Constructs an AiWorkoutDataAccessObject with an explicit API key.
+     *
+     * @param apiKey the Gemini API key
+     */
     public AiWorkoutDataAccessObject(final String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    private String loadKeyFromDotEnv() {
+        final File envFile = new File(".env");
+        if (!envFile.exists()) {
+            return null;
+        }
+        try (Scanner scanner = new Scanner(envFile, StandardCharsets.UTF_8)) {
+            while (scanner.hasNextLine()) {
+                final String line = scanner.nextLine().trim();
+                if (line.startsWith("GEMINI_API_KEY=")) {
+                    return line.substring("GEMINI_API_KEY=".length()).trim();
+                }
+            }
+        }
+        catch (final Exception ex) {
+            // Fallback on error reading local .env file
+        }
+        return null;
     }
 
     @Override
@@ -126,7 +160,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             }
         }
         catch (final Throwable ex) {
-            // Fallback gracefully on communication error
+            // Fallback gracefully on API errors
         }
         return getFallback2WeekPlans(user);
     }
@@ -138,7 +172,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             if (textIdx == -1) {
                 return plans;
             }
-            final int start = textIdx + 9;
+            final int start = textIdx + TEXT_KEY_OFFSET;
             final int end = response.indexOf("\"", start);
             final String rawJson = response.substring(start, end)
                     .replace("\\n", " ")
@@ -179,7 +213,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             }
         }
         catch (final Exception ex) {
-            // Return empty list if parsing encounters structure mismatch
+            // Fallback on JSON parse error
         }
         return plans;
     }
@@ -252,4 +286,123 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         }
         return plans;
     }
+
+    /*
+    /**
+     * Diagnostic main method to test API key loading and Gemini API connectivity.
+     *
+     * @param args command line arguments
+     * /
+    public static void main(final String[] args) {
+        System.out.println("==========================================");
+        System.out.println("          GEMINI API DIAGNOSTIC           ");
+        System.out.println("==========================================");
+
+        final AiWorkoutDataAccessObject dao = new AiWorkoutDataAccessObject();
+
+        if (dao.apiKey == null || dao.apiKey.trim().isEmpty()) {
+            System.err.println("[FAIL] API Key is NULL or EMPTY!");
+            System.err.println("       -> Check that `.env` exists in the project root folder.");
+            System.err.println("       -> Check that `.env` contains: GEMINI_API_KEY=your_key");
+            return;
+        }
+
+        final String maskedKey = dao.apiKey.length() > 8
+                ? dao.apiKey.substring(0, 4) + "..." + dao.apiKey.substring(dao.apiKey.length() - 4)
+                : "***";
+        System.out.println("[SUCCESS] API Key loaded from .env: " + maskedKey);
+
+        final User dummyUser = new User() {
+            @Override
+            public String getName() { return "TestUser"; }
+            @Override
+            public String getPassword() { return "password"; }
+            @Override
+            public float getHeight() { return 1.8f; }
+            @Override
+            public float getWeight() { return 75.0f; }
+            @Override
+            public entity.ActivityLevel getActivityLevel() { return entity.ActivityLevel.values()[0]; }
+            @Override
+            public entity.FitnessGoal getGoal() { return entity.FitnessGoal.values()[0]; }
+            @Override
+            public String getProfilePicturePath() { return ""; }
+            @Override
+            public java.time.LocalDate getDateOfBirth() { return null; }
+            @Override
+            public entity.Gender getGender() { return null; }
+            @Override
+            public String getBio() { return ""; }
+            @Override
+            public entity.UnitSystem getPreferredUnitSystem() { return entity.UnitSystem.METRIC; }
+            @Override
+            public java.util.Set<entity.Equipment> getEquipment() { return new java.util.HashSet<>(); }
+            @Override
+            public java.util.Set<entity.DietaryRestriction> getDietaryRestrictions() {
+                return new java.util.HashSet<>();
+            }
+            @Override
+            public java.util.Set<java.time.DayOfWeek> getPreferredWorkoutDays() {
+                return new java.util.HashSet<>();
+            }
+            @Override
+            public int getPreferredWorkoutDurationMinutes() { return 45; }
+            @Override
+            public java.util.Set<entity.PrivacySetting> getPrivacySettings() {
+                return new java.util.HashSet<>();
+            }
+
+            @Override
+            public void setHeight(float height) {}
+            @Override
+            public void setWeight(float weight) {}
+            @Override
+            public void setActivityLevel(entity.ActivityLevel activityLevel) {}
+            @Override
+            public void setGoal(entity.FitnessGoal goal) {}
+            @Override
+            public void setProfilePicturePath(String path) {}
+            @Override
+            public void setDateOfBirth(java.time.LocalDate dateOfBirth) {}
+            @Override
+            public void setGender(entity.Gender gender) {}
+            @Override
+            public void setBio(String bio) {}
+            @Override
+            public void setPreferredUnitSystem(entity.UnitSystem unitSystem) {}
+            @Override
+            public void setEquipment(java.util.Set<entity.Equipment> equipment) {}
+            @Override
+            public void setDietaryRestrictions(java.util.Set<entity.DietaryRestriction> dietaryRestrictions) {}
+            @Override
+            public void setPreferredWorkoutDays(java.util.Set<java.time.DayOfWeek> preferredDays) {}
+            @Override
+            public void setPreferredWorkoutDurationMinutes(int minutes) {}
+            @Override
+            public void setPrivacySettings(java.util.Set<entity.PrivacySetting> privacySettings) {}
+        };
+
+        System.out.println("\n[INFO] Sending test request to Gemini API...");
+
+        final List<WorkoutPlan> plans = dao.generateWorkoutPlans(dummyUser);
+
+        System.out.println("\n==========================================");
+        if (plans.isEmpty()) {
+            System.err.println("[FAIL] Received empty workout plan list.");
+            System.err.println("       -> API request failed or JSON parsing encountered an issue.");
+        }
+        else {
+            System.out.println("[SUCCESS] API IS WORKING & RETURNING DATA!");
+            System.out.println("          Generated " + plans.size() + " daily workout plans.");
+            System.out.println("------------------------------------------");
+            System.out.println("First Day Plan Title : " + plans.get(0).getTitle());
+            System.out.println("First Day Description: " + plans.get(0).getDescription());
+            System.out.println("Estimated Cal Burned : " + plans.get(0).getEstimatedCaloriesBurned() + " Cal");
+            if (!plans.get(0).getExercises().isEmpty()) {
+                System.out.println("Sample Exercise      : " + plans.get(0).getExercises().get(0).getName());
+            }
+        }
+        System.out.println("==========================================");
+    }
+    */
 }
