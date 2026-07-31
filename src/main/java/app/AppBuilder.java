@@ -63,7 +63,7 @@ public class AppBuilder {
 
     private static final int APP_WIDTH = 1000;
     private static final int APP_HEIGHT = 700;
-    private static final String DEFAULT_AI_KEY = "AQ.Ab8RN6Inu0Wu2JRz3iykliAk3LF0gzpWFxAYAYYJDuJBSHQJww";
+    private static final String DEFAULT_AI_KEY = "API KEY GOES HERE";
 
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
