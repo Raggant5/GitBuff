@@ -1,6 +1,10 @@
 package entity;
 
+/**
+ * Represents dietary restrictions or preferences for a user.
+ */
 public enum DietaryRestriction {
+
     NONE("None"),
     VEGETARIAN("Vegetarian"),
     VEGAN("Vegan"),
@@ -13,16 +17,21 @@ public enum DietaryRestriction {
 
     private final String displayName;
 
-    DietaryRestriction(String displayName) {
+    DietaryRestriction(final String displayName) {
         this.displayName = displayName;
     }
 
+    /**
+     * Gets the display name of the dietary restriction.
+     *
+     * @return display name string
+     */
     public String getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     @Override
     public String toString() {
-        return displayName;
+        return this.displayName;
     }
 }

@@ -1,14 +1,19 @@
 package use_case.login;
 
 /**
- * Input Boundary for actions which are related to logging in.
+ * Input Boundary for actions related to logging in.
  */
 public interface LoginInputBoundary {
 
     /**
      * Executes the login use case.
-     * @param loginInputData the input data
+     *
+     * @param loginInputData input data containing credentials
      */
     void execute(LoginInputData loginInputData);
+
+    /**
+     * Triggers navigation switch to the signup view.
+     */
     void switchToSignupView();
 }

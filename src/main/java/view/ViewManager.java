@@ -13,11 +13,20 @@ import interface_adapter.ViewManagerModel;
  * in the ViewManagerModel and updates which View should be visible.
  */
 public class ViewManager implements PropertyChangeListener {
+
     private final CardLayout cardLayout;
     private final JPanel views;
     private final ViewManagerModel viewManagerModel;
 
-    public ViewManager(JPanel views, CardLayout cardLayout, ViewManagerModel viewManagerModel) {
+    /**
+     * Constructs a ViewManager instance.
+     *
+     * @param views parent panel containing all view card screens
+     * @param cardLayout layout manager handling card transitions
+     * @param viewManagerModel model notifying view state changes
+     */
+    public ViewManager(final JPanel views, final CardLayout cardLayout,
+                       final ViewManagerModel viewManagerModel) {
         this.views = views;
         this.cardLayout = cardLayout;
         this.viewManagerModel = viewManagerModel;
@@ -25,10 +34,10 @@ public class ViewManager implements PropertyChangeListener {
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals("state")) {
+    public void propertyChange(final PropertyChangeEvent evt) {
+        if ("state".equals(evt.getPropertyName())) {
             final String viewModelName = (String) evt.getNewValue();
-            cardLayout.show(views, viewModelName);
+            this.cardLayout.show(this.views, viewModelName);
         }
     }
 }

@@ -2,7 +2,6 @@ package entity;
 
 /**
  * How physically active a user is day-to-day, outside of planned workouts.
- * Used to scale a user's resting energy expenditure into a daily calorie target.
  */
 public enum ActivityLevel {
 
@@ -15,26 +14,26 @@ public enum ActivityLevel {
     private final double calorieMultiplier;
     private final String description;
 
-    ActivityLevel(double calorieMultiplier, String description) {
+    ActivityLevel(final double calorieMultiplier, final String description) {
         this.calorieMultiplier = calorieMultiplier;
         this.description = description;
     }
 
     /**
-     * Returns the multiplier applied to a user's resting energy expenditure
-     * to estimate their total daily energy expenditure.
-     * @return the calorie multiplier for this activity level.
+     * Returns the multiplier applied to a user's resting energy expenditure.
+     *
+     * @return the calorie multiplier
      */
     public double getCalorieMultiplier() {
-        return calorieMultiplier;
+        return this.calorieMultiplier;
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     @Override
     public String toString() {
-        return description;
+        return this.description;
     }
 }

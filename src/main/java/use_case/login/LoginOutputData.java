@@ -20,15 +20,26 @@ public class LoginOutputData {
     private final List<Meal> meals;
     private final boolean useCaseFailed;
 
-    public LoginOutputData(
-            String username,
-            float height,
-            float weight,
-            ActivityLevel activityLevel,
-            FitnessGoal goal,
-            String profilePicturePath, List<Meal> meals,
-            boolean useCaseFailed) {
-
+    /**
+     * Constructs a LoginOutputData instance.
+     *
+     * @param username user username
+     * @param height user height in meters
+     * @param weight user weight in kilograms
+     * @param activityLevel user activity level
+     * @param goal user fitness goal
+     * @param profilePicturePath path to user profile image
+     * @param useCaseFailed execution failure flag
+     * @param meals meal history for user
+     */
+    public LoginOutputData(final String username,
+                           final float height,
+                           final float weight,
+                           final ActivityLevel activityLevel,
+                           final FitnessGoal goal,
+                           final String profilePicturePath,
+                           final boolean useCaseFailed,
+                           final List<Meal> meals) {
         this.username = username;
         this.height = height;
         this.weight = weight;
@@ -40,34 +51,34 @@ public class LoginOutputData {
     }
 
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     public float getHeight() {
-        return height;
+        return this.height;
     }
 
     public float getWeight() {
-        return weight;
+        return this.weight;
     }
 
     public ActivityLevel getActivityLevel() {
-        return activityLevel;
+        return this.activityLevel;
     }
 
     public FitnessGoal getGoal() {
-        return goal;
+        return this.goal;
     }
 
     public String getProfilePicturePath() {
-        return profilePicturePath;
+        return this.profilePicturePath;
     }
 
     public List<Meal> getMeals() {
-        return meals;
+        return this.meals;
     }
 
     public boolean isUseCaseFailed() {
-        return useCaseFailed;
+        return this.useCaseFailed;
     }
 }
