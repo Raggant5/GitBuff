@@ -1,7 +1,10 @@
 package use_case.login;
 
+import java.util.List;
+
 import entity.ActivityLevel;
 import entity.FitnessGoal;
+import entity.Meal;
 
 /**
  * Output Data for the Login Use Case.
@@ -14,6 +17,7 @@ public class LoginOutputData {
     private final ActivityLevel activityLevel;
     private final FitnessGoal goal;
     private final String profilePicturePath;
+    private final List<Meal> meals;
     private final boolean useCaseFailed;
 
     /**
@@ -26,6 +30,7 @@ public class LoginOutputData {
      * @param goal user fitness goal
      * @param profilePicturePath path to user profile image
      * @param useCaseFailed execution failure flag
+     * @param meals meal history for user
      */
     public LoginOutputData(final String username,
                            final float height,
@@ -33,13 +38,15 @@ public class LoginOutputData {
                            final ActivityLevel activityLevel,
                            final FitnessGoal goal,
                            final String profilePicturePath,
-                           final boolean useCaseFailed) {
+                           final boolean useCaseFailed,
+                           final List<Meal> meals) {
         this.username = username;
         this.height = height;
         this.weight = weight;
         this.activityLevel = activityLevel;
         this.goal = goal;
         this.profilePicturePath = profilePicturePath;
+        this.meals = meals;
         this.useCaseFailed = useCaseFailed;
     }
 
@@ -65,6 +72,10 @@ public class LoginOutputData {
 
     public String getProfilePicturePath() {
         return this.profilePicturePath;
+    }
+
+    public List<Meal> getMeals() {
+        return this.meals;
     }
 
     public boolean isUseCaseFailed() {

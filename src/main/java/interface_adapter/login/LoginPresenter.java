@@ -1,6 +1,7 @@
 package interface_adapter.login;
 
 import interface_adapter.ViewManagerModel;
+import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
 import interface_adapter.recommendation.RecommendationController;
@@ -17,6 +18,7 @@ public class LoginPresenter implements LoginOutputBoundary {
     private final ViewManagerModel viewManagerModel;
     private final SignupViewModel signupViewModel;
     private final ProfileViewModel profileViewModel;
+    private final ViewMealsViewModel mealsViewModel;
     private final RecommendationController recommendationController;
 
     /**
@@ -32,11 +34,13 @@ public class LoginPresenter implements LoginOutputBoundary {
                           final LoginViewModel loginViewModel,
                           final SignupViewModel signupViewModel,
                           final ProfileViewModel profileViewModel,
+                          final ViewMealsViewModel mealsViewModel,
                           final RecommendationController recommendationController) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
         this.profileViewModel = profileViewModel;
+        this.mealsViewModel = mealsViewModel;
         this.recommendationController = recommendationController;
     }
 
@@ -59,6 +63,10 @@ public class LoginPresenter implements LoginOutputBoundary {
 
         this.profileViewModel.firePropertyChanged();
 
+        mealsViewModel.getState().setMeals(response.getMeals());
+        mealsViewModel.firePropertyChanged();
+
+        recommendationController.execute();
         if (this.recommendationController != null) {
             this.recommendationController.execute();
         }
@@ -68,8 +76,8 @@ public class LoginPresenter implements LoginOutputBoundary {
     }
 
     @Override
-    public void prepareFailView(final String error) {
-        final LoginState loginState = this.loginViewModel.getState();
+    public void prepareFailView(String error) {
+        final LoginState loginState = loginViewModel.getState();
         loginState.setLoginError(error);
         this.loginViewModel.firePropertyChanged();
     }

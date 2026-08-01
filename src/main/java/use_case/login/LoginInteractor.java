@@ -1,6 +1,10 @@
 package use_case.login;
 
+import java.util.List;
+
+import entity.Meal;
 import entity.User;
+import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 
 /**
  * Interactor implementing business logic for the Login Use Case.
@@ -9,6 +13,7 @@ public class LoginInteractor implements LoginInputBoundary {
 
     private final LoginUserDataAccessInterface userDataAccessObject;
     private final LoginOutputBoundary loginPresenter;
+    private final ViewMealDataAccessInterface mealsDataAccessObject;
 
     /**
      * Constructs a LoginInteractor instance.
@@ -17,9 +22,10 @@ public class LoginInteractor implements LoginInputBoundary {
      * @param loginOutputBoundary output boundary presenter
      */
     public LoginInteractor(final LoginUserDataAccessInterface userDataAccessInterface,
-                           final LoginOutputBoundary loginOutputBoundary) {
+                           final LoginOutputBoundary loginOutputBoundary, final ViewMealDataAccessInterface mealsDataAccessObject) {
         this.userDataAccessObject = userDataAccessInterface;
         this.loginPresenter = loginOutputBoundary;
+        this.mealsDataAccessObject = mealsDataAccessObject;
     }
 
     @Override
@@ -39,6 +45,8 @@ public class LoginInteractor implements LoginInputBoundary {
                 final User user = this.userDataAccessObject.get(username);
                 this.userDataAccessObject.setCurrentUsername(username);
 
+                final List<Meal> meals = mealsDataAccessObject.getMealsForUser(user.getName());
+                userDataAccessObject.setCurrentUsername(username);
                 final LoginOutputData loginOutputData = new LoginOutputData(
                         user.getName(),
                         user.getHeight(),
@@ -46,6 +54,7 @@ public class LoginInteractor implements LoginInputBoundary {
                         user.getActivityLevel(),
                         user.getGoal(),
                         user.getProfilePicturePath(),
+                        meals,
                         false
                 );
                 this.loginPresenter.prepareSuccessView(loginOutputData);

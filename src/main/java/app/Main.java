@@ -1,5 +1,7 @@
 package app;
 
+import java.sql.SQLException;
+
 import javax.swing.JFrame;
 
 import data_access.Datainitializer;
@@ -32,13 +34,19 @@ public final class Main {
                 .addProfileUseCase()
                 .addLoginUseCase()
                 .addLogoutUseCase()
+                .addAddFoodUseCase()
+                .addAddMealUseCase()
+                .addEditFoodUseCase()
+                .addEditMealUseCase()
+                .addDeleteMealUseCase()
+                .addDeleteFoodUseCase()
                 .build();
 
         try {
             Datainitializer.initialize();
         }
-        catch (final Exception ex) {
-            // Gracefully log initialization exception
+        catch (SQLException exc) {
+            exc.printStackTrace();
         }
 
         application.pack();
