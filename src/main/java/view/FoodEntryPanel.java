@@ -43,7 +43,7 @@ public class FoodEntryPanel extends JPanel {
         });
 
         deleteButton.addActionListener(evt -> {
-            deleteFoodController.execute(food.getId());
+            deleteFoodController.execute(food);
         });
 
         final JPanel buttonPanel = new JPanel();

@@ -1,14 +1,16 @@
 package use_case.nutrition.food.delete_food;
 
-public class DeleteFoodInputData {
-    private final int foodId;
+import entity.FoodEntry;
 
-    public DeleteFoodInputData(int foodId) {
-        this.foodId = foodId;
+public class DeleteFoodInputData {
+    private final FoodEntry foodEntry;
+
+    public DeleteFoodInputData(FoodEntry foodEntry) {
+        this.foodEntry = foodEntry;
     }
 
-    public int getFoodId() {
-        return foodId;
+    public FoodEntry getFoodEntry() {
+        return foodEntry;
     }
 
 }

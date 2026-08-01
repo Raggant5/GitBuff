@@ -31,6 +31,7 @@ public class EditMealPresenter implements EditMealOutputBoundary {
                 break;
             }
         }
+
         viewMealsState.setMeals(meals);
         viewMealsViewModel.firePropertyChanged();
         mealEditorViewModel.getState().reset();

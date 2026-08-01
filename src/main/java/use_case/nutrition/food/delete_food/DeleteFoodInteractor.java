@@ -1,5 +1,7 @@
 package use_case.nutrition.food.delete_food;
 
+import entity.FoodEntry;
+
 public class DeleteFoodInteractor implements DeleteFoodInputBoundary {
 
     private final DeleteFoodOutputBoundary deleteFoodPresenter;
@@ -13,7 +15,7 @@ public class DeleteFoodInteractor implements DeleteFoodInputBoundary {
 
     @Override
     public void execute(DeleteFoodInputData deleteFoodInputData) {
-        foodDataAccessObject.deleteFoodEntry(deleteFoodInputData.getFoodId());
-        deleteFoodPresenter.prepareSuccessView(new DeleteFoodOutputData(deleteFoodInputData.getFoodId()));
+        final FoodEntry foodEntry = deleteFoodInputData.getFoodEntry();
+        deleteFoodPresenter.prepareSuccessView(new DeleteFoodOutputData(foodEntry));
     }
 }

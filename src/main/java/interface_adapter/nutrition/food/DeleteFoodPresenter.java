@@ -17,10 +17,11 @@ public class DeleteFoodPresenter implements DeleteFoodOutputBoundary {
 
     @Override
     public void prepareSuccessView(DeleteFoodOutputData deleteFoodOutputData) {
-        mealEditorViewModel.getState().removeFoodEntry(deleteFoodOutputData.getFoodId());
+        mealEditorViewModel.getState().removeFoodEntry(deleteFoodOutputData.getFoodEntry());
+        mealEditorViewModel.getState().addFoodEntryToBeDeleted(deleteFoodOutputData.getFoodEntry());
         mealEditorViewModel.firePropertyChanged();
 
-        viewMealsViewModel.getState().removeFoodEntry(deleteFoodOutputData.getFoodId());
+        viewMealsViewModel.getState().removeFoodEntry(deleteFoodOutputData.getFoodEntry());
         viewMealsViewModel.firePropertyChanged();
     }
 

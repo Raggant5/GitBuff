@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import entity.FoodEntry;
+import entity.FoodEntryFactory;
 import entity.Meal;
 
 /**
@@ -16,6 +17,7 @@ public class MealEditorState {
     private LocalDate date;
     private String name = "";
     private List<FoodEntry> foodEntriesForMeal = new ArrayList<>();
+    private List<FoodEntry> foodEntriesDeleteStage = new ArrayList<>();
     private String errorMessage = "";
     private Boolean showFoodEditor = false;
 
@@ -36,11 +38,31 @@ public class MealEditorState {
     }
 
     /**
-     * Remove the food associated with an id.
-     * @param foodId the food id of food to be removed
+     * Remove the given food entry from the meal being edited.
+     * @param foodEntry the food entry to be removed
      */
-    public void removeFoodEntry(int foodId) {
-        foodEntriesForMeal.removeIf(foodEntry -> foodEntry.getId() == foodId);
+    public void removeFoodEntry(FoodEntry foodEntry) {
+        foodEntriesForMeal.remove(foodEntry);
+    }
+
+    public List<FoodEntry> getFoodEntriesDeleteStage() {
+        return foodEntriesDeleteStage;
+    }
+
+    /**
+     * Adds a food entry to be deleted upon saving a meal.
+     * @param foodEntry food entry to be deleted upon saving a meal
+     */
+    public void addFoodEntryToBeDeleted(FoodEntry foodEntry) {
+        foodEntriesDeleteStage.add(foodEntry);
+    }
+
+    /**
+     * Removes a food from being deleted within the meal editing stage.
+     * @param foodEntry food entry to be undeleted
+     */
+    public void removeFoodEntryFromDeletion(FoodEntry foodEntry) {
+        foodEntriesDeleteStage.remove(foodEntry);
     }
 
     /**
@@ -53,6 +75,7 @@ public class MealEditorState {
         foodEntriesForMeal = new ArrayList<>();
         errorMessage = "";
         showFoodEditor = false;
+        foodEntriesDeleteStage = new ArrayList<>();
     }
 
     public boolean getShowFoodEditor() {
