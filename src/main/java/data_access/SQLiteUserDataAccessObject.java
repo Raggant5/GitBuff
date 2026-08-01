@@ -15,61 +15,55 @@ import use_case.profile.ProfileUserDataAccessInterface;
 import use_case.recommendation.RecommendationUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
+/**
+ * SQLite implementation of user data access persistence.
+ */
 public class SQLiteUserDataAccessObject implements SignupUserDataAccessInterface,
-        LoginUserDataAccessInterface,
-        LogoutUserDataAccessInterface,
-        ProfileUserDataAccessInterface,
+        LoginUserDataAccessInterface, LogoutUserDataAccessInterface, ProfileUserDataAccessInterface,
         RecommendationUserDataAccessInterface {
+
+    private static final String SELECT_EXISTS_SQL = """
+            SELECT username
+            FROM users
+            WHERE username = ?
+            """;
+
+    private static final String SAVE_USER_SQL = """
+            INSERT INTO users (
+                username, password, height, weight, activity_level, fitness_goal, profile_picture_path
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(username) DO UPDATE SET
+                password = excluded.password, height = excluded.height, weight = excluded.weight,
+                activity_level = excluded.activity_level, fitness_goal = excluded.fitness_goal,
+                profile_picture_path = excluded.profile_picture_path
+            """;
+
+    private static final String GET_USER_SQL = """
+            SELECT username, password, height, weight, activity_level, fitness_goal, profile_picture_path
+            FROM users
+            WHERE username = ?
+            """;
 
     private String currentUsername;
 
     @Override
-    public boolean existsByName(String identifier) {
-        final String sql = """
-                SELECT username
-                FROM users
-                WHERE username = ?
-                """;
-
+    public boolean existsByName(final String identifier) {
         try (Connection connection = Database.connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
+             PreparedStatement statement = connection.prepareStatement(SELECT_EXISTS_SQL)) {
             statement.setString(1, identifier);
-
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();
             }
-
-        } catch (SQLException exception) {
+        }
+        catch (final SQLException exception) {
             throw new RuntimeException("Could not check whether user exists.", exception);
         }
     }
 
     @Override
-    public void save(User user) {
-        final String sql = """
-                INSERT INTO users (
-                    username,
-                    password,
-                    height,
-                    weight,
-                    activity_level,
-                    fitness_goal,
-                    profile_picture_path
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(username) DO UPDATE SET
-                    password = excluded.password,
-                    height = excluded.height,
-                    weight = excluded.weight,
-                    activity_level = excluded.activity_level,
-                    fitness_goal = excluded.fitness_goal,
-                    profile_picture_path = excluded.profile_picture_path
-                """;
-
+    public void save(final User user) {
         try (Connection connection = Database.connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
+             PreparedStatement statement = connection.prepareStatement(SAVE_USER_SQL)) {
             statement.setString(1, user.getName());
             statement.setString(2, user.getPassword());
             statement.setFloat(3, user.getHeight());
@@ -77,65 +71,41 @@ public class SQLiteUserDataAccessObject implements SignupUserDataAccessInterface
             statement.setString(5, user.getActivityLevel().name());
             statement.setString(6, user.getGoal().name());
             statement.setString(7, user.getProfilePicturePath());
-
             statement.executeUpdate();
-
-        } catch (SQLException exception) {
+        }
+        catch (final SQLException exception) {
             throw new RuntimeException("Could not save user.", exception);
         }
     }
 
     @Override
-    public User get(String username) {
-        final String sql = """
-                SELECT username,
-                       password,
-                       height,
-                       weight,
-                       activity_level,
-                       fitness_goal,
-                       profile_picture_path
-                FROM users
-                WHERE username = ?
-                """;
-
+    public User get(final String username) {
         try (Connection connection = Database.connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-
+             PreparedStatement statement = connection.prepareStatement(GET_USER_SQL)) {
             statement.setString(1, username);
-
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (!resultSet.next()) {
                     return null;
                 }
-
-                CommonUser user = new CommonUser(
+                final CommonUser user = new CommonUser(
                         resultSet.getString("username"),
                         resultSet.getString("password")
                 );
-
                 user.setHeight(resultSet.getFloat("height"));
                 user.setWeight(resultSet.getFloat("weight"));
-                user.setActivityLevel(
-                        ActivityLevel.valueOf(resultSet.getString("activity_level"))
-                );
-                user.setGoal(
-                        FitnessGoal.valueOf(resultSet.getString("fitness_goal"))
-                );
-                user.setProfilePicturePath(
-                        resultSet.getString("profile_picture_path")
-                );
-
+                user.setActivityLevel(ActivityLevel.valueOf(resultSet.getString("activity_level")));
+                user.setGoal(FitnessGoal.valueOf(resultSet.getString("fitness_goal")));
+                user.setProfilePicturePath(resultSet.getString("profile_picture_path"));
                 return user;
             }
-
-        } catch (SQLException exception) {
+        }
+        catch (final SQLException exception) {
             throw new RuntimeException("Could not load user.", exception);
         }
     }
 
     @Override
-    public void setCurrentUsername(String name) {
+    public void setCurrentUsername(final String name) {
         this.currentUsername = name;
     }
 

@@ -1,35 +1,49 @@
 package interface_adapter.workouts;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import entity.WorkoutPlan;
+
 /**
- * The state for the Workouts View Model.
+ * The state for Workouts View Model.
  */
 public class WorkoutsState {
+
     private String workoutFocus = "";
     private String activityLevelDescription = "";
-    private String message = "Visit your profile and save your details to see a personalized "
-            + "workout recommendation.";
+    private List<WorkoutPlan> workoutPlans = new ArrayList<>();
+    private String message = "";
 
     public String getWorkoutFocus() {
-        return workoutFocus;
+        return this.workoutFocus;
     }
 
-    public void setWorkoutFocus(String workoutFocus) {
+    public void setWorkoutFocus(final String workoutFocus) {
         this.workoutFocus = workoutFocus;
     }
 
     public String getActivityLevelDescription() {
-        return activityLevelDescription;
+        return this.activityLevelDescription;
     }
 
-    public void setActivityLevelDescription(String activityLevelDescription) {
+    public void setActivityLevelDescription(final String activityLevelDescription) {
         this.activityLevelDescription = activityLevelDescription;
     }
 
-    public String getMessage() {
-        return message;
+    public List<WorkoutPlan> getWorkoutPlans() {
+        return this.workoutPlans;
     }
 
-    public void setMessage(String message) {
+    public void setWorkoutPlans(final List<WorkoutPlan> workoutPlans) {
+        this.workoutPlans = workoutPlans;
+    }
+
+    public String getMessage() {
+        return this.message;
+    }
+
+    public void setMessage(final String message) {
         this.message = message;
     }
 }

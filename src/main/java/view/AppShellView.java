@@ -1,22 +1,35 @@
 package view;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+
+import javax.swing.JPanel;
 
 /**
- * The view for when the user is logged into the program, combining the navbar with the appropriate page.
+ * The view for when the user is logged into the program, combining the navbar with the active page.
  */
 public class AppShellView extends JPanel {
 
     private final String viewName = "app shell";
 
-    public AppShellView(JPanel mainPanel, NavbarView navbarView) {
+    /**
+     * Constructs an AppShellView instance.
+     *
+     * @param mainPanel main view card container
+     * @param navbarView side navigation panel
+     */
+    public AppShellView(final JPanel mainPanel, final NavbarView navbarView) {
         this.setLayout(new BorderLayout());
-
         this.add(navbarView, BorderLayout.WEST);
         this.add(mainPanel, BorderLayout.CENTER);
     }
 
-    public String getViewName() { return this.viewName; }
+    /**
+     * Gets the view name.
+     *
+     * @return view name string
+     */
+    public String getViewName() {
+        return this.viewName;
+    }
 }
 

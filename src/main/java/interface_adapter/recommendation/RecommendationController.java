@@ -9,7 +9,12 @@ public class RecommendationController {
 
     private final RecommendationInputBoundary recommendationUseCaseInteractor;
 
-    public RecommendationController(RecommendationInputBoundary recommendationUseCaseInteractor) {
+    /**
+     * Constructs a RecommendationController instance.
+     *
+     * @param recommendationUseCaseInteractor interactor boundary for recommendation logic
+     */
+    public RecommendationController(final RecommendationInputBoundary recommendationUseCaseInteractor) {
         this.recommendationUseCaseInteractor = recommendationUseCaseInteractor;
     }
 
@@ -17,6 +22,6 @@ public class RecommendationController {
      * Executes the Recommendation Use Case for the currently logged-in user.
      */
     public void execute() {
-        recommendationUseCaseInteractor.execute();
+        this.recommendationUseCaseInteractor.execute();
     }
 }

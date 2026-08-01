@@ -1,6 +1,7 @@
 package interface_adapter.login;
 
 import interface_adapter.ViewManagerModel;
+import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
 import interface_adapter.recommendation.RecommendationController;
@@ -17,31 +18,58 @@ public class LoginPresenter implements LoginOutputBoundary {
     private final ViewManagerModel viewManagerModel;
     private final SignupViewModel signupViewModel;
     private final ProfileViewModel profileViewModel;
+    private final ViewMealsViewModel mealsViewModel;
     private final RecommendationController recommendationController;
 
-    public LoginPresenter(ViewManagerModel viewManagerModel,
-                          LoginViewModel loginViewModel,
-                          SignupViewModel signupViewModel,
-                          ProfileViewModel profileViewModel,
-                          RecommendationController recommendationController) {
+    /**
+     * Constructs a LoginPresenter instance.
+     *
+     * @param viewManagerModel manager model for top-level view navigation
+     * @param loginViewModel view model for login state
+     * @param signupViewModel view model for signup state
+     * @param profileViewModel view model for user profile state
+     * @param recommendationController controller to trigger recommendations after login
+     */
+    public LoginPresenter(final ViewManagerModel viewManagerModel,
+                          final LoginViewModel loginViewModel,
+                          final SignupViewModel signupViewModel,
+                          final ProfileViewModel profileViewModel,
+                          final ViewMealsViewModel mealsViewModel,
+                          final RecommendationController recommendationController) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
         this.profileViewModel = profileViewModel;
+        this.mealsViewModel = mealsViewModel;
         this.recommendationController = recommendationController;
     }
 
     @Override
-    public void prepareSuccessView(LoginOutputData response) {
-        final LoginState loginState = loginViewModel.getState();
+    public void prepareSuccessView(final LoginOutputData response) {
+        final LoginState loginState = this.loginViewModel.getState();
         loginState.setUsername(response.getUsername());
-        loginViewModel.firePropertyChanged();
+        loginState.setLoginError(null);
+        this.loginViewModel.firePropertyChanged();
 
-        final ProfileState profileState = profileViewModel.getState();
+        final ProfileState profileState = this.profileViewModel.getState();
         profileState.setUsername(response.getUsername());
-        profileViewModel.firePropertyChanged();
+        profileState.setHeightText(String.valueOf(response.getHeight()));
+        profileState.setWeightText(String.valueOf(response.getWeight()));
+        profileState.setActivityLevel(response.getActivityLevel());
+        profileState.setGoal(response.getGoal());
+        profileState.setProfilePicturePath(response.getProfilePicturePath());
+        profileState.setProfileError(null);
+        profileState.setSaveConfirmation(null);
+
+        this.profileViewModel.firePropertyChanged();
+
+        mealsViewModel.getState().setMeals(response.getMeals());
+        mealsViewModel.firePropertyChanged();
 
         recommendationController.execute();
+        if (this.recommendationController != null) {
+            this.recommendationController.execute();
+        }
 
         this.viewManagerModel.setState("app shell");
         this.viewManagerModel.firePropertyChanged();
@@ -51,12 +79,12 @@ public class LoginPresenter implements LoginOutputBoundary {
     public void prepareFailView(String error) {
         final LoginState loginState = loginViewModel.getState();
         loginState.setLoginError(error);
-        loginViewModel.firePropertyChanged();
+        this.loginViewModel.firePropertyChanged();
     }
 
     @Override
     public void switchToSignupView() {
-        viewManagerModel.setState(signupViewModel.getViewName());
-        viewManagerModel.firePropertyChanged();
+        this.viewManagerModel.setState(this.signupViewModel.getViewName());
+        this.viewManagerModel.firePropertyChanged();
     }
 }

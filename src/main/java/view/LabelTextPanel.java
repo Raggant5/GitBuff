@@ -1,16 +1,27 @@
 package view;
 
+import java.awt.FlowLayout;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.awt.*;
 
 /**
- * A panel containing a label and a text field.
+ * A panel container pairing a label and a text field with standard horizontal flow.
  */
 class LabelTextPanel extends JPanel {
-    LabelTextPanel(JLabel label, JTextField textField) {
-        this.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
+
+    private static final int HORIZONTAL_GAP = 10;
+    private static final int VERTICAL_GAP = 5;
+
+    /**
+     * Constructs a LabelTextPanel instance.
+     *
+     * @param label label component
+     * @param textField input field component
+     */
+    LabelTextPanel(final JLabel label, final JTextField textField) {
+        this.setLayout(new FlowLayout(FlowLayout.CENTER, HORIZONTAL_GAP, VERTICAL_GAP));
         this.add(label);
         this.add(textField);
     }

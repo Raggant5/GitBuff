@@ -1,12 +1,20 @@
 package view;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -18,66 +26,72 @@ import interface_adapter.signup.SignupViewModel;
  * The View for the Signup Use Case.
  */
 public class SignupView extends JPanel implements ActionListener, PropertyChangeListener {
+
+    private static final int ROW_WIDTH = 450;
+    private static final int ROW_HEIGHT = 45;
+    private static final int INPUT_WIDTH = 250;
+    private static final int INPUT_HEIGHT = 30;
+    private static final int FIELD_COLUMNS = 15;
+    private static final int VSTRUT_LARGE = 15;
+    private static final int VSTRUT_SMALL = 5;
+
     private final String viewName = "sign up";
 
     private final SignupViewModel signupViewModel;
-    private final JTextField usernameInputField = new JTextField(15);
-    private final JPasswordField passwordInputField = new JPasswordField(15);
-    private final JPasswordField repeatPasswordInputField = new JPasswordField(15);
+    private final JTextField usernameInputField = new JTextField(FIELD_COLUMNS);
+    private final JPasswordField passwordInputField = new JPasswordField(FIELD_COLUMNS);
+    private final JPasswordField repeatPasswordInputField = new JPasswordField(FIELD_COLUMNS);
     private SignupController signupController;
 
     private final JButton signUp;
     private final JButton cancel;
     private final JButton toLogin;
 
-    public SignupView(SignupViewModel signupViewModel) {
+    /**
+     * Constructs a SignupView instance.
+     *
+     * @param signupViewModel view model for managing signup state
+     */
+    public SignupView(final SignupViewModel signupViewModel) {
         this.signupViewModel = signupViewModel;
-        signupViewModel.addPropertyChangeListener(this);
+        this.signupViewModel.addPropertyChangeListener(this);
 
         final JLabel title = new JLabel(SignupViewModel.TITLE_LABEL);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         final LabelTextPanel usernameInfo = new LabelTextPanel(
-                new JLabel(SignupViewModel.USERNAME_LABEL), usernameInputField);
+                new JLabel(SignupViewModel.USERNAME_LABEL), this.usernameInputField);
         final LabelTextPanel passwordInfo = new LabelTextPanel(
-                new JLabel(SignupViewModel.PASSWORD_LABEL), passwordInputField);
+                new JLabel(SignupViewModel.PASSWORD_LABEL), this.passwordInputField);
         final LabelTextPanel repeatPasswordInfo = new LabelTextPanel(
-                new JLabel(SignupViewModel.REPEAT_PASSWORD_LABEL), repeatPasswordInputField);
+                new JLabel(SignupViewModel.REPEAT_PASSWORD_LABEL), this.repeatPasswordInputField);
 
         final JPanel buttons = new JPanel();
-        toLogin = new JButton(SignupViewModel.TO_LOGIN_BUTTON_LABEL);
-        buttons.add(toLogin);
-        signUp = new JButton(SignupViewModel.SIGNUP_BUTTON_LABEL);
-        buttons.add(signUp);
-        cancel = new JButton(SignupViewModel.CANCEL_BUTTON_LABEL);
-        buttons.add(cancel);
+        this.toLogin = new JButton(SignupViewModel.TO_LOGIN_BUTTON_LABEL);
+        buttons.add(this.toLogin);
+        this.signUp = new JButton(SignupViewModel.SIGNUP_BUTTON_LABEL);
+        buttons.add(this.signUp);
+        this.cancel = new JButton(SignupViewModel.CANCEL_BUTTON_LABEL);
+        buttons.add(this.cancel);
 
-        signUp.addActionListener(
-                // This creates an anonymous subclass of ActionListener and instantiates it.
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) {
-                        if (evt.getSource().equals(signUp)) {
-                            final SignupState currentState = signupViewModel.getState();
+        this.signUp.addActionListener(evt -> {
+            if (evt.getSource().equals(SignupView.this.signUp) && SignupView.this.signupController != null) {
+                final SignupState currentState = SignupView.this.signupViewModel.getState();
+                SignupView.this.signupController.execute(
+                        currentState.getUsername(),
+                        currentState.getPassword(),
+                        currentState.getRepeatPassword()
+                );
+            }
+        });
 
-                            signupController.execute(
-                                    currentState.getUsername(),
-                                    currentState.getPassword(),
-                                    currentState.getRepeatPassword()
-                            );
-                        }
-                    }
-                }
-        );
+        this.toLogin.addActionListener(evt -> {
+            if (SignupView.this.signupController != null) {
+                SignupView.this.signupController.switchToLoginView();
+            }
+        });
 
-        toLogin.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) {
-                        signupController.switchToLoginView();
-                    }
-                }
-        );
-
-        cancel.addActionListener(this);
+        this.cancel.addActionListener(this);
 
         addUsernameListener();
         addPasswordListener();
@@ -85,20 +99,20 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        Dimension rowSize = new Dimension(450, 45);
-        Dimension inputSize = new Dimension(250, 30);
+        final Dimension rowSize = new Dimension(ROW_WIDTH, ROW_HEIGHT);
+        final Dimension inputSize = new Dimension(INPUT_WIDTH, INPUT_HEIGHT);
 
-        usernameInputField.setPreferredSize(inputSize);
-        usernameInputField.setMinimumSize(inputSize);
-        usernameInputField.setMaximumSize(inputSize);
+        this.usernameInputField.setPreferredSize(inputSize);
+        this.usernameInputField.setMinimumSize(inputSize);
+        this.usernameInputField.setMaximumSize(inputSize);
 
-        passwordInputField.setPreferredSize(inputSize);
-        passwordInputField.setMinimumSize(inputSize);
-        passwordInputField.setMaximumSize(inputSize);
+        this.passwordInputField.setPreferredSize(inputSize);
+        this.passwordInputField.setMinimumSize(inputSize);
+        this.passwordInputField.setMaximumSize(inputSize);
 
-        repeatPasswordInputField.setPreferredSize(inputSize);
-        repeatPasswordInputField.setMinimumSize(inputSize);
-        repeatPasswordInputField.setMaximumSize(inputSize);
+        this.repeatPasswordInputField.setPreferredSize(inputSize);
+        this.repeatPasswordInputField.setMinimumSize(inputSize);
+        this.repeatPasswordInputField.setMaximumSize(inputSize);
 
         usernameInfo.setPreferredSize(rowSize);
         usernameInfo.setMinimumSize(rowSize);
@@ -116,113 +130,120 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
 
         this.add(Box.createVerticalGlue());
         this.add(title);
-        this.add(Box.createVerticalStrut(15));
+        this.add(Box.createVerticalStrut(VSTRUT_LARGE));
         this.add(usernameInfo);
-        this.add(Box.createVerticalStrut(5));
+        this.add(Box.createVerticalStrut(VSTRUT_SMALL));
         this.add(passwordInfo);
-        this.add(Box.createVerticalStrut(5));
+        this.add(Box.createVerticalStrut(VSTRUT_SMALL));
         this.add(repeatPasswordInfo);
-        this.add(Box.createVerticalStrut(5));
+        this.add(Box.createVerticalStrut(VSTRUT_SMALL));
         this.add(buttons);
         this.add(Box.createVerticalGlue());
     }
 
     private void addUsernameListener() {
-        usernameInputField.getDocument().addDocumentListener(new DocumentListener() {
-
+        this.usernameInputField.getDocument().addDocumentListener(new DocumentListener() {
             private void documentListenerHelper() {
-                final SignupState currentState = signupViewModel.getState();
-                currentState.setUsername(usernameInputField.getText());
-                signupViewModel.setState(currentState);
+                final SignupState currentState = SignupView.this.signupViewModel.getState();
+                currentState.setUsername(SignupView.this.usernameInputField.getText());
+                SignupView.this.signupViewModel.setState(currentState);
             }
 
             @Override
-            public void insertUpdate(DocumentEvent e) {
+            public void insertUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent e) {
+            public void removeUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e) {
+            public void changedUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
         });
     }
 
     private void addPasswordListener() {
-        passwordInputField.getDocument().addDocumentListener(new DocumentListener() {
-
+        this.passwordInputField.getDocument().addDocumentListener(new DocumentListener() {
             private void documentListenerHelper() {
-                final SignupState currentState = signupViewModel.getState();
-                currentState.setPassword(new String(passwordInputField.getPassword()));
-                signupViewModel.setState(currentState);
+                final SignupState currentState = SignupView.this.signupViewModel.getState();
+                currentState.setPassword(new String(SignupView.this.passwordInputField.getPassword()));
+                SignupView.this.signupViewModel.setState(currentState);
             }
 
             @Override
-            public void insertUpdate(DocumentEvent e) {
+            public void insertUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent e) {
+            public void removeUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e) {
+            public void changedUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
         });
     }
 
     private void addRepeatPasswordListener() {
-        repeatPasswordInputField.getDocument().addDocumentListener(new DocumentListener() {
-
+        this.repeatPasswordInputField.getDocument().addDocumentListener(new DocumentListener() {
             private void documentListenerHelper() {
-                final SignupState currentState = signupViewModel.getState();
-                currentState.setRepeatPassword(new String(repeatPasswordInputField.getPassword()));
-                signupViewModel.setState(currentState);
+                final SignupState currentState = SignupView.this.signupViewModel.getState();
+                currentState.setRepeatPassword(new String(SignupView.this.repeatPasswordInputField.getPassword()));
+                SignupView.this.signupViewModel.setState(currentState);
             }
 
             @Override
-            public void insertUpdate(DocumentEvent e) {
+            public void insertUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent e) {
+            public void removeUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e) {
+            public void changedUpdate(final DocumentEvent e) {
                 documentListenerHelper();
             }
         });
     }
 
     @Override
-    public void actionPerformed(ActionEvent evt) {
+    public void actionPerformed(final ActionEvent evt) {
         JOptionPane.showMessageDialog(this, "Cancel not implemented yet.");
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(final PropertyChangeEvent evt) {
         final SignupState state = (SignupState) evt.getNewValue();
         if (state.getUsernameError() != null) {
             JOptionPane.showMessageDialog(this, state.getUsernameError());
         }
     }
 
+    /**
+     * Gets the view name.
+     *
+     * @return view name string
+     */
     public String getViewName() {
-        return viewName;
+        return this.viewName;
     }
 
-    public void setSignupController(SignupController controller) {
+    /**
+     * Sets the signup controller.
+     *
+     * @param controller controller instance
+     */
+    public void setSignupController(final SignupController controller) {
         this.signupController = controller;
     }
 }

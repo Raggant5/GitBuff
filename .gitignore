@@ -1,3 +1,18 @@
+<<<<<<< HEAD
 .idea
 target
 *.iml
+=======
+# IDE files
+.idea/
+*.iml
+
+# Build output
+target/
+
+# Database files
+data/
+*.db
+
+.env
+>>>>>>> origin/main

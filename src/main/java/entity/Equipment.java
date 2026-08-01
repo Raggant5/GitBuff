@@ -1,6 +1,10 @@
 package entity;
 
+/**
+ * Represents fitness equipment available to a user.
+ */
 public enum Equipment {
+
     BODYWEIGHT_ONLY("Bodyweight Only"),
     DUMBBELLS("Dumbbells"),
     BARBELL("Barbell"),
@@ -16,16 +20,21 @@ public enum Equipment {
 
     private final String displayName;
 
-    Equipment(String displayName) {
+    Equipment(final String displayName) {
         this.displayName = displayName;
     }
 
+    /**
+     * Gets the display name of the equipment.
+     *
+     * @return display name string
+     */
     public String getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     @Override
     public String toString() {
-        return displayName;
+        return this.displayName;
     }
 }
