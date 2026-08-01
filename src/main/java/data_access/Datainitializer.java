@@ -22,8 +22,6 @@ public final class Datainitializer {
         try (Connection connection = Database.connect();
              Statement statement = connection.createStatement()) {
 
-            statement.execute("PRAGMA foreign_keys = ON;");
-
             statement.execute("""
                     CREATE TABLE IF NOT EXISTS users (
                         username TEXT PRIMARY KEY,
