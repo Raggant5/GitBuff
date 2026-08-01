@@ -7,7 +7,7 @@ import entity.User;
 import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 
 /**
- * The Login Interactor.
+ * Interactor implementing business logic for the Login Use Case.
  */
 public class LoginInteractor implements LoginInputBoundary {
 
@@ -15,18 +15,23 @@ public class LoginInteractor implements LoginInputBoundary {
     private final LoginOutputBoundary loginPresenter;
     private final ViewMealDataAccessInterface mealsDataAccessObject;
 
-    public LoginInteractor(
-            LoginUserDataAccessInterface userDataAccessInterface,
-            LoginOutputBoundary loginOutputBoundary,
-            ViewMealDataAccessInterface mealsDataAccessObject) {
-
+    /**
+     * Constructs a LoginInteractor instance.
+     *
+     * @param userDataAccessInterface user data access persistence object
+     * @param loginOutputBoundary output boundary presenter
+     * @param mealsDataAccessObject the meal data access persistence object
+     */
+    public LoginInteractor(final LoginUserDataAccessInterface userDataAccessInterface,
+                           final LoginOutputBoundary loginOutputBoundary,
+                           final ViewMealDataAccessInterface mealsDataAccessObject) {
         this.userDataAccessObject = userDataAccessInterface;
         this.loginPresenter = loginOutputBoundary;
         this.mealsDataAccessObject = mealsDataAccessObject;
     }
 
     @Override
-    public void execute(LoginInputData loginInputData) {
+    public void execute(final LoginInputData loginInputData) {
         final String username = loginInputData.getUsername();
         final String password = loginInputData.getPassword();
 
@@ -76,6 +81,6 @@ public class LoginInteractor implements LoginInputBoundary {
 
     @Override
     public void switchToSignupView() {
-        loginPresenter.switchToSignupView();
+        this.loginPresenter.switchToSignupView();
     }
 }

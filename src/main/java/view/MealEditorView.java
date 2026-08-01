@@ -79,11 +79,12 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
         saveButton.addActionListener(evt -> {
             final MealEditorState mealEditorState = mealEditorViewModel.getState();
             if (mealEditorState.getEditingMeal() == null) {
-                this.addMealController.execute(mealEditorState.getName(), mealEditorState.getFoodEntriesForMeal());
+                this.addMealController.execute(mealEditorState.getName(), mealEditorState.getFoodEntriesForMeal(),
+                        mealEditorState.getFoodEntriesDeleteStage());
             }
             else {
                 this.editMealController.execute(mealEditorState.getEditingMeal(), mealEditorState.getName(),
-                        mealEditorState.getFoodEntriesForMeal());
+                        mealEditorState.getFoodEntriesForMeal(), mealEditorState.getFoodEntriesDeleteStage());
             }
         });
 

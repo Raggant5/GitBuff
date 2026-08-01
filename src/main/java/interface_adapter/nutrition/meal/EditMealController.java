@@ -20,8 +20,10 @@ public class EditMealController {
      * @param meal the meal entity being edited
      * @param name the updated meal name
      * @param foodEntries the updated list of food entries
+     * @param foodEntriesToDelete list of foods to delete before adding
      */
-    public void execute(Meal meal, String name, List<FoodEntry> foodEntries) {
+    public void execute(Meal meal, String name, List<FoodEntry> foodEntries, List<FoodEntry> foodEntriesToDelete) {
+        foodEntries.removeAll(foodEntriesToDelete);
         editMealInteractor.execute(new EditMealInputData(meal, name, foodEntries));
     }
 

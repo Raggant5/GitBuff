@@ -1,8 +1,7 @@
 package entity;
 
 /**
- * A user's overall fitness objective. Used to adjust calorie and protein
- * recommendations relative to the user's maintenance calories.
+ * A user's overall fitness objective.
  */
 public enum FitnessGoal {
 
@@ -22,27 +21,43 @@ public enum FitnessGoal {
     private final double proteinGramsPerKg;
     private final String workoutFocus;
 
-    FitnessGoal(String displayName, int dailyCalorieAdjustment, double proteinGramsPerKg, String workoutFocus) {
+    FitnessGoal(final String displayName, final int dailyCalorieAdjustment,
+                final double proteinGramsPerKg, final String workoutFocus) {
         this.displayName = displayName;
         this.dailyCalorieAdjustment = dailyCalorieAdjustment;
         this.proteinGramsPerKg = proteinGramsPerKg;
         this.workoutFocus = workoutFocus;
     }
 
+    /**
+     * Gets the daily calorie adjustment value relative to TDEE.
+     *
+     * @return daily calorie adjustment
+     */
     public int getDailyCalorieAdjustment() {
-        return dailyCalorieAdjustment;
+        return this.dailyCalorieAdjustment;
     }
 
+    /**
+     * Gets the protein recommendation in grams per kilogram of body weight.
+     *
+     * @return protein ratio per kg
+     */
     public double getProteinGramsPerKg() {
-        return proteinGramsPerKg;
+        return this.proteinGramsPerKg;
     }
 
+    /**
+     * Gets the description of the workout focus strategy.
+     *
+     * @return workout focus description
+     */
     public String getWorkoutFocus() {
-        return workoutFocus;
+        return this.workoutFocus;
     }
 
     @Override
     public String toString() {
-        return displayName;
+        return this.displayName;
     }
 }

@@ -5,7 +5,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class Database {
+/**
+ * Utility class for managing connections to the SQLite database.
+ */
+public final class Database {
 
     private static final String DATABASE_DIRECTORY = "data";
     private static final String URL = "jdbc:sqlite:data/gitbuff.db";
@@ -14,6 +17,12 @@ public class Database {
         // Utility class
     }
 
+    /**
+     * Connects to the SQLite database instance.
+     *
+     * @return active connection
+     * @throws SQLException if directory or database connection fails
+     */
     public static Connection connect() throws SQLException {
         createDataDirectory();
         return DriverManager.getConnection(URL);

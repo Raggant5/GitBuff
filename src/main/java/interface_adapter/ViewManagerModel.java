@@ -6,9 +6,11 @@ package interface_adapter;
  */
 public class ViewManagerModel extends ViewModel<String> {
 
+    /**
+     * Constructs a ViewManagerModel instance with default empty state.
+     */
     public ViewManagerModel() {
         super("view manager");
         this.setState("");
     }
-
 }

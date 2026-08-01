@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import data_access.SQLiteMealDataAccessObject;
+import data_access.AiWorkoutDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
 import entity.CommonUserFactory;
 import entity.FoodEntryFactory;
@@ -87,6 +88,7 @@ import use_case.nutrition.meal.prepare_edit_meal.PrepareEditMealInteractor;
 import use_case.profile.EditProfileInputBoundary;
 import use_case.profile.EditProfileInteractor;
 import use_case.profile.EditProfileOutputBoundary;
+import use_case.recommendation.AiWorkoutDataAccessInterface;
 import use_case.recommendation.RecommendationInputBoundary;
 import use_case.recommendation.RecommendationInteractor;
 import use_case.recommendation.RecommendationOutputBoundary;
@@ -108,24 +110,17 @@ import view.ViewMealsView;
 import view.WorkoutsView;
 
 /**
- * The AppBuilder class is responsible for putting together the pieces of
- * our Clean Architecture application.
+ * The AppBuilder class is responsible for assembling Clean Architecture components step by step.
  */
 public class AppBuilder {
 
+    private static final int APP_WIDTH = 1000;
+    private static final int APP_HEIGHT = 700;
+    private static final String DEFAULT_AI_KEY = "API KEY GOES HERE";
+
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
-    private final ViewManagerModel viewManagerModel =
-            new ViewManagerModel();
-    private final ViewManager viewManager =
-            new ViewManager(
-                    cardPanel,
-                    cardLayout,
-                    viewManagerModel
-            );
-
-    private final int displayWidth = 1000;
-    private final int displayHeight = 700;
+    private final ViewManagerModel viewManagerModel = new ViewManagerModel();
 
     private AppShellView appShellView;
 
@@ -197,9 +192,15 @@ public class AppBuilder {
     private RecommendationController recommendationController;
     private RecommendationInputBoundary recommendationInteractor;
 
+    /**
+     * Constructs the AppBuilder instance, sets panel layouts, and wires view managers.
+     */
     public AppBuilder() {
-        cardPanel.setLayout(cardLayout);
-        mainPanel.setLayout(mainCardLayout);
+        this.cardPanel.setLayout(this.cardLayout);
+        this.mainPanel.setLayout(this.mainCardLayout);
+
+        new ViewManager(this.cardPanel, this.cardLayout, this.viewManagerModel);
+        new MainViewManager(this.mainPanel, this.mainCardLayout, this.mainViewManagerModel);
     }
 
     /**
@@ -208,12 +209,9 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addSignupView() {
-        signupViewModel = new SignupViewModel();
-        signupView = new SignupView(signupViewModel);
-        cardPanel.add(
-                signupView,
-                signupView.getViewName()
-        );
+        this.signupViewModel = new SignupViewModel();
+        this.signupView = new SignupView(this.signupViewModel);
+        this.cardPanel.add(this.signupView, this.signupView.getViewName());
         return this;
     }
 
@@ -223,17 +221,14 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addLoginView() {
-        loginViewModel = new LoginViewModel();
-        loginView = new LoginView(loginViewModel);
-        cardPanel.add(
-                loginView,
-                loginView.getViewName()
-        );
+        this.loginViewModel = new LoginViewModel();
+        this.loginView = new LoginView(this.loginViewModel);
+        this.cardPanel.add(this.loginView, this.loginView.getViewName());
         return this;
     }
 
     /**
-     * Adds the main application views.
+     * Adds the Main Views to the application.
      *
      * @return this builder
      */
@@ -340,196 +335,104 @@ public class AppBuilder {
     }
 
     /**
-     * Adds the navigation bar.
+     * Adds the Navbar View to the application.
      *
      * @return this builder
      */
     public AppBuilder addNavbarView() {
-        navbarView = new NavbarView(
-                mainViewManagerModel,
-                viewManagerModel,
-                profileViewModel
-        );
-
+        this.navbarView = new NavbarView(this.mainViewManagerModel, this.viewManagerModel, this.profileViewModel);
         return this;
     }
 
     /**
-     * Adds the application shell.
+     * Adds the App Shell View to the application.
      *
      * @return this builder
      */
     public AppBuilder addShellView() {
-        appShellView = new AppShellView(
-                mainPanel,
-                navbarView
-        );
-
-        cardPanel.add(
-                appShellView,
-                "app shell"
-        );
-
+        this.appShellView = new AppShellView(this.mainPanel, this.navbarView);
+        this.cardPanel.add(this.appShellView, "app shell");
         return this;
     }
 
     /**
-     * Adds the signup use case.
+     * Adds the Signup Use Case to the application.
      *
      * @return this builder
      */
     public AppBuilder addSignupUseCase() {
-        final SignupOutputBoundary signupOutputBoundary =
-                new SignupPresenter(
-                        viewManagerModel,
-                        signupViewModel,
-                        loginViewModel,
-                        profileViewModel,
-                        mainViewManagerModel
-                );
+        final SignupOutputBoundary signupOutputBoundary = new SignupPresenter(this.viewManagerModel,
+                this.signupViewModel, this.loginViewModel, this.profileViewModel, this.mainViewManagerModel);
+        final SignupInputBoundary userSignupInteractor = new SignupInteractor(
+                this.userDataAccessObject, signupOutputBoundary, this.userFactory);
 
-        final SignupInputBoundary userSignupInteractor =
-                new SignupInteractor(
-                        userDataAccessObject,
-                        signupOutputBoundary,
-                        userFactory
-                );
-
-        final SignupController controller =
-                new SignupController(
-                        userSignupInteractor
-                );
-
-        signupView.setSignupController(controller);
-
+        final SignupController controller = new SignupController(userSignupInteractor);
+        this.signupView.setSignupController(controller);
         return this;
     }
 
     /**
-     * Adds the login use case.
+     * Adds the Login Use Case to the application.
      *
      * @return this builder
      */
     public AppBuilder addLoginUseCase() {
-        final LoginOutputBoundary loginOutputBoundary =
-                new LoginPresenter(
-                        viewManagerModel,
-                        loginViewModel,
-                        signupViewModel,
-                        profileViewModel,
-                        viewMealsViewModel,
-                        recommendationController
-                );
+        final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
+                this.viewManagerModel, this.loginViewModel, this.signupViewModel,
+                this.profileViewModel, this.viewMealsViewModel, this.recommendationController);
+        final LoginInputBoundary loginInteractor = new LoginInteractor(
+                this.userDataAccessObject, loginOutputBoundary, viewMealsDataAccessObject);
 
-        final LoginInputBoundary loginInteractor =
-                new LoginInteractor(
-                        userDataAccessObject,
-                        loginOutputBoundary,
-                        viewMealsDataAccessObject
-                );
-
-        final LoginController loginController =
-                new LoginController(
-                        loginInteractor
-                );
-
-        loginView.setLoginController(loginController);
-
+        final LoginController loginController = new LoginController(loginInteractor);
+        this.loginView.setLoginController(loginController);
         return this;
     }
 
     /**
-     * Adds the recommendation use case.
+     * Adds the Recommendation Use Case to the application.
      *
      * @return this builder
      */
     public AppBuilder addRecommendationUseCase() {
-        final RecommendationOutputBoundary recommendationOutputBoundary =
-                new RecommendationPresenter(
-                        nutritionViewModel,
-                        workoutViewModel
-                );
-
-        recommendationInteractor =
-                new RecommendationInteractor(
-                        userDataAccessObject,
-                        recommendationOutputBoundary
-                );
-
-        recommendationController =
-                new RecommendationController(
-                        recommendationInteractor
-                );
-
-        nutritionView.setRecommendationController(
-                recommendationController
-        );
-
-        workoutsView.setRecommendationController(
-                recommendationController
-        );
-
+        final RecommendationOutputBoundary recommendationOutputBoundary = new RecommendationPresenter(
+                this.nutritionViewModel, this.workoutViewModel);
+        this.recommendationInteractor = new RecommendationInteractor(
+                this.userDataAccessObject, recommendationOutputBoundary, this.aiWorkoutDao);
+        this.recommendationController = new RecommendationController(this.recommendationInteractor);
+        this.nutritionView.setRecommendationController(this.recommendationController);
+        this.workoutsView.setRecommendationController(this.recommendationController);
         return this;
     }
 
     /**
-     * Adds the profile use case.
+     * Adds the Edit Profile Use Case to the application.
      *
      * @return this builder
      */
     public AppBuilder addProfileUseCase() {
-        final EditProfileOutputBoundary profileOutputBoundary =
-                new ProfilePresenter(
-                        profileViewModel
-                );
+        final EditProfileOutputBoundary profileOutputBoundary = new ProfilePresenter(this.profileViewModel);
+        final EditProfileInputBoundary editProfileInteractor = new EditProfileInteractor(
+                this.userDataAccessObject, profileOutputBoundary, this.recommendationInteractor);
 
-        final EditProfileInputBoundary editProfileInteractor =
-                new EditProfileInteractor(
-                        userDataAccessObject,
-                        profileOutputBoundary,
-                        recommendationInteractor
-                );
-
-        final ProfileController profileController =
-                new ProfileController(
-                        editProfileInteractor
-                );
-
-        profileView.setProfileController(
-                profileController
-        );
-
+        final ProfileController profileController = new ProfileController(editProfileInteractor);
+        this.profileView.setProfileController(profileController);
         return this;
     }
 
     /**
-     * Adds the logout use case.
+     * Adds the Logout Use Case to the application.
      *
      * @return this builder
      */
     public AppBuilder addLogoutUseCase() {
-        final LogoutOutputBoundary logoutOutputBoundary =
-                new LogoutPresenter(
-                        viewManagerModel,
-                        profileViewModel,
-                        loginViewModel
-                );
+        final LogoutOutputBoundary logoutOutputBoundary = new LogoutPresenter(this.viewManagerModel,
+                this.profileViewModel, this.loginViewModel);
 
         final LogoutInputBoundary logoutInteractor =
-                new LogoutInteractor(
-                        userDataAccessObject,
-                        logoutOutputBoundary
-                );
+                new LogoutInteractor(this.userDataAccessObject, logoutOutputBoundary);
 
-        final LogoutController logoutController =
-                new LogoutController(
-                        logoutInteractor
-                );
-
-        navbarView.setLogoutController(
-                logoutController
-        );
-
+        final LogoutController logoutController = new LogoutController(logoutInteractor);
+        this.navbarView.setLogoutController(logoutController);
         return this;
     }
 
@@ -717,32 +620,18 @@ public class AppBuilder {
     }
 
     /**
-     * Creates the application window.
+     * Creates the JFrame for the application and sets initial view.
      *
      * @return the application frame
      */
     public JFrame build() {
-        final JFrame application =
-                new JFrame("GitBuff");
+        final JFrame application = new JFrame("GitBuff");
+        application.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.cardPanel.setPreferredSize(new Dimension(APP_WIDTH, APP_HEIGHT));
+        application.add(this.cardPanel);
 
-        application.setDefaultCloseOperation(
-                WindowConstants.EXIT_ON_CLOSE
-        );
-
-        cardPanel.setPreferredSize(
-                new Dimension(
-                        displayWidth,
-                        displayHeight
-                )
-        );
-
-        application.add(cardPanel);
-
-        viewManagerModel.setState(
-                signupView.getViewName()
-        );
-
-        viewManagerModel.firePropertyChanged();
+        this.viewManagerModel.setState(this.signupView.getViewName());
+        this.viewManagerModel.firePropertyChanged();
 
         return application;
     }

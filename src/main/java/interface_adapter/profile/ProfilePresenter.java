@@ -10,13 +10,18 @@ public class ProfilePresenter implements EditProfileOutputBoundary {
 
     private final ProfileViewModel profileViewModel;
 
-    public ProfilePresenter(ProfileViewModel profileViewModel) {
+    /**
+     * Constructs a ProfilePresenter instance.
+     *
+     * @param profileViewModel view model for managing profile state
+     */
+    public ProfilePresenter(final ProfileViewModel profileViewModel) {
         this.profileViewModel = profileViewModel;
     }
 
     @Override
-    public void prepareSuccessView(EditProfileOutputData outputData) {
-        final ProfileState profileState = profileViewModel.getState();
+    public void prepareSuccessView(final EditProfileOutputData outputData) {
+        final ProfileState profileState = this.profileViewModel.getState();
         profileState.setUsername(outputData.getUsername());
         profileState.setHeightText(String.valueOf(outputData.getHeight()));
         profileState.setWeightText(String.valueOf(outputData.getWeight()));
@@ -34,14 +39,14 @@ public class ProfilePresenter implements EditProfileOutputBoundary {
         profileState.setPrivacySettings(outputData.getPrivacySettings());
         profileState.setProfileError(null);
         profileState.setSaveConfirmation("Profile saved.");
-        profileViewModel.firePropertyChanged();
+        this.profileViewModel.firePropertyChanged();
     }
 
     @Override
-    public void prepareFailView(String errorMessage) {
-        final ProfileState profileState = profileViewModel.getState();
+    public void prepareFailView(final String errorMessage) {
+        final ProfileState profileState = this.profileViewModel.getState();
         profileState.setSaveConfirmation(null);
         profileState.setProfileError(errorMessage);
-        profileViewModel.firePropertyChanged();
+        this.profileViewModel.firePropertyChanged();
     }
 }

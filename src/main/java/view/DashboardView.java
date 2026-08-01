@@ -1,32 +1,46 @@
 package view;
 
-import interface_adapter.dashboard.DashboardViewModel;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import interface_adapter.dashboard.DashboardViewModel;
+
+/**
+ * The View for displaying user dashboard analytics and status.
+ */
 public class DashboardView extends JPanel implements PropertyChangeListener {
 
     private final String viewName = "dashboard";
     private final JLabel dashboardLabel;
 
-    public DashboardView(DashboardViewModel dashboardViewModel) {
-
+    /**
+     * Constructs a DashboardView instance.
+     *
+     * @param dashboardViewModel view model managing dashboard state
+     */
+    public DashboardView(final DashboardViewModel dashboardViewModel) {
         dashboardViewModel.addPropertyChangeListener(this);
-        setLayout(new BorderLayout());
-        dashboardLabel = new JLabel();
-        this.add(dashboardLabel, BorderLayout.CENTER);
-        dashboardLabel.setText(dashboardViewModel.getState());
+        this.setLayout(new BorderLayout());
+        this.dashboardLabel = new JLabel();
+        this.add(this.dashboardLabel, BorderLayout.CENTER);
+        this.dashboardLabel.setText(dashboardViewModel.getState());
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        dashboardLabel.setText((String) evt.getNewValue());
+    public void propertyChange(final PropertyChangeEvent evt) {
+        this.dashboardLabel.setText((String) evt.getNewValue());
     }
 
+    /**
+     * Gets the view name.
+     *
+     * @return view name string
+     */
     public String getViewName() {
-        return viewName;
+        return this.viewName;
     }
 }

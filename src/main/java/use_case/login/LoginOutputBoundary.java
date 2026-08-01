@@ -1,20 +1,26 @@
 package use_case.login;
 
 /**
- * The output boundary for the Login Use Case.
+ * Output boundary for the Login Use Case.
  */
 public interface LoginOutputBoundary {
+
     /**
      * Prepares the success view for the Login Use Case.
-     * @param outputData the output data
+     *
+     * @param outputData output data containing user details
      */
     void prepareSuccessView(LoginOutputData outputData);
 
     /**
      * Prepares the failure view for the Login Use Case.
-     * @param errorMessage the explanation of the failure
+     *
+     * @param errorMessage explanation of failure cause
      */
     void prepareFailView(String errorMessage);
 
+    /**
+     * Switches to the signup view.
+     */
     void switchToSignupView();
 }

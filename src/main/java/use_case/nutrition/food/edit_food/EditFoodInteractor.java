@@ -29,7 +29,9 @@ public class EditFoodInteractor implements EditFoodInputBoundary {
             food.setQuantity(parseDoubleOrZero(inputData.getQuantity()));
             food.setUnit(inputData.getUnit());
             food.setGrams(parseDoubleOrZero(inputData.getGrams()));
-            dataAccess.editFoodEntry(food);
+            if (food.getId() != null) {
+                dataAccess.editFoodEntry(food);
+            }
 
             presenter.prepareSuccessView(new EditFoodOutputData(food));
         }

@@ -20,11 +20,20 @@ public class SignupPresenter implements SignupOutputBoundary {
     private final ViewManagerModel viewManagerModel;
     private final MainViewManagerModel mainViewManagerModel;
 
-    public SignupPresenter(ViewManagerModel viewManagerModel,
-                           SignupViewModel signupViewModel,
-                           LoginViewModel loginViewModel,
-                           ProfileViewModel profileViewModel,
-                           MainViewManagerModel mainViewManagerModel) {
+    /**
+     * Constructs a SignupPresenter instance.
+     *
+     * @param viewManagerModel manager model for top-level view navigation
+     * @param signupViewModel view model for signup state
+     * @param loginViewModel view model for login state
+     * @param profileViewModel view model for user profile state
+     * @param mainViewManagerModel manager model for main tab navigation
+     */
+    public SignupPresenter(final ViewManagerModel viewManagerModel,
+                           final SignupViewModel signupViewModel,
+                           final LoginViewModel loginViewModel,
+                           final ProfileViewModel profileViewModel,
+                           final MainViewManagerModel mainViewManagerModel) {
         this.viewManagerModel = viewManagerModel;
         this.signupViewModel = signupViewModel;
         this.loginViewModel = loginViewModel;
@@ -33,31 +42,33 @@ public class SignupPresenter implements SignupOutputBoundary {
     }
 
     @Override
-    public void prepareSuccessView(SignupOutputData response) {
-        // On success, switch to the login view.
-        final LoginState loginState = loginViewModel.getState();
+    public void prepareSuccessView(final SignupOutputData response) {
+        final LoginState loginState = this.loginViewModel.getState();
         loginState.setUsername(response.getUsername());
         this.loginViewModel.setState(loginState);
-        loginViewModel.firePropertyChanged();
-        viewManagerModel.setState("app shell");
-        viewManagerModel.firePropertyChanged();
-        mainViewManagerModel.setState("profile");
-        mainViewManagerModel.firePropertyChanged();
-        ProfileState profileState = profileViewModel.getState();
+        this.loginViewModel.firePropertyChanged();
+
+        this.viewManagerModel.setState("app shell");
+        this.viewManagerModel.firePropertyChanged();
+
+        this.mainViewManagerModel.setState("profile");
+        this.mainViewManagerModel.firePropertyChanged();
+
+        final ProfileState profileState = this.profileViewModel.getState();
         profileState.setUsername(response.getUsername());
-        profileViewModel.firePropertyChanged();
+        this.profileViewModel.firePropertyChanged();
     }
 
     @Override
-    public void prepareFailView(String error) {
-        final SignupState signupState = signupViewModel.getState();
+    public void prepareFailView(final String error) {
+        final SignupState signupState = this.signupViewModel.getState();
         signupState.setUsernameError(error);
-        signupViewModel.firePropertyChanged();
+        this.signupViewModel.firePropertyChanged();
     }
 
     @Override
     public void switchToLoginView() {
-        viewManagerModel.setState(loginViewModel.getViewName());
-        viewManagerModel.firePropertyChanged();
+        this.viewManagerModel.setState(this.loginViewModel.getViewName());
+        this.viewManagerModel.firePropertyChanged();
     }
 }

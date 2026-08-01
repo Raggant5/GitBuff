@@ -1,3 +1,12 @@
-.idea
-target
-/data/gitbuff.db
+# IDE files
+.idea/
+*.iml
+
+# Build output
+target/
+
+# Database files
+data/
+*.db
+
+.env

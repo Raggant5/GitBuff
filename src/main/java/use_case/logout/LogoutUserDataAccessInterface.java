@@ -1,19 +1,21 @@
 package use_case.logout;
 
 /**
- * DAO for the Logout Use Case.
+ * DAO interface for the Logout Use Case.
  */
 public interface LogoutUserDataAccessInterface {
 
     /**
-     * Returns the username of the curren user of the application.
-     * @return the username of the current user
+     * Returns the username of the current user of the application.
+     *
+     * @return username of current user
      */
     String getCurrentUsername();
 
     /**
-     * Sets the username indicating who is the current user of the application.
-     * @param username the new current username
+     * Sets the username indicating who is the current active user.
+     *
+     * @param username new active username
      */
     void setCurrentUsername(String username);
 }

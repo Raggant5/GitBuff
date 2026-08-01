@@ -81,27 +81,27 @@ public class LoginOutputData {
     }
 
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     public float getHeight() {
-        return height;
+        return this.height;
     }
 
     public float getWeight() {
-        return weight;
+        return this.weight;
     }
 
     public ActivityLevel getActivityLevel() {
-        return activityLevel;
+        return this.activityLevel;
     }
 
     public FitnessGoal getGoal() {
-        return goal;
+        return this.goal;
     }
 
     public String getProfilePicturePath() {
-        return profilePicturePath;
+        return this.profilePicturePath;
     }
 
     public LocalDate getDateOfBirth() {
@@ -141,10 +141,10 @@ public class LoginOutputData {
     }
 
     public List<Meal> getMeals() {
-        return meals;
+        return this.meals;
     }
 
     public boolean isUseCaseFailed() {
-        return useCaseFailed;
+        return this.useCaseFailed;
     }
 }

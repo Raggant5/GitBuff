@@ -4,6 +4,7 @@ package interface_adapter.signup;
  * The state for the Signup View Model.
  */
 public class SignupState {
+
     private String username = "";
     private String usernameError;
     private String password = "";
@@ -12,59 +13,59 @@ public class SignupState {
     private String repeatPasswordError;
 
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     public String getUsernameError() {
-        return usernameError;
+        return this.usernameError;
     }
 
     public String getPassword() {
-        return password;
+        return this.password;
     }
 
     public String getPasswordError() {
-        return passwordError;
+        return this.passwordError;
     }
 
     public String getRepeatPassword() {
-        return repeatPassword;
+        return this.repeatPassword;
     }
 
     public String getRepeatPasswordError() {
-        return repeatPasswordError;
+        return this.repeatPasswordError;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
-    public void setUsernameError(String usernameError) {
+    public void setUsernameError(final String usernameError) {
         this.usernameError = usernameError;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
-    public void setPasswordError(String passwordError) {
+    public void setPasswordError(final String passwordError) {
         this.passwordError = passwordError;
     }
 
-    public void setRepeatPassword(String repeatPassword) {
+    public void setRepeatPassword(final String repeatPassword) {
         this.repeatPassword = repeatPassword;
     }
 
-    public void setRepeatPasswordError(String repeatPasswordError) {
+    public void setRepeatPasswordError(final String repeatPasswordError) {
         this.repeatPasswordError = repeatPasswordError;
     }
 
     @Override
     public String toString() {
         return "SignupState{"
-                + "username='" + username + '\''
-                + ", password='" + password + '\''
-                + ", repeatPassword='" + repeatPassword + '\''
+                + "username='" + this.username + '\''
+                + ", password='" + this.password + '\''
+                + ", repeatPassword='" + this.repeatPassword + '\''
                 + '}';
     }
 }

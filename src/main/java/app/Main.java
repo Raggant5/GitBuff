@@ -7,14 +7,20 @@ import javax.swing.JFrame;
 import data_access.Datainitializer;
 
 /**
- * The Main class of our application.
+ * The Main entry point class of the GitBuff application.
  */
-public class Main {
+public final class Main {
+
+    private Main() {
+        // Utility class constructor
+    }
+
     /**
-     * Builds and runs the CA architecture of the application.
-     * @param args unused arguments
+     * Builds and runs the Clean Architecture implementation of the application.
+     *
+     * @param args command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         final AppBuilder appBuilder = new AppBuilder();
 
         final JFrame application = appBuilder
@@ -35,6 +41,7 @@ public class Main {
                 .addDeleteMealUseCase()
                 .addDeleteFoodUseCase()
                 .build();
+
         try {
             Datainitializer.initialize();
         }

@@ -1,5 +1,6 @@
 package interface_adapter.nutrition.food;
 
+import entity.FoodEntry;
 import use_case.nutrition.food.delete_food.DeleteFoodInputBoundary;
 import use_case.nutrition.food.delete_food.DeleteFoodInputData;
 
@@ -12,10 +13,10 @@ public class DeleteFoodController {
 
     /**
      * Executes the Delete Food Use Case.
-     * @param foodId food to delete
+     * @param foodEntry food to delete
      */
-    public void execute(int foodId) {
-        deleteFoodInputInteractor.execute(new DeleteFoodInputData(foodId));
+    public void execute(FoodEntry foodEntry) {
+        deleteFoodInputInteractor.execute(new DeleteFoodInputData(foodEntry));
     }
 
 }

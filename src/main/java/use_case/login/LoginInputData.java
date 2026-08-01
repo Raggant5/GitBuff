@@ -1,24 +1,39 @@
 package use_case.login;
 
 /**
- * The Input Data for the Login Use Case.
+ * Input Data for the Login Use Case.
  */
 public class LoginInputData {
 
     private final String username;
     private final String password;
 
-    public LoginInputData(String username, String password) {
+    /**
+     * Constructs a LoginInputData instance.
+     *
+     * @param username user username
+     * @param password user password
+     */
+    public LoginInputData(final String username, final String password) {
         this.username = username;
         this.password = password;
     }
 
-    String getUsername() {
-        return username;
+    /**
+     * Gets the username.
+     *
+     * @return username string
+     */
+    public String getUsername() {
+        return this.username;
     }
 
-    String getPassword() {
-        return password;
+    /**
+     * Gets the password.
+     *
+     * @return password string
+     */
+    public String getPassword() {
+        return this.password;
     }
-
 }

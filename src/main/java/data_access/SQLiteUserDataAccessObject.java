@@ -35,31 +35,41 @@ public class SQLiteUserDataAccessObject
         ProfileUserDataAccessInterface,
         RecommendationUserDataAccessInterface {
 
+    private static final String SELECT_EXISTS_SQL = """
+            SELECT username
+            FROM users
+            WHERE username = ?
+            """;
+
+    private static final String SAVE_USER_SQL = """
+            INSERT INTO users (
+                username, password, height, weight, activity_level, fitness_goal, profile_picture_path
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(username) DO UPDATE SET
+                password = excluded.password, height = excluded.height, weight = excluded.weight,
+                activity_level = excluded.activity_level, fitness_goal = excluded.fitness_goal,
+                profile_picture_path = excluded.profile_picture_path
+            """;
+
+    private static final String GET_USER_SQL = """
+            SELECT username, password, height, weight, activity_level, fitness_goal, profile_picture_path
+            FROM users
+            WHERE username = ?
+            """;
+
     private String currentUsername;
 
     @Override
-    public boolean existsByName(String identifier) {
-        final String sql = """
-                SELECT username
-                FROM users
-                WHERE username = ?
-                """;
-
+    public boolean existsByName(final String identifier) {
         try (Connection connection = Database.connect();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
-
+             PreparedStatement statement = connection.prepareStatement(SELECT_EXISTS_SQL)) {
             statement.setString(1, identifier);
-
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();
             }
         }
-        catch (SQLException exception) {
-            throw new RuntimeException(
-                    "Could not check whether user exists.",
-                    exception
-            );
+        catch (final SQLException exception) {
+            throw new RuntimeException("Could not check whether user exists.", exception);
         }
     }
 
@@ -197,7 +207,6 @@ public class SQLiteUserDataAccessObject
                      connection.prepareStatement(sql)) {
 
             statement.setString(1, username);
-
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (!resultSet.next()) {
                     return null;
@@ -600,7 +609,7 @@ public class SQLiteUserDataAccessObject
     }
 
     @Override
-    public void setCurrentUsername(String name) {
+    public void setCurrentUsername(final String name) {
         this.currentUsername = name;
     }
 
