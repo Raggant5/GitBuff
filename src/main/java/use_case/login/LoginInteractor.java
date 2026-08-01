@@ -20,9 +20,11 @@ public class LoginInteractor implements LoginInputBoundary {
      *
      * @param userDataAccessInterface user data access persistence object
      * @param loginOutputBoundary output boundary presenter
+     * @param mealsDataAccessObject the meal data access persistence object
      */
     public LoginInteractor(final LoginUserDataAccessInterface userDataAccessInterface,
-                           final LoginOutputBoundary loginOutputBoundary, final ViewMealDataAccessInterface mealsDataAccessObject) {
+                           final LoginOutputBoundary loginOutputBoundary,
+                           final ViewMealDataAccessInterface mealsDataAccessObject) {
         this.userDataAccessObject = userDataAccessInterface;
         this.loginPresenter = loginOutputBoundary;
         this.mealsDataAccessObject = mealsDataAccessObject;
@@ -54,8 +56,8 @@ public class LoginInteractor implements LoginInputBoundary {
                         user.getActivityLevel(),
                         user.getGoal(),
                         user.getProfilePicturePath(),
-                        meals,
-                        false
+                        false,
+                        meals
                 );
                 this.loginPresenter.prepareSuccessView(loginOutputData);
             }

@@ -8,8 +8,8 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import data_access.AiWorkoutDataAccessObject;
-import data_access.SQLiteUserDataAccessObject;
 import data_access.InMemoryDataAccessObject;
+import data_access.SQLiteUserDataAccessObject;
 import entity.CommonUserFactory;
 import entity.FoodEntryFactory;
 import entity.MealFactory;
@@ -122,9 +122,6 @@ public class AppBuilder {
     private final CardLayout cardLayout = new CardLayout();
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
 
-    private final int displayWidth = 1000;
-    private final int displayHeight = 700;
-
     private AppShellView appShellView;
     private final JPanel mainPanel = new JPanel();
     private final CardLayout mainCardLayout = new CardLayout();
@@ -133,7 +130,7 @@ public class AppBuilder {
             mainViewManagerModel);
 
     private final UserFactory userFactory = new CommonUserFactory();
-    private final InMemoryDataAccessObject userDataAccessObject = new SQLiteUserDataAccessObject();
+    private final InMemoryDataAccessObject userDataAccessObject = new InMemoryDataAccessObject();
 
     private final AiWorkoutDataAccessInterface aiWorkoutDao =
             new AiWorkoutDataAccessObject();
@@ -224,6 +221,7 @@ public class AppBuilder {
         this.mealEditorViewModel = new MealEditorViewModel();
         this.foodEditorViewModel = new FoodEditorViewModel();
         this.foodEditorView = new FoodEditorView(this.foodEditorViewModel);
+
         final PrepareEditFoodPresenter prepareEditFoodPresenter = new PrepareEditFoodPresenter(foodEditorViewModel,
                 mealEditorViewModel);
         final PrepareEditFoodInputBoundary prepareEditFoodInteractor = new PrepareEditFoodInteractor(
@@ -297,9 +295,9 @@ public class AppBuilder {
     public AppBuilder addLoginUseCase() {
         final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
                 this.viewManagerModel, this.loginViewModel, this.signupViewModel,
-                this.profileViewModel, this.recommendationController);
+                this.profileViewModel, this.viewMealsViewModel, this.recommendationController);
         final LoginInputBoundary loginInteractor = new LoginInteractor(
-                this.userDataAccessObject, loginOutputBoundary);
+                this.userDataAccessObject, loginOutputBoundary, viewMealsDataAccessObject);
 
         final LoginController loginController = new LoginController(loginInteractor);
         this.loginView.setLoginController(loginController);
