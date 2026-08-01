@@ -1,6 +1,10 @@
 package use_case.login;
 
+import java.util.List;
+
+import entity.Meal;
 import entity.User;
+import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 
 /**
  * The Login Interactor.
@@ -8,11 +12,13 @@ import entity.User;
 public class LoginInteractor implements LoginInputBoundary {
     private final LoginUserDataAccessInterface userDataAccessObject;
     private final LoginOutputBoundary loginPresenter;
+    private final ViewMealDataAccessInterface mealsDataAccessObject;
 
     public LoginInteractor(LoginUserDataAccessInterface userDataAccessInterface,
-                           LoginOutputBoundary loginOutputBoundary) {
+                           LoginOutputBoundary loginOutputBoundary, ViewMealDataAccessInterface mealsDataAccessObject) {
         this.userDataAccessObject = userDataAccessInterface;
         this.loginPresenter = loginOutputBoundary;
+        this.mealsDataAccessObject = mealsDataAccessObject;
     }
 
     @Override
@@ -30,7 +36,7 @@ public class LoginInteractor implements LoginInputBoundary {
             else {
 
                 final User user = userDataAccessObject.get(loginInputData.getUsername());
-
+                final List<Meal> meals = mealsDataAccessObject.getMealsForUser(user.getName());
                 userDataAccessObject.setCurrentUsername(username);
                 final LoginOutputData loginOutputData = new LoginOutputData(
                         user.getName(),
@@ -39,6 +45,7 @@ public class LoginInteractor implements LoginInputBoundary {
                         user.getActivityLevel(),
                         user.getGoal(),
                         user.getProfilePicturePath(),
+                        meals,
                         false
                 );
                 loginPresenter.prepareSuccessView(loginOutputData);

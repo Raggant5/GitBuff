@@ -21,7 +21,6 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         dashboardLabel.setText(dashboardViewModel.getState());
     }
 
-
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         dashboardLabel.setText((String) evt.getNewValue());
