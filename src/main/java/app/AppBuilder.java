@@ -144,6 +144,9 @@ public class AppBuilder {
     private final SQLiteMealDataAccessObject mealDataAccessObject =
             new SQLiteMealDataAccessObject();
 
+    private final AiWorkoutDataAccessInterface aiWorkoutDao =
+            new AiWorkoutDataAccessObject();
+
     private SignupView signupView;
     private SignupViewModel signupViewModel;
     private LoginView loginView;
