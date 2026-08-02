@@ -1,4 +1,4 @@
-package use_case.calendar;
+package use_case.calendar.remove_event;
 
 import entity.CalendarEvent;
 
@@ -8,7 +8,7 @@ public class RemoveCalendarEventOutputData {
     private List<CalendarEvent> calendarEvents;
 
     public RemoveCalendarEventOutputData(List<CalendarEvent> calendarEvents) {
-        this.calendarEvents = calendarEvents;
+        this.calendarEvents = List.copyOf(calendarEvents);
     }
 
     public List<CalendarEvent> getCalendarEvents() {

@@ -1,4 +1,4 @@
-package use_case.calendar;
+package use_case.calendar.remove_event;
 
 public class RemoveCalendarEventInputData {
     private final String userId;

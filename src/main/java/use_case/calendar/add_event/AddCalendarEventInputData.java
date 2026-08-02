@@ -1,4 +1,4 @@
-package use_case.calendar;
+package use_case.calendar.add_event;
 
 import java.time.LocalDate;
 
