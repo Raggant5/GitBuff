@@ -18,22 +18,29 @@ public class PrepareEditFoodPresenter implements PrepareEditFoodOutputBoundary {
     @Override
     public void prepareSuccessView(PrepareEditFoodOutputData outputData) {
         final FoodEntry food = outputData.getFood();
-        final FoodEditorState foodEditorState = foodEditorViewModel.getState();
-        foodEditorState.setEditingFood(food);
-        foodEditorState.setFoodName(food.getFoodName());
-        foodEditorState.setProtein(String.valueOf(food.getNutrition().getProtein()));
-        foodEditorState.setCalories(String.valueOf(food.getNutrition().getCalories()));
-        foodEditorState.setCarbs(String.valueOf(food.getNutrition().getCarbs()));
-        foodEditorState.setFat(String.valueOf(food.getNutrition().getFat()));
-        foodEditorState.setQuantity(String.valueOf(food.getQuantity()));
-        foodEditorState.setUnit(food.getUnit());
-        foodEditorState.setGrams(String.valueOf(food.getGrams()));
 
-        final MealEditorState mealEditorState = mealEditorViewModel.getState();
-        mealEditorState.setShowFoodEditor(true);
+        final FoodEditorState state = foodEditorViewModel.getState();
+        state.reset();
+        state.setEditingFood(food);
+        state.setFoodName(food.getFoodName());
+        state.setQuantity(String.valueOf(food.getQuantity()));
+        state.setUnit(food.getUnit());
+        state.setTotalGramsDisplay(String.valueOf(food.getGrams()));
+        final double quantity = food.getQuantity();
+        if (quantity != 0) {
+            state.setServingCalories(food.getNutrition().getCalories() / quantity);
+            state.setServingProtein(food.getNutrition().getProtein() / quantity);
+            state.setServingCarbs(food.getNutrition().getCarbs() / quantity);
+            state.setServingFat(food.getNutrition().getFat() / quantity);
+            state.setServingGrams(food.getGrams() / quantity);
 
-        mealEditorViewModel.firePropertyChanged();
+            state.setOriginalServingGrams(food.getGrams() / quantity);
+        }
+        state.recalculateTotals();
+        final MealEditorState mealState = mealEditorViewModel.getState();
+        mealState.setShowFoodEditor(true);
         foodEditorViewModel.firePropertyChanged();
+        mealEditorViewModel.firePropertyChanged();
     }
 
     @Override

@@ -40,6 +40,7 @@ public final class Main {
                 .addEditMealUseCase()
                 .addDeleteMealUseCase()
                 .addDeleteFoodUseCase()
+                .addSearchFoodUseCase()
                 .build();
 
         try {
