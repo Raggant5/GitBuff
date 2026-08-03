@@ -27,13 +27,15 @@ public class PrepareEditFoodPresenter implements PrepareEditFoodOutputBoundary {
         state.setUnit(food.getUnit());
         state.setTotalGramsDisplay(String.valueOf(food.getGrams()));
         final double quantity = food.getQuantity();
-        state.setServingCalories(food.getNutrition().getCalories() / quantity);
-        state.setServingProtein(food.getNutrition().getProtein() / quantity);
-        state.setServingCarbs(food.getNutrition().getCarbs() / quantity);
-        state.setServingFat(food.getNutrition().getFat() / quantity);
-        state.setServingGrams(food.getGrams() / quantity);
+        if (quantity != 0) {
+            state.setServingCalories(food.getNutrition().getCalories() / quantity);
+            state.setServingProtein(food.getNutrition().getProtein() / quantity);
+            state.setServingCarbs(food.getNutrition().getCarbs() / quantity);
+            state.setServingFat(food.getNutrition().getFat() / quantity);
+            state.setServingGrams(food.getGrams() / quantity);
 
-        state.setOriginalServingGrams(food.getGrams() / quantity);
+            state.setOriginalServingGrams(food.getGrams() / quantity);
+        }
         state.recalculateTotals();
         final MealEditorState mealState = mealEditorViewModel.getState();
         mealState.setShowFoodEditor(true);

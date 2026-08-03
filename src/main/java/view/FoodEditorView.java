@@ -28,24 +28,26 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
 
     private static final int SEARCH_DEBOUNCE_MILLIS = 300;
 
+    private static final String DEFAULT_VALUE_INPUT = "0.0";
+
     private AddFoodController addFoodController;
     private EditFoodController editFoodController;
     private SearchFoodController searchFoodController;
     private final FoodEditorViewModel foodEditorViewModel;
 
-    private final JTextField foodNameField;
-    private final JTextField caloriesField;
-    private final JTextField proteinField;
-    private final JTextField carbsField;
-    private final JTextField fatField;
-    private final JTextField quantityField;
-    private final JTextField gramsField;
-    private final JComboBox<FoodUnit> unitBox;
-    private final JLabel quantityLabel;
-    private final JLabel unitLabel;
-    private final JLabel errorLabel;
-    private final JLabel servingLabelValue;
-    private final JPanel formPanel;
+    private JTextField foodNameField;
+    private JTextField caloriesField;
+    private JTextField proteinField;
+    private JTextField carbsField;
+    private JTextField fatField;
+    private JTextField quantityField;
+    private JTextField gramsField;
+    private JComboBox<FoodUnit> unitBox;
+    private JLabel quantityLabel;
+    private JLabel unitLabel;
+    private JLabel errorLabel;
+    private JLabel servingLabelValue;
+    private JPanel formPanel;
 
     private final JTextField searchField;
     private final JPanel searchResultsPanel;
@@ -58,19 +60,10 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
         this.foodEditorViewModel.addPropertyChangeListener(this);
         errorLabel = new JLabel("");
         servingLabelValue = new JLabel("");
-
-        foodNameField = new JTextField("");
-        caloriesField = new JTextField("0.0");
-        proteinField = new JTextField("0.0");
-        carbsField = new JTextField("0.0");
-        fatField = new JTextField("0.0");
-        quantityField = new JTextField("1");
-        gramsField = new JTextField("0.0");
-        unitBox = new JComboBox<>(FoodUnit.values());
-        quantityLabel = new JLabel("Quantity");
-        unitLabel = new JLabel("Unit");
-
-        formPanel = createFormPanel();
+        final int formRowCount = 9;
+        final int formColCount = 2;
+        formPanel = new JPanel(new GridLayout(formRowCount, formColCount));
+        createFormPanel();
 
         searchField = new JTextField();
         searchResultsPanel = new JPanel();
@@ -104,9 +97,19 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    private JPanel createFormPanel() {
+    private void createFormPanel() {
 
-        final JPanel formPanel = new JPanel(new GridLayout(9, 2));
+        foodNameField = new JTextField("");
+        caloriesField = new JTextField(DEFAULT_VALUE_INPUT);
+        proteinField = new JTextField(DEFAULT_VALUE_INPUT);
+        carbsField = new JTextField(DEFAULT_VALUE_INPUT);
+        fatField = new JTextField(DEFAULT_VALUE_INPUT);
+        quantityField = new JTextField("1");
+        gramsField = new JTextField(DEFAULT_VALUE_INPUT);
+        unitBox = new JComboBox<>(FoodUnit.values());
+        quantityLabel = new JLabel("Quantity");
+        unitLabel = new JLabel("Unit");
+
         formPanel.add(new JLabel("Food Name"));
         formPanel.add(foodNameField);
 
@@ -133,7 +136,6 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
 
         formPanel.add(new JLabel("Grams"));
         formPanel.add(gramsField);
-        return formPanel;
     }
 
     private void saveFood() {
@@ -145,8 +147,8 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
         }
         else {
             editFoodController.execute(state.getEditingFood(), state.getFoodName(), new FoodNutritionInputData(
-                            state.getTotalCaloriesDisplay(), state.getTotalProteinDisplay(), state.getTotalCarbsDisplay(),
-                            state.getTotalFatDisplay()),
+                            state.getTotalCaloriesDisplay(), state.getTotalProteinDisplay(),
+                            state.getTotalCarbsDisplay(), state.getTotalFatDisplay()),
                     state.getQuantity(), state.getUnit(), state.getTotalGramsDisplay());
         }
     }
@@ -197,11 +199,10 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
     }
 
     private void addListeners() {
-        foodEditorViewModel.getState().setSearchSelected(false);
+        foodEditorViewModel.getState().setError("");
         addTextListener(searchField, () -> {
             updateState(state -> {
                 state.setSearchQuery(searchField.getText());
-                state.setSearchSelected(true);
             });
             searchDebounceTimer.restart();
         });
@@ -211,28 +212,52 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
                 state.setFoodName(foodNameField.getText()); }); });
 
         addTextListener(caloriesField, () -> {
+            final String value = caloriesField.getText();
+            if (!isValidNumber(value)) {
+                errorLabel.setText("Calories must be a number");
+            }
             updateState(state -> {
-                state.setTotalCaloriesDisplay(caloriesField.getText()); }); });
+                state.setTotalCaloriesDisplay(value); }); });
 
         addTextListener(proteinField, () -> {
+            final String value = proteinField.getText();
+            if (!isValidNumber(value)) {
+                errorLabel.setText("Protein must be a number");
+            }
             updateState(state -> {
-                state.setTotalProteinDisplay(proteinField.getText()); }); });
+                state.setTotalProteinDisplay(value); }); });
 
         addTextListener(carbsField, () -> {
+            final String value = carbsField.getText();
+            if (!isValidNumber(value)) {
+                errorLabel.setText("Carbs must be a number");
+            }
             updateState(state -> {
-                state.setTotalCarbsDisplay(carbsField.getText()); }); });
+                state.setTotalCarbsDisplay(value); }); });
 
         addTextListener(fatField, () -> {
+            final String value = fatField.getText();
+            if (!isValidNumber(value)) {
+                errorLabel.setText("Fat must be a number");
+            }
             updateState(state -> {
-                state.setTotalFatDisplay(fatField.getText()); }); });
+                state.setTotalFatDisplay(value); }); });
 
         addTextListener(quantityField, () -> {
+            final String value = quantityField.getText();
+            if (!isValidNumber(value)) {
+                errorLabel.setText("Quantity must be a number");
+            }
             updateState(state -> {
-                state.setQuantity(quantityField.getText()); }); });
+                state.setQuantity(value); }); });
 
         addTextListener(gramsField, () -> {
+            final String value = gramsField.getText();
+            if (!isValidNumber(value)) {
+                errorLabel.setText("Grams must be a number");
+            }
             updateState(state -> {
-                state.setTotalGramsDisplay(gramsField.getText()); }); });
+                state.setTotalGramsDisplay(value); }); });
 
         unitBox.addActionListener(evt -> {
             if (!isUpdatingFromState) {
@@ -294,6 +319,7 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
     private void selectFood(FoodSearchResult food) {
 
         updateState(state -> {
+
             state.setFoodName(food.getFoodName());
             state.setServingLabel(food.getServingLabel());
             state.setOriginalServingGrams(food.getServingGrams());
@@ -308,9 +334,21 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
             state.setUnit(FoodUnit.DEFAULT_SERVING);
             state.recalculateTotals();
 
-            state.getSearchResults().clear();
+            state.clearSearchResults();
         });
 
+    }
+
+    private boolean isValidNumber(String value) {
+        boolean result;
+        try {
+            Double.parseDouble(value);
+            result = true;
+        }
+        catch (NumberFormatException exc) {
+            result = false;
+        }
+        return result;
     }
 
     public void setAddFoodController(AddFoodController addFoodController) {

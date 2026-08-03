@@ -3,6 +3,8 @@ package interface_adapter.nutrition.food;
 import use_case.nutrition.food.search_food.SearchFoodOutputBoundary;
 import use_case.nutrition.food.search_food.SearchFoodOutputData;
 
+import java.util.ArrayList;
+
 public class SearchFoodPresenter implements SearchFoodOutputBoundary {
 
     private final FoodEditorViewModel foodEditorViewModel;
@@ -16,6 +18,7 @@ public class SearchFoodPresenter implements SearchFoodOutputBoundary {
 
         final FoodEditorState state = foodEditorViewModel.getState();
         state.setSearchResults(outputData.getFoodResults());
+        state.setError("");
         foodEditorViewModel.firePropertyChanged();
     }
 
@@ -24,6 +27,7 @@ public class SearchFoodPresenter implements SearchFoodOutputBoundary {
 
         final FoodEditorState state = foodEditorViewModel.getState();
         state.setError(error);
+        state.setSearchResults(new ArrayList<>());
         foodEditorViewModel.firePropertyChanged();
     }
 }

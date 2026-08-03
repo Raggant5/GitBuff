@@ -25,7 +25,17 @@ import interface_adapter.login.LoginViewModel;
 import interface_adapter.logout.LogoutController;
 import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.nutrition.NutritionViewModel;
-import interface_adapter.nutrition.food.*;
+import interface_adapter.nutrition.food.AddFoodController;
+import interface_adapter.nutrition.food.AddFoodPresenter;
+import interface_adapter.nutrition.food.DeleteFoodController;
+import interface_adapter.nutrition.food.DeleteFoodPresenter;
+import interface_adapter.nutrition.food.EditFoodController;
+import interface_adapter.nutrition.food.EditFoodPresenter;
+import interface_adapter.nutrition.food.FoodEditorViewModel;
+import interface_adapter.nutrition.food.PrepareEditFoodController;
+import interface_adapter.nutrition.food.PrepareEditFoodPresenter;
+import interface_adapter.nutrition.food.SearchFoodController;
+import interface_adapter.nutrition.food.SearchFoodPresenter;
 import interface_adapter.nutrition.meal.AddMealController;
 import interface_adapter.nutrition.meal.AddMealPresenter;
 import interface_adapter.nutrition.meal.DeleteMealController;
@@ -132,10 +142,7 @@ public class AppBuilder {
     private final AiWorkoutDataAccessInterface aiWorkoutDao =
             new AiWorkoutDataAccessObject();
 
-    private static final boolean USE_MOCK_FOOD_SEARCH = false;
-    private final SearchFoodDataAccessInterface searchFoodDataAccessObject = USE_MOCK_FOOD_SEARCH
-            ? new MockSearchFoodDataAccessObject()
-            : new SearchFoodDataAccessObject();
+    private final SearchFoodDataAccessInterface searchFoodDataAccessObject = new MockSearchFoodDataAccessObject();
 
     private SignupView signupView;
     private SignupViewModel signupViewModel;
@@ -239,7 +246,8 @@ public class AppBuilder {
         final PrepareEditMealController prepareEditMealController = new PrepareEditMealController(
                 prepareEditMealInteractor);
         this.viewMealsView = new ViewMealsView(viewMealsViewModel, prepareEditMealController);
-        this.nutritionView = new NutritionView(nutritionViewModel, mainViewManagerModel, mealEditorViewModel, viewMealsView);
+        this.nutritionView = new NutritionView(nutritionViewModel, mainViewManagerModel,
+                mealEditorViewModel, viewMealsView);
 
         this.mainPanel.add(this.dashboardView, this.dashboardView.getViewName());
         this.mainPanel.add(this.workoutsView, this.workoutsView.getViewName());
@@ -440,7 +448,8 @@ public class AppBuilder {
      */
     public AppBuilder addSearchFoodUseCase() {
         final SearchFoodPresenter searchFoodPresenter = new SearchFoodPresenter(foodEditorViewModel);
-        final SearchFoodInputBoundary searchFoodInteractor = new SearchFoodInteractor(searchFoodDataAccessObject, searchFoodPresenter);
+        final SearchFoodInputBoundary searchFoodInteractor = new SearchFoodInteractor(searchFoodDataAccessObject,
+                searchFoodPresenter);
         final SearchFoodController searchFoodController = new SearchFoodController(searchFoodInteractor);
         foodEditorView.setSearchFoodController(searchFoodController);
         return this;

@@ -9,6 +9,8 @@ import entity.FoodUnit;
 
 public class FoodEditorState {
 
+    private static final String NUTRITIONAL_DEFAULT_VALUE = "0.0";
+
     private FoodEntry editingFood;
 
     private String searchQuery = "";
@@ -24,17 +26,16 @@ public class FoodEditorState {
     private double servingCarbs;
     private double servingFat;
 
-    private String totalCaloriesDisplay = "0.0";
-    private String totalGramsDisplay = "0.0";
-    private String totalProteinDisplay = "0.0";
-    private String totalCarbsDisplay = "0.0";
-    private String totalFatDisplay = "0.0";
+    private String totalCaloriesDisplay = NUTRITIONAL_DEFAULT_VALUE;
+    private String totalGramsDisplay = NUTRITIONAL_DEFAULT_VALUE;
+    private String totalProteinDisplay = NUTRITIONAL_DEFAULT_VALUE;
+    private String totalCarbsDisplay = NUTRITIONAL_DEFAULT_VALUE;
+    private String totalFatDisplay = NUTRITIONAL_DEFAULT_VALUE;
 
     private String quantity = "1";
     private FoodUnit unit = FoodUnit.GRAM;
 
     private String error = "";
-    private boolean searchSelected;
 
     /**
      * Resets the values when the food editor is no longer needed for reuse later.
@@ -55,17 +56,16 @@ public class FoodEditorState {
         servingCarbs = 0.0;
         servingFat = 0.0;
 
-        totalCaloriesDisplay = "0.0";
-        totalGramsDisplay = "0.0";
-        totalProteinDisplay = "0.0";
-        totalCarbsDisplay = "0.0";
-        totalFatDisplay = "0.0";
+        totalCaloriesDisplay = NUTRITIONAL_DEFAULT_VALUE;
+        totalGramsDisplay = NUTRITIONAL_DEFAULT_VALUE;
+        totalProteinDisplay = NUTRITIONAL_DEFAULT_VALUE;
+        totalCarbsDisplay = NUTRITIONAL_DEFAULT_VALUE;
+        totalFatDisplay = NUTRITIONAL_DEFAULT_VALUE;
 
         quantity = "1";
         unit = FoodUnit.GRAM;
 
         error = "";
-        searchSelected = false;
     }
 
     public String getSearchQuery() {
@@ -76,20 +76,16 @@ public class FoodEditorState {
         this.searchQuery = searchQuery;
     }
 
-    public boolean isSearchSelected() {
-        return searchSelected;
-    }
-
-    public void setSearchSelected(boolean searchSelected) {
-        this.searchSelected = searchSelected;
-    }
-
     public List<FoodSearchResult> getSearchResults() {
         return searchResults;
     }
 
     public void setSearchResults(List<FoodSearchResult> searchResults) {
         this.searchResults = searchResults;
+    }
+    
+    public void clearSearchResults() {
+        this.searchResults.clear();
     }
 
     public FoodEntry getEditingFood() {
@@ -148,7 +144,6 @@ public class FoodEditorState {
         this.servingFat = servingFat;
     }
 
-
     public String getTotalCaloriesDisplay() {
         return totalCaloriesDisplay;
     }
@@ -166,10 +161,12 @@ public class FoodEditorState {
     private void updateServingSize() {
         final double newServingGrams;
         if (unit == FoodUnit.DEFAULT_SERVING) {
-            if (originalServingGrams == 0) {
-                return;
+            if (originalServingGrams != 0) {
+                newServingGrams = originalServingGrams;
             }
-            newServingGrams = originalServingGrams;
+            else {
+                newServingGrams = servingGrams;
+            }
         }
         else {
             newServingGrams = unit.getGramsPerUnit();
@@ -277,21 +274,18 @@ public class FoodEditorState {
     }
 
     private double getQuantityValue() {
-        // should be handled elsewhere first
-        try {
-            return parseDouble(quantity);
-        }
-        catch (NumberFormatException exception) {
-            return 0;
-        }
+        return parseDouble(quantity);
     }
 
     private double parseDouble(String value) {
+        // should be handled elsewhere first
+        double result;
         try {
-            return Double.parseDouble(value);
+            result = Double.parseDouble(value);
         }
         catch (NumberFormatException exception) {
-            return 0;
+            result = 0;
         }
+        return result;
     }
 }

@@ -33,7 +33,7 @@ public class PrepareEditMealPresenter implements PrepareEditMealOutputBoundary {
 
     @Override
     public void switchToAddMealEditor() {
-        mainViewManagerModel.setState("view meals");
+        mainViewManagerModel.setState("nutrition");
         mainViewManagerModel.firePropertyChanged();
     }
 }
