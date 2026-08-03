@@ -31,7 +31,7 @@ public class AddMealPresenter implements AddMealOutputBoundary {
         mealsState.setMeals(meals);
         viewMealsViewModel.setState(mealsState);
         viewMealsViewModel.firePropertyChanged();
-        mainViewManagerModel.setState("view meals");
+        mainViewManagerModel.setState("nutrition");
         mainViewManagerModel.firePropertyChanged();
     }
 

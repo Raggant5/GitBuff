@@ -20,6 +20,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
     private final NutritionViewModel nutritionViewModel;
     private final MainViewManagerModel mainViewManagerModel;
     private final MealEditorViewModel mealEditorViewModel;
+    private final ViewMealsView viewMealsView;
 
     private final JLabel calorieLabel = new JLabel();
     private final JLabel proteinLabel = new JLabel();
@@ -30,7 +31,8 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
     private RecommendationController recommendationController;
 
     public NutritionView(NutritionViewModel nutritionViewModel, MainViewManagerModel mainViewManagerModel,
-                         MealEditorViewModel mealEditorViewModel) {
+                         MealEditorViewModel mealEditorViewModel, ViewMealsView viewMealsView) {
+        this.viewMealsView = viewMealsView;
         this.nutritionViewModel = nutritionViewModel;
         this.mainViewManagerModel = mainViewManagerModel;
         this.mealEditorViewModel = mealEditorViewModel;
@@ -47,12 +49,6 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
             mainViewManagerModel.firePropertyChanged();
         });
 
-        final JButton viewMealsButton = new JButton("View Meals");
-        viewMealsButton.addActionListener(evt -> {
-            mainViewManagerModel.setState("view meals");
-            mainViewManagerModel.firePropertyChanged();
-        });
-
         refreshButton.addActionListener(evt -> {
             if (recommendationController != null) {
                 recommendationController.execute();
@@ -66,7 +62,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         this.add(messageLabel);
         this.add(refreshButton);
         this.add(addMealButton);
-        this.add(viewMealsButton);
+        this.add(viewMealsView);
 
         displayState(nutritionViewModel.getState());
     }

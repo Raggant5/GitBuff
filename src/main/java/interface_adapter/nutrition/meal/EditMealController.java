@@ -24,7 +24,7 @@ public class EditMealController {
      */
     public void execute(Meal meal, String name, List<FoodEntry> foodEntries, List<FoodEntry> foodEntriesToDelete) {
         foodEntries.removeAll(foodEntriesToDelete);
-        editMealInteractor.execute(new EditMealInputData(meal, name, foodEntries));
+        editMealInteractor.execute(new EditMealInputData(meal, name, foodEntries, foodEntriesToDelete));
     }
 
 }
