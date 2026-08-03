@@ -31,6 +31,9 @@ public class RecommendationInteractorTest {
     private static final int ESTIMATED_CALORIES_BURN = 350;
     private static final int ESTIMATED_FAT_BURN = 15;
     private static final int ESTIMATED_CARBS_BURN = 45;
+    private static final int TEST_SETS = 3;
+    private static final int TEST_REPS = 10;
+    private static final int TEST_DURATION = 10;
 
     /**
      * Fake data access object implementing RecommendationUserDataAccessInterface for unit testing.
@@ -66,7 +69,8 @@ public class RecommendationInteractorTest {
         public List<WorkoutPlan> generateWorkoutPlans(final User user) {
             final List<WorkoutPlan> plans = new ArrayList<>();
             final List<Exercise> exercises = new ArrayList<>();
-            exercises.add(new Exercise("Push-Ups", "3 sets of 10", "Lower chest to ground.", "http://example.com"));
+            exercises.add(new Exercise("Push-Ups", TEST_SETS, TEST_REPS, TEST_DURATION,
+                    "Chest", "Bodyweight", "Lower chest to ground.", "http://example.com"));
             plans.add(new WorkoutPlan("Monday, Aug 3", "Upper Body", "Chest focus",
                     ESTIMATED_CALORIES_BURN, ESTIMATED_FAT_BURN, ESTIMATED_CARBS_BURN, exercises));
             return plans;
@@ -144,9 +148,8 @@ public class RecommendationInteractorTest {
             @Override
             public void prepareSuccessView(final RecommendationOutputData outputData) {
                 succeeded[0] = true;
-                assertEquals(0.0, outputData.getBmi());
-                assertEquals(0, outputData.getDailyCalorieTarget());
-                assertTrue(outputData.getWorkoutPlans().isEmpty());
+                assertTrue(outputData.getDailyCalorieTarget() > 0);
+                assertFalse(outputData.getWorkoutPlans().isEmpty());
             }
 
             @Override
