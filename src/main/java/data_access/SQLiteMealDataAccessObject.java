@@ -23,7 +23,7 @@ import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 /**
  * SQLite implementation for storing meals and food entries.
  */
-public class SQLiteMealDataAccessObject implements
+public final class SQLiteMealDataAccessObject implements
         AddMealDataAccessInterface,
         ViewMealDataAccessInterface,
         EditMealDataAccessInterface,
@@ -31,8 +31,18 @@ public class SQLiteMealDataAccessObject implements
         DeleteMealDataAccessInterface,
         DeleteFoodDataAccessInterface {
 
+    private static final int PARAMETER_ONE = 1;
+    private static final int PARAMETER_TWO = 2;
+    private static final int PARAMETER_THREE = 3;
+    private static final int PARAMETER_FOUR = 4;
+    private static final int PARAMETER_FIVE = 5;
+    private static final int PARAMETER_SIX = 6;
+    private static final int PARAMETER_SEVEN = 7;
+    private static final int PARAMETER_EIGHT = 8;
+    private static final int PARAMETER_NINE = 9;
+
     @Override
-    public int saveMeal(Meal meal) {
+    public int saveMeal(final Meal meal) {
         final String sql = """
                 INSERT INTO meals (
                     user_id,
@@ -42,90 +52,133 @@ public class SQLiteMealDataAccessObject implements
                 VALUES (?, ?, ?)
                 """;
 
-        try (Connection conn = Database.connect();
-             PreparedStatement stmt = conn.prepareStatement(
-                     sql,
-                     Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = Database.connect();
+             PreparedStatement statement =
+                     connection.prepareStatement(
+                             sql,
+                             Statement.RETURN_GENERATED_KEYS
+                     )) {
 
-            stmt.setString(1, meal.getUserId());
-            stmt.setString(2, meal.getName());
-            stmt.setString(3, meal.getDate().toString());
+            statement.setString(
+                    PARAMETER_ONE,
+                    meal.getUserId()
+            );
+            statement.setString(
+                    PARAMETER_TWO,
+                    meal.getName()
+            );
+            statement.setString(
+                    PARAMETER_THREE,
+                    meal.getDate().toString()
+            );
 
-            stmt.executeUpdate();
+            statement.executeUpdate();
 
-            try (ResultSet keys = stmt.getGeneratedKeys()) {
-                if (keys.next()) {
-                    final int id = keys.getInt(1);
-                    meal.setId(id);
-                    return id;
+            try (ResultSet generatedKeys =
+                         statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    final int mealId =
+                            generatedKeys.getInt(PARAMETER_ONE);
+
+                    meal.setId(mealId);
+                    return mealId;
                 }
             }
         }
-        catch (SQLException exc) {
-            throw new RuntimeException("Failed to save meal.", exc);
+        catch (final SQLException exception) {
+            throw new RuntimeException(
+                    "Failed to save meal.",
+                    exception
+            );
         }
 
-        throw new IllegalStateException("Meal ID was not generated.");
+        throw new IllegalStateException(
+                "Meal ID was not generated."
+        );
     }
-
 
     @Override
     public int saveFoodEntry(final FoodEntry foodEntry) {
         final String sql = """
-            INSERT INTO food_entries (
-                meal_id,
-                food_name,
-                quantity,
-                unit,
-                grams,
-                calories,
-                protein,
-                carbohydrates,
-                fat
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """;
+                INSERT INTO food_entries (
+                    meal_id,
+                    food_name,
+                    quantity,
+                    unit,
+                    grams,
+                    calories,
+                    protein,
+                    carbohydrates,
+                    fat
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
 
-        try (Connection conn = Database.connect();
-             PreparedStatement stmt = conn.prepareStatement(
-                     sql,
-                     Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = Database.connect();
+             PreparedStatement statement =
+                     connection.prepareStatement(
+                             sql,
+                             Statement.RETURN_GENERATED_KEYS
+                     )) {
 
-            final FoodNutrition nutrition = foodEntry.getNutrition();
+            final FoodNutrition nutrition =
+                    foodEntry.getNutrition();
 
-            stmt.setInt(1, foodEntry.getMealId());
-            stmt.setString(2, foodEntry.getFoodName());
-            stmt.setDouble(3, foodEntry.getQuantity());
-            stmt.setString(4, foodEntry.getUnit().name());
-            stmt.setDouble(5, foodEntry.getGrams());
-            stmt.setDouble(6, nutrition.getCalories());
-            stmt.setDouble(7, nutrition.getProtein());
-            stmt.setDouble(8, nutrition.getCarbs());
-            stmt.setDouble(9, nutrition.getFat());
-
-            final int rowsInserted = stmt.executeUpdate();
-
-            System.out.println(
-                    "Inserted " + rowsInserted
-                            + " food row(s): "
-                            + foodEntry.getFoodName()
-                            + ", mealId=" + foodEntry.getMealId()
+            statement.setInt(
+                    PARAMETER_ONE,
+                    foodEntry.getMealId()
+            );
+            statement.setString(
+                    PARAMETER_TWO,
+                    foodEntry.getFoodName()
+            );
+            statement.setDouble(
+                    PARAMETER_THREE,
+                    foodEntry.getQuantity()
+            );
+            statement.setString(
+                    PARAMETER_FOUR,
+                    foodEntry.getUnit().name()
+            );
+            statement.setDouble(
+                    PARAMETER_FIVE,
+                    foodEntry.getGrams()
+            );
+            statement.setDouble(
+                    PARAMETER_SIX,
+                    nutrition.getCalories()
+            );
+            statement.setDouble(
+                    PARAMETER_SEVEN,
+                    nutrition.getProtein()
+            );
+            statement.setDouble(
+                    PARAMETER_EIGHT,
+                    nutrition.getCarbs()
+            );
+            statement.setDouble(
+                    PARAMETER_NINE,
+                    nutrition.getFat()
             );
 
-            try (ResultSet keys = stmt.getGeneratedKeys()) {
-                if (keys.next()) {
-                    final int id = keys.getInt(1);
+            statement.executeUpdate();
 
-                    System.out.println("Generated food ID: " + id);
+            try (ResultSet generatedKeys =
+                         statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    final int foodEntryId =
+                            generatedKeys.getInt(PARAMETER_ONE);
 
-                    foodEntry.setId(id);
-                    return id;
+                    foodEntry.setId(foodEntryId);
+                    return foodEntryId;
                 }
             }
         }
-        catch (SQLException exc) {
-            exc.printStackTrace();
-            throw new RuntimeException("Failed to save food entry.", exc);
+        catch (final SQLException exception) {
+            throw new RuntimeException(
+                    "Failed to save food entry.",
+                    exception
+            );
         }
 
         throw new IllegalStateException(
@@ -134,8 +187,11 @@ public class SQLiteMealDataAccessObject implements
     }
 
     @Override
-    public List<FoodEntry> getFoodEntriesForMeal(int mealId) {
-        final List<FoodEntry> entries = new ArrayList<>();
+    public List<FoodEntry> getFoodEntriesForMeal(
+            final int mealId
+    ) {
+        final List<FoodEntry> foodEntries =
+                new ArrayList<>();
 
         final String sql = """
                 SELECT
@@ -154,52 +210,78 @@ public class SQLiteMealDataAccessObject implements
                 ORDER BY id
                 """;
 
-        try (Connection conn = Database.connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection connection = Database.connect();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            stmt.setInt(1, mealId);
+            statement.setInt(PARAMETER_ONE, mealId);
 
-            try (ResultSet results = stmt.executeQuery()) {
+            try (ResultSet results =
+                         statement.executeQuery()) {
                 while (results.next()) {
-                    final FoodNutrition nutrition = new FoodNutrition(
-                            results.getDouble("calories"),
-                            results.getDouble("protein"),
-                            results.getDouble("carbohydrates"),
-                            results.getDouble("fat")
+                    final FoodNutrition nutrition =
+                            new FoodNutrition(
+                                    results.getDouble(
+                                            "calories"
+                                    ),
+                                    results.getDouble(
+                                            "protein"
+                                    ),
+                                    results.getDouble(
+                                            "carbohydrates"
+                                    ),
+                                    results.getDouble(
+                                            "fat"
+                                    )
+                            );
+
+                    final FoodUnit unit =
+                            FoodUnit.valueOf(
+                                    results.getString("unit")
+                            );
+
+                    final FoodEntry foodEntry =
+                            new FoodEntry(
+                                    results.getString(
+                                            "food_name"
+                                    ),
+                                    nutrition,
+                                    results.getDouble(
+                                            "quantity"
+                                    ),
+                                    unit,
+                                    results.getDouble(
+                                            "grams"
+                                    )
+                            );
+
+                    foodEntry.setId(
+                            results.getInt("id")
+                    );
+                    foodEntry.setMealId(
+                            results.getInt("meal_id")
                     );
 
-                    final FoodUnit unit = FoodUnit.valueOf(
-                            results.getString("unit")
-                    );
-
-                    final FoodEntry foodEntry = new FoodEntry(
-                            results.getString("food_name"),
-                            nutrition,
-                            results.getDouble("quantity"),
-                            unit,
-                            results.getDouble("grams")
-                    );
-
-                    foodEntry.setId(results.getInt("id"));
-                    foodEntry.setMealId(results.getInt("meal_id"));
-
-                    entries.add(foodEntry);
+                    foodEntries.add(foodEntry);
                 }
             }
         }
-        catch (SQLException exc) {
+        catch (final SQLException exception) {
             throw new RuntimeException(
                     "Failed to load food entries.",
-                    exc
+                    exception
             );
         }
 
-        return entries;
+        return foodEntries;
     }
 
     @Override
-    public List<Meal> getMealsForUser(String userId) {
-        final List<Meal> meals = new ArrayList<>();
+    public List<Meal> getMealsForUser(
+            final String userId
+    ) {
+        final List<Meal> meals =
+                new ArrayList<>();
 
         final String sql = """
                 SELECT
@@ -212,34 +294,50 @@ public class SQLiteMealDataAccessObject implements
                 ORDER BY meal_date DESC, id DESC
                 """;
 
-        try (Connection conn = Database.connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection connection = Database.connect();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            stmt.setString(1, userId);
+            statement.setString(PARAMETER_ONE, userId);
 
-            try (ResultSet results = stmt.executeQuery()) {
+            try (ResultSet results =
+                         statement.executeQuery()) {
                 while (results.next()) {
-                    final Meal meal = new Meal(
-                            results.getString("user_id"),
+                    final LocalDate mealDate =
                             LocalDate.parse(
-                                    results.getString("meal_date")
-                            ),
-                            results.getString("meal_name")
-                    );
+                                    results.getString(
+                                            "meal_date"
+                                    )
+                            );
 
-                    meal.setId(results.getInt("id"));
+                    final Meal meal =
+                            new Meal(
+                                    results.getString(
+                                            "user_id"
+                                    ),
+                                    mealDate,
+                                    results.getString(
+                                            "meal_name"
+                                    )
+                            );
+
+                    meal.setId(
+                            results.getInt("id")
+                    );
                     meal.setFoodEntries(
-                            getFoodEntriesForMeal(meal.getId())
+                            getFoodEntriesForMeal(
+                                    meal.getId()
+                            )
                     );
 
                     meals.add(meal);
                 }
             }
         }
-        catch (SQLException exc) {
+        catch (final SQLException exception) {
             throw new RuntimeException(
                     "Failed to load meals.",
-                    exc
+                    exception
             );
         }
 
@@ -247,7 +345,7 @@ public class SQLiteMealDataAccessObject implements
     }
 
     @Override
-    public void editMeal(Meal meal) {
+    public void editMeal(final Meal meal) {
         final String sql = """
                 UPDATE meals
                 SET meal_name = ?,
@@ -255,22 +353,37 @@ public class SQLiteMealDataAccessObject implements
                 WHERE id = ?
                 """;
 
-        try (Connection conn = Database.connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection connection = Database.connect();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            stmt.setString(1, meal.getName());
-            stmt.setString(2, meal.getDate().toString());
-            stmt.setInt(3, meal.getId());
+            statement.setString(
+                    PARAMETER_ONE,
+                    meal.getName()
+            );
+            statement.setString(
+                    PARAMETER_TWO,
+                    meal.getDate().toString()
+            );
+            statement.setInt(
+                    PARAMETER_THREE,
+                    meal.getId()
+            );
 
-            stmt.executeUpdate();
+            statement.executeUpdate();
         }
-        catch (SQLException exc) {
-            throw new RuntimeException("Failed to edit meal.", exc);
+        catch (final SQLException exception) {
+            throw new RuntimeException(
+                    "Failed to edit meal.",
+                    exception
+            );
         }
     }
 
     @Override
-    public void editFoodEntry(FoodEntry foodEntry) {
+    public void editFoodEntry(
+            final FoodEntry foodEntry
+    ) {
         final String sql = """
                 UPDATE food_entries
                 SET food_name = ?,
@@ -284,33 +397,62 @@ public class SQLiteMealDataAccessObject implements
                 WHERE id = ?
                 """;
 
-        try (Connection conn = Database.connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection connection = Database.connect();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            final FoodNutrition nutrition = foodEntry.getNutrition();
+            final FoodNutrition nutrition =
+                    foodEntry.getNutrition();
 
-            stmt.setString(1, foodEntry.getFoodName());
-            stmt.setDouble(2, foodEntry.getQuantity());
-            stmt.setString(3, foodEntry.getUnit().name());
-            stmt.setDouble(4, foodEntry.getGrams());
-            stmt.setDouble(5, nutrition.getCalories());
-            stmt.setDouble(6, nutrition.getProtein());
-            stmt.setDouble(7, nutrition.getCarbs());
-            stmt.setDouble(8, nutrition.getFat());
-            stmt.setInt(9, foodEntry.getId());
+            statement.setString(
+                    PARAMETER_ONE,
+                    foodEntry.getFoodName()
+            );
+            statement.setDouble(
+                    PARAMETER_TWO,
+                    foodEntry.getQuantity()
+            );
+            statement.setString(
+                    PARAMETER_THREE,
+                    foodEntry.getUnit().name()
+            );
+            statement.setDouble(
+                    PARAMETER_FOUR,
+                    foodEntry.getGrams()
+            );
+            statement.setDouble(
+                    PARAMETER_FIVE,
+                    nutrition.getCalories()
+            );
+            statement.setDouble(
+                    PARAMETER_SIX,
+                    nutrition.getProtein()
+            );
+            statement.setDouble(
+                    PARAMETER_SEVEN,
+                    nutrition.getCarbs()
+            );
+            statement.setDouble(
+                    PARAMETER_EIGHT,
+                    nutrition.getFat()
+            );
+            statement.setInt(
+                    PARAMETER_NINE,
+                    foodEntry.getId()
+            );
 
-            stmt.executeUpdate();
+            statement.executeUpdate();
         }
-        catch (SQLException exc) {
+        catch (final SQLException exception) {
             throw new RuntimeException(
                     "Failed to edit food entry.",
-                    exc
+                    exception
             );
         }
     }
 
     @Override
-    public void deleteMeal(int mealId) {
+    public void deleteMeal(final int mealId) {
         final String deleteFoodEntriesSql = """
                 DELETE FROM food_entries
                 WHERE meal_id = ?
@@ -321,52 +463,71 @@ public class SQLiteMealDataAccessObject implements
                 WHERE id = ?
                 """;
 
-        try (Connection conn = Database.connect()) {
-            conn.setAutoCommit(false);
+        try (Connection connection = Database.connect()) {
+            connection.setAutoCommit(false);
 
-            try (PreparedStatement foodStmt =
-                         conn.prepareStatement(deleteFoodEntriesSql);
-                 PreparedStatement mealStmt =
-                         conn.prepareStatement(deleteMealSql)) {
+            try (PreparedStatement foodStatement =
+                         connection.prepareStatement(
+                                 deleteFoodEntriesSql
+                         );
+                 PreparedStatement mealStatement =
+                         connection.prepareStatement(
+                                 deleteMealSql
+                         )) {
 
-                foodStmt.setInt(1, mealId);
-                foodStmt.executeUpdate();
+                foodStatement.setInt(
+                        PARAMETER_ONE,
+                        mealId
+                );
+                foodStatement.executeUpdate();
 
-                mealStmt.setInt(1, mealId);
-                mealStmt.executeUpdate();
+                mealStatement.setInt(
+                        PARAMETER_ONE,
+                        mealId
+                );
+                mealStatement.executeUpdate();
 
-                conn.commit();
+                connection.commit();
             }
-            catch (SQLException exc) {
-                conn.rollback();
-                throw exc;
+            catch (final SQLException exception) {
+                connection.rollback();
+                throw exception;
             }
             finally {
-                conn.setAutoCommit(true);
+                connection.setAutoCommit(true);
             }
         }
-        catch (SQLException exc) {
-            throw new RuntimeException("Failed to delete meal.", exc);
+        catch (final SQLException exception) {
+            throw new RuntimeException(
+                    "Failed to delete meal.",
+                    exception
+            );
         }
     }
 
     @Override
-    public void deleteFoodEntry(int foodEntryId) {
+    public void deleteFoodEntry(
+            final int foodEntryId
+    ) {
         final String sql = """
                 DELETE FROM food_entries
                 WHERE id = ?
                 """;
 
-        try (Connection conn = Database.connect();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection connection = Database.connect();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            stmt.setInt(1, foodEntryId);
-            stmt.executeUpdate();
+            statement.setInt(
+                    PARAMETER_ONE,
+                    foodEntryId
+            );
+            statement.executeUpdate();
         }
-        catch (SQLException exc) {
+        catch (final SQLException exception) {
             throw new RuntimeException(
                     "Failed to delete food entry.",
-                    exc
+                    exception
             );
         }
     }
