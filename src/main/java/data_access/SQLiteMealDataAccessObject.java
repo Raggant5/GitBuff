@@ -68,22 +68,23 @@ public class SQLiteMealDataAccessObject implements
         throw new IllegalStateException("Meal ID was not generated.");
     }
 
+
     @Override
-    public int saveFoodEntry(FoodEntry foodEntry) {
+    public int saveFoodEntry(final FoodEntry foodEntry) {
         final String sql = """
-                INSERT INTO food_entries (
-                    meal_id,
-                    food_name,
-                    quantity,
-                    unit,
-                    grams,
-                    calories,
-                    protein,
-                    carbohydrates,
-                    fat
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """;
+            INSERT INTO food_entries (
+                meal_id,
+                food_name,
+                quantity,
+                unit,
+                grams,
+                calories,
+                protein,
+                carbohydrates,
+                fat
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """;
 
         try (Connection conn = Database.connect();
              PreparedStatement stmt = conn.prepareStatement(
@@ -102,22 +103,34 @@ public class SQLiteMealDataAccessObject implements
             stmt.setDouble(8, nutrition.getCarbs());
             stmt.setDouble(9, nutrition.getFat());
 
-            stmt.executeUpdate();
+            final int rowsInserted = stmt.executeUpdate();
+
+            System.out.println(
+                    "Inserted " + rowsInserted
+                            + " food row(s): "
+                            + foodEntry.getFoodName()
+                            + ", mealId=" + foodEntry.getMealId()
+            );
 
             try (ResultSet keys = stmt.getGeneratedKeys()) {
                 if (keys.next()) {
                     final int id = keys.getInt(1);
+
+                    System.out.println("Generated food ID: " + id);
+
                     foodEntry.setId(id);
                     return id;
                 }
             }
         }
         catch (SQLException exc) {
+            exc.printStackTrace();
             throw new RuntimeException("Failed to save food entry.", exc);
         }
 
         throw new IllegalStateException(
-                "Food-entry ID was not generated.");
+                "Food-entry ID was not generated."
+        );
     }
 
     @Override
