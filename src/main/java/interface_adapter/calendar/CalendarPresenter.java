@@ -34,8 +34,18 @@ public class CalendarPresenter implements AddCalendarEventOutputBoundary, Remove
     }
 
     @Override
-    public void prepareFailureView(String errorMessage){
+    public void prepareFailureView(String errorMessage) {
+        CalendarState state = calendarViewModel.getState();
+        state.setErrorMessage(errorMessage);
+        calendarViewModel.firePropertyChanged();
     }
 
-    private void updateCalendar(List<CalendarEvent> calendarEvents) {}
+    private void updateCalendar(List<CalendarEvent> calendarEvents) {
+        CalendarState state = calendarViewModel.getState();
+
+        state.setCalendarEvents(calendarEvents);
+        state.setErrorMessage(null);
+
+        calendarViewModel.firePropertyChanged();
+    }
 }
