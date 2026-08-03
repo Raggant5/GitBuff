@@ -10,11 +10,14 @@ public class EditMealInputData {
     private final Meal meal;
     private final String name;
     private final List<FoodEntry> foodEntries;
+    private final List<FoodEntry> foodEntriesToDelete;
 
-    public EditMealInputData(Meal meal, String name, List<FoodEntry> foodEntries) {
+    public EditMealInputData(Meal meal, String name, List<FoodEntry> foodEntries,
+                             List<FoodEntry> foodEntriesToDelete) {
         this.meal = meal;
         this.name = name;
         this.foodEntries = foodEntries;
+        this.foodEntriesToDelete = foodEntriesToDelete;
     }
 
     public Meal getMeal() {
@@ -27,5 +30,9 @@ public class EditMealInputData {
 
     public List<FoodEntry> getFoodEntries() {
         return foodEntries;
+    }
+
+    public List<FoodEntry> getFoodEntriesToDelete() {
+        return foodEntriesToDelete;
     }
 }

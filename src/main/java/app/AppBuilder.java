@@ -9,7 +9,9 @@ import javax.swing.WindowConstants;
 
 import data_access.SQLiteMealDataAccessObject;
 import data_access.AiWorkoutDataAccessObject;
+import data_access.MockSearchFoodDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
+import data_access.SearchFoodDataAccessObject;
 import entity.CommonUserFactory;
 import entity.FoodEntryFactory;
 import entity.MealFactory;
@@ -32,6 +34,8 @@ import interface_adapter.nutrition.food.EditFoodPresenter;
 import interface_adapter.nutrition.food.FoodEditorViewModel;
 import interface_adapter.nutrition.food.PrepareEditFoodController;
 import interface_adapter.nutrition.food.PrepareEditFoodPresenter;
+import interface_adapter.nutrition.food.SearchFoodController;
+import interface_adapter.nutrition.food.SearchFoodPresenter;
 import interface_adapter.nutrition.meal.AddMealController;
 import interface_adapter.nutrition.meal.AddMealPresenter;
 import interface_adapter.nutrition.meal.DeleteMealController;
@@ -70,6 +74,9 @@ import use_case.nutrition.food.edit_food.EditFoodInteractor;
 import use_case.nutrition.food.edit_food.EditFoodOutputBoundary;
 import use_case.nutrition.food.prepare_edit_food.PrepareEditFoodInputBoundary;
 import use_case.nutrition.food.prepare_edit_food.PrepareEditFoodInteractor;
+import use_case.nutrition.food.search_food.SearchFoodDataAccessInterface;
+import use_case.nutrition.food.search_food.SearchFoodInputBoundary;
+import use_case.nutrition.food.search_food.SearchFoodInteractor;
 import use_case.nutrition.meal.add_meal.AddMealDataAccessInterface;
 import use_case.nutrition.meal.add_meal.AddMealInputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealInteractor;
@@ -146,6 +153,8 @@ public class AppBuilder {
 
     private final AiWorkoutDataAccessInterface aiWorkoutDao =
             new AiWorkoutDataAccessObject();
+
+    private final SearchFoodDataAccessInterface searchFoodDataAccessObject = new MockSearchFoodDataAccessObject();
 
     private SignupView signupView;
     private SignupViewModel signupViewModel;
@@ -236,104 +245,42 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addMainViews() {
-        dashboardViewModel = new DashboardViewModel();
-        dashboardView = new DashboardView(dashboardViewModel);
+        this.dashboardViewModel = new DashboardViewModel();
+        this.dashboardView = new DashboardView(this.dashboardViewModel);
+        this.workoutViewModel = new WorkoutsViewModel();
+        this.workoutsView = new WorkoutsView(this.workoutViewModel);
+        this.nutritionViewModel = new NutritionViewModel();
+        this.profileViewModel = new ProfileViewModel();
+        this.profileView = new ProfileView(this.profileViewModel);
+        this.mealEditorViewModel = new MealEditorViewModel();
+        this.foodEditorViewModel = new FoodEditorViewModel();
+        this.foodEditorView = new FoodEditorView(this.foodEditorViewModel);
 
-        workoutViewModel = new WorkoutsViewModel();
-        workoutsView = new WorkoutsView(workoutViewModel);
+        final PrepareEditFoodPresenter prepareEditFoodPresenter = new PrepareEditFoodPresenter(foodEditorViewModel,
+                mealEditorViewModel);
+        final PrepareEditFoodInputBoundary prepareEditFoodInteractor = new PrepareEditFoodInteractor(
+                prepareEditFoodPresenter);
+        final PrepareEditFoodController prepareEditFoodController = new PrepareEditFoodController(
+                prepareEditFoodInteractor);
+        mealEditorView = new MealEditorView(mealEditorViewModel, foodEditorView, prepareEditFoodController,
+                mainViewManagerModel);
+        this.nutritionViewModel = new NutritionViewModel();
+        this.viewMealsViewModel = new ViewMealsViewModel();
+        final PrepareEditMealPresenter prepareEditMealPresenter = new PrepareEditMealPresenter(mealEditorViewModel,
+                this.mainViewManagerModel);
+        final PrepareEditMealInputBoundary prepareEditMealInteractor = new PrepareEditMealInteractor(
+                prepareEditMealPresenter);
+        final PrepareEditMealController prepareEditMealController = new PrepareEditMealController(
+                prepareEditMealInteractor);
+        this.viewMealsView = new ViewMealsView(viewMealsViewModel, prepareEditMealController);
+        this.nutritionView = new NutritionView(nutritionViewModel, mainViewManagerModel,
+                mealEditorViewModel, viewMealsView);
 
-        mealEditorViewModel = new MealEditorViewModel();
-        foodEditorViewModel = new FoodEditorViewModel();
-
-        foodEditorView =
-                new FoodEditorView(foodEditorViewModel);
-
-        final PrepareEditFoodPresenter prepareEditFoodPresenter =
-                new PrepareEditFoodPresenter(
-                        foodEditorViewModel,
-                        mealEditorViewModel
-                );
-
-        final PrepareEditFoodInputBoundary prepareEditFoodInteractor =
-                new PrepareEditFoodInteractor(
-                        prepareEditFoodPresenter
-                );
-
-        final PrepareEditFoodController prepareEditFoodController =
-                new PrepareEditFoodController(
-                        prepareEditFoodInteractor
-                );
-
-        mealEditorView = new MealEditorView(
-                mealEditorViewModel,
-                foodEditorView,
-                prepareEditFoodController,
-                mainViewManagerModel
-        );
-
-        nutritionViewModel = new NutritionViewModel();
-        viewMealsViewModel = new ViewMealsViewModel();
-
-        final PrepareEditMealPresenter prepareEditMealPresenter =
-                new PrepareEditMealPresenter(
-                        mealEditorViewModel,
-                        mainViewManagerModel
-                );
-
-        final PrepareEditMealInputBoundary prepareEditMealInteractor =
-                new PrepareEditMealInteractor(
-                        prepareEditMealPresenter
-                );
-
-        final PrepareEditMealController prepareEditMealController =
-                new PrepareEditMealController(
-                        prepareEditMealInteractor
-                );
-
-        viewMealsView = new ViewMealsView(
-                viewMealsViewModel,
-                prepareEditMealController
-        );
-
-        nutritionView = new NutritionView(
-                nutritionViewModel,
-                mainViewManagerModel,
-                mealEditorViewModel
-        );
-
-        profileViewModel = new ProfileViewModel();
-        profileView = new ProfileView(profileViewModel);
-
-        mainPanel.add(
-                dashboardView,
-                dashboardView.getViewName()
-        );
-
-        mainPanel.add(
-                workoutsView,
-                workoutsView.getViewName()
-        );
-
-        mainPanel.add(
-                nutritionView,
-                nutritionView.getViewName()
-        );
-
-        mainPanel.add(
-                profileView,
-                profileView.getViewName()
-        );
-
-        mainPanel.add(
-                viewMealsView,
-                viewMealsView.getViewName()
-        );
-
-        mainPanel.add(
-                mealEditorView,
-                mealEditorView.getViewName()
-        );
-
+        this.mainPanel.add(this.dashboardView, this.dashboardView.getViewName());
+        this.mainPanel.add(this.workoutsView, this.workoutsView.getViewName());
+        this.mainPanel.add(this.nutritionView, this.nutritionView.getViewName());
+        this.mainPanel.add(this.profileView, this.profileView.getViewName());
+        this.mainPanel.add(mealEditorView, mealEditorView.getViewName());
         return this;
     }
 
@@ -508,28 +455,12 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addEditMealUseCase() {
-        final EditMealOutputBoundary editMealPresenter =
-                new EditMealPresenter(
-                        viewMealsViewModel,
-                        mealEditorViewModel,
-                        mainViewManagerModel
-                );
-
-        final EditMealInputBoundary editMealInteractor =
-                new EditMealInteractor(
-                        editMealPresenter,
-                        editMealDataAccessObject
-                );
-
-        final EditMealController editMealController =
-                new EditMealController(
-                        editMealInteractor
-                );
-
-        mealEditorView.setEditMealController(
-                editMealController
-        );
-
+        final EditMealOutputBoundary editMealPresenter = new EditMealPresenter(viewMealsViewModel, mealEditorViewModel,
+                mainViewManagerModel);
+        final EditMealInputBoundary editMealInteractor = new EditMealInteractor(editMealPresenter,
+                editMealDataAccessObject, deleteFoodDataAccessObject);
+        final EditMealController editMealController = new EditMealController(editMealInteractor);
+        mealEditorView.setEditMealController(editMealController);
         return this;
     }
 
@@ -619,6 +550,19 @@ public class AppBuilder {
                 deleteFoodController
         );
 
+        return this;
+    }
+
+    /**
+     * Adds the Search Food Use Case to the application.
+     * @return this builder
+     */
+    public AppBuilder addSearchFoodUseCase() {
+        final SearchFoodPresenter searchFoodPresenter = new SearchFoodPresenter(foodEditorViewModel);
+        final SearchFoodInputBoundary searchFoodInteractor = new SearchFoodInteractor(searchFoodDataAccessObject,
+                searchFoodPresenter);
+        final SearchFoodController searchFoodController = new SearchFoodController(searchFoodInteractor);
+        foodEditorView.setSearchFoodController(searchFoodController);
         return this;
     }
 

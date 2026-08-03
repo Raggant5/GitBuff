@@ -1,5 +1,6 @@
 package interface_adapter.nutrition.meal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import entity.FoodEntry;
@@ -23,8 +24,13 @@ public class EditMealController {
      * @param foodEntriesToDelete list of foods to delete before adding
      */
     public void execute(Meal meal, String name, List<FoodEntry> foodEntries, List<FoodEntry> foodEntriesToDelete) {
-        foodEntries.removeAll(foodEntriesToDelete);
-        editMealInteractor.execute(new EditMealInputData(meal, name, foodEntries));
+        if (foodEntriesToDelete != null) {
+            foodEntries.removeAll(foodEntriesToDelete);
+            editMealInteractor.execute(new EditMealInputData(meal, name, foodEntries, foodEntriesToDelete));
+        }
+        else {
+            editMealInteractor.execute(new EditMealInputData(meal, name, foodEntries, new ArrayList<>()));
+        }
     }
 
 }
