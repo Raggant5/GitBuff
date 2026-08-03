@@ -43,8 +43,8 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private static final Color CARD_BORDER = new Color(220, 224, 230);
     private static final Color BURN_BG = new Color(245, 247, 250);
 
-    private static final int MODAL_WIDTH = 450;
-    private static final int MODAL_HEIGHT = 320;
+    private static final int MODAL_WIDTH = 480;
+    private static final int MODAL_HEIGHT = 360;
     private static final int DAYS_IN_WEEK = 7;
 
     private final String viewName = "workouts";
@@ -199,8 +199,9 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                     exercisesPanel.setBackground(Color.WHITE);
 
                     for (final Exercise exercise : plan.getExercises()) {
-                        final JButton exButton = new JButton(exercise.getName() + " ["
-                                + exercise.getSetsAndReps() + "]");
+                        final String btnText = String.format("%s [%ds x %dr]",
+                                exercise.getName(), exercise.getSets(), exercise.getReps());
+                        final JButton exButton = new JButton(btnText);
                         exButton.setFont(new Font("SansSerif", Font.PLAIN, 12));
                         exButton.setBackground(new Color(235, 243, 250));
                         exButton.setForeground(PRIMARY_COLOR);
@@ -240,17 +241,22 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         nameLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         nameLabel.setForeground(PRIMARY_COLOR);
 
-        final JLabel setsLabel = new JLabel("Target: " + exercise.getSetsAndReps(), SwingConstants.CENTER);
-        setsLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        final String targetSummary = String.format("%d sets x %d reps (%d mins) | Target: %s | Equip: %s",
+                exercise.getSets(), exercise.getReps(), exercise.getDurationMinutes(),
+                exercise.getTargetMuscleGroup(), exercise.getEquipmentRequired());
+        final JLabel setsLabel = new JLabel("<html><center>" + targetSummary + "</center></html>",
+                SwingConstants.CENTER);
+        setsLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
         setsLabel.setForeground(ACCENT_COLOR);
 
         final JPanel topBox = new JPanel();
         topBox.setLayout(new BoxLayout(topBox, BoxLayout.Y_AXIS));
         topBox.setBackground(Color.WHITE);
         topBox.add(nameLabel);
+        topBox.add(Box.createRigidArea(new Dimension(0, 4)));
         topBox.add(setsLabel);
 
-        final JLabel instLabel = new JLabel("<html><body style='width: 320px; text-align: center; color: #333333;'>"
+        final JLabel instLabel = new JLabel("<html><body style='width: 340px; text-align: center; color: #333333;'>"
                 + exercise.getInstructions() + "</body></html>", SwingConstants.CENTER);
         instLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
 

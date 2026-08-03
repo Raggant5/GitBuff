@@ -1,12 +1,16 @@
 package entity;
 
 /**
- * Represents an exercise with instructions and visual references.
+ * Represents an exercise with structured metrics, instructions, and equipment requirements.
  */
 public class Exercise {
 
     private final String name;
-    private final String setsAndReps;
+    private final int sets;
+    private final int reps;
+    private final int durationMinutes;
+    private final String targetMuscleGroup;
+    private final String equipmentRequired;
     private final String instructions;
     private final String videoUrl;
 
@@ -14,14 +18,24 @@ public class Exercise {
      * Constructs an Exercise instance.
      *
      * @param name exercise title
-     * @param setsAndReps sets and reps summary
+     * @param sets number of prescribed sets
+     * @param reps number of repetitions per set
+     * @param durationMinutes estimated duration in minutes
+     * @param targetMuscleGroup target muscle group or body section
+     * @param equipmentRequired equipment needed for execution
      * @param instructions step-by-step guidance
      * @param videoUrl link to search or view video/GIF demo
      */
-    public Exercise(final String name, final String setsAndReps,
-                    final String instructions, final String videoUrl) {
+    public Exercise(final String name, final int sets, final int reps,
+                    final int durationMinutes, final String targetMuscleGroup,
+                    final String equipmentRequired, final String instructions,
+                    final String videoUrl) {
         this.name = name;
-        this.setsAndReps = setsAndReps;
+        this.sets = sets;
+        this.reps = reps;
+        this.durationMinutes = durationMinutes;
+        this.targetMuscleGroup = targetMuscleGroup;
+        this.equipmentRequired = equipmentRequired;
         this.instructions = instructions;
         this.videoUrl = videoUrl;
     }
@@ -36,12 +50,48 @@ public class Exercise {
     }
 
     /**
-     * Gets the sets and reps requirement.
+     * Gets the number of prescribed sets.
      *
-     * @return sets and reps string
+     * @return sets count
      */
-    public String getSetsAndReps() {
-        return this.setsAndReps;
+    public int getSets() {
+        return this.sets;
+    }
+
+    /**
+     * Gets the number of repetitions per set.
+     *
+     * @return reps count
+     */
+    public int getReps() {
+        return this.reps;
+    }
+
+    /**
+     * Gets the duration of the exercise in minutes.
+     *
+     * @return duration in minutes
+     */
+    public int getDurationMinutes() {
+        return this.durationMinutes;
+    }
+
+    /**
+     * Gets the targeted muscle group.
+     *
+     * @return muscle group name
+     */
+    public String getTargetMuscleGroup() {
+        return this.targetMuscleGroup;
+    }
+
+    /**
+     * Gets the equipment required for this exercise.
+     *
+     * @return equipment required string
+     */
+    public String getEquipmentRequired() {
+        return this.equipmentRequired;
     }
 
     /**
