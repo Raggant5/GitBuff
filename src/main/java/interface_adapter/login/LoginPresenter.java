@@ -53,17 +53,58 @@ public class LoginPresenter implements LoginOutputBoundary {
 
         final ProfileState profileState = this.profileViewModel.getState();
         profileState.setUsername(response.getUsername());
-        profileState.setHeightText(String.valueOf(response.getHeight()));
-        profileState.setWeightText(String.valueOf(response.getWeight()));
-        profileState.setActivityLevel(response.getActivityLevel());
-        profileState.setGoal(response.getGoal());
-        profileState.setProfilePicturePath(response.getProfilePicturePath());
+        profileState.setHeightText(
+                String.valueOf(response.getHeight())
+        );
+        profileState.setWeightText(
+                String.valueOf(response.getWeight())
+        );
+        profileState.setActivityLevel(
+                response.getActivityLevel()
+        );
+        profileState.setGoal(
+                response.getGoal()
+        );
+        profileState.setProfilePicturePath(
+                response.getProfilePicturePath()
+        );
+
+        profileState.setDateOfBirth(
+                response.getDateOfBirth()
+        );
+        profileState.setGender(
+                response.getGender()
+        );
+        profileState.setBio(
+                response.getBio()
+        );
+        profileState.setPreferredUnitSystem(
+                response.getPreferredUnitSystem()
+        );
+        profileState.setEquipment(
+                response.getEquipment()
+        );
+        profileState.setDietaryRestrictions(
+                response.getDietaryRestrictions()
+        );
+        profileState.setPreferredWorkoutDays(
+                response.getPreferredWorkoutDays()
+        );
+        profileState.setPreferredWorkoutDurationMinutes(
+                response.getPreferredWorkoutDurationMinutes()
+        );
+        profileState.setPrivacySettings(
+                response.getPrivacySettings()
+        );
+
         profileState.setProfileError(null);
         profileState.setSaveConfirmation(null);
 
         this.profileViewModel.firePropertyChanged();
 
-        mealsViewModel.getState().setMeals(response.getMeals());
+        mealsViewModel.getState().setMeals(
+                response.getMeals()
+        );
         mealsViewModel.firePropertyChanged();
 
         recommendationController.execute();
@@ -78,6 +119,7 @@ public class LoginPresenter implements LoginOutputBoundary {
     @Override
     public void prepareFailView(String error) {
         final LoginState loginState = loginViewModel.getState();
+
         loginState.setLoginError(error);
         this.loginViewModel.firePropertyChanged();
     }

@@ -18,8 +18,9 @@ public class EditMealInteractor implements EditMealInputBoundary {
     }
 
     @Override
-    public void execute(EditMealInputData inputData) {
+    public void execute(final EditMealInputData inputData) {
         final Meal meal = inputData.getMeal();
+
         meal.setName(inputData.getName());
         meal.setFoodEntries(inputData.getFoodEntries());
 
@@ -31,6 +32,22 @@ public class EditMealInteractor implements EditMealInputBoundary {
 
         dataAccess.editMeal(meal);
 
-        presenter.prepareSuccessView(new EditMealOutputData(meal));
+        for (FoodEntry foodEntry : inputData.getFoodEntries()) {
+            if (foodEntry.getId() == null) {
+                foodEntry.setMealId(meal.getId());
+
+                final int foodEntryId =
+                        dataAccess.saveFoodEntry(foodEntry);
+
+                foodEntry.setId(foodEntryId);
+            }
+            else {
+                dataAccess.editFoodEntry(foodEntry);
+            }
+        }
+
+        presenter.prepareSuccessView(
+                new EditMealOutputData(meal)
+        );
     }
 }

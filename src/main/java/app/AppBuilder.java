@@ -7,8 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import data_access.SQLiteMealDataAccessObject;
 import data_access.AiWorkoutDataAccessObject;
-import data_access.InMemoryDataAccessObject;
 import data_access.MockSearchFoodDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
 import data_access.SearchFoodDataAccessObject;
@@ -130,14 +130,26 @@ public class AppBuilder {
     private final ViewManagerModel viewManagerModel = new ViewManagerModel();
 
     private AppShellView appShellView;
+
     private final JPanel mainPanel = new JPanel();
     private final CardLayout mainCardLayout = new CardLayout();
-    private final MainViewManagerModel mainViewManagerModel = new MainViewManagerModel();
-    private final MainViewManager mainViewManager = new MainViewManager(mainPanel, mainCardLayout,
-            mainViewManagerModel);
+    private final MainViewManagerModel mainViewManagerModel =
+            new MainViewManagerModel();
+    private final MainViewManager mainViewManager =
+            new MainViewManager(
+                    mainPanel,
+                    mainCardLayout,
+                    mainViewManagerModel
+            );
 
-    private final UserFactory userFactory = new CommonUserFactory();
-    private final InMemoryDataAccessObject userDataAccessObject = new InMemoryDataAccessObject();
+    private final UserFactory userFactory =
+            new CommonUserFactory();
+
+    private final SQLiteUserDataAccessObject userDataAccessObject =
+            new SQLiteUserDataAccessObject();
+
+    private final SQLiteMealDataAccessObject mealDataAccessObject =
+            new SQLiteMealDataAccessObject();
 
     private final AiWorkoutDataAccessInterface aiWorkoutDao =
             new AiWorkoutDataAccessObject();
@@ -159,14 +171,29 @@ public class AppBuilder {
     private ProfileView profileView;
     private NavbarView navbarView;
 
-    private final FoodEntryFactory foodEntryFactory = new FoodEntryFactory();
-    private final MealFactory mealFactory = new MealFactory();
-    private final AddMealDataAccessInterface addMealDataAccessObject = userDataAccessObject;
-    private final ViewMealDataAccessInterface viewMealsDataAccessObject = userDataAccessObject;
-    private final EditMealDataAccessInterface editMealDataAccessObject = userDataAccessObject;
-    private final EditFoodDataAccessInterface editFoodDataAccessObject = userDataAccessObject;
-    private final DeleteMealDataAccessInterface deleteMealDataAccessObject = userDataAccessObject;
-    private final DeleteFoodDataAccessInterface deleteFoodDataAccessObject = userDataAccessObject;
+    private final FoodEntryFactory foodEntryFactory =
+            new FoodEntryFactory();
+    private final MealFactory mealFactory =
+            new MealFactory();
+
+    private final AddMealDataAccessInterface addMealDataAccessObject =
+            mealDataAccessObject;
+
+    private final ViewMealDataAccessInterface viewMealsDataAccessObject =
+            mealDataAccessObject;
+
+    private final EditMealDataAccessInterface editMealDataAccessObject =
+            mealDataAccessObject;
+
+    private final EditFoodDataAccessInterface editFoodDataAccessObject =
+            mealDataAccessObject;
+
+    private final DeleteMealDataAccessInterface deleteMealDataAccessObject =
+            mealDataAccessObject;
+
+    private final DeleteFoodDataAccessInterface deleteFoodDataAccessObject =
+            mealDataAccessObject;
+
     private ViewMealsView viewMealsView;
     private MealEditorView mealEditorView;
     private FoodEditorView foodEditorView;
@@ -360,35 +387,71 @@ public class AppBuilder {
     }
 
     /**
-     * Adds the Add Food Use Case to the application.
+     * Adds the add-food use case.
+     *
      * @return this builder
      */
     public AppBuilder addAddFoodUseCase() {
-        final AddFoodEntryOutputBoundary addFoodPresenter = new AddFoodPresenter(mealEditorViewModel,
-                foodEditorViewModel);
-        final AddFoodEntryInputBoundary addFoodEntryInteractor = new AddFoodEntryInteractor(addFoodPresenter,
-                foodEntryFactory);
-        final AddFoodController addFoodController = new AddFoodController(addFoodEntryInteractor);
-        foodEditorView.setAddFoodController(addFoodController);
+        final AddFoodEntryOutputBoundary addFoodPresenter =
+                new AddFoodPresenter(
+                        mealEditorViewModel,
+                        foodEditorViewModel
+                );
+
+        final AddFoodEntryInputBoundary addFoodEntryInteractor =
+                new AddFoodEntryInteractor(
+                        addFoodPresenter,
+                        foodEntryFactory
+                );
+
+        final AddFoodController addFoodController =
+                new AddFoodController(
+                        addFoodEntryInteractor
+                );
+
+        foodEditorView.setAddFoodController(
+                addFoodController
+        );
+
         return this;
     }
 
     /**
-     * Adds the Add Meal Use Case to the application.
+     * Adds the add-meal use case.
+     *
      * @return this builder
      */
     public AppBuilder addAddMealUseCase() {
-        final AddMealOutputBoundary addMealPresenter = new AddMealPresenter(mealEditorViewModel, viewMealsViewModel,
-                mainViewManagerModel);
-        final AddMealInputBoundary addMealInteractor = new AddMealInteractor(addMealPresenter,
-                addMealDataAccessObject, mealFactory);
-        final AddMealController addMealController = new AddMealController(addMealInteractor, loginViewModel);
-        mealEditorView.setAddMealController(addMealController);
+        final AddMealOutputBoundary addMealPresenter =
+                new AddMealPresenter(
+                        mealEditorViewModel,
+                        viewMealsViewModel,
+                        mainViewManagerModel
+                );
+
+        final AddMealInputBoundary addMealInteractor =
+                new AddMealInteractor(
+                        addMealPresenter,
+                        addMealDataAccessObject,
+                        mealFactory
+                );
+
+        final AddMealController addMealController =
+                new AddMealController(
+                        addMealInteractor,
+                        loginViewModel
+                );
+
+        mealEditorView.setAddMealController(
+                addMealController
+        );
+
         return this;
     }
 
     /**
-     * Adds the Edit Meal Use Case to the application.
+     * Adds the edit-meal use case.
+     *
      * @return this builder
      */
     public AppBuilder addEditMealUseCase() {
@@ -402,43 +465,91 @@ public class AppBuilder {
     }
 
     /**
-     * Adds the Edit Food Use Case to the application.
+     * Adds the edit-food use case.
+     *
      * @return this builder
      */
     public AppBuilder addEditFoodUseCase() {
-        final EditFoodOutputBoundary editFoodPresenter = new EditFoodPresenter(mealEditorViewModel,
-                foodEditorViewModel);
-        final EditFoodInputBoundary editFoodInteractor = new EditFoodInteractor(editFoodPresenter,
-                editFoodDataAccessObject);
-        final EditFoodController editFoodController = new EditFoodController(editFoodInteractor);
-        foodEditorView.setEditFoodController(editFoodController);
+        final EditFoodOutputBoundary editFoodPresenter =
+                new EditFoodPresenter(
+                        mealEditorViewModel,
+                        foodEditorViewModel
+                );
+
+        final EditFoodInputBoundary editFoodInteractor =
+                new EditFoodInteractor(
+                        editFoodPresenter,
+                        editFoodDataAccessObject
+                );
+
+        final EditFoodController editFoodController =
+                new EditFoodController(
+                        editFoodInteractor
+                );
+
+        foodEditorView.setEditFoodController(
+                editFoodController
+        );
+
         return this;
     }
 
     /**
-     * Adds the Delete Meal Use Case to the application.
+     * Adds the delete-meal use case.
+     *
      * @return this builder
      */
     public AppBuilder addDeleteMealUseCase() {
-        final DeleteMealOutputBoundary deleteMealPresenter = new DeleteMealPresenter(viewMealsViewModel);
-        final DeleteMealInputBoundary deleteMealInteractor = new DeleteMealInteractor(deleteMealPresenter,
-                deleteMealDataAccessObject);
-        final DeleteMealController deleteMealController = new DeleteMealController(deleteMealInteractor);
-        viewMealsView.setDeleteMealController(deleteMealController);
+        final DeleteMealOutputBoundary deleteMealPresenter =
+                new DeleteMealPresenter(
+                        viewMealsViewModel
+                );
+
+        final DeleteMealInputBoundary deleteMealInteractor =
+                new DeleteMealInteractor(
+                        deleteMealPresenter,
+                        deleteMealDataAccessObject
+                );
+
+        final DeleteMealController deleteMealController =
+                new DeleteMealController(
+                        deleteMealInteractor
+                );
+
+        viewMealsView.setDeleteMealController(
+                deleteMealController
+        );
+
         return this;
     }
 
     /**
-     * Adds the Delete Food Use Case to the application.
+     * Adds the delete-food use case.
+     *
      * @return this builder
      */
     public AppBuilder addDeleteFoodUseCase() {
-        final DeleteFoodOutputBoundary deleteFoodPresenter = new DeleteFoodPresenter(mealEditorViewModel,
-                viewMealsViewModel);
-        final DeleteFoodInputBoundary deleteFoodInteractor = new DeleteFoodInteractor(deleteFoodPresenter,
-                deleteFoodDataAccessObject);
-        final DeleteFoodController deleteFoodController = new DeleteFoodController(deleteFoodInteractor);
-        mealEditorView.setDeleteFoodController(deleteFoodController);
+        final DeleteFoodOutputBoundary deleteFoodPresenter =
+                new DeleteFoodPresenter(
+                        mealEditorViewModel,
+                        viewMealsViewModel
+                );
+
+        final DeleteFoodInputBoundary deleteFoodInteractor =
+                new DeleteFoodInteractor(
+                        deleteFoodPresenter,
+                        deleteFoodDataAccessObject
+                );
+
+        final DeleteFoodController deleteFoodController =
+                new DeleteFoodController(
+                        deleteFoodInteractor
+                );
+
+        mealEditorView.setDeleteFoodController(
+                deleteFoodController
+        );
+
         return this;
     }
 
