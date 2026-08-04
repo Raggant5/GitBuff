@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import entity.Exercise;
 import entity.WorkoutPlan;
@@ -32,7 +33,7 @@ import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
 
 /**
- * Modern Workouts View displaying daily AI workout plans, exercise details, and calorie burn estimates.
+ * Workouts View displaying daily AI workout plans, exercise details, and popup guides.
  */
 public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
@@ -43,9 +44,18 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private static final Color CARD_BORDER = new Color(220, 224, 230);
     private static final Color BURN_BG = new Color(245, 247, 250);
 
+    private static final int TITLE_FONT_SIZE = 20;
+    private static final int HEADER_FONT_SIZE = 16;
+    private static final int CARD_TITLE_FONT_SIZE = 14;
+    private static final int BODY_FONT_SIZE = 12;
+    private static final int SMALL_FONT_SIZE = 11;
+
     private static final int MODAL_WIDTH = 480;
     private static final int MODAL_HEIGHT = 360;
     private static final int DAYS_IN_WEEK = 7;
+    private static final int SCROLL_UNIT_INCREMENT = 16;
+    private static final int REFRESH_BTN_HEIGHT = 40;
+    private static final int REFRESH_BTN_WIDTH = 800;
 
     private final String viewName = "workouts";
     private final WorkoutsViewModel workoutsViewModel;
@@ -75,10 +85,10 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         topPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
         final JLabel title = new JLabel("Personal Workout Schedule");
-        title.setFont(new Font("SansSerif", Font.BOLD, 20));
+        title.setFont(new Font("SansSerif", Font.BOLD, TITLE_FONT_SIZE));
         title.setForeground(Color.WHITE);
 
-        this.focusLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        this.focusLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE + 1));
         this.focusLabel.setForeground(new Color(236, 240, 241));
 
         topPanel.add(title);
@@ -103,20 +113,36 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         schedulePanel.add(this.week2Container);
 
         final JScrollPane scrollPane = new JScrollPane(schedulePanel);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(SCROLL_UNIT_INCREMENT);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(null);
 
-        this.refreshButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        this.refreshButton.setFont(new Font("SansSerif", Font.BOLD, CARD_TITLE_FONT_SIZE));
         this.refreshButton.setBackground(ACCENT_COLOR);
         this.refreshButton.setForeground(Color.WHITE);
         this.refreshButton.setFocusPainted(false);
         this.refreshButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        this.refreshButton.setPreferredSize(new Dimension(800, 40));
+        this.refreshButton.setPreferredSize(new Dimension(REFRESH_BTN_WIDTH, REFRESH_BTN_HEIGHT));
 
         this.refreshButton.addActionListener(evt -> {
             if (this.recommendationController != null) {
-                this.recommendationController.execute();
+                this.refreshButton.setEnabled(false);
+                this.refreshButton.setText("Generating Personalized Schedule...");
+
+                final SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                    @Override
+                    protected Void doInBackground() {
+                        recommendationController.execute();
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        refreshButton.setEnabled(true);
+                        refreshButton.setText("Refresh 2-Week Schedule");
+                    }
+                };
+                worker.execute();
             }
         });
 
@@ -129,8 +155,9 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
     private JLabel createWeekHeader(final String text) {
         final JLabel header = new JLabel(text);
-        header.setFont(new Font("SansSerif", Font.BOLD, 16));
+        header.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
         header.setForeground(PRIMARY_COLOR);
+        header.setAlignmentX(Component.LEFT_ALIGNMENT);
         header.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         return header;
     }
@@ -144,7 +171,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
         if (plans.isEmpty()) {
             final JLabel emptyLabel = new JLabel("No schedule loaded. Update your profile and click refresh!");
-            emptyLabel.setFont(new Font("SansSerif", Font.ITALIC, 14));
+            emptyLabel.setFont(new Font("SansSerif", Font.ITALIC, CARD_TITLE_FONT_SIZE));
             this.week1Container.add(emptyLabel);
         }
         else {
@@ -168,13 +195,17 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                         )
                 ));
 
-                final JLabel dateTitleLabel = new JLabel(String.format("%s — %s", plan.getDate(), plan.getTitle()));
-                dateTitleLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+                final String dateStr = (plan.getDate() != null && !plan.getDate().trim().isEmpty())
+                        ? plan.getDate() : ("Day " + (i + 1));
+                final JLabel dateTitleLabel = new JLabel(String.format("%s — %s", dateStr, plan.getTitle()));
+                dateTitleLabel.setFont(new Font("SansSerif", Font.BOLD, CARD_TITLE_FONT_SIZE));
                 dateTitleLabel.setForeground(headerColor);
+                dateTitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
                 final JLabel descLabel = new JLabel(plan.getDescription());
-                descLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+                descLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
                 descLabel.setForeground(new Color(100, 110, 120));
+                descLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
                 planCard.add(dateTitleLabel);
                 planCard.add(Box.createRigidArea(new Dimension(0, 3)));
@@ -185,11 +216,12 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                             plan.getEstimatedCaloriesBurned(),
                             plan.getEstimatedFatBurnedGrams(),
                             plan.getEstimatedCarbsBurnedGrams()));
-                    burnLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
+                    burnLabel.setFont(new Font("SansSerif", Font.BOLD, SMALL_FONT_SIZE));
                     burnLabel.setForeground(PRIMARY_COLOR);
                     burnLabel.setOpaque(true);
                     burnLabel.setBackground(BURN_BG);
                     burnLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+                    burnLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
                     planCard.add(Box.createRigidArea(new Dimension(0, 5)));
                     planCard.add(burnLabel);
@@ -197,12 +229,13 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                     planCard.add(Box.createRigidArea(new Dimension(0, 8)));
                     final JPanel exercisesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
                     exercisesPanel.setBackground(Color.WHITE);
+                    exercisesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
                     for (final Exercise exercise : plan.getExercises()) {
                         final String btnText = String.format("%s [%ds x %dr]",
                                 exercise.getName(), exercise.getSets(), exercise.getReps());
                         final JButton exButton = new JButton(btnText);
-                        exButton.setFont(new Font("SansSerif", Font.PLAIN, 12));
+                        exButton.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
                         exButton.setBackground(new Color(235, 243, 250));
                         exButton.setForeground(PRIMARY_COLOR);
                         exButton.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 1));
@@ -238,7 +271,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         contentPanel.setBackground(Color.WHITE);
 
         final JLabel nameLabel = new JLabel(exercise.getName(), SwingConstants.CENTER);
-        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        nameLabel.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
         nameLabel.setForeground(PRIMARY_COLOR);
 
         final String targetSummary = String.format("%d sets x %d reps (%d mins) | Target: %s | Equip: %s",
@@ -246,7 +279,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                 exercise.getTargetMuscleGroup(), exercise.getEquipmentRequired());
         final JLabel setsLabel = new JLabel("<html><center>" + targetSummary + "</center></html>",
                 SwingConstants.CENTER);
-        setsLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
+        setsLabel.setFont(new Font("SansSerif", Font.BOLD, BODY_FONT_SIZE));
         setsLabel.setForeground(ACCENT_COLOR);
 
         final JPanel topBox = new JPanel();
@@ -256,27 +289,35 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         topBox.add(Box.createRigidArea(new Dimension(0, 4)));
         topBox.add(setsLabel);
 
+        final String instructions = (exercise.getInstructions() != null
+                && !exercise.getInstructions().trim().isEmpty())
+                ? exercise.getInstructions()
+                : "Perform this movement with proper posture, controlled cadence, and full range of motion.";
+
         final JLabel instLabel = new JLabel("<html><body style='width: 340px; text-align: center; color: #333333;'>"
-                + exercise.getInstructions() + "</body></html>", SwingConstants.CENTER);
-        instLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+                + instructions + "</body></html>", SwingConstants.CENTER);
+        instLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE + 1));
 
         final JPanel btnPanel = new JPanel(new FlowLayout());
         btnPanel.setBackground(Color.WHITE);
 
-        final JButton videoBtn = new JButton("Open Video / GIF Guide in Browser");
+        final JButton videoBtn = new JButton("Open Video Guide on YouTube");
         videoBtn.setBackground(PRIMARY_COLOR);
         videoBtn.setForeground(Color.WHITE);
         videoBtn.setFocusPainted(false);
         videoBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         videoBtn.addActionListener(evt -> {
-            if (exercise.getVideoUrl() != null && !exercise.getVideoUrl().isEmpty()) {
-                try {
-                    Desktop.getDesktop().browse(new URI(exercise.getVideoUrl()));
-                }
-                catch (final Exception ex) {
-                    JOptionPane.showMessageDialog(dialog, "Could not open URL: " + exercise.getVideoUrl());
-                }
+            String targetUrl = exercise.getVideoUrl();
+            if (targetUrl == null || targetUrl.trim().isEmpty()) {
+                targetUrl = "https://www.youtube.com/results?search_query=how+to+do+"
+                        + exercise.getName().replace(" ", "+");
+            }
+            try {
+                Desktop.getDesktop().browse(new URI(targetUrl));
+            }
+            catch (final Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Could not open URL: " + targetUrl);
             }
         });
 
@@ -295,20 +336,10 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         displayState((WorkoutsState) evt.getNewValue());
     }
 
-    /**
-     * Gets the view name.
-     *
-     * @return view name string
-     */
     public String getViewName() {
         return this.viewName;
     }
 
-    /**
-     * Sets the recommendation controller.
-     *
-     * @param recommendationController controller instance
-     */
     public void setRecommendationController(final RecommendationController recommendationController) {
         this.recommendationController = recommendationController;
     }

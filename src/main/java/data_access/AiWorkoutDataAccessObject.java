@@ -20,21 +20,22 @@ import entity.WorkoutPlan;
 import use_case.recommendation.AiWorkoutDataAccessInterface;
 
 /**
- * DAO requesting 2-week workout schedules enforcing preferred days, durations, and dynamic routine variety.
+ * DAO requesting tailored 2-week workout schedules enforcing preferred days, available equipment, and goal metrics.
  */
 public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
     private static final int HTTP_OK = 200;
-    private static final int TIMEOUT_MILLIS = 6000;
+    private static final int TIMEOUT_MILLIS = 30000;
     private static final int SEED_MAX = 100000;
     private static final int DEFAULT_CALORIES = 320;
     private static final int DEFAULT_FAT = 15;
     private static final int DEFAULT_CARBS = 45;
     private static final int FALLBACK_DAYS = 14;
-    private static final int TEXT_KEY_OFFSET = 9;
     private static final int DEFAULT_SETS = 3;
     private static final int DEFAULT_REPS = 12;
     private static final int DEFAULT_EX_DURATION = 10;
+    private static final int HEX_PAD_LEN = 4;
+    private static final int JSON_TEXT_OFFSET = 9;
 
     private final String apiKey;
     private final Random random = new Random();
@@ -87,7 +88,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
         try {
             final String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/"
-                    + "gemini-1.5-flash:generateContent?key=" + this.apiKey;
+                    + "gemini-3.6-flash:generateContent?key=" + this.apiKey;
             final URL url = new URL(endpoint);
             final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
@@ -110,7 +111,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                     : 45;
 
             final String equipmentStr = (user.getEquipment() == null || user.getEquipment().isEmpty())
-                    ? "Bodyweight Only"
+                    ? "Bodyweight"
                     : user.getEquipment().toString();
 
             final String genderStr = user.getGender() != null ? user.getGender().toString() : "Unspecified";
@@ -120,41 +121,38 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
             final int seed = this.random.nextInt(SEED_MAX);
 
-            final String systemPrompt = String.format(
-                    "Act as a elite personal trainer. Create a customized 14-day (2-week) workout schedule starting "
-                            + "from %s. VARIETY SEED: %d.\\n"
-                            + "STRICT USER PROFILE REQUIREMENTS:\\n"
-                            + "- Goal: %s\\n"
-                            + "- Weight: %.1f kg | Height: %.2f m | Gender: %s | Activity Level: %s\\n"
-                            + "- Available Equipment: [%s] (ONLY prescribe exercises using available equipment!)\\n"
-                            + "- Preferred Workout Days: [%s] (ONLY schedule active workouts on these days. "
-                            + "All other days MUST be 'Rest & Recovery' with empty exercises [])\\n"
-                            + "- Session Target Duration: %d minutes\\n"
-                            + "Output ONLY a valid JSON array of 14 day blocks matching this exact schema:\\n"
-                            + "[{\\\"date\\\": \\\"Monday, Aug 3\\\", \\\"title\\\": \\\"Custom Upper Body\\\", "
-                            + "\\\"description\\\": \\\"Tailored hypertrophy for user goal\\\", "
-                            + "\\\"estimatedCaloriesBurned\\\": 380, \\\"estimatedFatBurnedGrams\\\": 18, "
-                            + "\\\"estimatedCarbsBurnedGrams\\\": 55, \\\"exercises\\\": "
-                            + "[{\\\"name\\\": \\\"Push-Ups\\\", \\\"sets\\\": 3, \\\"reps\\\": 12, "
-                            + "\\\"durationMinutes\\\": 10, \\\"targetMuscleGroup\\\": \\\"Chest\\\", "
-                            + "\\\"equipmentRequired\\\": \\\"Bodyweight\\\", "
-                            + "\\\"instructions\\\": \\\"Lower chest steadily.\\\", "
-                            + "\\\"videoUrl\\\": \\\"https://www.youtube.com/results?search_query=Push-Ups\\\"}]}]",
-                    startDateStr, seed, user.getGoal().toString(), user.getWeight(), user.getHeight(),
-                    genderStr, activityStr, equipmentStr, preferredDaysStr, targetMinutes
-            );
+            final String promptText = "You are an athletic trainer. Create a customized 14-day (2-week) workout plan "
+                    + "starting from " + startDateStr + ". Random seed: " + seed + ".\n"
+                    + "STRICT CONSTRAINTS:\n"
+                    + "- Goal: " + user.getGoal().toString() + "\n"
+                    + "- Weight: " + user.getWeight() + "kg, Height: " + user.getHeight() + "m, Gender: " + genderStr
+                    + "\n"
+                    + "- Activity: " + activityStr + "\n"
+                    + "- Equipment: " + equipmentStr + " (ONLY use available equipment!)\n"
+                    + "- Preferred Days: " + preferredDaysStr + " (ONLY active workouts on these days. "
+                    + "Other days MUST be 'Rest & Recovery' with empty exercises [])\n"
+                    + "- Session Duration: " + targetMinutes + " minutes.\n"
+                    + "Return a JSON array of 14 objects: date, title, description, estimatedCaloriesBurned, "
+                    + "estimatedFatBurnedGrams, estimatedCarbsBurnedGrams, exercises "
+                    + "(array of objects: name, sets, reps, durationMinutes, targetMuscleGroup, equipmentRequired, "
+                    + "instructions, videoUrl).";
 
-            final String jsonInputString = String.format(
-                    "{\"contents\": [{\"parts\": [{\"text\": \"%s\"}]}]}",
-                    systemPrompt.replace("\"", "\\\"")
-            );
+            final String jsonInputString = "{\n"
+                    + "  \"contents\": [{\n"
+                    + "    \"parts\": [{\"text\": " + sanitizeJsonString(promptText) + "}]\n"
+                    + "  }],\n"
+                    + "  \"generationConfig\": {\n"
+                    + "    \"responseMimeType\": \"application/json\"\n"
+                    + "  }\n"
+                    + "}";
 
             try (OutputStream outputStream = connection.getOutputStream()) {
                 final byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                 outputStream.write(input, 0, input.length);
             }
 
-            if (connection.getResponseCode() == HTTP_OK) {
+            final int responseCode = connection.getResponseCode();
+            if (responseCode == HTTP_OK) {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                     final StringBuilder response = new StringBuilder();
@@ -162,7 +160,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                     while ((line = reader.readLine()) != null) {
                         response.append(line.trim());
                     }
-                    final List<WorkoutPlan> plans = parseGeminiJson(response.toString());
+                    final List<WorkoutPlan> plans = parseGeminiJsonResponse(response.toString());
                     if (!plans.isEmpty()) {
                         return plans;
                     }
@@ -170,33 +168,78 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             }
         }
         catch (final Throwable ex) {
-            // Fallback gracefully on API errors
+            // Fallback on error
         }
         return getFallback2WeekPlans(user);
     }
 
-    private List<WorkoutPlan> parseGeminiJson(final String response) {
-        final List<WorkoutPlan> plans = new ArrayList<>();
-        try {
-            final int textIdx = response.indexOf("\"text\": \"");
-            if (textIdx == -1) {
-                return plans;
+    private String sanitizeJsonString(final String text) {
+        if (text == null) {
+            return "\"\"";
+        }
+        final StringBuilder sb = new StringBuilder();
+        sb.append('"');
+        for (int i = 0; i < text.length(); i++) {
+            final char c = text.charAt(i);
+            switch (c) {
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                default:
+                    if (c < ' ') {
+                        final String t = "000" + Integer.toHexString(c);
+                        sb.append("\\u").append(t.substring(t.length() - HEX_PAD_LEN));
+                    }
+                    else {
+                        sb.append(c);
+                    }
             }
-            final int start = textIdx + TEXT_KEY_OFFSET;
-            final int end = response.indexOf("\"", start);
-            final String rawJson = response.substring(start, end)
-                    .replace("\\n", " ")
-                    .replace("\\\"", "\"")
-                    .replace("\\\\", "\\");
+        }
+        sb.append('"');
+        return sb.toString();
+    }
 
-            final String[] routineBlocks = rawJson.split("\\{\"date\":");
+    private List<WorkoutPlan> parseGeminiJsonResponse(final String response) {
+        final List<WorkoutPlan> plans = new ArrayList<>();
+        final LocalDate today = LocalDate.now();
+        final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEEE, MMM d");
+
+        try {
+            String rawJson = response;
+            if (response.contains("\"text\": \"")) {
+                final int textIdx = response.indexOf("\"text\": \"");
+                final int start = textIdx + JSON_TEXT_OFFSET;
+                final int end = response.lastIndexOf("\"");
+                if (start < end) {
+                    rawJson = response.substring(start, end)
+                            .replace("\\n", " ")
+                            .replace("\\\"", "\"")
+                            .replace("\\\\", "\\");
+                }
+            }
+
+            final String[] routineBlocks = rawJson.split("\\{\"date\":|\"date\":");
+            int dayCounter = 0;
+
             for (final String block : routineBlocks) {
                 if (!block.contains("title")) {
                     continue;
                 }
                 String date = extractVal(block, "date");
                 if (date.isEmpty()) {
-                    date = extractVal(block, "\"date\":");
+                    date = today.plusDays(dayCounter).format(fmt);
                 }
                 final String title = extractVal(block, "title");
                 final String desc = extractVal(block, "description");
@@ -205,12 +248,15 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 final int carbs = extractInt(block, "estimatedCarbsBurnedGrams", DEFAULT_CARBS);
 
                 final List<Exercise> exercises = new ArrayList<>();
-                final String[] exBlocks = block.split("\\{\"name\":");
+                final String[] exBlocks = block.split("\\{\"name\":|\"name\":");
                 for (final String exBlock : exBlocks) {
                     if (!exBlock.contains("sets") && !exBlock.contains("instructions")) {
                         continue;
                     }
                     final String name = extractVal(exBlock, "name");
+                    if (name.isEmpty()) {
+                        continue;
+                    }
                     final int sets = extractInt(exBlock, "sets", DEFAULT_SETS);
                     final int reps = extractInt(exBlock, "reps", DEFAULT_REPS);
                     final int exDuration = extractInt(exBlock, "durationMinutes", DEFAULT_EX_DURATION);
@@ -225,10 +271,11 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                             equipReq, inst, vid));
                 }
                 plans.add(new WorkoutPlan(date, title, desc, calories, fat, carbs, exercises));
+                dayCounter++;
             }
         }
         catch (final Exception ex) {
-            // Fallback on JSON parse error
+            // Fallback on error
         }
         return plans;
     }
