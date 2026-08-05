@@ -12,24 +12,57 @@ public class AddMealInteractor implements AddMealInputBoundary {
     private final AddMealDataAccessInterface mealDataAccessObject;
     private final MealFactory mealFactory;
 
-    public AddMealInteractor(AddMealOutputBoundary addMealPresenter, AddMealDataAccessInterface mealDataAccessObject,
-                             MealFactory mealFactory) {
+    public AddMealInteractor(
+            final AddMealOutputBoundary addMealPresenter,
+            final AddMealDataAccessInterface mealDataAccessObject,
+            final MealFactory mealFactory
+    ) {
         this.addMealPresenter = addMealPresenter;
         this.mealDataAccessObject = mealDataAccessObject;
         this.mealFactory = mealFactory;
     }
 
     @Override
-    public void execute(AddMealInputData addMealInputData) {
-        final Meal meal = mealFactory.create(addMealInputData.getUserId(), addMealInputData.getDate(),
-                addMealInputData.getName());
-        final int mealId = mealDataAccessObject.saveMeal(meal);
-        final List<FoodEntry> foodEntries = addMealInputData.getFoodEntries();
-        meal.getFoodEntries().addAll(foodEntries);
+    public void execute(final AddMealInputData addMealInputData) {
+        final Meal meal = this.mealFactory.create(
+                addMealInputData.getUserId(),
+                addMealInputData.getDate(),
+                addMealInputData.getName()
+        );
+
+        final int mealId =
+                this.mealDataAccessObject.saveMeal(meal);
+
+        final List<FoodEntry> foodEntries =
+                addMealInputData.getFoodEntries();
+
+        System.out.println(
+                "Interactor received "
+                        + foodEntries.size()
+                        + " foods for meal ID "
+                        + mealId
+        );
+
         for (FoodEntry food : foodEntries) {
             food.setMealId(mealId);
-            food.setId(mealDataAccessObject.saveFoodEntry(food));
+
+            System.out.println(
+                    "Saving food \""
+                            + food.getFoodName()
+                            + "\" for meal ID "
+                            + mealId
+            );
+
+            final int foodId =
+                    this.mealDataAccessObject.saveFoodEntry(food);
+
+            food.setId(foodId);
         }
-        addMealPresenter.prepareSuccessView(new AddMealOutputData(meal));
+
+        meal.getFoodEntries().addAll(foodEntries);
+
+        this.addMealPresenter.prepareSuccessView(
+                new AddMealOutputData(meal)
+        );
     }
 }

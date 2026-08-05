@@ -1,6 +1,7 @@
 package interface_adapter.nutrition.meal;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import entity.FoodEntry;
@@ -13,21 +14,45 @@ public class AddMealController {
     private final AddMealInputBoundary addMealInteractor;
     private final LoginViewModel loginViewModel;
 
-    public AddMealController(AddMealInputBoundary addMealInteractor, LoginViewModel loginViewModel) {
+    public AddMealController(
+            final AddMealInputBoundary addMealInteractor,
+            final LoginViewModel loginViewModel
+    ) {
         this.addMealInteractor = addMealInteractor;
         this.loginViewModel = loginViewModel;
     }
 
     /**
      * Executes the Add Meal Use Case.
+     *
      * @param name the name of the meal to be added
      * @param foodEntriesForMeal every food associated with the meal
-     * @param foodEntriesToRemove the food to be deleted from the list of foods for the meal
+     * @param foodEntriesToRemove foods marked for removal
      */
-    public void execute(String name, List<FoodEntry> foodEntriesForMeal, List<FoodEntry> foodEntriesToRemove) {
-        foodEntriesForMeal.removeAll(foodEntriesToRemove);
-        addMealInteractor.execute(new AddMealInputData(name, loginViewModel.getState().getUsername(),
-                LocalDate.now(), foodEntriesForMeal));
-    }
+    public void execute(
+            final String name,
+            final List<FoodEntry> foodEntriesForMeal,
+            final List<FoodEntry> foodEntriesToRemove
+    ) {
+        final List<FoodEntry> foodsToSave =
+                new ArrayList<>(foodEntriesForMeal);
 
+        foodsToSave.removeAll(foodEntriesToRemove);
+
+        System.out.println(
+                "Saving meal \"" + name
+                        + "\" with "
+                        + foodsToSave.size()
+                        + " foods."
+        );
+
+        final AddMealInputData inputData = new AddMealInputData(
+                name,
+                this.loginViewModel.getState().getUsername(),
+                LocalDate.now(),
+                foodsToSave
+        );
+
+        this.addMealInteractor.execute(inputData);
+    }
 }

@@ -35,33 +35,48 @@ public class LoginInteractor implements LoginInputBoundary {
         final String username = loginInputData.getUsername();
         final String password = loginInputData.getPassword();
 
-        if (!this.userDataAccessObject.existsByName(username)) {
-            this.loginPresenter.prepareFailView(username + ": Account does not exist.");
+        if (!userDataAccessObject.existsByName(username)) {
+            loginPresenter.prepareFailView(
+                    username + ": Account does not exist."
+            );
+            return;
         }
-        else {
-            final String pwd = this.userDataAccessObject.get(username).getPassword();
-            if (!password.equals(pwd)) {
-                this.loginPresenter.prepareFailView("Incorrect password for \"" + username + "\".");
-            }
-            else {
-                final User user = this.userDataAccessObject.get(username);
-                this.userDataAccessObject.setCurrentUsername(username);
 
-                final List<Meal> meals = mealsDataAccessObject.getMealsForUser(user.getName());
-                userDataAccessObject.setCurrentUsername(username);
-                final LoginOutputData loginOutputData = new LoginOutputData(
-                        user.getName(),
-                        user.getHeight(),
-                        user.getWeight(),
-                        user.getActivityLevel(),
-                        user.getGoal(),
-                        user.getProfilePicturePath(),
-                        false,
-                        meals
-                );
-                this.loginPresenter.prepareSuccessView(loginOutputData);
-            }
+        final User user = userDataAccessObject.get(username);
+
+        if (!password.equals(user.getPassword())) {
+            loginPresenter.prepareFailView(
+                    "Incorrect password for \"" + username + "\"."
+            );
+            return;
         }
+
+        final List<Meal> meals =
+                mealsDataAccessObject.getMealsForUser(user.getName());
+
+        userDataAccessObject.setCurrentUsername(username);
+
+        final LoginOutputData loginOutputData = new LoginOutputData(
+                user.getName(),
+                user.getHeight(),
+                user.getWeight(),
+                user.getActivityLevel(),
+                user.getGoal(),
+                user.getProfilePicturePath(),
+                user.getDateOfBirth(),
+                user.getGender(),
+                user.getBio(),
+                user.getPreferredUnitSystem(),
+                user.getEquipment(),
+                user.getDietaryRestrictions(),
+                user.getPreferredWorkoutDays(),
+                user.getPreferredWorkoutDurationMinutes(),
+                user.getPrivacySettings(),
+                meals,
+                false
+        );
+
+        loginPresenter.prepareSuccessView(loginOutputData);
     }
 
     @Override
