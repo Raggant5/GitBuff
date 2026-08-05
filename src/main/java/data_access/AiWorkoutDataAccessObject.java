@@ -11,7 +11,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
@@ -22,6 +24,9 @@ import entity.User;
 import entity.WorkoutPlan;
 import use_case.recommendation.AiWorkoutDataAccessInterface;
 
+/**
+ * Data Access Object for generating AI workout plans using Gemini API.
+ */
 public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
     private static final int HTTP_OK = 200;
@@ -37,6 +42,152 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     private static final int HEX_PAD_LEN = 4;
     private static final int JSON_TEXT_OFFSET = 9;
     private static final int DEFAULT_WORKOUT_DURATION = 45;
+    private static final int MAX_EXERCISES_PER_WORKOUT = 3;
+    private static final int NUTRITION_RANDOM_BOUND = 150;
+    private static final int FAT_RANDOM_BOUND = 12;
+    private static final int CARBS_RANDOM_BOUND = 25;
+
+    private static final Map<String, String[]> WORKOUT_EXERCISE_MAP = new HashMap<>();
+    private static final Map<String, String[]> WORKOUT_INSTRUCTIONS_MAP = new HashMap<>();
+    private static final Map<String, String[]> WORKOUT_SEARCH_MAP = new HashMap<>();
+    private static final Map<String, String[]> WORKOUT_NUTRITION_MAP = new HashMap<>();
+    private static final Map<String, String[]> WORKOUT_SUBCATEGORY_MAP = new HashMap<>();
+    private static final Map<String, String[]> WORKOUT_INTENSITY_MAP = new HashMap<>();
+    private static final Map<String, String[]> WORKOUT_EQUIPMENT_MAP = new HashMap<>();
+
+    static {
+        WORKOUT_EXERCISE_MAP.put("running", new String[]{"Running", "Sprints", "Interval Runs"});
+        WORKOUT_INSTRUCTIONS_MAP.put("running", new String[]{
+                "Jog or run at a steady pace with proper form.",
+                "Sprint at maximum effort, then walk back to recover.",
+                "Alternate between sprinting and jogging intervals."
+        });
+        WORKOUT_SEARCH_MAP.put("running", new String[]{"running", "sprints", "interval+running"});
+        WORKOUT_NUTRITION_MAP.put("running", new String[]{"350", "10", "55"});
+        WORKOUT_SUBCATEGORY_MAP.put("running", new String[]{"RUNNING", "RUNNING", "RUNNING"});
+        WORKOUT_INTENSITY_MAP.put("running", new String[]{"HIGH", "HIGH", "HIGH"});
+        WORKOUT_EQUIPMENT_MAP.put("running", new String[]{"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"});
+
+        WORKOUT_EXERCISE_MAP.put("biking", new String[]{"Stationary Bike", "Hill Climbs", "Sprint Intervals"});
+        WORKOUT_INSTRUCTIONS_MAP.put("biking", new String[]{
+                "Pedal at moderate to high intensity.",
+                "Increase resistance and pedal standing up.",
+                "Sprint at max effort for 30 seconds, then rest."
+        });
+        WORKOUT_SEARCH_MAP.put("biking", new String[]{"stationary+bike", "hill+climbs+bike", "bike+sprint+intervals"});
+        WORKOUT_NUTRITION_MAP.put("biking", new String[]{"340", "10", "50"});
+        WORKOUT_SUBCATEGORY_MAP.put("biking", new String[]{"BIKING", "BIKING", "BIKING"});
+        WORKOUT_INTENSITY_MAP.put("biking", new String[]{"MEDIUM", "HIGH", "HIGH"});
+        WORKOUT_EQUIPMENT_MAP.put("biking", new String[]{"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"});
+
+        WORKOUT_EXERCISE_MAP.put("cycling", new String[]{"Stationary Bike", "Hill Climbs", "Sprint Intervals"});
+        WORKOUT_INSTRUCTIONS_MAP.put("cycling", new String[]{
+                "Pedal at moderate to high intensity.",
+                "Increase resistance and pedal standing up.",
+                "Sprint at max effort for 30 seconds, then rest."
+        });
+        WORKOUT_SEARCH_MAP.put("cycling", new String[]{"stationary+bike", "hill+climbs+bike", "bike+sprint+intervals"});
+        WORKOUT_NUTRITION_MAP.put("cycling", new String[]{"340", "10", "50"});
+        WORKOUT_SUBCATEGORY_MAP.put("cycling", new String[]{"BIKING", "BIKING", "BIKING"});
+        WORKOUT_INTENSITY_MAP.put("cycling", new String[]{"MEDIUM", "HIGH", "HIGH"});
+        WORKOUT_EQUIPMENT_MAP.put("cycling", new String[]{"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"});
+
+        WORKOUT_EXERCISE_MAP.put("upper", new String[]{"Push-Ups", "Tricep Dips", "Pull-Ups"});
+        WORKOUT_INSTRUCTIONS_MAP.put("upper", new String[]{
+                "Lower chest to floor, push up explosively.",
+                "Lower body until arms are at 90 degrees, push up.",
+                "Pull chin above bar, lower with control."
+        });
+        WORKOUT_SEARCH_MAP.put("upper", new String[]{"pushups", "tricep+dips", "pull+ups"});
+        WORKOUT_NUTRITION_MAP.put("upper", new String[]{"300", "20", "35"});
+        WORKOUT_SUBCATEGORY_MAP.put("upper", new String[]{"UPPER_BODY", "UPPER_BODY", "UPPER_BODY"});
+        WORKOUT_INTENSITY_MAP.put("upper", new String[]{"MEDIUM", "MEDIUM", "HIGH"});
+        WORKOUT_EQUIPMENT_MAP.put("upper", new String[]{"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"});
+
+        WORKOUT_EXERCISE_MAP.put("lower", new String[]{"Squats", "Lunges", "Calf Raises"});
+        WORKOUT_INSTRUCTIONS_MAP.put("lower", new String[]{
+                "Keep chest up, lower hips back and down.",
+                "Step forward, lower hips until both knees are bent at 90 degrees.",
+                "Rise up on toes, hold, lower slowly."
+        });
+        WORKOUT_SEARCH_MAP.put("lower", new String[]{"squats", "lunges", "calf+raises"});
+        WORKOUT_NUTRITION_MAP.put("lower", new String[]{"280", "22", "30"});
+        WORKOUT_SUBCATEGORY_MAP.put("lower", new String[]{"LOWER_BODY", "LOWER_BODY", "LOWER_BODY"});
+        WORKOUT_INTENSITY_MAP.put("lower", new String[]{"MEDIUM", "MEDIUM", "LOW"});
+        WORKOUT_EQUIPMENT_MAP.put("lower", new String[]{"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"});
+
+        WORKOUT_EXERCISE_MAP.put("leg", new String[]{"Squats", "Lunges", "Calf Raises"});
+        WORKOUT_INSTRUCTIONS_MAP.put("leg", new String[]{
+                "Keep chest up, lower hips back and down.",
+                "Step forward, lower hips until both knees are bent at 90 degrees.",
+                "Rise up on toes, hold, lower slowly."
+        });
+        WORKOUT_SEARCH_MAP.put("leg", new String[]{"squats", "lunges", "calf+raises"});
+        WORKOUT_NUTRITION_MAP.put("leg", new String[]{"280", "22", "30"});
+        WORKOUT_SUBCATEGORY_MAP.put("leg", new String[]{"LOWER_BODY", "LOWER_BODY", "LOWER_BODY"});
+        WORKOUT_INTENSITY_MAP.put("leg", new String[]{"MEDIUM", "MEDIUM", "LOW"});
+        WORKOUT_EQUIPMENT_MAP.put("leg", new String[]{"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"});
+
+        WORKOUT_EXERCISE_MAP.put("hiit", new String[]{"Burpees", "Mountain Climbers", "Jump Squats"});
+        WORKOUT_INSTRUCTIONS_MAP.put("hiit", new String[]{
+                "Drop to squat, kick feet back, do push-up, jump up.",
+                "In plank position, alternate driving knees to chest.",
+                "Squat down, explode up into a jump."
+        });
+        WORKOUT_SEARCH_MAP.put("hiit", new String[]{"burpees", "mountain+climbers", "jump+squats"});
+        WORKOUT_NUTRITION_MAP.put("hiit", new String[]{"400", "15", "40"});
+        WORKOUT_SUBCATEGORY_MAP.put("hiit", new String[]{"FULL_BODY", "FULL_BODY", "FULL_BODY"});
+        WORKOUT_INTENSITY_MAP.put("hiit", new String[]{"HIGH", "HIGH", "HIGH"});
+        WORKOUT_EQUIPMENT_MAP.put("hiit", new String[]{"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"});
+
+        WORKOUT_EXERCISE_MAP.put("core", new String[]{"Planks", "Bicycle Crunches", "Leg Raises"});
+        WORKOUT_INSTRUCTIONS_MAP.put("core", new String[]{
+                "Hold a straight body line on forearms.",
+                "Alternate bringing opposite elbow to knee.",
+                "Lie flat, raise legs to 90 degrees, lower with control."
+        });
+        WORKOUT_SEARCH_MAP.put("core", new String[]{"plank", "bicycle+crunches", "leg+raises"});
+        WORKOUT_NUTRITION_MAP.put("core", new String[]{"200", "12", "30"});
+        WORKOUT_SUBCATEGORY_MAP.put("core", new String[]{"CORE", "CORE", "CORE"});
+        WORKOUT_INTENSITY_MAP.put("core", new String[]{"MEDIUM", "MEDIUM", "LOW"});
+        WORKOUT_EQUIPMENT_MAP.put("core", new String[]{"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"});
+
+        WORKOUT_EXERCISE_MAP.put("strength", new String[]{"Deadlifts", "Overhead Press", "Rows"});
+        WORKOUT_INSTRUCTIONS_MAP.put("strength", new String[]{
+                "Hinge at hips, keep back straight, lift weight.",
+                "Press weight overhead, lower with control.",
+                "Pull weight towards chest, squeeze shoulder blades."
+        });
+        WORKOUT_SEARCH_MAP.put("strength", new String[]{"deadlifts", "overhead+press", "rows"});
+        WORKOUT_NUTRITION_MAP.put("strength", new String[]{"320", "25", "35"});
+        WORKOUT_SUBCATEGORY_MAP.put("strength", new String[]{"FULL_BODY", "UPPER_BODY", "BACK"});
+        WORKOUT_INTENSITY_MAP.put("strength", new String[]{"HIGH", "MEDIUM", "MEDIUM"});
+        WORKOUT_EQUIPMENT_MAP.put("strength", new String[]{"BARBELL", "DUMBBELLS", "DUMBBELLS"});
+
+        WORKOUT_EXERCISE_MAP.put("yoga", new String[]{"Downward Dog", "Warrior Pose", "Tree Pose"});
+        WORKOUT_INSTRUCTIONS_MAP.put("yoga", new String[]{
+                "Inverted V position, stretch back and legs.",
+                "Lunge position with arms extended.",
+                "Balance on one foot, other foot on inner thigh."
+        });
+        WORKOUT_SEARCH_MAP.put("yoga", new String[]{"downward+dog", "warrior+pose", "tree+pose"});
+        WORKOUT_NUTRITION_MAP.put("yoga", new String[]{"120", "4", "15"});
+        WORKOUT_SUBCATEGORY_MAP.put("yoga", new String[]{"YOGA", "YOGA", "YOGA"});
+        WORKOUT_INTENSITY_MAP.put("yoga", new String[]{"LOW", "LOW", "LOW"});
+        WORKOUT_EQUIPMENT_MAP.put("yoga", new String[]{"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"});
+
+        WORKOUT_EXERCISE_MAP.put("flexibility", new String[]{"Downward Dog", "Warrior Pose", "Tree Pose"});
+        WORKOUT_INSTRUCTIONS_MAP.put("flexibility", new String[]{
+                "Inverted V position, stretch back and legs.",
+                "Lunge position with arms extended.",
+                "Balance on one foot, other foot on inner thigh."
+        });
+        WORKOUT_SEARCH_MAP.put("flexibility", new String[]{"downward+dog", "warrior+pose", "tree+pose"});
+        WORKOUT_NUTRITION_MAP.put("flexibility", new String[]{"120", "4", "15"});
+        WORKOUT_SUBCATEGORY_MAP.put("flexibility", new String[]{"YOGA", "YOGA", "YOGA"});
+        WORKOUT_INTENSITY_MAP.put("flexibility", new String[]{"LOW", "LOW", "LOW"});
+        WORKOUT_EQUIPMENT_MAP.put("flexibility", new String[]{"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"});
+    }
 
     private final String apiKey;
     private final Random random = new Random();
@@ -71,7 +222,6 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             while (scanner.hasNextLine()) {
                 final String line = scanner.nextLine().trim();
                 if (line.startsWith("GEMINI_API_KEY=")) {
-                    System.out.println("Found API key in .env file");
                     return line.substring("GEMINI_API_KEY=".length()).trim();
                 }
             }
@@ -193,13 +343,11 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             return "Bodyweight only";
         }
 
-        // Convert Equipment enum to readable string
         final StringBuilder sb = new StringBuilder();
         for (final Equipment eq : equipmentSet) {
             if (sb.length() > 0) {
                 sb.append(", ");
             }
-            // Convert enum name to readable format (e.g., DUMBBELL -> Dumbbell)
             final String name = eq.name().toLowerCase().replace("_", " ");
             sb.append(Character.toUpperCase(name.charAt(0)) + name.substring(1));
         }
@@ -241,31 +389,25 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 + "- Workout days: " + daysList + "\n"
                 + "- Session duration: " + targetMinutes + " minutes\n\n"
 
-                + "CRITICAL RULE: The exercises MUST match the workout title. Examples:\n"
-                + "  - Title Cardio Running -> exercises: Running, Sprints, Jogging\n"
-                + "  - Title Biking -> exercises: Stationary Bike, Hill Climbs\n"
-                + "  - Title Upper Body Strength -> exercises: Push-Ups, Dips, Pull-Ups\n"
-                + "  - Title Leg Day -> exercises: Squats, Lunges, Calf Raises\n"
-                + "  - Title Full Body -> exercises: Burpees, Mountain Climbers, Jumping Jacks\n"
-                + "  - Title Core Workout -> exercises: Planks, Crunches, Leg Raises\n"
-                + "  - Title Yoga -> exercises: Downward Dog, Warrior, Tree Pose\n"
-                + "  - Title Swimming -> exercises: Freestyle, Breaststroke, Backstroke\n\n"
+                + "CRITICAL RULES:\n"
+                + "1. Every workout MUST have a category (CARDIO, STRENGTH, HIIT, CORE, FLEXIBILITY)\n"
+                + "2. Every workout MUST have a subCategory (RUNNING, BIKING, UPPER_BODY, LOWER_BODY)\n"
+                + "3. The category must match the user's goal\n"
+                + "4. The exercises MUST match the category and subCategory\n\n"
 
-                + "NEVER put push-ups or squats in a cardio workout.\n"
-                + "NEVER put running or biking in a strength workout.\n"
-                + "The exercises MUST be directly related to the workout type in the title.\n\n"
+                + "Examples:\n"
+                + "- Category: CARDIO, SubCategory: BIKING"
+                + " -> Exercises: Stationary Bike, Hill Climbs, Sprint Intervals\n"
+                + "- Category: STRENGTH, SubCategory: UPPER_BODY"
+                + " -> Exercises: Push-Ups, Dips, Pull-Ups\n\n"
 
-                + "Requirements:\n"
-                + "1. Only schedule workouts on: " + daysList + ". All other days are rest days.\n"
-                + "2. Each active workout has 3-5 exercises.\n"
-                + "3. Use only equipment available: " + equipmentStr + "\n"
-                + "4. Every exercise must have instructions.\n"
-                + "5. Every exercise must have a YouTube search URL.\n\n"
-
-                + "Return a JSON array of exactly 14 objects with fields:\n"
-                + "date, title, description, estimatedCaloriesBurned, estimatedFatBurnedGrams, \n"
-                + "estimatedCarbsBurnedGrams, exercises (array with: name, sets, reps, \n"
-                + "durationMinutes, targetMuscleGroup, equipmentRequired, instructions, videoUrl)";
+                + "Return JSON array of 14 objects with:\n"
+                + "date, title, description, category, subCategory, intensityLevel,\n"
+                + "targetMuscleGroup, equipmentType, estimatedDurationMinutes,\n"
+                + "estimatedCaloriesBurned, estimatedFatBurnedGrams, estimatedCarbsBurnedGrams,\n"
+                + "exercises (name, sets, reps, durationMinutes, targetMuscleGroup,\n"
+                + "equipmentRequired, instructions, videoUrl, category, subCategory,\n"
+                + "intensityLevel, equipmentType)";
     }
 
     private String buildJsonRequest(final String promptText) {
@@ -275,14 +417,10 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 + "    \"parts\": [{\"text\": " + escapedPrompt + "}]\n"
                 + "  }],\n"
                 + "  \"system_instruction\": {\n"
-                + "    \"parts\": [{\"text\": \"You are a personal trainer. "
-                + "The exercises MUST match the workout title. "
-                + "If title says Cardio, all exercises must be cardio. "
-                + "If title says Strength, all exercises must be strength. "
-                + "If title says Yoga, all exercises must be yoga poses. "
-                + "Do NOT mix different workout types in one session. "
-                + "Respond with valid JSON only. No explanations. "
-                + "Return exactly 14 objects in the array.\"}]\n"
+                + "    \"parts\": [{\"text\": \""
+                + "CRITICAL: Every workout must have category and subCategory. "
+                + "Every exercise must have matching category and subCategory. "
+                + "Return valid JSON only.\"}]\n"
                 + "  }\n"
                 + "}";
     }
@@ -458,15 +596,25 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     }
 
     private WorkoutPlan parseSingleDay(final String block, final int dayCounter,
-                                       final LocalDate startDate, final Set<DayOfWeek> preferredDays,
+                                       final LocalDate startDate,
+                                       final Set<DayOfWeek> preferredDays,
                                        final DateTimeFormatter fmt) {
         final LocalDate currentDate = startDate.plusDays(dayCounter);
         final String date = extractDate(block, currentDate, fmt);
         final String title = extractVal(block, "title");
         final String description = extractDescription(block, date);
-        final int calories = extractInt(block, "estimatedCaloriesBurned", DEFAULT_CALORIES);
-        final int fat = extractInt(block, "estimatedFatBurnedGrams", DEFAULT_FAT);
-        final int carbs = extractInt(block, "estimatedCarbsBurnedGrams", DEFAULT_CARBS);
+
+        final String category = extractCategory(block, title);
+        final String subCategory = extractSubCategory(block, title);
+        final String intensityLevel = extractIntensity(block);
+        final String targetMuscleGroup = extractVal(block, "targetMuscleGroup");
+        final String equipmentType = extractEquipmentType(block);
+
+        final int[] nutrition = getNutritionFromCategory(category);
+        final int calories = nutrition[0];
+        final int fat = nutrition[1];
+        final int carbs = nutrition[2];
+        final int durationMinutes = getTargetMinutes(null);
 
         final DayOfWeek dow = currentDate.getDayOfWeek();
         final boolean isPreferredDay = preferredDays.contains(dow);
@@ -474,11 +622,165 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         if (!isPreferredDay) {
             return new WorkoutPlan(date, "Rest & Recovery",
                     "Rest day. Focus on recovery, hydration, and light stretching.",
-                    0, 0, 0, new ArrayList<>());
+                    "REST", "REST", "LOW", "NONE", "NONE",
+                    0, 0, 0, 0, new ArrayList<>());
         }
 
-        final List<Exercise> exercises = parseExercises(block, title, dayCounter);
-        return new WorkoutPlan(date, title, description, calories, fat, carbs, exercises);
+        final List<Exercise> exercises = getExercisesForWorkout(subCategory, category);
+
+        return new WorkoutPlan(date, title, description, category, subCategory,
+                intensityLevel, targetMuscleGroup, equipmentType, durationMinutes,
+                calories, fat, carbs, exercises);
+    }
+
+    private String extractCategory(final String block, final String title) {
+        String category = extractVal(block, "category");
+        if (category == null || category.isEmpty()) {
+            final String lowerTitle = title.toLowerCase();
+            if (lowerTitle.contains("cardio") || lowerTitle.contains("run")
+                    || lowerTitle.contains("bike") || lowerTitle.contains("cycle")) {
+                return "CARDIO";
+            }
+            else if (lowerTitle.contains("strength") || lowerTitle.contains("upper")
+                    || lowerTitle.contains("lower") || lowerTitle.contains("leg")) {
+                return "STRENGTH";
+            }
+            else if (lowerTitle.contains("hiit") || lowerTitle.contains("interval")) {
+                return "HIIT";
+            }
+            else if (lowerTitle.contains("core") || lowerTitle.contains("abs")) {
+                return "CORE";
+            }
+            else if (lowerTitle.contains("yoga") || lowerTitle.contains("stretch")
+                    || lowerTitle.contains("flex")) {
+                return "FLEXIBILITY";
+            }
+            else {
+                return "GENERAL";
+            }
+        }
+        return category.toUpperCase();
+    }
+
+    private String extractSubCategory(final String block, final String title) {
+        String subCategory = extractVal(block, "subCategory");
+        if (subCategory == null || subCategory.isEmpty()) {
+            final String lowerTitle = title.toLowerCase();
+            if (lowerTitle.contains("running") || lowerTitle.contains("run")) {
+                return "RUNNING";
+            }
+            else if (lowerTitle.contains("bike") || lowerTitle.contains("cycle")
+                    || lowerTitle.contains("cycling")) {
+                return "BIKING";
+            }
+            else if (lowerTitle.contains("upper")) {
+                return "UPPER_BODY";
+            }
+            else if (lowerTitle.contains("lower") || lowerTitle.contains("leg")) {
+                return "LOWER_BODY";
+            }
+            else if (lowerTitle.contains("hiit") || lowerTitle.contains("interval")) {
+                return "FULL_BODY";
+            }
+            else if (lowerTitle.contains("core") || lowerTitle.contains("abs")) {
+                return "CORE";
+            }
+            else if (lowerTitle.contains("yoga")) {
+                return "YOGA";
+            }
+            else {
+                return "GENERAL";
+            }
+        }
+        return subCategory.toUpperCase();
+    }
+
+    private String extractIntensity(final String block) {
+        String intensity = extractVal(block, "intensityLevel");
+        if (intensity == null || intensity.isEmpty()) {
+            return "MEDIUM";
+        }
+        return intensity.toUpperCase();
+    }
+
+    private String extractEquipmentType(final String block) {
+        String equipment = extractVal(block, "equipmentType");
+        if (equipment == null || equipment.isEmpty()) {
+            return "BODYWEIGHT";
+        }
+        return equipment.toUpperCase();
+    }
+
+    private int[] getNutritionFromCategory(final String category) {
+        final String key = category.toLowerCase();
+        if (WORKOUT_NUTRITION_MAP.containsKey(key)) {
+            final String[] vals = WORKOUT_NUTRITION_MAP.get(key);
+            return new int[]{
+                    Integer.parseInt(vals[0]),
+                    Integer.parseInt(vals[1]),
+                    Integer.parseInt(vals[2])
+            };
+        }
+        return new int[]{DEFAULT_CALORIES, DEFAULT_FAT, DEFAULT_CARBS};
+    }
+
+    private List<Exercise> getExercisesForWorkout(final String subCategory, final String category) {
+        final List<Exercise> exercises = new ArrayList<>();
+        final String key = subCategory.toLowerCase();
+
+        String mapKey = key;
+        if (!WORKOUT_EXERCISE_MAP.containsKey(mapKey)) {
+            mapKey = category.toLowerCase();
+        }
+
+        if (WORKOUT_EXERCISE_MAP.containsKey(mapKey)) {
+            final String[] exerciseNames = WORKOUT_EXERCISE_MAP.get(mapKey);
+            final String[] instructions = WORKOUT_INSTRUCTIONS_MAP.get(mapKey);
+            final String[] searchQueries = WORKOUT_SEARCH_MAP.get(mapKey);
+            final String[] subCategories = WORKOUT_SUBCATEGORY_MAP.get(mapKey);
+            final String[] intensities = WORKOUT_INTENSITY_MAP.get(mapKey);
+            final String[] equipmentTypes = WORKOUT_EQUIPMENT_MAP.get(mapKey);
+
+            for (int i = 0; i < Math.min(MAX_EXERCISES_PER_WORKOUT, exerciseNames.length); i++) {
+                final String videoUrl = "https://www.youtube.com/results?search_query="
+                        + searchQueries[i] + "+exercise+tutorial";
+                final Exercise exercise = new Exercise(
+                        exerciseNames[i],
+                        DEFAULT_SETS,
+                        DEFAULT_REPS,
+                        DEFAULT_EX_DURATION,
+                        "Various",
+                        "Bodyweight",
+                        instructions[i],
+                        videoUrl,
+                        category,
+                        subCategories[i],
+                        intensities[i],
+                        equipmentTypes[i]
+                );
+                exercises.add(exercise);
+            }
+        }
+        else {
+            exercises.add(createExerciseWithAttributes("Push-Ups", "Lower chest to floor, push up.",
+                    "pushups", category, subCategory, "MEDIUM", "BODYWEIGHT"));
+            exercises.add(createExerciseWithAttributes("Squats", "Lower hips back and down.",
+                    "squats", category, subCategory, "MEDIUM", "BODYWEIGHT"));
+            exercises.add(createExerciseWithAttributes("Plank", "Hold straight body line.",
+                    "plank", category, subCategory, "LOW", "BODYWEIGHT"));
+        }
+
+        return exercises;
+    }
+
+    private Exercise createExerciseWithAttributes(final String name, final String instructions,
+                                                  final String searchQuery, final String category,
+                                                  final String subCategory, final String intensity,
+                                                  final String equipmentType) {
+        return new Exercise(name, DEFAULT_SETS, DEFAULT_REPS, DEFAULT_EX_DURATION,
+                "Various", "Bodyweight", instructions,
+                "https://www.youtube.com/results?search_query=" + searchQuery + "+exercise+tutorial",
+                category, subCategory, intensity, equipmentType);
     }
 
     private String extractDate(final String block, final LocalDate currentDate,
@@ -500,140 +802,6 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     private String extractDescription(final String block, final String date) {
         final String desc = extractVal(block, "description");
         return desc.isEmpty() ? "Custom workout for " + date : desc;
-    }
-
-    private List<Exercise> parseExercises(final String block, final String title,
-                                          final int dayCounter) {
-        final List<Exercise> exercises = new ArrayList<>();
-
-        int exSearchPos = block.indexOf("exercises");
-        if (exSearchPos != -1) {
-            final int exArrayStart = block.indexOf("[", exSearchPos);
-            if (exArrayStart != -1) {
-                final int exArrayEnd = block.lastIndexOf("]");
-                if (exArrayEnd != -1 && exArrayEnd > exArrayStart) {
-                    final String exArray = block.substring(exArrayStart + 1, exArrayEnd);
-                    final String[] exBlocks = exArray.split("(?<=\\}),\\s*");
-
-                    for (String exBlock : exBlocks) {
-                        final Exercise exercise = parseSingleExercise(exBlock);
-                        if (exercise != null) {
-                            exercises.add(exercise);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (exercises.isEmpty()) {
-            System.out.println("No exercises parsed for day " + dayCounter + ", using fallback");
-            return getFallbackExercisesForTitle(title, dayCounter);
-        }
-
-        return exercises;
-    }
-
-    private Exercise parseSingleExercise(final String exBlock) {
-        if (!exBlock.contains("name")) {
-            return null;
-        }
-
-        final String name = extractVal(exBlock, "name");
-        if (name.isEmpty()) {
-            return null;
-        }
-
-        final int sets = extractInt(exBlock, "sets", DEFAULT_SETS);
-        final int reps = extractInt(exBlock, "reps", DEFAULT_REPS);
-        final int exDuration = extractInt(exBlock, "durationMinutes", DEFAULT_EX_DURATION);
-        final String targetMuscle = extractVal(exBlock, "targetMuscleGroup");
-        final String equipReq = extractVal(exBlock, "equipmentRequired");
-        String instructions = extractVal(exBlock, "instructions");
-        String videoUrl = extractVal(exBlock, "videoUrl");
-
-        if (instructions.isEmpty()) {
-            instructions = "Perform " + name + " with proper form.";
-        }
-        if (videoUrl.isEmpty()) {
-            videoUrl = "https://www.youtube.com/results?search_query="
-                    + name.replace(" ", "+") + "+tutorial";
-        }
-
-        return new Exercise(name, sets, reps, exDuration, targetMuscle,
-                equipReq, instructions, videoUrl);
-    }
-
-    private List<Exercise> getFallbackExercisesForTitle(final String title, final int dayCounter) {
-        final List<Exercise> exercises = new ArrayList<>();
-
-        final String lowerTitle = title.toLowerCase();
-        if (lowerTitle.contains("cardio") || lowerTitle.contains("run")
-                || lowerTitle.contains("bike") || lowerTitle.contains("cycle")) {
-            exercises.add(createExercise("Running", "Jog or run at a steady pace.",
-                    "running+tutorial"));
-            exercises.add(createExercise("Sprints", "Sprint at maximum effort, then rest.",
-                    "sprints+tutorial"));
-            exercises.add(createExercise("Jumping Jacks",
-                    "Jump with arms and legs out, then back together.",
-                    "jumping+jacks+tutorial"));
-        }
-        else if (lowerTitle.contains("strength") || lowerTitle.contains("upper")
-                || lowerTitle.contains("lower") || lowerTitle.contains("leg")
-                || lowerTitle.contains("arm") || lowerTitle.contains("chest")) {
-            exercises.add(createExercise("Push-Ups", "Lower chest to floor, push up.",
-                    "pushups+tutorial"));
-            exercises.add(createExercise("Squats", "Lower hips back and down.",
-                    "squats+tutorial"));
-            exercises.add(createExercise("Plank", "Hold straight body line.",
-                    "plank+tutorial"));
-        }
-        else if (lowerTitle.contains("yoga") || lowerTitle.contains("stretch")) {
-            exercises.add(createExercise("Downward Dog",
-                    "Inverted V position, stretch back and legs.",
-                    "downward+dog+tutorial"));
-            exercises.add(createExercise("Warrior", "Lunge position with arms extended.",
-                    "warrior+pose+tutorial"));
-            exercises.add(createExercise("Tree Pose",
-                    "Balance on one foot, other foot on inner thigh.",
-                    "tree+pose+tutorial"));
-        }
-        else {
-            if (dayCounter % 3 == 0) {
-                exercises.add(createExercise("Push-Ups", "Lower chest to floor, push up.",
-                        "pushups+tutorial"));
-                exercises.add(createExercise("Squats", "Lower hips back and down.",
-                        "squats+tutorial"));
-                exercises.add(createExercise("Plank", "Hold straight body line.",
-                        "plank+tutorial"));
-            }
-            else if (dayCounter % 3 == 1) {
-                exercises.add(createExercise("Lunges", "Step forward, lower hips.",
-                        "lunges+tutorial"));
-                exercises.add(createExercise("Dips", "Lower body, push up.",
-                        "dips+tutorial"));
-                exercises.add(createExercise("Glute Bridges", "Lift hips up.",
-                        "glute+bridge+tutorial"));
-            }
-            else {
-                exercises.add(createExercise("Burpees",
-                        "Drop to squat, kick back, push-up, jump.",
-                        "burpees+tutorial"));
-                exercises.add(createExercise("Mountain Climbers",
-                        "Alternate knees to chest.",
-                        "mountain+climbers+tutorial"));
-                exercises.add(createExercise("Crunches", "Lift shoulders off floor.",
-                        "crunches+tutorial"));
-            }
-        }
-
-        return exercises;
-    }
-
-    private Exercise createExercise(final String name, final String instructions,
-                                    final String searchQuery) {
-        return new Exercise(name, DEFAULT_SETS, DEFAULT_REPS, DEFAULT_EX_DURATION,
-                "Full Body", "Bodyweight", instructions,
-                "https://www.youtube.com/results?search_query=" + searchQuery);
     }
 
     private String extractVal(final String src, final String key) {
@@ -726,16 +894,33 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 "Full Body HIIT",
                 "Core Workout",
                 "Cardio Biking",
-                "Strength & Conditioning"
+                "Yoga Flow"
         };
+
+        final String[] categories = {"CARDIO", "STRENGTH", "STRENGTH", "HIIT", "CORE", "CARDIO", "FLEXIBILITY"};
+        final String[] subCategories = {"RUNNING", "UPPER_BODY", "LOWER_BODY", "FULL_BODY", "CORE", "BIKING", "YOGA"};
+        final String[] intensities = {"HIGH", "MEDIUM", "MEDIUM", "HIGH", "MEDIUM", "MEDIUM", "LOW"};
+        final String[] targetMuscles = {"LEGS", "CHEST", "LEGS", "FULL_BODY", "CORE", "LEGS", "FULL_BODY"};
+        final String[] equipmentTypes = {"BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT", "BODYWEIGHT"};
+
         final String[] descs = {
-                "High intensity running intervals",
-                "Build upper body strength",
-                "Lower body power and endurance",
-                "Full body high intensity workout",
-                "Core stability and strength",
-                "Endurance biking session",
-                "Complete strength and conditioning"
+                "Cardio running workout with Running, Sprints, and Jumping Jacks.",
+                "Upper body strength workout with Push-Ups, Tricep Dips, and Pull-Ups.",
+                "Leg workout with Squats, Lunges, and Calf Raises.",
+                "Full body HIIT workout with Burpees, Mountain Climbers, and Jump Squats.",
+                "Core workout with Planks, Bicycle Crunches, and Leg Raises.",
+                "Cardio biking workout with Stationary Bike, Hill Climbs, and Sprint Intervals.",
+                "Yoga flow workout with Downward Dog, Warrior Pose, and Tree Pose."
+        };
+
+        final int[][] nutritionValues = {
+                {350, 10, 55},
+                {300, 20, 35},
+                {280, 22, 30},
+                {400, 15, 40},
+                {200, 12, 30},
+                {340, 10, 50},
+                {120, 4, 15}
         };
 
         final String[][] exerciseNames = {
@@ -745,7 +930,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 {"Burpees", "Mountain Climbers", "Jump Squats"},
                 {"Planks", "Bicycle Crunches", "Leg Raises"},
                 {"Stationary Bike", "Hill Climbs", "Sprint Intervals"},
-                {"Deadlifts", "Overhead Press", "Rows"}
+                {"Downward Dog", "Warrior Pose", "Tree Pose"}
         };
 
         final String[][] exerciseInstructions = {
@@ -767,19 +952,19 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 {"Pedal at moderate to high intensity.",
                         "Increase resistance, pedal standing up.",
                         "Sprint at max effort for 30 seconds, rest."},
-                {"Hinge at hips, keep back straight, lift weight.",
-                        "Press weight overhead, lower with control.",
-                        "Pull weight towards chest, squeeze shoulder blades."}
+                {"Inverted V position, stretch back and legs.",
+                        "Lunge position with arms extended.",
+                        "Balance on one foot, other foot on inner thigh."}
         };
 
         final String[][] searchQueries = {
-                {"running+technique+tutorial", "sprint+drills+tutorial", "jumping+jacks+tutorial"},
-                {"pushups+tutorial", "tricep+dips+tutorial", "pull+ups+tutorial"},
-                {"squats+tutorial", "lunges+tutorial", "calf+raises+tutorial"},
-                {"burpees+tutorial", "mountain+climbers+tutorial", "jump+squats+tutorial"},
-                {"plank+tutorial", "bicycle+crunches+tutorial", "leg+raises+tutorial"},
-                {"stationary+bike+tutorial", "hill+climb+bike+tutorial", "bike+sprint+intervals+tutorial"},
-                {"deadlift+tutorial", "overhead+press+tutorial", "rows+tutorial"}
+                {"running", "sprints", "jumping+jacks"},
+                {"pushups", "tricep+dips", "pull+ups"},
+                {"squats", "lunges", "calf+raises"},
+                {"burpees", "mountain+climbers", "jump+squats"},
+                {"plank", "bicycle+crunches", "leg+raises"},
+                {"stationary+bike", "hill+climbs+bike", "bike+sprint+intervals"},
+                {"downward+dog", "warrior+pose", "tree+pose"}
         };
 
         for (int dayOffset = 0; dayOffset < TOTAL_DAYS; dayOffset++) {
@@ -790,8 +975,12 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             if (preferredDays.contains(dow)) {
                 final List<Exercise> exercises = new ArrayList<>();
                 final int workoutType = dayOffset % 7;
+                final String category = categories[workoutType];
+                final String subCategory = subCategories[workoutType];
+                final String intensity = intensities[workoutType];
+                final String equipmentType = equipmentTypes[workoutType];
 
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < MAX_EXERCISES_PER_WORKOUT; i++) {
                     final Exercise exercise = new Exercise(
                             exerciseNames[workoutType][i],
                             DEFAULT_SETS,
@@ -800,19 +989,34 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                             "Various",
                             "Bodyweight",
                             exerciseInstructions[workoutType][i],
-                            "https://www.youtube.com/results?search_query=" + searchQueries[workoutType][i]
+                            "https://www.youtube.com/results?search_query="
+                                    + searchQueries[workoutType][i] + "+exercise+tutorial",
+                            category,
+                            subCategory,
+                            intensity,
+                            equipmentType
                     );
                     exercises.add(exercise);
                 }
 
                 plans.add(new WorkoutPlan(dateLabel, titles[workoutType],
                         descs[workoutType],
-                        DEFAULT_CALORIES, DEFAULT_FAT, DEFAULT_CARBS, exercises));
+                        category,
+                        subCategory,
+                        intensity,
+                        targetMuscles[workoutType],
+                        equipmentType,
+                        DEFAULT_WORKOUT_DURATION,
+                        nutritionValues[workoutType][0],
+                        nutritionValues[workoutType][1],
+                        nutritionValues[workoutType][2],
+                        exercises));
             }
             else {
                 plans.add(new WorkoutPlan(dateLabel, "Rest & Recovery",
                         "Rest day. Focus on recovery, hydration, and light stretching.",
-                        0, 0, 0, new ArrayList<>()));
+                        "REST", "REST", "LOW", "NONE", "NONE",
+                        0, 0, 0, 0, new ArrayList<>()));
             }
         }
 
