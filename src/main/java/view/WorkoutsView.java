@@ -40,6 +40,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private static final Color REST_COLOR = new Color(149, 165, 166);
     private static final Color CARD_BORDER = new Color(220, 224, 230);
     private static final Color BURN_BG = new Color(245, 247, 250);
+    private static final Color DURATION_BG = new Color(230, 240, 250);
 
     private static final int TITLE_FONT_SIZE = 20;
     private static final int HEADER_FONT_SIZE = 16;
@@ -49,7 +50,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
     private static final int MODAL_WIDTH = 500;
     private static final int MODAL_HEIGHT = 400;
-    private static final int DAYS_IN_WEEK = 7;
+    private static final int DAYS_PER_WEEK = 7;
     private static final int SCROLL_UNIT_INCREMENT = 16;
     private static final int REFRESH_BTN_HEIGHT = 40;
     private static final int REFRESH_BTN_WIDTH = 800;
@@ -58,11 +59,11 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private final WorkoutsViewModel workoutsViewModel;
 
     private final JLabel focusLabel = new JLabel();
-    private final JPanel week1Container = new JPanel();
-    private final JPanel week2Container = new JPanel();
+    private final JPanel scheduleContainer = new JPanel();
     private final JButton refreshButton = new JButton("Refresh 2-Week Schedule");
 
     private RecommendationController recommendationController;
+    private int userPreferredDuration = 45;
 
     public WorkoutsView(final WorkoutsViewModel workoutsViewModel) {
         this.workoutsViewModel = workoutsViewModel;
@@ -87,24 +88,11 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         topPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         topPanel.add(this.focusLabel);
 
-        this.week1Container.setLayout(new BoxLayout(this.week1Container, BoxLayout.Y_AXIS));
-        this.week1Container.setBackground(BG_DARK);
+        this.scheduleContainer.setLayout(new BoxLayout(this.scheduleContainer, BoxLayout.Y_AXIS));
+        this.scheduleContainer.setBackground(BG_DARK);
+        this.scheduleContainer.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
-        this.week2Container.setLayout(new BoxLayout(this.week2Container, BoxLayout.Y_AXIS));
-        this.week2Container.setBackground(BG_DARK);
-
-        final JPanel schedulePanel = new JPanel();
-        schedulePanel.setLayout(new BoxLayout(schedulePanel, BoxLayout.Y_AXIS));
-        schedulePanel.setBackground(BG_DARK);
-        schedulePanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-
-        schedulePanel.add(createWeekHeader("Week 1 Routine"));
-        schedulePanel.add(this.week1Container);
-        schedulePanel.add(Box.createRigidArea(new Dimension(0, 15)));
-        schedulePanel.add(createWeekHeader("Week 2 Routine"));
-        schedulePanel.add(this.week2Container);
-
-        final JScrollPane scrollPane = new JScrollPane(schedulePanel);
+        final JScrollPane scrollPane = new JScrollPane(this.scheduleContainer);
         scrollPane.getVerticalScrollBar().setUnitIncrement(SCROLL_UNIT_INCREMENT);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(null);
@@ -145,111 +133,145 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         displayState(this.workoutsViewModel.getState());
     }
 
-    private JLabel createWeekHeader(final String text) {
-        final JLabel header = new JLabel(text);
-        header.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
-        header.setForeground(PRIMARY_COLOR);
-        header.setAlignmentX(Component.LEFT_ALIGNMENT);
-        header.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-        return header;
-    }
-
     private void displayState(final WorkoutsState state) {
         this.focusLabel.setText("Active Focus Target: " + state.getWorkoutFocus());
-        this.week1Container.removeAll();
-        this.week2Container.removeAll();
+        this.scheduleContainer.removeAll();
 
         final List<WorkoutPlan> plans = state.getWorkoutPlans();
 
         if (plans == null || plans.isEmpty()) {
             final JLabel emptyLabel = new JLabel("No schedule loaded. Update your profile and click refresh!");
             emptyLabel.setFont(new Font("SansSerif", Font.ITALIC, CARD_TITLE_FONT_SIZE));
-            this.week1Container.add(emptyLabel);
+            emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            this.scheduleContainer.add(emptyLabel);
         }
         else {
-            for (int i = 0; i < plans.size(); i++) {
-                final WorkoutPlan plan = plans.get(i);
-                final JPanel targetWeekContainer = (i < DAYS_IN_WEEK)
-                        ? this.week1Container : this.week2Container;
+            // Add week headers dynamically
+            int totalDays = plans.size();
+            int weeks = (int) Math.ceil((double) totalDays / DAYS_PER_WEEK);
 
-                final JPanel planCard = new JPanel();
-                planCard.setLayout(new BoxLayout(planCard, BoxLayout.Y_AXIS));
-                planCard.setBackground(Color.WHITE);
-                planCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+            for (int week = 0; week < weeks; week++) {
+                // Add week header
+                final JLabel weekHeader = new JLabel("Week " + (week + 1) + " Routine");
+                weekHeader.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
+                weekHeader.setForeground(PRIMARY_COLOR);
+                weekHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
+                weekHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+                this.scheduleContainer.add(weekHeader);
 
-                final boolean isRestDay = plan.getExercises() == null || plan.getExercises().isEmpty();
-                final Color headerColor = isRestDay ? REST_COLOR : PRIMARY_COLOR;
+                // Add days for this week
+                int startIdx = week * DAYS_PER_WEEK;
+                int endIdx = Math.min(startIdx + DAYS_PER_WEEK, totalDays);
 
-                planCard.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createMatteBorder(0, 5, 0, 0, headerColor),
-                        BorderFactory.createCompoundBorder(
-                                BorderFactory.createLineBorder(CARD_BORDER, 1),
-                                BorderFactory.createEmptyBorder(10, 12, 10, 12)
-                        )
-                ));
-
-                final String dateStr = (plan.getDate() != null && !plan.getDate().trim().isEmpty())
-                        ? plan.getDate() : ("Day " + (i + 1));
-                final JLabel dateTitleLabel = new JLabel(String.format("%s — %s", dateStr, plan.getTitle()));
-                dateTitleLabel.setFont(new Font("SansSerif", Font.BOLD, CARD_TITLE_FONT_SIZE));
-                dateTitleLabel.setForeground(headerColor);
-                dateTitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-                final JLabel descLabel = new JLabel(plan.getDescription());
-                descLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
-                descLabel.setForeground(new Color(100, 110, 120));
-                descLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-                planCard.add(dateTitleLabel);
-                planCard.add(Box.createRigidArea(new Dimension(0, 3)));
-                planCard.add(descLabel);
-
-                if (!isRestDay) {
-                    final JLabel burnLabel = new JLabel(String.format("Est. Burn: %d Cal | %dg Fat | %dg Carbs",
-                            plan.getEstimatedCaloriesBurned(),
-                            plan.getEstimatedFatBurnedGrams(),
-                            plan.getEstimatedCarbsBurnedGrams()));
-                    burnLabel.setFont(new Font("SansSerif", Font.BOLD, SMALL_FONT_SIZE));
-                    burnLabel.setForeground(PRIMARY_COLOR);
-                    burnLabel.setOpaque(true);
-                    burnLabel.setBackground(BURN_BG);
-                    burnLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
-                    burnLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-                    planCard.add(Box.createRigidArea(new Dimension(0, 5)));
-                    planCard.add(burnLabel);
-
-                    planCard.add(Box.createRigidArea(new Dimension(0, 8)));
-                    final JPanel exercisesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
-                    exercisesPanel.setBackground(Color.WHITE);
-                    exercisesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-                    for (final Exercise exercise : plan.getExercises()) {
-                        final String btnText = String.format("%s [%ds x %dr]",
-                                exercise.getName(), exercise.getSets(), exercise.getReps());
-                        final JButton exButton = new JButton(btnText);
-                        exButton.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
-                        exButton.setBackground(new Color(235, 243, 250));
-                        exButton.setForeground(PRIMARY_COLOR);
-                        exButton.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 1));
-                        exButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                        exButton.setFocusPainted(false);
-
-                        exButton.addActionListener(evt -> showExerciseGuideModal(exercise));
-                        exercisesPanel.add(exButton);
-                    }
-                    planCard.add(exercisesPanel);
+                for (int i = startIdx; i < endIdx; i++) {
+                    final WorkoutPlan plan = plans.get(i);
+                    final JPanel planCard = createPlanCard(plan, i + 1);
+                    this.scheduleContainer.add(planCard);
+                    this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 8)));
                 }
 
-                targetWeekContainer.add(planCard);
-                targetWeekContainer.add(Box.createRigidArea(new Dimension(0, 8)));
+                // Add spacing between weeks
+                if (week < weeks - 1) {
+                    this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+                    final JLabel divider = new JLabel("─".repeat(80));
+                    divider.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
+                    divider.setForeground(CARD_BORDER);
+                    divider.setAlignmentX(Component.LEFT_ALIGNMENT);
+                    this.scheduleContainer.add(divider);
+                    this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+                }
             }
         }
 
-        this.week1Container.revalidate();
-        this.week2Container.revalidate();
+        this.scheduleContainer.revalidate();
+        this.scheduleContainer.repaint();
         this.revalidate();
         this.repaint();
+    }
+
+    private JPanel createPlanCard(final WorkoutPlan plan, final int dayNumber) {
+        final JPanel planCard = new JPanel();
+        planCard.setLayout(new BoxLayout(planCard, BoxLayout.Y_AXIS));
+        planCard.setBackground(Color.WHITE);
+        planCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        final boolean isRestDay = plan.getExercises() == null || plan.getExercises().isEmpty();
+        final Color headerColor = isRestDay ? REST_COLOR : PRIMARY_COLOR;
+
+        planCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 5, 0, 0, headerColor),
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(CARD_BORDER, 1),
+                        BorderFactory.createEmptyBorder(10, 12, 10, 12)
+                )
+        ));
+
+        final String dateStr = (plan.getDate() != null && !plan.getDate().trim().isEmpty())
+                ? plan.getDate() : ("Day " + dayNumber);
+        final JLabel dateTitleLabel = new JLabel(String.format("%s — %s", dateStr, plan.getTitle()));
+        dateTitleLabel.setFont(new Font("SansSerif", Font.BOLD, CARD_TITLE_FONT_SIZE));
+        dateTitleLabel.setForeground(headerColor);
+        dateTitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        final JLabel descLabel = new JLabel(plan.getDescription());
+        descLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
+        descLabel.setForeground(new Color(100, 110, 120));
+        descLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        planCard.add(dateTitleLabel);
+        planCard.add(Box.createRigidArea(new Dimension(0, 3)));
+        planCard.add(descLabel);
+
+        if (!isRestDay) {
+            // Duration label
+            final JLabel durationLabel = new JLabel(String.format("⏱ Duration: %d minutes",
+                    this.userPreferredDuration));
+            durationLabel.setFont(new Font("SansSerif", Font.BOLD, SMALL_FONT_SIZE));
+            durationLabel.setForeground(new Color(41, 98, 150));
+            durationLabel.setOpaque(true);
+            durationLabel.setBackground(DURATION_BG);
+            durationLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+            durationLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            final JLabel burnLabel = new JLabel(String.format("🔥 Est. Burn: %d Cal | %dg Fat | %dg Carbs",
+                    plan.getEstimatedCaloriesBurned(),
+                    plan.getEstimatedFatBurnedGrams(),
+                    plan.getEstimatedCarbsBurnedGrams()));
+            burnLabel.setFont(new Font("SansSerif", Font.BOLD, SMALL_FONT_SIZE));
+            burnLabel.setForeground(PRIMARY_COLOR);
+            burnLabel.setOpaque(true);
+            burnLabel.setBackground(BURN_BG);
+            burnLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+            burnLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            planCard.add(Box.createRigidArea(new Dimension(0, 5)));
+            planCard.add(durationLabel);
+            planCard.add(Box.createRigidArea(new Dimension(0, 3)));
+            planCard.add(burnLabel);
+
+            planCard.add(Box.createRigidArea(new Dimension(0, 8)));
+            final JPanel exercisesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+            exercisesPanel.setBackground(Color.WHITE);
+            exercisesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            for (final Exercise exercise : plan.getExercises()) {
+                final String btnText = String.format("%s [%ds x %dr]",
+                        exercise.getName(), exercise.getSets(), exercise.getReps());
+                final JButton exButton = new JButton(btnText);
+                exButton.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
+                exButton.setBackground(new Color(235, 243, 250));
+                exButton.setForeground(PRIMARY_COLOR);
+                exButton.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 1));
+                exButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                exButton.setFocusPainted(false);
+
+                exButton.addActionListener(evt -> showExerciseGuideModal(exercise));
+                exercisesPanel.add(exButton);
+            }
+            planCard.add(exercisesPanel);
+        }
+
+        return planCard;
     }
 
     private void showExerciseGuideModal(final Exercise exercise) {
@@ -345,5 +367,9 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
     public void setRecommendationController(final RecommendationController recommendationController) {
         this.recommendationController = recommendationController;
+    }
+
+    public void setUserPreferredDuration(final int minutes) {
+        this.userPreferredDuration = minutes > 0 ? minutes : 45;
     }
 }

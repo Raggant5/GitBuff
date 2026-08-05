@@ -34,6 +34,7 @@ public class RecommendationInteractorTest {
     private static final int TEST_SETS = 3;
     private static final int TEST_REPS = 10;
     private static final int TEST_DURATION = 10;
+    private static final int DEFAULT_DURATION_MINUTES = 45;
 
     /**
      * Fake data access object implementing RecommendationUserDataAccessInterface for unit testing.
@@ -70,10 +71,18 @@ public class RecommendationInteractorTest {
             final List<WorkoutPlan> plans = new ArrayList<>();
             final List<Exercise> exercises = new ArrayList<>();
             exercises.add(new Exercise("Push-Ups", TEST_SETS, TEST_REPS, TEST_DURATION,
-                    "Chest", "Bodyweight", "Lower chest to ground.", "http://example.com"));
+                    "Chest", "Bodyweight", "Lower chest to ground.", "http://example.com",
+                    "STRENGTH", "UPPER_BODY", "MEDIUM", "BODYWEIGHT"));
             plans.add(new WorkoutPlan("Monday, Aug 3", "Upper Body", "Chest focus",
-                    ESTIMATED_CALORIES_BURN, ESTIMATED_FAT_BURN, ESTIMATED_CARBS_BURN, exercises));
+                    "STRENGTH", "UPPER_BODY", "MEDIUM", "CHEST", "BODYWEIGHT",
+                    DEFAULT_DURATION_MINUTES, ESTIMATED_CALORIES_BURN,
+                    ESTIMATED_FAT_BURN, ESTIMATED_CARBS_BURN, exercises));
             return plans;
+        }
+
+        @Override
+        public List<WorkoutPlan> generateWorkoutPlans(final User user, final int numberOfDays) {
+            return generateWorkoutPlans(user);
         }
     }
 

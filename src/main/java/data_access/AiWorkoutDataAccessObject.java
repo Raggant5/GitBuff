@@ -36,6 +36,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     private static final int DEFAULT_FAT = 15;
     private static final int DEFAULT_CARBS = 45;
     private static final int TOTAL_DAYS = 14;
+    private static final int WEEK_DAYS = 7;
     private static final int DEFAULT_SETS = 3;
     private static final int DEFAULT_REPS = 12;
     private static final int DEFAULT_EX_DURATION = 10;
@@ -234,20 +235,25 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
     @Override
     public List<WorkoutPlan> generateWorkoutPlans(final User user) {
-        System.out.println("generateWorkoutPlans called for user");
+        return generateWorkoutPlans(user, TOTAL_DAYS);
+    }
+
+    @Override
+    public List<WorkoutPlan> generateWorkoutPlans(final User user, final int numberOfDays) {
+        System.out.println("generateWorkoutPlans called for user for " + numberOfDays + " days");
 
         if (!isUserValid(user)) {
-            return getFallback2WeekPlans(user);
+            return getFallbackPlans(user, numberOfDays);
         }
 
         if (!isApiKeyValid()) {
             System.out.println("API key is invalid or missing, using fallback");
-            return getFallback2WeekPlans(user);
+            return getFallbackPlans(user, numberOfDays);
         }
 
         try {
-            final List<WorkoutPlan> plans = callGeminiApi(user);
-            if (plans != null && !plans.isEmpty() && plans.size() >= TOTAL_DAYS) {
+            final List<WorkoutPlan> plans = callGeminiApi(user, numberOfDays);
+            if (plans != null && !plans.isEmpty() && plans.size() >= numberOfDays) {
                 System.out.println("Successfully parsed " + plans.size() + " workout plans");
                 return plans;
             }
@@ -258,7 +264,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         }
 
         System.out.println("Using fallback plans");
-        return getFallback2WeekPlans(user);
+        return getFallbackPlans(user, numberOfDays);
     }
 
     private boolean isUserValid(final User user) {
@@ -270,12 +276,12 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 && !"YOUR_API_KEY_HERE".equals(this.apiKey);
     }
 
-    private List<WorkoutPlan> callGeminiApi(final User user) throws Exception {
+    private List<WorkoutPlan> callGeminiApi(final User user, final int numberOfDays) throws Exception {
         final String endpoint = buildEndpoint();
         System.out.println("Calling Gemini API with endpoint: " + endpoint);
 
         final HttpURLConnection connection = createConnection(endpoint);
-        final String promptText = buildPromptText(user);
+        final String promptText = buildPromptText(user, numberOfDays);
         final String jsonRequest = buildJsonRequest(promptText);
 
         sendRequest(connection, jsonRequest);
@@ -283,7 +289,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         System.out.println("Response code: " + responseCode);
 
         if (responseCode == HTTP_OK) {
-            return handleSuccessResponse(connection, user.getPreferredWorkoutDays());
+            return handleSuccessResponse(connection, user.getPreferredWorkoutDays(), numberOfDays);
         }
         else {
             handleErrorResponse(connection);
@@ -307,7 +313,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return connection;
     }
 
-    private String buildPromptText(final User user) {
+    private String buildPromptText(final User user, final int numberOfDays) {
         final LocalDate today = LocalDate.now();
         final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEEE, MMM d");
         final String startDateStr = today.format(fmt);
@@ -321,7 +327,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         final int seed = this.random.nextInt(SEED_MAX);
 
         return buildPromptContent(startDateStr, user, preferredDays, targetMinutes,
-                equipmentStr, genderStr, activityStr, bmi, seed);
+                equipmentStr, genderStr, activityStr, bmi, seed, numberOfDays);
     }
 
     private Set<DayOfWeek> getPreferredDays(final User user) {
@@ -374,13 +380,14 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     private String buildPromptContent(final String startDateStr, final User user,
                                       final Set<DayOfWeek> preferredDays, final int targetMinutes,
                                       final String equipmentStr, final String genderStr,
-                                      final String activityStr, final double bmi, final int seed) {
+                                      final String activityStr, final double bmi, final int seed,
+                                      final int numberOfDays) {
         final String daysList = preferredDays.toString();
         final String goalStr = user.getGoal().toString();
         final double weight = user.getWeight();
         final double height = user.getHeight();
 
-        return "Create a 14-day workout plan. User profile:\n"
+        return "Create a " + numberOfDays + "-day workout plan. User profile:\n"
                 + "- Goal: " + goalStr + "\n"
                 + "- Weight: " + weight + "kg, Height: " + height + "m, BMI: "
                 + String.format("%.1f", bmi) + ", Gender: " + genderStr + "\n"
@@ -401,7 +408,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 + "- Category: STRENGTH, SubCategory: UPPER_BODY"
                 + " -> Exercises: Push-Ups, Dips, Pull-Ups\n\n"
 
-                + "Return JSON array of 14 objects with:\n"
+                + "Return JSON array of " + numberOfDays + " objects with:\n"
                 + "date, title, description, category, subCategory, intensityLevel,\n"
                 + "targetMuscleGroup, equipmentType, estimatedDurationMinutes,\n"
                 + "estimatedCaloriesBurned, estimatedFatBurnedGrams, estimatedCarbsBurnedGrams,\n"
@@ -434,7 +441,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     }
 
     private List<WorkoutPlan> handleSuccessResponse(final HttpURLConnection connection,
-                                                    final Set<DayOfWeek> preferredDays) throws Exception {
+                                                    final Set<DayOfWeek> preferredDays,
+                                                    final int numberOfDays) throws Exception {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
             final StringBuilder response = new StringBuilder();
@@ -445,7 +453,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             final String responseStr = response.toString();
             System.out.println("API Response received, length: " + responseStr.length());
 
-            return parseGeminiJsonResponse(responseStr, preferredDays, LocalDate.now());
+            return parseGeminiJsonResponse(responseStr, preferredDays, LocalDate.now(), numberOfDays);
         }
     }
 
@@ -504,7 +512,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
     private List<WorkoutPlan> parseGeminiJsonResponse(final String response,
                                                       final Set<DayOfWeek> preferredDays,
-                                                      final LocalDate startDate) {
+                                                      final LocalDate startDate,
+                                                      final int numberOfDays) {
         final List<WorkoutPlan> plans = new ArrayList<>();
         final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEEE, MMM d");
 
@@ -520,7 +529,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             int searchPos = 0;
             int dayCounter = 0;
 
-            while (dayCounter < TOTAL_DAYS) {
+            while (dayCounter < numberOfDays) {
                 final String block = findNextBlock(jsonArray, searchPos);
                 if (block == null) {
                     break;
@@ -542,9 +551,9 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             ex.printStackTrace();
         }
 
-        if (plans.size() < TOTAL_DAYS) {
+        if (plans.size() < numberOfDays) {
             System.out.println("Not enough plans parsed, using fallback");
-            return getFallback2WeekPlans(null);
+            return getFallbackPlans(null, numberOfDays);
         }
         return plans;
     }
@@ -792,7 +801,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
         if (date.matches("\\d+")) {
             final int dayNum = Integer.parseInt(date);
-            if (dayNum > 0 && dayNum <= TOTAL_DAYS) {
+            if (dayNum > 0) {
                 return currentDate.plusDays(dayNum - 1).format(fmt);
             }
         }
@@ -874,8 +883,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         }
     }
 
-    private List<WorkoutPlan> getFallback2WeekPlans(final User user) {
-        System.out.println("Generating fallback 2-week plans with varied exercises");
+    private List<WorkoutPlan> getFallbackPlans(final User user, final int numberOfDays) {
+        System.out.println("Generating fallback " + numberOfDays + "-day plans with varied exercises");
         final List<WorkoutPlan> plans = new ArrayList<>();
         final LocalDate today = LocalDate.now();
         final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEEE, MMM d");
@@ -967,7 +976,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 {"downward+dog", "warrior+pose", "tree+pose"}
         };
 
-        for (int dayOffset = 0; dayOffset < TOTAL_DAYS; dayOffset++) {
+        for (int dayOffset = 0; dayOffset < numberOfDays; dayOffset++) {
             final LocalDate date = today.plusDays(dayOffset);
             final String dateLabel = date.format(fmt);
             final DayOfWeek dow = date.getDayOfWeek();
