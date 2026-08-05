@@ -146,7 +146,6 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             this.scheduleContainer.add(emptyLabel);
         }
         else {
-            // Add week header
             final JLabel weekHeader = new JLabel("Week 1 Routine");
             weekHeader.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
             weekHeader.setForeground(PRIMARY_COLOR);
@@ -154,7 +153,6 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             weekHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
             this.scheduleContainer.add(weekHeader);
 
-            // Add days for this week
             int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
             for (int i = 0; i < totalDays; i++) {
                 final WorkoutPlan plan = plans.get(i);
@@ -189,6 +187,13 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
         final String dateStr = (plan.getDate() != null && !plan.getDate().trim().isEmpty())
                 ? plan.getDate() : ("Day " + dayNumber);
+
+        // Get the duration from the plan if available, otherwise use the stored preferred duration
+        int duration = this.userPreferredDuration;
+        if (plan.getEstimatedDurationMinutes() > 0) {
+            duration = plan.getEstimatedDurationMinutes();
+        }
+
         final JLabel dateTitleLabel = new JLabel(String.format("%s — %s", dateStr, plan.getTitle()));
         dateTitleLabel.setFont(new Font("SansSerif", Font.BOLD, CARD_TITLE_FONT_SIZE));
         dateTitleLabel.setForeground(headerColor);
@@ -204,8 +209,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         planCard.add(descLabel);
 
         if (!isRestDay) {
-            final JLabel durationLabel = new JLabel(String.format("⏱ Duration: %d minutes",
-                    this.userPreferredDuration));
+            final JLabel durationLabel = new JLabel(String.format("⏱ Duration: %d minutes", duration));
             durationLabel.setFont(new Font("SansSerif", Font.BOLD, SMALL_FONT_SIZE));
             durationLabel.setForeground(new Color(41, 98, 150));
             durationLabel.setOpaque(true);
@@ -288,11 +292,9 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         final String instructions = (exercise.getInstructions() != null
                 && !exercise.getInstructions().trim().isEmpty())
                 ? exercise.getInstructions()
-                : "Perform this movement with proper posture, controlled cadence, "
-                + "and full range of motion.";
+                : "Perform this movement with proper posture, controlled cadence, and full range of motion.";
 
-        final JLabel instLabel = new JLabel("<html><body style='width: 360px; text-align: left; "
-                + "color: #333333;'>"
+        final JLabel instLabel = new JLabel("<html><body style='width: 360px; text-align: left; color: #333333;'>"
                 + instructions + "</body></html>");
         instLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE + 1));
 

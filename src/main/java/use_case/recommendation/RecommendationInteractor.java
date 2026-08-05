@@ -11,9 +11,6 @@ import entity.FitnessGoal;
 import entity.User;
 import entity.WorkoutPlan;
 
-/**
- * Interactor that computes target macros and generates structured AI workout routines.
- */
 public class RecommendationInteractor implements RecommendationInputBoundary {
 
     private static final double RESTING_KCAL_PER_KG = 22.0;
@@ -24,13 +21,6 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
     private final RecommendationOutputBoundary recommendationPresenter;
     private final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject;
 
-    /**
-     * Constructs a RecommendationInteractor instance.
-     *
-     * @param userDataAccessObject user data access interface
-     * @param recommendationOutputBoundary presenter output boundary
-     * @param aiWorkoutDataAccessObject AI workout generation data access interface
-     */
     public RecommendationInteractor(final RecommendationUserDataAccessInterface userDataAccessObject,
                                     final RecommendationOutputBoundary recommendationOutputBoundary,
                                     final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject) {
@@ -53,10 +43,8 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
             return;
         }
 
-        // Apply fallback defaults if profile fields were left blank or uninitialized
         ensureProfileDefaults(user);
 
-        // Calculate macro targets relative to user metrics
         final double restingCalories = RESTING_KCAL_PER_KG * (user.getWeight() > 0 ? user.getWeight() : 70.0f);
         final double activityMultiplier = user.getActivityLevel() != null
                 ? user.getActivityLevel().getCalorieMultiplier()
@@ -71,7 +59,6 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 (user.getWeight() > 0 ? user.getWeight() : 70.0f) * proteinRatio
         );
 
-        // Generate one week of workout plans
         List<WorkoutPlan> plans = new ArrayList<>();
         if (this.aiWorkoutDataAccessObject != null) {
             plans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user, WEEK_DAYS);
