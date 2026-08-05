@@ -32,9 +32,6 @@ import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
 
-/**
- * Workouts View displaying daily AI workout plans, exercise details, and popup guides.
- */
 public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
     private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
@@ -50,8 +47,8 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private static final int BODY_FONT_SIZE = 12;
     private static final int SMALL_FONT_SIZE = 11;
 
-    private static final int MODAL_WIDTH = 480;
-    private static final int MODAL_HEIGHT = 360;
+    private static final int MODAL_WIDTH = 500;
+    private static final int MODAL_HEIGHT = 400;
     private static final int DAYS_IN_WEEK = 7;
     private static final int SCROLL_UNIT_INCREMENT = 16;
     private static final int REFRESH_BTN_HEIGHT = 40;
@@ -67,11 +64,6 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
     private RecommendationController recommendationController;
 
-    /**
-     * Constructs a WorkoutsView instance.
-     *
-     * @param workoutsViewModel view model for managing workout schedule state
-     */
     public WorkoutsView(final WorkoutsViewModel workoutsViewModel) {
         this.workoutsViewModel = workoutsViewModel;
         this.workoutsViewModel.addPropertyChangeListener(this);
@@ -169,7 +161,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
         final List<WorkoutPlan> plans = state.getWorkoutPlans();
 
-        if (plans.isEmpty()) {
+        if (plans == null || plans.isEmpty()) {
             final JLabel emptyLabel = new JLabel("No schedule loaded. Update your profile and click refresh!");
             emptyLabel.setFont(new Font("SansSerif", Font.ITALIC, CARD_TITLE_FONT_SIZE));
             this.week1Container.add(emptyLabel);
@@ -177,14 +169,15 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         else {
             for (int i = 0; i < plans.size(); i++) {
                 final WorkoutPlan plan = plans.get(i);
-                final JPanel targetWeekContainer = (i < DAYS_IN_WEEK) ? this.week1Container : this.week2Container;
+                final JPanel targetWeekContainer = (i < DAYS_IN_WEEK)
+                        ? this.week1Container : this.week2Container;
 
                 final JPanel planCard = new JPanel();
                 planCard.setLayout(new BoxLayout(planCard, BoxLayout.Y_AXIS));
                 planCard.setBackground(Color.WHITE);
                 planCard.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-                final boolean isRestDay = plan.getExercises().isEmpty();
+                final boolean isRestDay = plan.getExercises() == null || plan.getExercises().isEmpty();
                 final Color headerColor = isRestDay ? REST_COLOR : PRIMARY_COLOR;
 
                 planCard.setBorder(BorderFactory.createCompoundBorder(
@@ -276,7 +269,8 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
         final String targetSummary = String.format("%d sets x %d reps (%d mins) | Target: %s | Equip: %s",
                 exercise.getSets(), exercise.getReps(), exercise.getDurationMinutes(),
-                exercise.getTargetMuscleGroup(), exercise.getEquipmentRequired());
+                exercise.getTargetMuscleGroup() != null ? exercise.getTargetMuscleGroup() : "N/A",
+                exercise.getEquipmentRequired() != null ? exercise.getEquipmentRequired() : "Bodyweight");
         final JLabel setsLabel = new JLabel("<html><center>" + targetSummary + "</center></html>",
                 SwingConstants.CENTER);
         setsLabel.setFont(new Font("SansSerif", Font.BOLD, BODY_FONT_SIZE));
@@ -292,10 +286,12 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         final String instructions = (exercise.getInstructions() != null
                 && !exercise.getInstructions().trim().isEmpty())
                 ? exercise.getInstructions()
-                : "Perform this movement with proper posture, controlled cadence, and full range of motion.";
+                : "Perform this movement with proper posture, controlled cadence, "
+                + "and full range of motion.";
 
-        final JLabel instLabel = new JLabel("<html><body style='width: 340px; text-align: center; color: #333333;'>"
-                + instructions + "</body></html>", SwingConstants.CENTER);
+        final JLabel instLabel = new JLabel("<html><body style='width: 360px; text-align: left; "
+                + "color: #333333;'>"
+                + instructions + "</body></html>");
         instLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE + 1));
 
         final JPanel btnPanel = new JPanel(new FlowLayout());
@@ -310,8 +306,8 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         videoBtn.addActionListener(evt -> {
             String targetUrl = exercise.getVideoUrl();
             if (targetUrl == null || targetUrl.trim().isEmpty()) {
-                targetUrl = "https://www.youtube.com/results?search_query=how+to+do+"
-                        + exercise.getName().replace(" ", "+");
+                targetUrl = "https://www.youtube.com/results?search_query="
+                        + exercise.getName().replace(" ", "+") + "+exercise+tutorial";
             }
             try {
                 Desktop.getDesktop().browse(new URI(targetUrl));
@@ -323,8 +319,15 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
         btnPanel.add(videoBtn);
 
+        final JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setBackground(Color.WHITE);
+        final JScrollPane instScroll = new JScrollPane(instLabel);
+        instScroll.setBorder(null);
+        instScroll.setBackground(Color.WHITE);
+        centerPanel.add(instScroll, BorderLayout.CENTER);
+
         contentPanel.add(topBox, BorderLayout.NORTH);
-        contentPanel.add(instLabel, BorderLayout.CENTER);
+        contentPanel.add(centerPanel, BorderLayout.CENTER);
         contentPanel.add(btnPanel, BorderLayout.SOUTH);
 
         dialog.add(contentPanel);
@@ -337,7 +340,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     }
 
     public String getViewName() {
-        return this.viewName;
+        return viewName;
     }
 
     public void setRecommendationController(final RecommendationController recommendationController) {
