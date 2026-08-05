@@ -19,7 +19,6 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
     private static final double RESTING_KCAL_PER_KG = 22.0;
     private static final int DEFAULT_DURATION_MINUTES = 45;
     private static final int WEEK_DAYS = 7;
-    private static final int TOTAL_DAYS = 14;
 
     private final RecommendationUserDataAccessInterface userDataAccessObject;
     private final RecommendationOutputBoundary recommendationPresenter;
@@ -72,20 +71,10 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 (user.getWeight() > 0 ? user.getWeight() : 70.0f) * proteinRatio
         );
 
-        // Generate tailored workout plans - generate one week at a time
-        List<WorkoutPlan> allPlans = new ArrayList<>();
+        // Generate one week of workout plans
+        List<WorkoutPlan> plans = new ArrayList<>();
         if (this.aiWorkoutDataAccessObject != null) {
-            // Generate week 1
-            List<WorkoutPlan> week1 = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user, WEEK_DAYS);
-            if (week1 != null && !week1.isEmpty()) {
-                allPlans.addAll(week1);
-            }
-
-            // Generate week 2
-            List<WorkoutPlan> week2 = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user, WEEK_DAYS);
-            if (week2 != null && !week2.isEmpty()) {
-                allPlans.addAll(week2);
-            }
+            plans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user, WEEK_DAYS);
         }
 
         final String focusSummary = user.getGoal() != null
@@ -102,7 +91,7 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 dailyProteinGrams,
                 focusSummary,
                 activitySummary,
-                allPlans
+                plans
         );
 
         this.recommendationPresenter.prepareSuccessView(outputData);

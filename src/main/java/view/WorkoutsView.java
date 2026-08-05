@@ -60,7 +60,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
     private final JLabel focusLabel = new JLabel();
     private final JPanel scheduleContainer = new JPanel();
-    private final JButton refreshButton = new JButton("Refresh 2-Week Schedule");
+    private final JButton refreshButton = new JButton("Refresh 1-Week Schedule");
 
     private RecommendationController recommendationController;
     private int userPreferredDuration = 45;
@@ -119,7 +119,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                     @Override
                     protected void done() {
                         refreshButton.setEnabled(true);
-                        refreshButton.setText("Refresh 2-Week Schedule");
+                        refreshButton.setText("Refresh 1-Week Schedule");
                     }
                 };
                 worker.execute();
@@ -146,40 +146,21 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             this.scheduleContainer.add(emptyLabel);
         }
         else {
-            // Add week headers dynamically
-            int totalDays = plans.size();
-            int weeks = (int) Math.ceil((double) totalDays / DAYS_PER_WEEK);
+            // Add week header
+            final JLabel weekHeader = new JLabel("Week 1 Routine");
+            weekHeader.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
+            weekHeader.setForeground(PRIMARY_COLOR);
+            weekHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
+            weekHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+            this.scheduleContainer.add(weekHeader);
 
-            for (int week = 0; week < weeks; week++) {
-                // Add week header
-                final JLabel weekHeader = new JLabel("Week " + (week + 1) + " Routine");
-                weekHeader.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
-                weekHeader.setForeground(PRIMARY_COLOR);
-                weekHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
-                weekHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-                this.scheduleContainer.add(weekHeader);
-
-                // Add days for this week
-                int startIdx = week * DAYS_PER_WEEK;
-                int endIdx = Math.min(startIdx + DAYS_PER_WEEK, totalDays);
-
-                for (int i = startIdx; i < endIdx; i++) {
-                    final WorkoutPlan plan = plans.get(i);
-                    final JPanel planCard = createPlanCard(plan, i + 1);
-                    this.scheduleContainer.add(planCard);
-                    this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 8)));
-                }
-
-                // Add spacing between weeks
-                if (week < weeks - 1) {
-                    this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-                    final JLabel divider = new JLabel("─".repeat(80));
-                    divider.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
-                    divider.setForeground(CARD_BORDER);
-                    divider.setAlignmentX(Component.LEFT_ALIGNMENT);
-                    this.scheduleContainer.add(divider);
-                    this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 15)));
-                }
+            // Add days for this week
+            int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
+            for (int i = 0; i < totalDays; i++) {
+                final WorkoutPlan plan = plans.get(i);
+                final JPanel planCard = createPlanCard(plan, i + 1);
+                this.scheduleContainer.add(planCard);
+                this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 8)));
             }
         }
 
@@ -223,7 +204,6 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         planCard.add(descLabel);
 
         if (!isRestDay) {
-            // Duration label
             final JLabel durationLabel = new JLabel(String.format("⏱ Duration: %d minutes",
                     this.userPreferredDuration));
             durationLabel.setFont(new Font("SansSerif", Font.BOLD, SMALL_FONT_SIZE));

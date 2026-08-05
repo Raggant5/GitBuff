@@ -12,7 +12,7 @@ public interface AiWorkoutDataAccessInterface {
 
     /**
      * Generates a list of structured workout plans for the given user.
-     * Default implementation generates 14 days (2 weeks).
+     * Default implementation generates 7 days (1 week).
      *
      * @param user the user requesting recommendations
      * @return a list of structured workout plans
@@ -24,7 +24,7 @@ public interface AiWorkoutDataAccessInterface {
      * for a specified number of days.
      *
      * @param user the user requesting recommendations
-     * @param numberOfDays number of days to generate (7 or 14)
+     * @param numberOfDays number of days to generate
      * @return a list of structured workout plans
      */
     List<WorkoutPlan> generateWorkoutPlans(final User user, final int numberOfDays);

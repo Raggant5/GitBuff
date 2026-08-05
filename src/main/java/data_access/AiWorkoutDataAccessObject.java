@@ -35,8 +35,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     private static final int DEFAULT_CALORIES = 320;
     private static final int DEFAULT_FAT = 15;
     private static final int DEFAULT_CARBS = 45;
-    private static final int TOTAL_DAYS = 14;
-    private static final int WEEK_DAYS = 7;
+    private static final int DEFAULT_DAYS = 7;
     private static final int DEFAULT_SETS = 3;
     private static final int DEFAULT_REPS = 12;
     private static final int DEFAULT_EX_DURATION = 10;
@@ -235,7 +234,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
     @Override
     public List<WorkoutPlan> generateWorkoutPlans(final User user) {
-        return generateWorkoutPlans(user, TOTAL_DAYS);
+        return generateWorkoutPlans(user, DEFAULT_DAYS);
     }
 
     @Override
@@ -299,7 +298,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
     private String buildEndpoint() {
         return "https://generativelanguage.googleapis.com/v1beta/models/"
-                + "gemini-3.5-flash:generateContent?key=" + this.apiKey;
+                + "gemini-3.6-flash:generateContent?key=" + this.apiKey;
     }
 
     private HttpURLConnection createConnection(final String endpoint) throws Exception {
@@ -339,6 +338,9 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     }
 
     private int getTargetMinutes(final User user) {
+        if (user == null) {
+            return DEFAULT_WORKOUT_DURATION;
+        }
         final int minutes = user.getPreferredWorkoutDurationMinutes();
         return minutes > 0 ? minutes : DEFAULT_WORKOUT_DURATION;
     }
@@ -623,7 +625,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         final int calories = nutrition[0];
         final int fat = nutrition[1];
         final int carbs = nutrition[2];
-        final int durationMinutes = getTargetMinutes(null);
+        final int durationMinutes = DEFAULT_WORKOUT_DURATION;
 
         final DayOfWeek dow = currentDate.getDayOfWeek();
         final boolean isPreferredDay = preferredDays.contains(dow);
