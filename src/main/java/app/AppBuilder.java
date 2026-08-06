@@ -7,13 +7,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-<<<<<<< HEAD
-import data_access.*;
-import entity.*;
-=======
-import data_access.SQLiteMealDataAccessObject;
 import data_access.AiWorkoutDataAccessObject;
 import data_access.MockSearchFoodDataAccessObject;
+import data_access.SQLiteMealDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
 import data_access.SearchFoodDataAccessObject;
 import data_access.SpoonacularMealRecommendationDataAccessObject;
@@ -21,10 +17,8 @@ import entity.CommonUserFactory;
 import entity.FoodEntryFactory;
 import entity.MealFactory;
 import entity.UserFactory;
->>>>>>> origin/main
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.ViewManagerModel;
-import interface_adapter.calendar.CalendarController;
 import interface_adapter.calendar.CalendarState;
 import interface_adapter.calendar.CalendarViewModel;
 import interface_adapter.dashboard.DashboardViewModel;
@@ -112,7 +106,20 @@ import use_case.recommendation.RecommendationOutputBoundary;
 import use_case.signup.SignupInputBoundary;
 import use_case.signup.SignupInteractor;
 import use_case.signup.SignupOutputBoundary;
-import view.*;
+import view.AppShellView;
+import view.CalendarPanel;
+import view.DashboardView;
+import view.FoodEditorView;
+import view.LoginView;
+import view.MainViewManager;
+import view.MealEditorView;
+import view.NavbarView;
+import view.NutritionView;
+import view.ProfileView;
+import view.SignupView;
+import view.ViewManager;
+import view.ViewMealsView;
+import view.WorkoutsView;
 
 /**
  * The AppBuilder class is responsible for assembling Clean Architecture components step by step.
