@@ -17,5 +17,5 @@ public interface FoodRecommendationDataAccessInterface {
      * @param targetCalories the user's daily calorie target
      * @return a list of suggested meals
      */
-    List<MealRecommendation> generateMealRecommendations(final User user, final int targetCalories);
+    List<MealRecommendation> generateMealRecommendations(User user, int targetCalories);
 }
