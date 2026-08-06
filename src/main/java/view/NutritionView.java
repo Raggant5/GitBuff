@@ -7,7 +7,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
+import entity.MealRecommendation;
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.nutrition.NutritionState;
 import interface_adapter.nutrition.NutritionViewModel;
@@ -15,6 +17,9 @@ import interface_adapter.nutrition.meal.MealEditorViewModel;
 import interface_adapter.recommendation.RecommendationController;
 
 public class NutritionView extends JPanel implements PropertyChangeListener {
+
+    private static final int MEAL_AREA_ROWS = 4;
+    private static final int MEAL_AREA_COLUMNS = 30;
 
     private final String viewName = "nutrition";
     private final NutritionViewModel nutritionViewModel;
@@ -26,6 +31,8 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
     private final JLabel proteinLabel = new JLabel();
     private final JLabel bmiLabel = new JLabel();
     private final JLabel messageLabel = new JLabel();
+    private final JLabel mealRecommendationsTitle = new JLabel("Suggested Meals");
+    private final JTextArea mealRecommendationsArea = new JTextArea(MEAL_AREA_ROWS, MEAL_AREA_COLUMNS);
     private final JButton refreshButton = new JButton("Refresh Recommendations");
 
     private RecommendationController recommendationController;
@@ -54,6 +61,8 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
                 recommendationController.execute();
             }
         });
+        mealRecommendationsArea.setEditable(false);
+        mealRecommendationsArea.setLineWrap(true);
 
         this.add(title);
         this.add(calorieLabel);
@@ -61,6 +70,8 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         this.add(bmiLabel);
         this.add(messageLabel);
         this.add(refreshButton);
+        this.add(mealRecommendationsTitle);
+        this.add(mealRecommendationsArea);
         this.add(addMealButton);
         this.add(viewMealsView);
 
@@ -72,6 +83,13 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         proteinLabel.setText("Daily protein target: " + state.getDailyProteinGrams() + " g");
         bmiLabel.setText(String.format("BMI: %.1f", state.getBmi()));
         messageLabel.setText(state.getMessage());
+
+        final StringBuilder mealsText = new StringBuilder();
+        for (MealRecommendation meal : state.getMealRecommendations()) {
+            mealsText.append(meal.getTitle())
+                    .append(" (").append(meal.getReadyInMinutes()).append(" min)\n");
+        }
+        mealRecommendationsArea.setText(mealsText.toString());
     }
 
     @Override
