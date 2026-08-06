@@ -14,6 +14,12 @@ import data_access.MockSearchFoodDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
 import data_access.SearchFoodDataAccessObject;
 import data_access.SpoonacularMealRecommendationDataAccessObject;
+import data_access.*;
+import interface_adapter.dashboard.DashboardPresenter;
+import use_case.dashboard.DashboardInputBoundary;
+import use_case.dashboard.DashboardInteractor;
+import use_case.dashboard.DashboardOutputBoundary;
+import use_case.dashboard.DashboardDataAccessInterface;
 import entity.CommonUserFactory;
 import entity.ExercisePerformedFactory;
 import entity.FoodEntryFactory;
@@ -200,10 +206,11 @@ public class AppBuilder {
     private final UserFactory userFactory =
             new CommonUserFactory();
 
-    private final InMemoryDataAccessObject userDataAccessObject =
-            new InMemoryDataAccessObject();
-    private final InMemoryDataAccessObject mealDataAccessObject = userDataAccessObject;
+    private final SQLiteUserDataAccessObject userDataAccessObject =
+            new SQLiteUserDataAccessObject();
+    private final SQLiteMealDataAccessObject mealDataAccessObject = new SQLiteMealDataAccessObject();
 
+    private final DashboardDataAccessInterface dashboardDataAccessObject = mealDataAccessObject;
     private final AiWorkoutDataAccessInterface aiWorkoutDao =
             new AiWorkoutDataAccessObject();
 
@@ -259,7 +266,7 @@ public class AppBuilder {
 
     private final ExercisePerformedFactory exercisePerformedFactory = new ExercisePerformedFactory();
     private final LoggedWorkoutFactory loggedWorkoutFactory = new LoggedWorkoutFactory();
-    private final InMemoryDataAccessObject workoutDataAccessObject = userDataAccessObject;
+    private final InMemoryDataAccessObject workoutDataAccessObject = new InMemoryDataAccessObject();
     private final AddWorkoutDataAccessInterface addWorkoutDataAccessObject = workoutDataAccessObject;
     private final ViewWorkoutDataAccessInterface viewWorkoutsDataAccessObject = workoutDataAccessObject;
     private final EditWorkoutDataAccessInterface editWorkoutDataAccessObject = workoutDataAccessObject;
@@ -275,6 +282,7 @@ public class AppBuilder {
 
     private RecommendationController recommendationController;
     private RecommendationInputBoundary recommendationInteractor;
+    private DashboardInputBoundary dashboardInteractor;
 
     /**
      * Constructs the AppBuilder instance, sets panel layouts, and wires view managers.
@@ -387,7 +395,13 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addNavbarView() {
-        this.navbarView = new NavbarView(this.mainViewManagerModel, this.viewManagerModel, this.profileViewModel);
+        this.navbarView = new NavbarView(
+                this.mainViewManagerModel,
+                this.viewManagerModel,
+                this.profileViewModel,
+                this.loginViewModel,
+                this.dashboardInteractor
+        );
         return this;
     }
 
@@ -419,6 +433,24 @@ public class AppBuilder {
     }
 
     /**
+     * Adds dashboard use case to application.
+     * @return this builder
+     */
+    public AppBuilder addDashboardUseCase() {
+
+        final DashboardOutputBoundary dashboardPresenter =
+                new DashboardPresenter(this.dashboardViewModel);
+
+        this.dashboardInteractor =
+                new DashboardInteractor(
+                        this.mealDataAccessObject,
+                        dashboardPresenter
+                );
+
+        return this;
+    }
+
+    /**
      * Adds the Login Use Case to the application.
      *
      * @return this builder
@@ -426,8 +458,8 @@ public class AppBuilder {
     public AppBuilder addLoginUseCase() {
         final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
                 this.viewManagerModel, this.loginViewModel, this.signupViewModel,
-                this.profileViewModel, this.viewMealsViewModel, this.viewWorkoutsViewModel,
-                this.recommendationController);
+                this.profileViewModel, this.viewMealsViewModel, this.recommendationController,
+                this.dashboardInteractor, this.viewWorkoutsViewModel);
         final LoginInputBoundary loginInteractor = new LoginInteractor(
                 this.userDataAccessObject, loginOutputBoundary, viewMealsDataAccessObject,
                 viewWorkoutsDataAccessObject);
@@ -516,38 +548,35 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Adds the add-meal use case.
-     *
-     * @return this builder
-     */
     public AppBuilder addAddMealUseCase() {
         final AddMealOutputBoundary addMealPresenter =
                 new AddMealPresenter(
-                        mealEditorViewModel,
-                        viewMealsViewModel,
-                        mainViewManagerModel
+                        this.mealEditorViewModel,
+                        this.viewMealsViewModel,
+                        this.mainViewManagerModel,
+                        this.dashboardInteractor
                 );
 
         final AddMealInputBoundary addMealInteractor =
                 new AddMealInteractor(
                         addMealPresenter,
-                        addMealDataAccessObject,
-                        mealFactory
+                        this.addMealDataAccessObject,
+                        this.mealFactory
                 );
 
         final AddMealController addMealController =
                 new AddMealController(
                         addMealInteractor,
-                        loginViewModel
+                        this.loginViewModel, this.dashboardInteractor
                 );
 
-        mealEditorView.setAddMealController(
+        this.mealEditorView.setAddMealController(
                 addMealController
         );
 
         return this;
     }
+
 
     /**
      * Adds the edit-meal use case.
