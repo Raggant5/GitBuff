@@ -1,6 +1,7 @@
 package interface_adapter.login;
 
 import interface_adapter.ViewManagerModel;
+import interface_adapter.log_workout.workout.ViewWorkoutsViewModel;
 import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
@@ -20,34 +21,36 @@ public class LoginPresenter implements LoginOutputBoundary {
     private final SignupViewModel signupViewModel;
     private final ProfileViewModel profileViewModel;
     private final ViewMealsViewModel mealsViewModel;
+    private final ViewWorkoutsViewModel workoutsViewModel;
     private final RecommendationController recommendationController;
     private final DashboardInputBoundary dashboardInteractor;
 
     /**
      * Constructs a LoginPresenter instance.
      *
-     * @param viewManagerModel         manager model for top-level view navigation
-     * @param loginViewModel           view model for login state
-     * @param signupViewModel          view model for signup state
-     * @param profileViewModel         view model for user profile state
-     * @param mealsViewModel           view model for saved meals
-     * @param recommendationController controller for recommendations
+     * @param viewManagerModel manager model for top-level view navigation
+     * @param loginViewModel view model for login state
+     * @param signupViewModel view model for signup state
+     * @param profileViewModel view model for user profile state
+     * @param mealsViewModel view model for the user's meal history
+     * @param recommendationController controller to trigger recommendations after login
      * @param dashboardInteractor  interactor for loading dashboard data
+     * @param workoutsViewModel view model for the user's workout history
      */
-    public LoginPresenter(
-            final ViewManagerModel viewManagerModel,
-            final LoginViewModel loginViewModel,
-            final SignupViewModel signupViewModel,
-            final ProfileViewModel profileViewModel,
-            final ViewMealsViewModel mealsViewModel,
-            final RecommendationController recommendationController,
-            final DashboardInputBoundary dashboardInteractor
-    ) {
+    public LoginPresenter(final ViewManagerModel viewManagerModel,
+                          final LoginViewModel loginViewModel,
+                          final SignupViewModel signupViewModel,
+                          final ProfileViewModel profileViewModel,
+                          final ViewMealsViewModel mealsViewModel,
+                          final RecommendationController recommendationController,
+                          final DashboardInputBoundary dashboardInteractor,
+                          final ViewWorkoutsViewModel workoutsViewModel) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
         this.profileViewModel = profileViewModel;
         this.mealsViewModel = mealsViewModel;
+        this.workoutsViewModel = workoutsViewModel;
         this.recommendationController = recommendationController;
         this.dashboardInteractor = dashboardInteractor;
     }
@@ -112,6 +115,9 @@ public class LoginPresenter implements LoginOutputBoundary {
                 response.getMeals()
         );
         this.mealsViewModel.firePropertyChanged();
+
+        workoutsViewModel.getState().setWorkouts(response.getWorkouts());
+        workoutsViewModel.firePropertyChanged();
 
         if (this.recommendationController != null) {
             this.recommendationController.execute();

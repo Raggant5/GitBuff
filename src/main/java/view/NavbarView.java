@@ -32,6 +32,9 @@ public class NavbarView extends JPanel
     private final JButton toWorkouts =
             new JButton("Workouts");
 
+    private final JButton toLogWorkouts =
+            new JButton("Workout History");
+
     private final JButton toNutrition =
             new JButton("Nutrition");
 
@@ -89,6 +92,11 @@ public class NavbarView extends JPanel
             mainViewManagerModel.firePropertyChanged();
         });
 
+        this.toLogWorkouts.addActionListener(evt -> {
+            mainViewManagerModel.setState("view workouts");
+            mainViewManagerModel.firePropertyChanged();
+        });
+
         this.toNutrition.addActionListener(event -> {
             mainViewManagerModel.setState("nutrition");
             mainViewManagerModel.firePropertyChanged();
@@ -118,6 +126,7 @@ public class NavbarView extends JPanel
 
         this.add(this.toDashboard);
         this.add(this.toWorkouts);
+        this.add(this.toLogWorkouts);
         this.add(this.toNutrition);
         this.add(this.toProfile);
         this.add(this.logOut);
@@ -141,6 +150,7 @@ public class NavbarView extends JPanel
 
         this.toDashboard.setBackground(defaultColor);
         this.toWorkouts.setBackground(defaultColor);
+        this.toLogWorkouts.setBackground(defaultColor);
         this.toNutrition.setBackground(defaultColor);
         this.toProfile.setBackground(defaultColor);
 
@@ -152,9 +162,7 @@ public class NavbarView extends JPanel
                 break;
 
             case "workouts":
-                this.toWorkouts.setBackground(
-                        selectedColour
-                );
+                this.toWorkouts.setBackground(selectedColour);
                 break;
 
             case "nutrition":

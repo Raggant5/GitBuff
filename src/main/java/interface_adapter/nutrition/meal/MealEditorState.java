@@ -58,14 +58,6 @@ public class MealEditorState {
     }
 
     /**
-     * Removes a food from being deleted within the meal editing stage.
-     * @param foodEntry food entry to be undeleted
-     */
-    public void removeFoodEntryFromDeletion(FoodEntry foodEntry) {
-        foodEntriesDeleteStage.remove(foodEntry);
-    }
-
-    /**
      * Setting values back to their defaults as to reuse the object for more adding/editing meals.
      */
     public void reset() {

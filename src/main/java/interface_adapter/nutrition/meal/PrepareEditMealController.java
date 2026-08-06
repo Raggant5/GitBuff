@@ -20,10 +20,4 @@ public class PrepareEditMealController {
         prepareEditMealInteractor.execute(new PrepareEditMealInputData(meal));
     }
 
-    /**
-     * Executes the "Switch To Add Meal" Use Case.
-     */
-    public void switchToAddMealEditor() {
-        prepareEditMealInteractor.switchToAddMealEditor();
-    }
 }

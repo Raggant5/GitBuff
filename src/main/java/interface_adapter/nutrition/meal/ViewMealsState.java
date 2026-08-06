@@ -3,7 +3,6 @@ package interface_adapter.nutrition.meal;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.FoodEntry;
 import entity.Meal;
 
 public class ViewMealsState {
@@ -25,16 +24,6 @@ public class ViewMealsState {
      */
     public void removeMeal(int mealId) {
         meals.removeIf(meal -> meal.getId() == mealId);
-    }
-
-    /**
-     * Removes the given food entry from whichever meal contains it.
-     * @param foodEntry food entry to be removed.
-     */
-    public void removeFoodEntry(FoodEntry foodEntry) {
-        for (Meal meal : meals) {
-            meal.removeFoodEntry(foodEntry);
-        }
     }
 
     public String getError() {

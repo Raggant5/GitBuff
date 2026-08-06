@@ -19,35 +19,29 @@ public class EditMealInteractor implements EditMealInputBoundary {
 
     @Override
     public void execute(final EditMealInputData inputData) {
-        final Meal meal = inputData.getMeal();
+        if (inputData.getName() == null || inputData.getName().isBlank()) {
+            presenter.prepareFailView("Meal name is required.");
+        }
+        else {
+            try {
+                final Meal meal = inputData.getMeal();
 
-        meal.setName(inputData.getName());
-        meal.setFoodEntries(inputData.getFoodEntries());
+                meal.setName(inputData.getName());
+                meal.setFoodEntries(inputData.getFoodEntries());
 
-        for (FoodEntry foodEntry : inputData.getFoodEntriesToDelete()) {
-            if (foodEntry.getId() != null) {
-                deleteFoodDataAccess.deleteFoodEntry(foodEntry.getId());
+                for (FoodEntry foodEntry : inputData.getFoodEntriesToDelete()) {
+                    if (foodEntry.getId() != null) {
+                        deleteFoodDataAccess.deleteFoodEntry(foodEntry.getId());
+                    }
+                }
+
+                dataAccess.editMeal(meal);
+
+                presenter.prepareSuccessView(new EditMealOutputData(meal));
+            }
+            catch (RuntimeException exc) {
+                presenter.prepareFailView("Unable to save meal. Please try again.");
             }
         }
-
-        dataAccess.editMeal(meal);
-
-        for (FoodEntry foodEntry : inputData.getFoodEntries()) {
-            if (foodEntry.getId() == null) {
-                foodEntry.setMealId(meal.getId());
-
-                final int foodEntryId =
-                        dataAccess.saveFoodEntry(foodEntry);
-
-                foodEntry.setId(foodEntryId);
-            }
-            else {
-                dataAccess.editFoodEntry(foodEntry);
-            }
-        }
-
-        presenter.prepareSuccessView(
-                new EditMealOutputData(meal)
-        );
     }
 }

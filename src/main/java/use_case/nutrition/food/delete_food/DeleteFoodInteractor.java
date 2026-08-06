@@ -5,12 +5,9 @@ import entity.FoodEntry;
 public class DeleteFoodInteractor implements DeleteFoodInputBoundary {
 
     private final DeleteFoodOutputBoundary deleteFoodPresenter;
-    private final DeleteFoodDataAccessInterface foodDataAccessObject;
 
-    public DeleteFoodInteractor(DeleteFoodOutputBoundary deleteFoodPresenter,
-                                DeleteFoodDataAccessInterface foodDataAccessObject) {
+    public DeleteFoodInteractor(DeleteFoodOutputBoundary deleteFoodPresenter) {
         this.deleteFoodPresenter = deleteFoodPresenter;
-        this.foodDataAccessObject = foodDataAccessObject;
     }
 
     @Override

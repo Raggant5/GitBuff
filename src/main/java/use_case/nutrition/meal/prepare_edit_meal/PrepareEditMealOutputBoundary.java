@@ -8,8 +8,4 @@ public interface PrepareEditMealOutputBoundary {
      */
     void prepareSuccessView(PrepareEditMealOutputData outputData);
 
-    /**
-     * Executes the "Switch to Add Meal" Use Case.
-     */
-    void switchToAddMealEditor();
 }

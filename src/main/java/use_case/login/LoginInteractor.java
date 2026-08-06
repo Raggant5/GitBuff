@@ -2,8 +2,10 @@ package use_case.login;
 
 import java.util.List;
 
+import entity.LoggedWorkout;
 import entity.Meal;
 import entity.User;
+import use_case.log_workout.logged_workout.get_workouts.ViewWorkoutDataAccessInterface;
 import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 
 /**
@@ -14,6 +16,7 @@ public class LoginInteractor implements LoginInputBoundary {
     private final LoginUserDataAccessInterface userDataAccessObject;
     private final LoginOutputBoundary loginPresenter;
     private final ViewMealDataAccessInterface mealsDataAccessObject;
+    private final ViewWorkoutDataAccessInterface workoutsDataAccessObject;
 
     /**
      * Constructs a LoginInteractor instance.
@@ -21,13 +24,16 @@ public class LoginInteractor implements LoginInputBoundary {
      * @param userDataAccessInterface user data access persistence object
      * @param loginOutputBoundary output boundary presenter
      * @param mealsDataAccessObject the meal data access persistence object
+     * @param workoutsDataAccessObject the workout data access persistence object
      */
     public LoginInteractor(final LoginUserDataAccessInterface userDataAccessInterface,
                            final LoginOutputBoundary loginOutputBoundary,
-                           final ViewMealDataAccessInterface mealsDataAccessObject) {
+                           final ViewMealDataAccessInterface mealsDataAccessObject,
+                           final ViewWorkoutDataAccessInterface workoutsDataAccessObject) {
         this.userDataAccessObject = userDataAccessInterface;
         this.loginPresenter = loginOutputBoundary;
         this.mealsDataAccessObject = mealsDataAccessObject;
+        this.workoutsDataAccessObject = workoutsDataAccessObject;
     }
 
     @Override
@@ -53,7 +59,7 @@ public class LoginInteractor implements LoginInputBoundary {
 
         final List<Meal> meals =
                 mealsDataAccessObject.getMealsForUser(user.getName());
-
+        final List<LoggedWorkout> workouts = workoutsDataAccessObject.getWorkoutsForUser(user.getName());
         userDataAccessObject.setCurrentUsername(username);
 
         final LoginOutputData loginOutputData = new LoginOutputData(
@@ -73,6 +79,7 @@ public class LoginInteractor implements LoginInputBoundary {
                 user.getPreferredWorkoutDurationMinutes(),
                 user.getPrivacySettings(),
                 meals,
+                workouts,
                 false
         );
 
