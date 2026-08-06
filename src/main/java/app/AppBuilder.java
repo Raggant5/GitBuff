@@ -6,14 +6,12 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
+
+import data_access.*;
 import interface_adapter.dashboard.DashboardPresenter;
 import use_case.dashboard.DashboardInputBoundary;
 import use_case.dashboard.DashboardInteractor;
 import use_case.dashboard.DashboardOutputBoundary;
-import data_access.SQLiteMealDataAccessObject;
-import data_access.AiWorkoutDataAccessObject;
-import data_access.MockSearchFoodDataAccessObject;
-import data_access.SQLiteUserDataAccessObject;
 import entity.CommonUserFactory;
 import entity.FoodEntryFactory;
 import entity.MealFactory;
