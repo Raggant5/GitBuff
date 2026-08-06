@@ -56,11 +56,12 @@ public interface User {
      *
      * @return calculated BMI
      */
-    default double getBMI() {
+    default double getBmi() {
+        double bmi = 0.0d;
         if (this.getWeight() != 0.0f && this.getHeight() != 0.0f) {
-            return this.getWeight() / Math.pow(this.getHeight(), 2);
+            bmi = this.getWeight() / Math.pow(this.getHeight(), 2);
         }
-        return 0.0d;
+        return bmi;
     }
 
     /**

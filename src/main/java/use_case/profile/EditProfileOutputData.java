@@ -11,6 +11,7 @@ import entity.FitnessGoal;
 import entity.Gender;
 import entity.PrivacySetting;
 import entity.UnitSystem;
+import entity.User;
 
 /**
  * Output Data for the Edit Profile Use Case.
@@ -34,46 +35,26 @@ public class EditProfileOutputData {
     private final Set<PrivacySetting> privacySettings;
 
     /**
-     * Constructs an EditProfileOutputData instance.
+     * Constructs an EditProfileOutputData instance from a saved user.
      *
-     * @param username username string
-     * @param height height in meters
-     * @param weight weight in kilograms
-     * @param activityLevel activity level selection
-     * @param goal fitness goal selection
-     * @param profilePicturePath profile image file path
-     * @param dateOfBirth date of birth
-     * @param gender gender selection
-     * @param bio user bio description
-     * @param preferredUnitSystem preferred measurement units
-     * @param equipment set of available equipment
-     * @param dietaryRestrictions set of dietary restrictions
-     * @param preferredWorkoutDays set of preferred workout days
-     * @param preferredWorkoutDurationMinutes target workout duration in minutes
-     * @param privacySettings set of enabled privacy settings
+     * @param user the user whose saved profile fields populate this output data
      */
-    public EditProfileOutputData(final String username, final float height, final float weight,
-                                 final ActivityLevel activityLevel, final FitnessGoal goal,
-                                 final String profilePicturePath, final LocalDate dateOfBirth,
-                                 final Gender gender, final String bio, final UnitSystem preferredUnitSystem,
-                                 final Set<Equipment> equipment, final Set<DietaryRestriction> dietaryRestrictions,
-                                 final Set<DayOfWeek> preferredWorkoutDays, final int preferredWorkoutDurationMinutes,
-                                 final Set<PrivacySetting> privacySettings) {
-        this.username = username;
-        this.height = height;
-        this.weight = weight;
-        this.activityLevel = activityLevel;
-        this.goal = goal;
-        this.profilePicturePath = profilePicturePath;
-        this.dateOfBirth = dateOfBirth;
-        this.gender = gender;
-        this.bio = bio;
-        this.preferredUnitSystem = preferredUnitSystem;
-        this.equipment = equipment;
-        this.dietaryRestrictions = dietaryRestrictions;
-        this.preferredWorkoutDays = preferredWorkoutDays;
-        this.preferredWorkoutDurationMinutes = preferredWorkoutDurationMinutes;
-        this.privacySettings = privacySettings;
+    public EditProfileOutputData(final User user) {
+        this.username = user.getName();
+        this.height = user.getHeight();
+        this.weight = user.getWeight();
+        this.activityLevel = user.getActivityLevel();
+        this.goal = user.getGoal();
+        this.profilePicturePath = user.getProfilePicturePath();
+        this.dateOfBirth = user.getDateOfBirth();
+        this.gender = user.getGender();
+        this.bio = user.getBio();
+        this.preferredUnitSystem = user.getPreferredUnitSystem();
+        this.equipment = user.getEquipment();
+        this.dietaryRestrictions = user.getDietaryRestrictions();
+        this.preferredWorkoutDays = user.getPreferredWorkoutDays();
+        this.preferredWorkoutDurationMinutes = user.getPreferredWorkoutDurationMinutes();
+        this.privacySettings = user.getPrivacySettings();
     }
 
     public String getUsername() {

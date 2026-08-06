@@ -16,6 +16,7 @@ import entity.ActivityLevel;
 import entity.CommonUser;
 import entity.Exercise;
 import entity.FitnessGoal;
+import entity.MealRecommendation;
 import entity.User;
 import entity.WorkoutPlan;
 
@@ -31,11 +32,106 @@ public class RecommendationInteractorTest {
     private static final int ESTIMATED_CALORIES_BURN = 350;
     private static final int ESTIMATED_FAT_BURN = 15;
     private static final int ESTIMATED_CARBS_BURN = 45;
+    private static final int MEAL_READY_MINUTES = 20;
+
+    @Test
+    public void executeWithCompleteProfileProducesRecommendation() {
+        final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
+        final FakeAiWorkoutDataAccessObject aiDao = new FakeAiWorkoutDataAccessObject();
+        final FakeFoodRecommendationDataAccessObject foodDao = new FakeFoodRecommendationDataAccessObject();
+
+        final User user = new CommonUser("aahir", "password");
+        user.setHeight(TEST_HEIGHT);
+        user.setWeight(TEST_WEIGHT);
+        user.setActivityLevel(ActivityLevel.MODERATELY_ACTIVE);
+        user.setGoal(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN);
+        dataAccessObject.save(user);
+        dataAccessObject.setCurrentUsername("aahir");
+
+        final RecommendationOutputBoundary presenter = new RecommendationOutputBoundary() {
+            @Override
+            public void prepareSuccessView(final RecommendationOutputData outputData) {
+                assertEquals(EXPECTED_CALORIES, outputData.getDailyCalorieTarget());
+                assertEquals(EXPECTED_PROTEIN, outputData.getDailyProteinGrams());
+                assertEquals(user.getBmi(), outputData.getBmi(), 0.0001);
+                assertEquals(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN.getWorkoutFocus(), outputData.getWorkoutFocus());
+                assertEquals(1, outputData.getWorkoutPlans().size());
+                assertEquals("Upper Body", outputData.getWorkoutPlans().get(0).getTitle());
+                assertEquals(ESTIMATED_CALORIES_BURN, outputData.getWorkoutPlans().get(0).getEstimatedCaloriesBurned());
+                assertEquals(1, outputData.getMealRecommendations().size());
+                assertEquals("Chicken and Rice", outputData.getMealRecommendations().get(0).getTitle());
+                assertEquals(EXPECTED_CALORIES, foodDao.lastRequestedCalories);
+            }
+
+            @Override
+            public void prepareFailView(final String errorMessage) {
+                throw new AssertionError("Expected success view, got failure: " + errorMessage);
+            }
+        };
+
+        new RecommendationInteractor(dataAccessObject, presenter, aiDao, foodDao).execute();
+    }
+
+    @Test
+    public void executeWithNoLoggedInUserFails() {
+        final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
+        final FakeAiWorkoutDataAccessObject aiDao = new FakeAiWorkoutDataAccessObject();
+        final FakeFoodRecommendationDataAccessObject foodDao = new FakeFoodRecommendationDataAccessObject();
+        final boolean[] failed = {false};
+
+        final RecommendationOutputBoundary presenter = new RecommendationOutputBoundary() {
+            @Override
+            public void prepareSuccessView(final RecommendationOutputData outputData) {
+                throw new AssertionError("Expected failure view");
+            }
+
+            @Override
+            public void prepareFailView(final String errorMessage) {
+                failed[0] = true;
+                assertFalse(errorMessage.isEmpty());
+            }
+        };
+
+        new RecommendationInteractor(dataAccessObject, presenter, aiDao, foodDao).execute();
+        assertTrue(failed[0]);
+    }
+
+    @Test
+    public void executeWithIncompleteProfileShowsDefaultView() {
+        final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
+        final FakeAiWorkoutDataAccessObject aiDao = new FakeAiWorkoutDataAccessObject();
+        final FakeFoodRecommendationDataAccessObject foodDao = new FakeFoodRecommendationDataAccessObject();
+
+        final User user = new CommonUser("aahir", "password");
+        dataAccessObject.save(user);
+        dataAccessObject.setCurrentUsername("aahir");
+        final boolean[] succeeded = {false};
+
+        final RecommendationOutputBoundary presenter = new RecommendationOutputBoundary() {
+            @Override
+            public void prepareSuccessView(final RecommendationOutputData outputData) {
+                succeeded[0] = true;
+                assertEquals(0.0, outputData.getBmi());
+                assertEquals(0, outputData.getDailyCalorieTarget());
+                assertTrue(outputData.getWorkoutPlans().isEmpty());
+                assertTrue(outputData.getMealRecommendations().isEmpty());
+            }
+
+            @Override
+            public void prepareFailView(final String errorMessage) {
+                throw new AssertionError("Expected success view with defaults, got failure: " + errorMessage);
+            }
+        };
+
+        new RecommendationInteractor(dataAccessObject, presenter, aiDao, foodDao).execute();
+        assertTrue(succeeded[0]);
+        assertNull(dataAccessObject.get("nobody"));
+    }
 
     /**
      * Fake data access object implementing RecommendationUserDataAccessInterface for unit testing.
      */
-    private static class FakeDataAccessObject implements RecommendationUserDataAccessInterface {
+    private static final class FakeDataAccessObject implements RecommendationUserDataAccessInterface {
         private final Map<String, User> users = new HashMap<>();
         private String currentUsername;
 
@@ -61,7 +157,7 @@ public class RecommendationInteractorTest {
     /**
      * Fake AI Workout data access object implementing AiWorkoutDataAccessInterface for unit testing.
      */
-    private static class FakeAiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
+    private static final class FakeAiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         @Override
         public List<WorkoutPlan> generateWorkoutPlans(final User user) {
             final List<WorkoutPlan> plans = new ArrayList<>();
@@ -73,90 +169,20 @@ public class RecommendationInteractorTest {
         }
     }
 
-    @Test
-    public void executeWithCompleteProfileProducesRecommendation() {
-        final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
-        final FakeAiWorkoutDataAccessObject aiDao = new FakeAiWorkoutDataAccessObject();
+    /**
+     * Fake food recommendation data access object implementing FoodRecommendationDataAccessInterface
+     * for unit testing.
+     */
+    private static final class FakeFoodRecommendationDataAccessObject
+            implements FoodRecommendationDataAccessInterface {
+        private int lastRequestedCalories;
 
-        final User user = new CommonUser("aahir", "password");
-        user.setHeight(TEST_HEIGHT);
-        user.setWeight(TEST_WEIGHT);
-        user.setActivityLevel(ActivityLevel.MODERATELY_ACTIVE);
-        user.setGoal(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN);
-        dataAccessObject.save(user);
-        dataAccessObject.setCurrentUsername("aahir");
-
-        final RecommendationOutputBoundary presenter = new RecommendationOutputBoundary() {
-            @Override
-            public void prepareSuccessView(final RecommendationOutputData outputData) {
-                assertEquals(EXPECTED_CALORIES, outputData.getDailyCalorieTarget());
-                assertEquals(EXPECTED_PROTEIN, outputData.getDailyProteinGrams());
-                assertEquals(user.getBMI(), outputData.getBmi(), 0.0001);
-                assertEquals(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN.getWorkoutFocus(), outputData.getWorkoutFocus());
-                assertEquals(1, outputData.getWorkoutPlans().size());
-                assertEquals("Upper Body", outputData.getWorkoutPlans().get(0).getTitle());
-                assertEquals(ESTIMATED_CALORIES_BURN, outputData.getWorkoutPlans().get(0).getEstimatedCaloriesBurned());
-            }
-
-            @Override
-            public void prepareFailView(final String errorMessage) {
-                throw new AssertionError("Expected success view, got failure: " + errorMessage);
-            }
-        };
-
-        new RecommendationInteractor(dataAccessObject, presenter, aiDao).execute();
-    }
-
-    @Test
-    public void executeWithNoLoggedInUserFails() {
-        final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
-        final FakeAiWorkoutDataAccessObject aiDao = new FakeAiWorkoutDataAccessObject();
-        final boolean[] failed = {false};
-
-        final RecommendationOutputBoundary presenter = new RecommendationOutputBoundary() {
-            @Override
-            public void prepareSuccessView(final RecommendationOutputData outputData) {
-                throw new AssertionError("Expected failure view");
-            }
-
-            @Override
-            public void prepareFailView(final String errorMessage) {
-                failed[0] = true;
-                assertFalse(errorMessage.isEmpty());
-            }
-        };
-
-        new RecommendationInteractor(dataAccessObject, presenter, aiDao).execute();
-        assertTrue(failed[0]);
-    }
-
-    @Test
-    public void executeWithIncompleteProfileShowsDefaultView() {
-        final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
-        final FakeAiWorkoutDataAccessObject aiDao = new FakeAiWorkoutDataAccessObject();
-
-        final User user = new CommonUser("aahir", "password");
-        dataAccessObject.save(user);
-        dataAccessObject.setCurrentUsername("aahir");
-        final boolean[] succeeded = {false};
-
-        final RecommendationOutputBoundary presenter = new RecommendationOutputBoundary() {
-            @Override
-            public void prepareSuccessView(final RecommendationOutputData outputData) {
-                succeeded[0] = true;
-                assertEquals(0.0, outputData.getBmi());
-                assertEquals(0, outputData.getDailyCalorieTarget());
-                assertTrue(outputData.getWorkoutPlans().isEmpty());
-            }
-
-            @Override
-            public void prepareFailView(final String errorMessage) {
-                throw new AssertionError("Expected success view with defaults, got failure: " + errorMessage);
-            }
-        };
-
-        new RecommendationInteractor(dataAccessObject, presenter, aiDao).execute();
-        assertTrue(succeeded[0]);
-        assertNull(dataAccessObject.get("nobody"));
+        @Override
+        public List<MealRecommendation> generateMealRecommendations(final User user, final int targetCalories) {
+            this.lastRequestedCalories = targetCalories;
+            final List<MealRecommendation> meals = new ArrayList<>();
+            meals.add(new MealRecommendation("Chicken and Rice", MEAL_READY_MINUTES, "http://example.com/recipe"));
+            return meals;
+        }
     }
 }

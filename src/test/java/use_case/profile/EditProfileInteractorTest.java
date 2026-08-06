@@ -8,36 +8,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import entity.ActivityLevel;
 import entity.CommonUser;
 import entity.FitnessGoal;
 import entity.Gender;
 import entity.UnitSystem;
 import entity.User;
-import org.junit.jupiter.api.Test;
 import use_case.recommendation.RecommendationInputBoundary;
 
 public class EditProfileInteractorTest {
-
-    private static class FakeDataAccessObject implements ProfileUserDataAccessInterface {
-        private final Map<String, User> users = new HashMap<>();
-        private String currentUsername;
-
-        @Override
-        public User get(String username) {
-            return users.get(username);
-        }
-
-        @Override
-        public void save(User user) {
-            users.put(user.getName(), user);
-        }
-
-        @Override
-        public String getCurrentUsername() {
-            return currentUsername;
-        }
-    }
 
     @Test
     public void executeSavesProfileAndRefreshesRecommendations() {
@@ -65,10 +46,22 @@ public class EditProfileInteractorTest {
             }
         };
 
-        final EditProfileInputData inputData = new EditProfileInputData(
-                1.8f, 80f, ActivityLevel.VERY_ACTIVE, FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, "/tmp/pic.png",
-                LocalDate.of(2000, 1, 1), Gender.MALE, "Hello world", UnitSystem.METRIC,
-                new HashSet<>(), new HashSet<>(), new HashSet<>(), 45, new HashSet<>());
+        final EditProfileInputData inputData = new EditProfileInputData.Builder()
+                .height(1.8f)
+                .weight(80f)
+                .activityLevel(ActivityLevel.VERY_ACTIVE)
+                .goal(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN)
+                .profilePicturePath("/tmp/pic.png")
+                .dateOfBirth(LocalDate.of(2000, 1, 1))
+                .gender(Gender.MALE)
+                .bio("Hello world")
+                .preferredUnitSystem(UnitSystem.METRIC)
+                .equipment(new HashSet<>())
+                .dietaryRestrictions(new HashSet<>())
+                .preferredWorkoutDays(new HashSet<>())
+                .preferredWorkoutDurationMinutes(45)
+                .privacySettings(new HashSet<>())
+                .build();
 
         new EditProfileInteractor(dataAccessObject, presenter, recommendationInteractor).execute(inputData);
 
@@ -100,12 +93,44 @@ public class EditProfileInteractorTest {
             }
         };
 
-        final EditProfileInputData inputData = new EditProfileInputData(
-                0f, 80f, ActivityLevel.VERY_ACTIVE, FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, null,
-                null, Gender.PREFER_NOT_TO_SAY, "", UnitSystem.METRIC,
-                new HashSet<>(), new HashSet<>(), new HashSet<>(), 45, new HashSet<>());
+        final EditProfileInputData inputData = new EditProfileInputData.Builder()
+                .height(0f)
+                .weight(80f)
+                .activityLevel(ActivityLevel.VERY_ACTIVE)
+                .goal(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN)
+                .profilePicturePath(null)
+                .dateOfBirth(null)
+                .gender(Gender.PREFER_NOT_TO_SAY)
+                .bio("")
+                .preferredUnitSystem(UnitSystem.METRIC)
+                .equipment(new HashSet<>())
+                .dietaryRestrictions(new HashSet<>())
+                .preferredWorkoutDays(new HashSet<>())
+                .preferredWorkoutDurationMinutes(45)
+                .privacySettings(new HashSet<>())
+                .build();
 
         new EditProfileInteractor(dataAccessObject, presenter, recommendationInteractor).execute(inputData);
         assertTrue(failed[0]);
+    }
+
+    private static final class FakeDataAccessObject implements ProfileUserDataAccessInterface {
+        private final Map<String, User> users = new HashMap<>();
+        private String currentUsername;
+
+        @Override
+        public User get(String username) {
+            return users.get(username);
+        }
+
+        @Override
+        public void save(User user) {
+            users.put(user.getName(), user);
+        }
+
+        @Override
+        public String getCurrentUsername() {
+            return currentUsername;
+        }
     }
 }

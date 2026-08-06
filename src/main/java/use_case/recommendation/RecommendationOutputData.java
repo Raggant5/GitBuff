@@ -2,6 +2,7 @@ package use_case.recommendation;
 
 import java.util.List;
 
+import entity.MealRecommendation;
 import entity.WorkoutPlan;
 
 /**
@@ -15,6 +16,7 @@ public class RecommendationOutputData {
     private final String workoutFocus;
     private final String activityLevelDescription;
     private final List<WorkoutPlan> workoutPlans;
+    private final List<MealRecommendation> mealRecommendations;
 
     /**
      * Constructs a RecommendationOutputData instance.
@@ -25,16 +27,19 @@ public class RecommendationOutputData {
      * @param workoutFocus text strategy summary of workout goal
      * @param activityLevelDescription activity level explanation
      * @param workoutPlans list of structured 2-week AI workout plans
+     * @param mealRecommendations list of suggested meals matching the calorie target
      */
     public RecommendationOutputData(final double bmi, final int dailyCalorieTarget, final int dailyProteinGrams,
                                     final String workoutFocus, final String activityLevelDescription,
-                                    final List<WorkoutPlan> workoutPlans) {
+                                    final List<WorkoutPlan> workoutPlans,
+                                    final List<MealRecommendation> mealRecommendations) {
         this.bmi = bmi;
         this.dailyCalorieTarget = dailyCalorieTarget;
         this.dailyProteinGrams = dailyProteinGrams;
         this.workoutFocus = workoutFocus;
         this.activityLevelDescription = activityLevelDescription;
         this.workoutPlans = workoutPlans;
+        this.mealRecommendations = mealRecommendations;
     }
 
     public double getBmi() {
@@ -59,5 +64,9 @@ public class RecommendationOutputData {
 
     public List<WorkoutPlan> getWorkoutPlans() {
         return this.workoutPlans;
+    }
+
+    public List<MealRecommendation> getMealRecommendations() {
+        return this.mealRecommendations;
     }
 }
