@@ -16,6 +16,8 @@ import javax.swing.SwingConstants;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 
@@ -58,6 +60,7 @@ public class DashboardView extends JPanel
         dashboardViewModel.addPropertyChangeListener(this);
 
         this.setLayout(new BorderLayout());
+
         this.setBorder(
                 BorderFactory.createEmptyBorder(
                         PANEL_PADDING,
@@ -67,21 +70,23 @@ public class DashboardView extends JPanel
                 )
         );
 
-        final JPanel dashboardContent = new JPanel(
-                new BorderLayout(
-                        HORIZONTAL_GAP,
-                        VERTICAL_GAP
-                )
-        );
+        final JPanel dashboardContent =
+                new JPanel(
+                        new BorderLayout(
+                                HORIZONTAL_GAP,
+                                VERTICAL_GAP
+                        )
+                );
 
-        final JPanel topPanel = new JPanel(
-                new GridLayout(
-                        1,
-                        2,
-                        HORIZONTAL_GAP,
-                        VERTICAL_GAP
-                )
-        );
+        final JPanel topPanel =
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                2,
+                                HORIZONTAL_GAP,
+                                VERTICAL_GAP
+                        )
+                );
 
         this.calorieChartContainer.setBorder(
                 BorderFactory.createTitledBorder(
@@ -260,6 +265,22 @@ public class DashboardView extends JPanel
                         "Calories",
                         dataset
                 );
+
+        final CategoryPlot plot =
+                chart.getCategoryPlot();
+
+        final NumberAxis calorieAxis =
+                (NumberAxis) plot.getRangeAxis();
+
+        calorieAxis.setAutoRange(true);
+        calorieAxis.setAutoRangeIncludesZero(true);
+        calorieAxis.setAutoRangeStickyZero(true);
+        calorieAxis.setLowerMargin(0.0);
+        calorieAxis.setUpperMargin(0.15);
+
+        calorieAxis.setStandardTickUnits(
+                NumberAxis.createIntegerTickUnits()
+        );
 
         final ChartPanel chartPanel =
                 new ChartPanel(chart);

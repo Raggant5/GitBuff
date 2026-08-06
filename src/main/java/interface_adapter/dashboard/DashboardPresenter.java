@@ -26,31 +26,33 @@ public class DashboardPresenter
     public void prepareSuccessView(
             final DashboardOutputData outputData
     ) {
-        final DashboardState state =
-                this.dashboardViewModel.getState();
+        final DashboardState newState =
+                new DashboardState();
 
-        state.setCaloriesByDate(
+        newState.setCaloriesByDate(
                 outputData.getCaloriesByDate()
         );
 
-        state.setMacroData(
+        newState.setMacroData(
                 outputData.getMacroData()
         );
 
-        state.setErrorMessage(null);
+        newState.setErrorMessage(null);
 
+        this.dashboardViewModel.setState(newState);
         this.dashboardViewModel.firePropertyChanged();
     }
 
     @Override
     public void prepareFailView(
-            final String error
+            final String errorMessage
     ) {
-        final DashboardState state =
-                this.dashboardViewModel.getState();
+        final DashboardState newState =
+                new DashboardState();
 
-        state.setErrorMessage(error);
+        newState.setErrorMessage(errorMessage);
 
+        this.dashboardViewModel.setState(newState);
         this.dashboardViewModel.firePropertyChanged();
     }
 }

@@ -1,4 +1,3 @@
-
 package app;
 
 import java.awt.CardLayout;
@@ -294,8 +293,13 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addNavbarView() {
-        this.navbarView = new NavbarView(this.mainViewManagerModel, this.viewManagerModel, this.profileViewModel);
-        return this;
+        this.navbarView = new NavbarView(
+                this.mainViewManagerModel,
+                this.viewManagerModel,
+                this.profileViewModel,
+                this.loginViewModel,
+                this.dashboardInteractor
+        );        return this;
     }
 
     /**
@@ -439,38 +443,35 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Adds the add-meal use case.
-     *
-     * @return this builder
-     */
     public AppBuilder addAddMealUseCase() {
         final AddMealOutputBoundary addMealPresenter =
                 new AddMealPresenter(
-                        mealEditorViewModel,
-                        viewMealsViewModel,
-                        mainViewManagerModel
+                        this.mealEditorViewModel,
+                        this.viewMealsViewModel,
+                        this.mainViewManagerModel,
+                        this.dashboardInteractor
                 );
 
         final AddMealInputBoundary addMealInteractor =
                 new AddMealInteractor(
                         addMealPresenter,
-                        addMealDataAccessObject,
-                        mealFactory
+                        this.addMealDataAccessObject,
+                        this.mealFactory
                 );
 
         final AddMealController addMealController =
                 new AddMealController(
                         addMealInteractor,
-                        loginViewModel
+                        this.loginViewModel, this.dashboardInteractor
                 );
 
-        mealEditorView.setAddMealController(
+        this.mealEditorView.setAddMealController(
                 addMealController
         );
 
         return this;
     }
+
 
     /**
      * Adds the edit-meal use case.
