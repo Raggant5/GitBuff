@@ -1,5 +1,7 @@
 package interface_adapter.login;
 
+import javax.swing.SwingWorker;
+
 import interface_adapter.ViewManagerModel;
 import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileState;
@@ -88,7 +90,14 @@ public class LoginPresenter implements LoginOutputBoundary {
         }
 
         if (this.recommendationController != null) {
-            this.recommendationController.execute();
+            final SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                @Override
+                protected Void doInBackground() {
+                    recommendationController.execute();
+                    return null;
+                }
+            };
+            worker.execute();
         }
 
         this.viewManagerModel.setState("app shell");
