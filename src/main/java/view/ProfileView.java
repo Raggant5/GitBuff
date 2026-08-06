@@ -705,13 +705,17 @@ public class ProfileView extends JPanel
 
         return card;
     }
-
     private void styleButton(
             final JButton button,
             final Color background
     ) {
         button.setBackground(background);
         button.setForeground(Color.WHITE);
+
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(false);
+
         button.setFocusPainted(false);
         button.setCursor(
                 new Cursor(Cursor.HAND_CURSOR)
