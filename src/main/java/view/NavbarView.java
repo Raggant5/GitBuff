@@ -11,6 +11,7 @@ import javax.swing.UIManager;
 
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.ViewManagerModel;
+import interface_adapter.calendar.CalendarController;
 import interface_adapter.login.LoginViewModel;
 import interface_adapter.logout.LogoutController;
 import interface_adapter.profile.ProfileState;
@@ -43,6 +44,7 @@ public class NavbarView extends JPanel
 
     private final DashboardInputBoundary dashboardInteractor;
     private final LoginViewModel loginViewModel;
+    private final CalendarController calendarController;
 
     private LogoutController logoutController;
 
@@ -60,10 +62,12 @@ public class NavbarView extends JPanel
             final ViewManagerModel viewManagerModel,
             final ProfileViewModel profileViewModel,
             final LoginViewModel loginViewModel,
-            final DashboardInputBoundary dashboardInteractor
+            final DashboardInputBoundary dashboardInteractor,
+            final CalendarController calendarController
     ) {
         this.loginViewModel = loginViewModel;
         this.dashboardInteractor = dashboardInteractor;
+        this.calendarController = calendarController;
 
         mainViewManagerModel.addPropertyChangeListener(this);
 
@@ -78,6 +82,10 @@ public class NavbarView extends JPanel
                     && !username.isBlank()) {
 
                 this.dashboardInteractor.execute(username);
+            }
+
+            if (this.calendarController != null) {
+                this.calendarController.loadCalendarEvents();
             }
 
             mainViewManagerModel.setState("dashboard");

@@ -34,6 +34,9 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         Map<LocalDate, List<CalendarEvent>> eventsMap = new HashMap<>();
 
         for (CalendarEvent event : eventsList) {
+            if (event.getActivityDate() == null) {
+                continue;
+            }
             if (eventsMap.containsKey(event.getActivityDate())) {
                 eventsMap.get(event.getActivityDate()).add(event);
             }
@@ -44,6 +47,13 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         }
 
         add(mainBox(eventsMap), BorderLayout.CENTER);
+
+        if (state.getErrorMessage() != null && !state.getErrorMessage().isBlank()) {
+            final JLabel errorLabel = new JLabel(
+                    state.getErrorMessage(), SwingConstants.CENTER);
+            errorLabel.setForeground(Color.RED);
+            add(errorLabel, BorderLayout.SOUTH);
+        }
 
         revalidate();
         repaint();
@@ -77,36 +87,28 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     }
 
     private JPanel weekDayBox() {
-        JPanel weekDaysBox = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        final JPanel weekDaysBox = new JPanel(new GridLayout(1, 7));
+        final String[] weekDays = {
+            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+        };
 
-        weekDaysBox.setLayout(new BoxLayout(weekDaysBox, BoxLayout.X_AXIS));
-
-        String[] weekDays = {"Sunday", "Monday", "Tuesday", "Wednesday",  "Thursday", "Friday", "Saturday"};
-
-        for (int i = 0; i < 7; i++) {
-            JPanel weekDayBox = new JPanel(new FlowLayout());
-
-            weekDayBox.setBackground(Color.WHITE);
-            weekDayBox.setBorder(
+        for (String weekDay : weekDays) {
+            final JLabel weekDayLabel = new JLabel(
+                    weekDay, SwingConstants.CENTER);
+            weekDayLabel.setOpaque(true);
+            weekDayLabel.setBackground(Color.WHITE);
+            weekDayLabel.setBorder(
                     BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-            weekDayBox.setPreferredSize(new Dimension(100, 30));
-
-            JLabel weekDayLabel = new JLabel(weekDays[i]);
-            weekDayBox.add(weekDayLabel);
-
-            weekDaysBox.add(weekDayBox);
+            weekDaysBox.add(weekDayLabel);
         }
 
         return weekDaysBox;
     }
 
     private JPanel monthBox(String month) {
-        JPanel monthBox = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-
-        monthBox.setLayout(new BoxLayout(monthBox, BoxLayout.X_AXIS));
-
-        JLabel monthLabel = new JLabel(month);
-        monthBox.add(monthLabel);
+        final JPanel monthBox = new JPanel(new BorderLayout());
+        final JLabel monthLabel = new JLabel(month, SwingConstants.CENTER);
+        monthBox.add(monthLabel, BorderLayout.CENTER);
 
         return monthBox;
     }
@@ -144,12 +146,16 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     }
 
     private JPanel mainBox(Map<LocalDate, List<CalendarEvent>> calendarEvents) {
-        JPanel mainBox = new JPanel();
+        final JPanel mainBox = new JPanel(new BorderLayout());
+        final JPanel calendarBody = new JPanel(new BorderLayout());
 
-        mainBox.setLayout(new BoxLayout(mainBox, BoxLayout.Y_AXIS));
-        mainBox.add(monthBox(LocalDate.now().getMonth().toString()));
-        mainBox.add(weekDayBox());
-        mainBox.add(monthBox(calendarEvents));
+        calendarBody.add(weekDayBox(), BorderLayout.NORTH);
+        calendarBody.add(monthBox(calendarEvents), BorderLayout.CENTER);
+
+        mainBox.add(
+                monthBox(LocalDate.now().getMonth().toString()),
+                BorderLayout.NORTH);
+        mainBox.add(calendarBody, BorderLayout.CENTER);
 
         return mainBox;
     }

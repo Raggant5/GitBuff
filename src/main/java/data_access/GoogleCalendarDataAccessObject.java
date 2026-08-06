@@ -8,11 +8,14 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.EventReminder;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.api.services.calendar.model.Events;
 
@@ -24,11 +27,25 @@ import use_case.calendar.CalendarEventDataAccessInterface;
  */
 public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessInterface {
     private static final String TIME_ZONE = "America/Toronto";
+    private static final String NOTIFICATION_EMAIL = "gitbuff686@gmail.com";
+    private static final int ONE_DAY_IN_MINUTES = 24 * 60;
 
-    private final Calendar calendarService;
+    private Calendar calendarService;
+    private final Supplier<Calendar> calendarServiceSupplier;
 
     public GoogleCalendarDataAccessObject(Calendar calendarService) {
         this.calendarService = calendarService;
+        this.calendarServiceSupplier = () -> calendarService;
+    }
+
+    /**
+     * Creates a data access object whose Google authorization is deferred until
+     * the calendar is first used.
+     *
+     * @param calendarServiceSupplier factory for an authorized Calendar service
+     */
+    public GoogleCalendarDataAccessObject(Supplier<Calendar> calendarServiceSupplier) {
+        this.calendarServiceSupplier = calendarServiceSupplier;
     }
 
     @Override
@@ -52,10 +69,19 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
                     .setSummary(title)
                     .setDescription(description)
                     .setStart(start)
-                    .setEnd(end);
+                    .setEnd(end)
+                    .setAttendees(List.of(
+                            new EventAttendee().setEmail(NOTIFICATION_EMAIL)))
+                    .setReminders(new Event.Reminders()
+                            .setUseDefault(false)
+                            .setOverrides(List.of(
+                                    new EventReminder()
+                                            .setMethod("email")
+                                            .setMinutes(ONE_DAY_IN_MINUTES))));
 
-            Event createdEvent = calendarService.events()
+            getCalendarService().events()
                     .insert(calendarId, googleEvent)
+                    .setSendUpdates("all")
                     .execute();
 
         }
@@ -71,7 +97,7 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
         String calendarDescription = "GitBuff user: " + userId;
 
         CalendarList calendarList =
-                calendarService.calendarList().list().execute();
+                getCalendarService().calendarList().list().execute();
 
         for (CalendarListEntry calendar : calendarList.getItems()) {
             if (calendarDescription.equals(calendar.getDescription())) {
@@ -85,7 +111,7 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
                         .setDescription(calendarDescription)
                         .setTimeZone(TIME_ZONE);
 
-        return calendarService.calendars()
+        return getCalendarService().calendars()
                 .insert(newCalendar)
                 .execute()
                 .getId();
@@ -96,7 +122,7 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
         try {
             String calendarId = getOrCreateUserCalendar(userId);
 
-            calendarService.events()
+            getCalendarService().events()
                     .delete(calendarId, eventId)
                     .execute();
         }
@@ -115,7 +141,7 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
             String pageToken = null;
 
             do {
-                Events googleEvents = calendarService.events()
+                Events googleEvents = getCalendarService().events()
                         .list(calendarId)
                         .setSingleEvents(true)
                         .setOrderBy("startTime")
@@ -166,5 +192,12 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
         return Instant.ofEpochMilli(dateTime.getValue())
                 .atZone(ZoneId.of(TIME_ZONE))
                 .toLocalDate();
+    }
+
+    private Calendar getCalendarService() {
+        if (calendarService == null) {
+            calendarService = calendarServiceSupplier.get();
+        }
+        return calendarService;
     }
 }

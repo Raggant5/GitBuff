@@ -1,6 +1,7 @@
 package interface_adapter.login;
 
 import interface_adapter.ViewManagerModel;
+import interface_adapter.calendar.CalendarController;
 import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
@@ -22,6 +23,7 @@ public class LoginPresenter implements LoginOutputBoundary {
     private final ViewMealsViewModel mealsViewModel;
     private final RecommendationController recommendationController;
     private final DashboardInputBoundary dashboardInteractor;
+    private final CalendarController calendarController;
 
     /**
      * Constructs a LoginPresenter instance.
@@ -41,7 +43,8 @@ public class LoginPresenter implements LoginOutputBoundary {
             final ProfileViewModel profileViewModel,
             final ViewMealsViewModel mealsViewModel,
             final RecommendationController recommendationController,
-            final DashboardInputBoundary dashboardInteractor
+            final DashboardInputBoundary dashboardInteractor,
+            final CalendarController calendarController
     ) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
@@ -50,6 +53,7 @@ public class LoginPresenter implements LoginOutputBoundary {
         this.mealsViewModel = mealsViewModel;
         this.recommendationController = recommendationController;
         this.dashboardInteractor = dashboardInteractor;
+        this.calendarController = calendarController;
     }
 
     @Override
@@ -112,6 +116,11 @@ public class LoginPresenter implements LoginOutputBoundary {
                 response.getMeals()
         );
         this.mealsViewModel.firePropertyChanged();
+
+        if (this.calendarController != null) {
+            this.calendarController.loadCalendarEvents();
+            this.calendarController.synchronizeMeals(response.getMeals());
+        }
 
         if (this.recommendationController != null) {
             this.recommendationController.execute();
