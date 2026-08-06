@@ -4,10 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import entity.CommonUser;
 import entity.MealRecommendation;
 import entity.User;
-import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for the Spoonacular meal recommendation DAO's graceful-fallback behaviour.
