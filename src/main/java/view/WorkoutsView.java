@@ -32,9 +32,6 @@ import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
 
-/**
- * View presenting personal workout plans and exercise guides in Swing UI.
- */
 public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
     private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
@@ -68,11 +65,6 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private RecommendationController recommendationController;
     private int userPreferredDuration = 45;
 
-    /**
-     * Constructs a WorkoutsView panel bound to the view model.
-     *
-     * @param workoutsViewModel view model for workout state
-     */
     public WorkoutsView(final WorkoutsViewModel workoutsViewModel) {
         this.workoutsViewModel = workoutsViewModel;
         this.workoutsViewModel.addPropertyChangeListener(this);
@@ -161,7 +153,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             weekHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
             this.scheduleContainer.add(weekHeader);
 
-            final int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
+            int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
             for (int i = 0; i < totalDays; i++) {
                 final WorkoutPlan plan = plans.get(i);
                 final JPanel planCard = createPlanCard(plan, i + 1);
@@ -247,7 +239,9 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
             for (final Exercise exercise : plan.getExercises()) {
                 final String btnText = String.format("%s [%ds x %dr]",
-                        exercise.getName(), exercise.getSets(), exercise.getReps());
+                        exercise.getName(),
+                        exercise.getSets() != null ? exercise.getSets() : 0,
+                        exercise.getReps() != null ? exercise.getReps() : 0);
                 final JButton exButton = new JButton(btnText);
                 exButton.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
                 exButton.setBackground(new Color(235, 243, 250));
@@ -281,7 +275,9 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         nameLabel.setForeground(PRIMARY_COLOR);
 
         final String targetSummary = String.format("%d sets x %d reps (%d mins) | Target: %s | Equip: %s",
-                exercise.getSets(), exercise.getReps(), exercise.getDurationMinutes(),
+                exercise.getSets() != null ? exercise.getSets() : 0,
+                exercise.getReps() != null ? exercise.getReps() : 0,
+                exercise.getDurationMinutes(),
                 exercise.getTargetMuscleGroup() != null ? exercise.getTargetMuscleGroup() : "N/A",
                 exercise.getEquipmentRequired() != null ? exercise.getEquipmentRequired() : "Bodyweight");
         final JLabel setsLabel = new JLabel("<html><center>" + targetSummary + "</center></html>",

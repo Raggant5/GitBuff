@@ -8,8 +8,8 @@ package entity;
 public class Exercise {
 
     private final String name;
-    private final int sets;
-    private final int reps;
+    private final Integer sets;
+    private final Integer reps;
     private final int durationMinutes;
     private final String targetMuscleGroup;
     private final String equipmentRequired;
@@ -31,8 +31,8 @@ public class Exercise {
      * Constructor for AI-generated exercises.
      *
      * @param name               exercise name
-     * @param sets               number of sets
-     * @param reps               number of reps
+     * @param sets               number of sets (nullable)
+     * @param reps               number of reps (nullable)
      * @param durationMinutes    duration in minutes
      * @param targetMuscleGroup  target muscle group
      * @param equipmentRequired  equipment needed
@@ -43,7 +43,7 @@ public class Exercise {
      * @param intensityLevel     intensity level
      * @param equipmentType      equipment type
      */
-    public Exercise(final String name, final int sets, final int reps,
+    public Exercise(final String name, final Integer sets, final Integer reps,
                     final int durationMinutes, final String targetMuscleGroup,
                     final String equipmentRequired, final String instructions,
                     final String videoUrl, final String category,
@@ -74,8 +74,8 @@ public class Exercise {
      * @param id                 exercise ID
      * @param workoutId          workout ID foreign key
      * @param name               exercise name
-     * @param sets               number of sets
-     * @param reps               number of reps
+     * @param sets               number of sets (nullable)
+     * @param reps               number of reps (nullable)
      * @param durationMinutes    duration in minutes
      * @param targetMuscleGroup  target muscle group
      * @param equipmentRequired  equipment needed
@@ -90,7 +90,7 @@ public class Exercise {
      * @param isCardio           whether exercise is cardio
      */
     public Exercise(final Integer id, final Integer workoutId, final String name,
-                    final int sets, final int reps, final int durationMinutes,
+                    final Integer sets, final Integer reps, final int durationMinutes,
                     final String targetMuscleGroup, final String equipmentRequired,
                     final String instructions, final String videoUrl,
                     final String category, final String subCategory,
@@ -127,11 +127,11 @@ public class Exercise {
         return name;
     }
 
-    public int getSets() {
+    public Integer getSets() {
         return sets;
     }
 
-    public int getReps() {
+    public Integer getReps() {
         return reps;
     }
 
