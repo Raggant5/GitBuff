@@ -42,19 +42,23 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
         final String username = this.userDataAccessObject.getCurrentUsername();
         if (username == null) {
             this.recommendationPresenter.prepareFailView("No user is currently logged in.");
-            return;
         }
-
-        final User user = this.userDataAccessObject.get(username);
-        if (user == null || user.getWeight() <= 0.0f || user.getHeight() <= 0.0f) {
-            final RecommendationOutputData defaultOutput = new RecommendationOutputData(
-                    0.0, 0, 0, "General Fitness", "Please update your profile details.",
-                    new ArrayList<>(), new ArrayList<>()
-            );
-            this.recommendationPresenter.prepareSuccessView(defaultOutput);
-            return;
+        else {
+            final User user = this.userDataAccessObject.get(username);
+            if (user == null || user.getWeight() <= 0.0f || user.getHeight() <= 0.0f) {
+                final RecommendationOutputData defaultOutput = new RecommendationOutputData(
+                        0.0, 0, 0, "General Fitness", "Please update your profile details.",
+                        new ArrayList<>(), new ArrayList<>()
+                );
+                this.recommendationPresenter.prepareSuccessView(defaultOutput);
+            }
+            else {
+                presentRecommendationFor(user);
+            }
         }
+    }
 
+    private void presentRecommendationFor(final User user) {
         final double restingCalories = RESTING_KCAL_PER_KG * user.getWeight();
         final double maintenanceCalories = restingCalories * user.getActivityLevel().getCalorieMultiplier();
         final int dailyCalorieTarget =
@@ -72,7 +76,7 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
         }
 
         final RecommendationOutputData outputData = new RecommendationOutputData(
-                user.getBMI(),
+                user.getBmi(),
                 dailyCalorieTarget,
                 dailyProteinGrams,
                 user.getGoal().getWorkoutFocus(),
