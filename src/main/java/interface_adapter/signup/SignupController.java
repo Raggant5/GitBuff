@@ -32,9 +32,19 @@ public class SignupController {
     }
 
     /**
-     * Executes the switch view request to navigate to LoginView.
+     * Executes the switch view request to navigate to LoginView with transferred credentials.
+     *
+     * @param username the entered username to transfer
+     * @param password the entered password to transfer
+     */
+    public void switchToLoginView(final String username, final String password) {
+        this.userSignupUseCaseInteractor.switchToLoginView(username, password);
+    }
+
+    /**
+     * Executes the switch view request to navigate to LoginView without parameters.
      */
     public void switchToLoginView() {
-        this.userSignupUseCaseInteractor.switchToLoginView();
+        this.userSignupUseCaseInteractor.switchToLoginView("", "");
     }
 }

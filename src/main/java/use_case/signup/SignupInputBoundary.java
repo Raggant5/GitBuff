@@ -13,7 +13,10 @@ public interface SignupInputBoundary {
     void execute(SignupInputData signupInputData);
 
     /**
-     * Executes the switch view request to navigate to LoginView.
+     * Executes the switch view request to navigate to LoginView with credentials.
+     *
+     * @param username the entered username to transfer
+     * @param password the entered password to transfer
      */
-    void switchToLoginView();
+    void switchToLoginView(String username, String password);
 }
