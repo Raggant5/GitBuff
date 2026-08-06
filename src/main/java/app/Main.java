@@ -16,7 +16,7 @@ public final class Main {
     }
 
     /**
-     * Builds and runs the Clean Architecture implementation of the application.
+     * Builds and runs the application.
      *
      * @param args command line arguments
      */
@@ -32,6 +32,7 @@ public final class Main {
                 .addSignupUseCase()
                 .addRecommendationUseCase()
                 .addProfileUseCase()
+                .addDashboardUseCase()
                 .addLoginUseCase()
                 .addLogoutUseCase()
                 .addAddFoodUseCase()

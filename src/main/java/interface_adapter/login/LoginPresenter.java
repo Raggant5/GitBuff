@@ -6,6 +6,7 @@ import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
 import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.signup.SignupViewModel;
+import use_case.dashboard.DashboardInputBoundary;
 import use_case.login.LoginOutputBoundary;
 import use_case.login.LoginOutputData;
 
@@ -20,28 +21,35 @@ public class LoginPresenter implements LoginOutputBoundary {
     private final ProfileViewModel profileViewModel;
     private final ViewMealsViewModel mealsViewModel;
     private final RecommendationController recommendationController;
+    private final DashboardInputBoundary dashboardInteractor;
 
     /**
      * Constructs a LoginPresenter instance.
      *
-     * @param viewManagerModel manager model for top-level view navigation
-     * @param loginViewModel view model for login state
-     * @param signupViewModel view model for signup state
-     * @param profileViewModel view model for user profile state
-     * @param recommendationController controller to trigger recommendations after login
+     * @param viewManagerModel         manager model for top-level view navigation
+     * @param loginViewModel           view model for login state
+     * @param signupViewModel          view model for signup state
+     * @param profileViewModel         view model for user profile state
+     * @param mealsViewModel           view model for saved meals
+     * @param recommendationController controller for recommendations
+     * @param dashboardInteractor  interactor for loading dashboard data
      */
-    public LoginPresenter(final ViewManagerModel viewManagerModel,
-                          final LoginViewModel loginViewModel,
-                          final SignupViewModel signupViewModel,
-                          final ProfileViewModel profileViewModel,
-                          final ViewMealsViewModel mealsViewModel,
-                          final RecommendationController recommendationController) {
+    public LoginPresenter(
+            final ViewManagerModel viewManagerModel,
+            final LoginViewModel loginViewModel,
+            final SignupViewModel signupViewModel,
+            final ProfileViewModel profileViewModel,
+            final ViewMealsViewModel mealsViewModel,
+            final RecommendationController recommendationController,
+            final DashboardInputBoundary dashboardInteractor
+    ) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
         this.profileViewModel = profileViewModel;
         this.mealsViewModel = mealsViewModel;
         this.recommendationController = recommendationController;
+        this.dashboardInteractor = dashboardInteractor;
     }
 
     @Override
@@ -68,7 +76,6 @@ public class LoginPresenter implements LoginOutputBoundary {
         profileState.setProfilePicturePath(
                 response.getProfilePicturePath()
         );
-
         profileState.setDateOfBirth(
                 response.getDateOfBirth()
         );
@@ -99,17 +106,21 @@ public class LoginPresenter implements LoginOutputBoundary {
 
         profileState.setProfileError(null);
         profileState.setSaveConfirmation(null);
-
         this.profileViewModel.firePropertyChanged();
 
-        mealsViewModel.getState().setMeals(
+        this.mealsViewModel.getState().setMeals(
                 response.getMeals()
         );
-        mealsViewModel.firePropertyChanged();
+        this.mealsViewModel.firePropertyChanged();
 
-        recommendationController.execute();
         if (this.recommendationController != null) {
             this.recommendationController.execute();
+        }
+
+        if (this.dashboardInteractor != null) {
+            this.dashboardInteractor.execute(
+                    response.getUsername()
+            );
         }
 
         this.viewManagerModel.setState("app shell");
@@ -117,8 +128,9 @@ public class LoginPresenter implements LoginOutputBoundary {
     }
 
     @Override
-    public void prepareFailView(String error) {
-        final LoginState loginState = loginViewModel.getState();
+    public void prepareFailView(final String error) {
+        final LoginState loginState =
+                this.loginViewModel.getState();
 
         loginState.setLoginError(error);
         this.loginViewModel.firePropertyChanged();
@@ -126,7 +138,9 @@ public class LoginPresenter implements LoginOutputBoundary {
 
     @Override
     public void switchToSignupView() {
-        this.viewManagerModel.setState(this.signupViewModel.getViewName());
+        this.viewManagerModel.setState(
+                this.signupViewModel.getViewName()
+        );
         this.viewManagerModel.firePropertyChanged();
     }
 }

@@ -8,7 +8,9 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.LinkedHashMap;
+import java.util.Map;
+import use_case.dashboard.DashboardDataAccessInterface;
 import entity.FoodEntry;
 import entity.FoodNutrition;
 import entity.FoodUnit;
@@ -29,7 +31,8 @@ public final class SQLiteMealDataAccessObject implements
         EditMealDataAccessInterface,
         EditFoodDataAccessInterface,
         DeleteMealDataAccessInterface,
-        DeleteFoodDataAccessInterface {
+        DeleteFoodDataAccessInterface,
+        DashboardDataAccessInterface {
 
     private static final int PARAMETER_ONE = 1;
     private static final int PARAMETER_TWO = 2;
@@ -530,5 +533,54 @@ public final class SQLiteMealDataAccessObject implements
                     exception
             );
         }
+    }
+
+    @Override
+    public Map<LocalDate, Double> getCaloriesByDate(
+            final String userId
+    ) {
+        final Map<LocalDate, Double> caloriesByDate =
+                new LinkedHashMap<>();
+
+        final String sql = """
+                SELECT
+                    meals.meal_date,
+                    SUM(food_entries.calories) AS total_calories
+                FROM meals
+                JOIN food_entries
+                    ON meals.id = food_entries.meal_id
+                WHERE meals.user_id = ?
+                GROUP BY meals.meal_date
+                ORDER BY meals.meal_date
+                """;
+
+        try (Connection connection = Database.connect();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(PARAMETER_ONE, userId);
+
+            try (ResultSet results = statement.executeQuery()) {
+                while (results.next()) {
+                    final LocalDate date = LocalDate.parse(
+                            results.getString("meal_date")
+                    );
+
+                    final double calories = results.getDouble(
+                            "total_calories"
+                    );
+
+                    caloriesByDate.put(date, calories);
+                }
+            }
+        }
+        catch (final SQLException exception) {
+            throw new RuntimeException(
+                    "Failed to load calories by date.",
+                    exception
+            );
+        }
+
+        return caloriesByDate;
     }
 }

@@ -1,3 +1,4 @@
+
 package app;
 
 import java.awt.CardLayout;
@@ -6,12 +7,14 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
-
+import interface_adapter.dashboard.DashboardPresenter;
+import use_case.dashboard.DashboardInputBoundary;
+import use_case.dashboard.DashboardInteractor;
+import use_case.dashboard.DashboardOutputBoundary;
 import data_access.SQLiteMealDataAccessObject;
 import data_access.AiWorkoutDataAccessObject;
 import data_access.MockSearchFoodDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
-import data_access.SearchFoodDataAccessObject;
 import entity.CommonUserFactory;
 import entity.FoodEntryFactory;
 import entity.MealFactory;
@@ -203,6 +206,7 @@ public class AppBuilder {
 
     private RecommendationController recommendationController;
     private RecommendationInputBoundary recommendationInteractor;
+    private DashboardInputBoundary dashboardInteractor;
 
     /**
      * Constructs the AppBuilder instance, sets panel layouts, and wires view managers.
@@ -322,6 +326,24 @@ public class AppBuilder {
     }
 
     /**
+     * Adds dashboard use case to application.
+     * @return this builder
+     */
+    public AppBuilder addDashboardUseCase() {
+
+        final DashboardOutputBoundary dashboardPresenter =
+                new DashboardPresenter(this.dashboardViewModel);
+
+        this.dashboardInteractor =
+                new DashboardInteractor(
+                        this.mealDataAccessObject,
+                        dashboardPresenter
+                );
+
+        return this;
+    }
+
+    /**
      * Adds the Login Use Case to the application.
      *
      * @return this builder
@@ -329,7 +351,8 @@ public class AppBuilder {
     public AppBuilder addLoginUseCase() {
         final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
                 this.viewManagerModel, this.loginViewModel, this.signupViewModel,
-                this.profileViewModel, this.viewMealsViewModel, this.recommendationController);
+                this.profileViewModel, this.viewMealsViewModel, this.recommendationController,
+                this.dashboardInteractor);
         final LoginInputBoundary loginInteractor = new LoginInteractor(
                 this.userDataAccessObject, loginOutputBoundary, viewMealsDataAccessObject);
 
