@@ -20,7 +20,10 @@ public interface SignupOutputBoundary {
     void prepareFailView(String errorMessage);
 
     /**
-     * Switches to the Login View.
+     * Switches to the Login View transferring user credentials.
+     *
+     * @param username the username entered
+     * @param password the password entered
      */
-    void switchToLoginView();
+    void switchToLoginView(String username, String password);
 }

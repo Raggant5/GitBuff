@@ -16,5 +16,5 @@ public interface AiWorkoutDataAccessInterface {
      * @param user the user requesting recommendations
      * @return a list of structured workout plans
      */
-    List<WorkoutPlan> generateWorkoutPlans(final User user);
+    List<WorkoutPlan> generateWorkoutPlans(User user);
 }

@@ -98,6 +98,7 @@ import use_case.profile.EditProfileInputBoundary;
 import use_case.profile.EditProfileInteractor;
 import use_case.profile.EditProfileOutputBoundary;
 import use_case.recommendation.AiWorkoutDataAccessInterface;
+import use_case.recommendation.FoodRecommendationDataAccessInterface;
 import use_case.recommendation.RecommendationInputBoundary;
 import use_case.recommendation.RecommendationInteractor;
 import use_case.recommendation.RecommendationOutputBoundary;
@@ -155,6 +156,9 @@ public class AppBuilder {
 
     private final AiWorkoutDataAccessInterface aiWorkoutDao =
             new AiWorkoutDataAccessObject();
+
+    private final FoodRecommendationDataAccessInterface foodRecommendationDao =
+            new SpoonacularMealRecommendationDataAccessObject();
 
     private final SearchFoodDataAccessInterface searchFoodDataAccessObject = new MockSearchFoodDataAccessObject();
 
@@ -374,7 +378,8 @@ public class AppBuilder {
         final RecommendationOutputBoundary recommendationOutputBoundary = new RecommendationPresenter(
                 this.nutritionViewModel, this.workoutViewModel);
         this.recommendationInteractor = new RecommendationInteractor(
-                this.userDataAccessObject, recommendationOutputBoundary, this.aiWorkoutDao);
+                this.userDataAccessObject, recommendationOutputBoundary, this.aiWorkoutDao,
+                this.foodRecommendationDao);
         this.recommendationController = new RecommendationController(this.recommendationInteractor);
         this.nutritionView.setRecommendationController(this.recommendationController);
         this.workoutsView.setRecommendationController(this.recommendationController);

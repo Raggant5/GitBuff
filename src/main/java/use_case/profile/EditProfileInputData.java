@@ -15,7 +15,7 @@ import entity.UnitSystem;
 /**
  * The Input Data for the Edit Profile Use Case.
  */
-public class EditProfileInputData {
+public final class EditProfileInputData {
 
     private final float height;
     private final float weight;
@@ -32,46 +32,21 @@ public class EditProfileInputData {
     private final int preferredWorkoutDurationMinutes;
     private final Set<PrivacySetting> privacySettings;
 
-    /**
-     * Constructs an EditProfileInputData instance.
-     *
-     * @param height height in meters
-     * @param weight weight in kilograms
-     * @param activityLevel activity level selection
-     * @param goal fitness goal selection
-     * @param profilePicturePath profile image file path
-     * @param dateOfBirth date of birth
-     * @param gender gender selection
-     * @param bio user bio description
-     * @param preferredUnitSystem preferred measurement units
-     * @param equipment set of available equipment
-     * @param dietaryRestrictions set of dietary restrictions
-     * @param preferredWorkoutDays set of preferred workout days
-     * @param preferredWorkoutDurationMinutes target workout duration in minutes
-     * @param privacySettings set of enabled privacy settings
-     */
-    public EditProfileInputData(final float height, final float weight, final ActivityLevel activityLevel,
-                                final FitnessGoal goal, final String profilePicturePath,
-                                final LocalDate dateOfBirth, final Gender gender, final String bio,
-                                final UnitSystem preferredUnitSystem, final Set<Equipment> equipment,
-                                final Set<DietaryRestriction> dietaryRestrictions,
-                                final Set<DayOfWeek> preferredWorkoutDays,
-                                final int preferredWorkoutDurationMinutes,
-                                final Set<PrivacySetting> privacySettings) {
-        this.height = height;
-        this.weight = weight;
-        this.activityLevel = activityLevel;
-        this.goal = goal;
-        this.profilePicturePath = profilePicturePath;
-        this.dateOfBirth = dateOfBirth;
-        this.gender = gender;
-        this.bio = bio;
-        this.preferredUnitSystem = preferredUnitSystem;
-        this.equipment = equipment;
-        this.dietaryRestrictions = dietaryRestrictions;
-        this.preferredWorkoutDays = preferredWorkoutDays;
-        this.preferredWorkoutDurationMinutes = preferredWorkoutDurationMinutes;
-        this.privacySettings = privacySettings;
+    private EditProfileInputData(final Builder builder) {
+        this.height = builder.height;
+        this.weight = builder.weight;
+        this.activityLevel = builder.activityLevel;
+        this.goal = builder.goal;
+        this.profilePicturePath = builder.profilePicturePath;
+        this.dateOfBirth = builder.dateOfBirth;
+        this.gender = builder.gender;
+        this.bio = builder.bio;
+        this.preferredUnitSystem = builder.preferredUnitSystem;
+        this.equipment = builder.equipment;
+        this.dietaryRestrictions = builder.dietaryRestrictions;
+        this.preferredWorkoutDays = builder.preferredWorkoutDays;
+        this.preferredWorkoutDurationMinutes = builder.preferredWorkoutDurationMinutes;
+        this.privacySettings = builder.privacySettings;
     }
 
     public float getHeight() {
@@ -129,6 +104,187 @@ public class EditProfileInputData {
     public Set<PrivacySetting> getPrivacySettings() {
         return this.privacySettings;
     }
+
+    /**
+     * Builder for EditProfileInputData, keeping the constructor parameter count within limits.
+     */
+    public static final class Builder {
+        private float height;
+        private float weight;
+        private ActivityLevel activityLevel;
+        private FitnessGoal goal;
+        private String profilePicturePath;
+        private LocalDate dateOfBirth;
+        private Gender gender;
+        private String bio;
+        private UnitSystem preferredUnitSystem;
+        private Set<Equipment> equipment;
+        private Set<DietaryRestriction> dietaryRestrictions;
+        private Set<DayOfWeek> preferredWorkoutDays;
+        private int preferredWorkoutDurationMinutes;
+        private Set<PrivacySetting> privacySettings;
+
+        /**
+         * Sets the height.
+         *
+         * @param heightValue height in meters
+         * @return this builder
+         */
+        public Builder height(final float heightValue) {
+            this.height = heightValue;
+            return this;
+        }
+
+        /**
+         * Sets the weight.
+         *
+         * @param weightValue weight in kilograms
+         * @return this builder
+         */
+        public Builder weight(final float weightValue) {
+            this.weight = weightValue;
+            return this;
+        }
+
+        /**
+         * Sets the activity level.
+         *
+         * @param activityLevelValue activity level selection
+         * @return this builder
+         */
+        public Builder activityLevel(final ActivityLevel activityLevelValue) {
+            this.activityLevel = activityLevelValue;
+            return this;
+        }
+
+        /**
+         * Sets the fitness goal.
+         *
+         * @param goalValue fitness goal selection
+         * @return this builder
+         */
+        public Builder goal(final FitnessGoal goalValue) {
+            this.goal = goalValue;
+            return this;
+        }
+
+        /**
+         * Sets the profile picture path.
+         *
+         * @param profilePicturePathValue profile image file path
+         * @return this builder
+         */
+        public Builder profilePicturePath(final String profilePicturePathValue) {
+            this.profilePicturePath = profilePicturePathValue;
+            return this;
+        }
+
+        /**
+         * Sets the date of birth.
+         *
+         * @param dateOfBirthValue date of birth
+         * @return this builder
+         */
+        public Builder dateOfBirth(final LocalDate dateOfBirthValue) {
+            this.dateOfBirth = dateOfBirthValue;
+            return this;
+        }
+
+        /**
+         * Sets the gender.
+         *
+         * @param genderValue gender selection
+         * @return this builder
+         */
+        public Builder gender(final Gender genderValue) {
+            this.gender = genderValue;
+            return this;
+        }
+
+        /**
+         * Sets the bio.
+         *
+         * @param bioValue user bio description
+         * @return this builder
+         */
+        public Builder bio(final String bioValue) {
+            this.bio = bioValue;
+            return this;
+        }
+
+        /**
+         * Sets the preferred unit system.
+         *
+         * @param preferredUnitSystemValue preferred measurement units
+         * @return this builder
+         */
+        public Builder preferredUnitSystem(final UnitSystem preferredUnitSystemValue) {
+            this.preferredUnitSystem = preferredUnitSystemValue;
+            return this;
+        }
+
+        /**
+         * Sets the available equipment.
+         *
+         * @param equipmentValue set of available equipment
+         * @return this builder
+         */
+        public Builder equipment(final Set<Equipment> equipmentValue) {
+            this.equipment = equipmentValue;
+            return this;
+        }
+
+        /**
+         * Sets the dietary restrictions.
+         *
+         * @param dietaryRestrictionsValue set of dietary restrictions
+         * @return this builder
+         */
+        public Builder dietaryRestrictions(final Set<DietaryRestriction> dietaryRestrictionsValue) {
+            this.dietaryRestrictions = dietaryRestrictionsValue;
+            return this;
+        }
+
+        /**
+         * Sets the preferred workout days.
+         *
+         * @param preferredWorkoutDaysValue set of preferred workout days
+         * @return this builder
+         */
+        public Builder preferredWorkoutDays(final Set<DayOfWeek> preferredWorkoutDaysValue) {
+            this.preferredWorkoutDays = preferredWorkoutDaysValue;
+            return this;
+        }
+
+        /**
+         * Sets the preferred workout duration.
+         *
+         * @param preferredWorkoutDurationMinutesValue target workout duration in minutes
+         * @return this builder
+         */
+        public Builder preferredWorkoutDurationMinutes(final int preferredWorkoutDurationMinutesValue) {
+            this.preferredWorkoutDurationMinutes = preferredWorkoutDurationMinutesValue;
+            return this;
+        }
+
+        /**
+         * Sets the privacy settings.
+         *
+         * @param privacySettingsValue set of enabled privacy settings
+         * @return this builder
+         */
+        public Builder privacySettings(final Set<PrivacySetting> privacySettingsValue) {
+            this.privacySettings = privacySettingsValue;
+            return this;
+        }
+
+        /**
+         * Builds the EditProfileInputData instance.
+         *
+         * @return a new EditProfileInputData populated from this builder
+         */
+        public EditProfileInputData build() {
+            return new EditProfileInputData(this);
+        }
+    }
 }
-
-
