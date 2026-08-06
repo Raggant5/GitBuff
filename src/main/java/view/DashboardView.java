@@ -17,9 +17,11 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 
 import interface_adapter.dashboard.DashboardState;
 import interface_adapter.dashboard.DashboardViewModel;
+import use_case.dashboard.MacroData;
 
 /**
  * The View for displaying user dashboard analytics and status.
@@ -27,19 +29,22 @@ import interface_adapter.dashboard.DashboardViewModel;
 public class DashboardView extends JPanel
         implements PropertyChangeListener {
 
+    private static final int PANEL_PADDING = 20;
     private static final int HORIZONTAL_GAP = 20;
     private static final int VERTICAL_GAP = 20;
-    private static final int PANEL_PADDING = 20;
 
     private static final int CHART_WIDTH = 420;
-    private static final int CHART_HEIGHT = 300;
+    private static final int CHART_HEIGHT = 260;
 
     private final String viewName = "dashboard";
 
-    private final JPanel chartContainer =
+    private final JPanel calorieChartContainer =
             new JPanel(new BorderLayout());
 
     private final JPanel calendarContainer =
+            new JPanel(new BorderLayout());
+
+    private final JPanel macroChartContainer =
             new JPanel(new BorderLayout());
 
     /**
@@ -62,7 +67,14 @@ public class DashboardView extends JPanel
                 )
         );
 
-        final JPanel contentPanel = new JPanel(
+        final JPanel dashboardContent = new JPanel(
+                new BorderLayout(
+                        HORIZONTAL_GAP,
+                        VERTICAL_GAP
+                )
+        );
+
+        final JPanel topPanel = new JPanel(
                 new GridLayout(
                         1,
                         2,
@@ -71,7 +83,7 @@ public class DashboardView extends JPanel
                 )
         );
 
-        this.chartContainer.setBorder(
+        this.calorieChartContainer.setBorder(
                 BorderFactory.createTitledBorder(
                         "Calories"
                 )
@@ -80,6 +92,12 @@ public class DashboardView extends JPanel
         this.calendarContainer.setBorder(
                 BorderFactory.createTitledBorder(
                         "Calendar"
+                )
+        );
+
+        this.macroChartContainer.setBorder(
+                BorderFactory.createTitledBorder(
+                        "Today's Macronutrients"
                 )
         );
 
@@ -94,10 +112,23 @@ public class DashboardView extends JPanel
                 BorderLayout.CENTER
         );
 
-        contentPanel.add(this.chartContainer);
-        contentPanel.add(this.calendarContainer);
+        topPanel.add(this.calorieChartContainer);
+        topPanel.add(this.calendarContainer);
 
-        this.add(contentPanel, BorderLayout.NORTH);
+        dashboardContent.add(
+                topPanel,
+                BorderLayout.NORTH
+        );
+
+        dashboardContent.add(
+                this.macroChartContainer,
+                BorderLayout.CENTER
+        );
+
+        this.add(
+                dashboardContent,
+                BorderLayout.CENTER
+        );
 
         updateDashboard(
                 dashboardViewModel.getState()
@@ -117,32 +148,38 @@ public class DashboardView extends JPanel
     private void updateDashboard(
             final DashboardState state
     ) {
-        this.chartContainer.removeAll();
+        updateCalorieChart(state);
+        updateMacroChart(state);
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    private void updateCalorieChart(
+            final DashboardState state
+    ) {
+        this.calorieChartContainer.removeAll();
 
         if (state.getErrorMessage() != null) {
-            final JLabel errorLabel = new JLabel(
-                    state.getErrorMessage(),
-                    SwingConstants.CENTER
-            );
-
-            this.chartContainer.add(
-                    errorLabel,
+            this.calorieChartContainer.add(
+                    new JLabel(
+                            state.getErrorMessage(),
+                            SwingConstants.CENTER
+                    ),
                     BorderLayout.CENTER
             );
         }
         else if (state.getCaloriesByDate().isEmpty()) {
-            final JLabel emptyLabel = new JLabel(
-                    "No calorie data available.",
-                    SwingConstants.CENTER
-            );
-
-            this.chartContainer.add(
-                    emptyLabel,
+            this.calorieChartContainer.add(
+                    new JLabel(
+                            "No calorie data available.",
+                            SwingConstants.CENTER
+                    ),
                     BorderLayout.CENTER
             );
         }
         else {
-            this.chartContainer.add(
+            this.calorieChartContainer.add(
                     createCaloriesChart(
                             state.getCaloriesByDate()
                     ),
@@ -150,8 +187,54 @@ public class DashboardView extends JPanel
             );
         }
 
-        this.chartContainer.revalidate();
-        this.chartContainer.repaint();
+        this.calorieChartContainer.revalidate();
+        this.calorieChartContainer.repaint();
+    }
+
+    private void updateMacroChart(
+            final DashboardState state
+    ) {
+        this.macroChartContainer.removeAll();
+
+        final MacroData macroData =
+                state.getMacroData();
+
+        if (state.getErrorMessage() != null) {
+            this.macroChartContainer.add(
+                    new JLabel(
+                            state.getErrorMessage(),
+                            SwingConstants.CENTER
+                    ),
+                    BorderLayout.CENTER
+            );
+        }
+        else if (macroData == null
+                || hasNoMacroData(macroData)) {
+            this.macroChartContainer.add(
+                    new JLabel(
+                            "No macronutrient data available for today.",
+                            SwingConstants.CENTER
+                    ),
+                    BorderLayout.CENTER
+            );
+        }
+        else {
+            this.macroChartContainer.add(
+                    createMacroChart(macroData),
+                    BorderLayout.CENTER
+            );
+        }
+
+        this.macroChartContainer.revalidate();
+        this.macroChartContainer.repaint();
+    }
+
+    private boolean hasNoMacroData(
+            final MacroData macroData
+    ) {
+        return macroData.getProtein() == 0
+                && macroData.getCarbs() == 0
+                && macroData.getFat() == 0;
     }
 
     private ChartPanel createCaloriesChart(
@@ -176,6 +259,49 @@ public class DashboardView extends JPanel
                         "Date",
                         "Calories",
                         dataset
+                );
+
+        final ChartPanel chartPanel =
+                new ChartPanel(chart);
+
+        chartPanel.setPreferredSize(
+                new Dimension(
+                        CHART_WIDTH,
+                        CHART_HEIGHT
+                )
+        );
+
+        return chartPanel;
+    }
+
+    private ChartPanel createMacroChart(
+            final MacroData macroData
+    ) {
+        final DefaultPieDataset<String> dataset =
+                new DefaultPieDataset<>();
+
+        dataset.setValue(
+                "Protein",
+                macroData.getProtein()
+        );
+
+        dataset.setValue(
+                "Carbohydrates",
+                macroData.getCarbs()
+        );
+
+        dataset.setValue(
+                "Fat",
+                macroData.getFat()
+        );
+
+        final JFreeChart chart =
+                ChartFactory.createPieChart(
+                        "Today's Macronutrient Breakdown",
+                        dataset,
+                        true,
+                        true,
+                        false
                 );
 
         final ChartPanel chartPanel =

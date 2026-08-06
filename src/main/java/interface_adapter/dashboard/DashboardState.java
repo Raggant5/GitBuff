@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import use_case.dashboard.MacroData;
+
 /**
  * State for the dashboard view.
  */
@@ -12,10 +14,13 @@ public class DashboardState {
     private Map<LocalDate, Double> caloriesByDate =
             new LinkedHashMap<>();
 
+    private MacroData macroData =
+            new MacroData(0, 0, 0);
+
     private String errorMessage;
 
     public Map<LocalDate, Double> getCaloriesByDate() {
-        return caloriesByDate;
+        return this.caloriesByDate;
     }
 
     public void setCaloriesByDate(
@@ -24,11 +29,23 @@ public class DashboardState {
         this.caloriesByDate = caloriesByDate;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public MacroData getMacroData() {
+        return this.macroData;
     }
 
-    public void setErrorMessage(final String errorMessage) {
+    public void setMacroData(
+            final MacroData macroData
+    ) {
+        this.macroData = macroData;
+    }
+
+    public String getErrorMessage() {
+        return this.errorMessage;
+    }
+
+    public void setErrorMessage(
+            final String errorMessage
+    ) {
         this.errorMessage = errorMessage;
     }
 }

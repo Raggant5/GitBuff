@@ -1,5 +1,5 @@
 package data_access;
-
+import use_case.dashboard.MacroData;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -582,5 +582,49 @@ public final class SQLiteMealDataAccessObject implements
         }
 
         return caloriesByDate;
+    }
+
+    @Override
+    public MacroData getMacrosForToday(final String userId) {
+        final String sql = """
+            SELECT
+                COALESCE(SUM(food_entries.protein), 0) AS total_protein,
+                COALESCE(SUM(food_entries.carbohydrates), 0) AS total_carbs,
+                COALESCE(SUM(food_entries.fat), 0) AS total_fat
+            FROM meals
+            JOIN food_entries
+                ON meals.id = food_entries.meal_id
+            WHERE meals.user_id = ?
+              AND meals.meal_date = ?
+            """;
+
+        try (Connection connection = Database.connect();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(PARAMETER_ONE, userId);
+            statement.setString(
+                    PARAMETER_TWO,
+                    LocalDate.now().toString()
+            );
+
+            try (ResultSet results = statement.executeQuery()) {
+                if (results.next()) {
+                    return new MacroData(
+                            results.getDouble("total_protein"),
+                            results.getDouble("total_carbs"),
+                            results.getDouble("total_fat")
+                    );
+                }
+            }
+        }
+        catch (final SQLException exception) {
+            throw new RuntimeException(
+                    "Failed to load today's macronutrients.",
+                    exception
+            );
+        }
+
+        return new MacroData(0, 0, 0);
     }
 }

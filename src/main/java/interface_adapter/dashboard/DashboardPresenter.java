@@ -4,12 +4,18 @@ import use_case.dashboard.DashboardOutputBoundary;
 import use_case.dashboard.DashboardOutputData;
 
 /**
- * Presenter for dashboard data.
+ * Presenter for the dashboard use case.
  */
-public class DashboardPresenter implements DashboardOutputBoundary {
+public class DashboardPresenter
+        implements DashboardOutputBoundary {
 
     private final DashboardViewModel dashboardViewModel;
 
+    /**
+     * Constructs a DashboardPresenter.
+     *
+     * @param dashboardViewModel dashboard view model
+     */
     public DashboardPresenter(
             final DashboardViewModel dashboardViewModel
     ) {
@@ -20,26 +26,31 @@ public class DashboardPresenter implements DashboardOutputBoundary {
     public void prepareSuccessView(
             final DashboardOutputData outputData
     ) {
-        final DashboardState state = dashboardViewModel.getState();
+        final DashboardState state =
+                this.dashboardViewModel.getState();
 
         state.setCaloriesByDate(
                 outputData.getCaloriesByDate()
         );
+
+        state.setMacroData(
+                outputData.getMacroData()
+        );
+
         state.setErrorMessage(null);
 
-        dashboardViewModel.setState(state);
-        dashboardViewModel.firePropertyChanged();
+        this.dashboardViewModel.firePropertyChanged();
     }
 
     @Override
     public void prepareFailView(
-            final String errorMessage
+            final String error
     ) {
-        final DashboardState state = dashboardViewModel.getState();
+        final DashboardState state =
+                this.dashboardViewModel.getState();
 
-        state.setErrorMessage(errorMessage);
+        state.setErrorMessage(error);
 
-        dashboardViewModel.setState(state);
-        dashboardViewModel.firePropertyChanged();
+        this.dashboardViewModel.firePropertyChanged();
     }
 }

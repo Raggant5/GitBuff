@@ -11,6 +11,12 @@ public class DashboardInteractor implements DashboardInputBoundary {
     private final DashboardDataAccessInterface dashboardDataAccessObject;
     private final DashboardOutputBoundary dashboardPresenter;
 
+    /**
+     * Constructs a DashboardInteractor.
+     *
+     * @param dashboardDataAccessObject dashboard data access object
+     * @param dashboardPresenter dashboard output boundary
+     */
     public DashboardInteractor(
             final DashboardDataAccessInterface dashboardDataAccessObject,
             final DashboardOutputBoundary dashboardPresenter
@@ -22,7 +28,7 @@ public class DashboardInteractor implements DashboardInputBoundary {
     @Override
     public void execute(final String userId) {
         if (userId == null || userId.isBlank()) {
-            dashboardPresenter.prepareFailView(
+            this.dashboardPresenter.prepareFailView(
                     "No user is currently logged in."
             );
             return;
@@ -30,16 +36,28 @@ public class DashboardInteractor implements DashboardInputBoundary {
 
         try {
             final Map<LocalDate, Double> caloriesByDate =
-                    dashboardDataAccessObject.getCaloriesByDate(userId);
+                    this.dashboardDataAccessObject.getCaloriesByDate(
+                            userId
+                    );
+
+            final MacroData macroData =
+                    this.dashboardDataAccessObject.getMacrosForToday(
+                            userId
+                    );
 
             final DashboardOutputData outputData =
-                    new DashboardOutputData(caloriesByDate);
+                    new DashboardOutputData(
+                            caloriesByDate,
+                            macroData
+                    );
 
-            dashboardPresenter.prepareSuccessView(outputData);
+            this.dashboardPresenter.prepareSuccessView(
+                    outputData
+            );
         }
         catch (final RuntimeException exception) {
-            dashboardPresenter.prepareFailView(
-                    "Could not load dashboard calorie data."
+            this.dashboardPresenter.prepareFailView(
+                    "Could not load dashboard data."
             );
         }
     }
