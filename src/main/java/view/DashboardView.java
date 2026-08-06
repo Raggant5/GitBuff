@@ -259,15 +259,14 @@ public class DashboardView extends JPanel
         }
 
         final JFreeChart chart =
-                ChartFactory.createLineChart(
+                ChartFactory.createBarChart(
                         "Calories Eaten Per Day",
                         "Date",
                         "Calories",
                         dataset
                 );
 
-        final CategoryPlot plot =
-                chart.getCategoryPlot();
+        final CategoryPlot plot = chart.getCategoryPlot();
 
         final NumberAxis calorieAxis =
                 (NumberAxis) plot.getRangeAxis();
