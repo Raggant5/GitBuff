@@ -11,6 +11,9 @@ import entity.FitnessGoal;
 import entity.User;
 import entity.WorkoutPlan;
 
+/**
+ * Interactor implementing the business logic for recommendation generation.
+ */
 public class RecommendationInteractor implements RecommendationInputBoundary {
 
     private static final double RESTING_KCAL_PER_KG = 22.0;
@@ -21,6 +24,13 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
     private final RecommendationOutputBoundary recommendationPresenter;
     private final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject;
 
+    /**
+     * Constructs a RecommendationInteractor instance.
+     *
+     * @param userDataAccessObject data access object for user profile lookup
+     * @param recommendationOutputBoundary presenter output boundary
+     * @param aiWorkoutDataAccessObject AI workout data access object
+     */
     public RecommendationInteractor(final RecommendationUserDataAccessInterface userDataAccessObject,
                                     final RecommendationOutputBoundary recommendationOutputBoundary,
                                     final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject) {
@@ -73,7 +83,7 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 : ActivityLevel.MODERATELY_ACTIVE.getDescription();
 
         final RecommendationOutputData outputData = new RecommendationOutputData(
-                user.getBMI(),
+                user.getBmi(),
                 dailyCalorieTarget,
                 dailyProteinGrams,
                 focusSummary,

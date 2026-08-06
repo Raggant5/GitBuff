@@ -32,6 +32,9 @@ import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
 
+/**
+ * View presenting personal workout plans and exercise guides in Swing UI.
+ */
 public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
     private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
@@ -65,6 +68,11 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private RecommendationController recommendationController;
     private int userPreferredDuration = 45;
 
+    /**
+     * Constructs a WorkoutsView panel bound to the view model.
+     *
+     * @param workoutsViewModel view model for workout state
+     */
     public WorkoutsView(final WorkoutsViewModel workoutsViewModel) {
         this.workoutsViewModel = workoutsViewModel;
         this.workoutsViewModel.addPropertyChangeListener(this);
@@ -153,7 +161,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             weekHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
             this.scheduleContainer.add(weekHeader);
 
-            int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
+            final int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
             for (int i = 0; i < totalDays; i++) {
                 final WorkoutPlan plan = plans.get(i);
                 final JPanel planCard = createPlanCard(plan, i + 1);
@@ -188,7 +196,6 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         final String dateStr = (plan.getDate() != null && !plan.getDate().trim().isEmpty())
                 ? plan.getDate() : ("Day " + dayNumber);
 
-        // Get the duration from the plan if available, otherwise use the stored preferred duration
         int duration = this.userPreferredDuration;
         if (plan.getEstimatedDurationMinutes() > 0) {
             duration = plan.getEstimatedDurationMinutes();
@@ -209,7 +216,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         planCard.add(descLabel);
 
         if (!isRestDay) {
-            final JLabel durationLabel = new JLabel(String.format("⏱ Duration: %d minutes", duration));
+            final JLabel durationLabel = new JLabel(String.format("Duration: %d minutes", duration));
             durationLabel.setFont(new Font("SansSerif", Font.BOLD, SMALL_FONT_SIZE));
             durationLabel.setForeground(new Color(41, 98, 150));
             durationLabel.setOpaque(true);
@@ -217,7 +224,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             durationLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
             durationLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            final JLabel burnLabel = new JLabel(String.format("🔥 Est. Burn: %d Cal | %dg Fat | %dg Carbs",
+            final JLabel burnLabel = new JLabel(String.format("Est. Burn: %d Cal | %dg Fat | %dg Carbs",
                     plan.getEstimatedCaloriesBurned(),
                     plan.getEstimatedFatBurnedGrams(),
                     plan.getEstimatedCarbsBurnedGrams()));
