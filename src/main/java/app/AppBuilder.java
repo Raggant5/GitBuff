@@ -11,7 +11,6 @@ import data_access.AiWorkoutDataAccessObject;
 import data_access.MockSearchFoodDataAccessObject;
 import data_access.SQLiteMealDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
-import data_access.SearchFoodDataAccessObject;
 import data_access.SpoonacularMealRecommendationDataAccessObject;
 import entity.CommonUserFactory;
 import entity.FoodEntryFactory;
@@ -21,6 +20,7 @@ import interface_adapter.MainViewManagerModel;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.calendar.CalendarState;
 import interface_adapter.calendar.CalendarViewModel;
+import interface_adapter.dashboard.DashboardPresenter;
 import interface_adapter.dashboard.DashboardViewModel;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginPresenter;
@@ -58,6 +58,9 @@ import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
 import interface_adapter.workouts.WorkoutsViewModel;
+import use_case.dashboard.DashboardInputBoundary;
+import use_case.dashboard.DashboardInteractor;
+import use_case.dashboard.DashboardOutputBoundary;
 import use_case.login.LoginInputBoundary;
 import use_case.login.LoginInteractor;
 import use_case.login.LoginOutputBoundary;
@@ -211,6 +214,7 @@ public class AppBuilder {
 
     private RecommendationController recommendationController;
     private RecommendationInputBoundary recommendationInteractor;
+    private DashboardInputBoundary dashboardInteractor;
 
     private CalendarPanel calendarPanel;
     private CalendarViewModel calendarViewModel;
@@ -313,8 +317,13 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addNavbarView() {
-        this.navbarView = new NavbarView(this.mainViewManagerModel, this.viewManagerModel, this.profileViewModel);
-        return this;
+        this.navbarView = new NavbarView(
+                this.mainViewManagerModel,
+                this.viewManagerModel,
+                this.profileViewModel,
+                this.loginViewModel,
+                this.dashboardInteractor
+        );        return this;
     }
 
     /**
@@ -345,6 +354,24 @@ public class AppBuilder {
     }
 
     /**
+     * Adds dashboard use case to application.
+     * @return this builder
+     */
+    public AppBuilder addDashboardUseCase() {
+
+        final DashboardOutputBoundary dashboardPresenter =
+                new DashboardPresenter(this.dashboardViewModel);
+
+        this.dashboardInteractor =
+                new DashboardInteractor(
+                        this.mealDataAccessObject,
+                        dashboardPresenter
+                );
+
+        return this;
+    }
+
+    /**
      * Adds the Login Use Case to the application.
      *
      * @return this builder
@@ -352,7 +379,8 @@ public class AppBuilder {
     public AppBuilder addLoginUseCase() {
         final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
                 this.viewManagerModel, this.loginViewModel, this.signupViewModel,
-                this.profileViewModel, this.viewMealsViewModel, this.recommendationController);
+                this.profileViewModel, this.viewMealsViewModel, this.recommendationController,
+                this.dashboardInteractor);
         final LoginInputBoundary loginInteractor = new LoginInteractor(
                 this.userDataAccessObject, loginOutputBoundary, viewMealsDataAccessObject);
 
@@ -440,38 +468,35 @@ public class AppBuilder {
         return this;
     }
 
-    /**
-     * Adds the add-meal use case.
-     *
-     * @return this builder
-     */
     public AppBuilder addAddMealUseCase() {
         final AddMealOutputBoundary addMealPresenter =
                 new AddMealPresenter(
-                        mealEditorViewModel,
-                        viewMealsViewModel,
-                        mainViewManagerModel
+                        this.mealEditorViewModel,
+                        this.viewMealsViewModel,
+                        this.mainViewManagerModel,
+                        this.dashboardInteractor
                 );
 
         final AddMealInputBoundary addMealInteractor =
                 new AddMealInteractor(
                         addMealPresenter,
-                        addMealDataAccessObject,
-                        mealFactory
+                        this.addMealDataAccessObject,
+                        this.mealFactory
                 );
 
         final AddMealController addMealController =
                 new AddMealController(
                         addMealInteractor,
-                        loginViewModel
+                        this.loginViewModel, this.dashboardInteractor
                 );
 
-        mealEditorView.setAddMealController(
+        this.mealEditorView.setAddMealController(
                 addMealController
         );
 
         return this;
     }
+
 
     /**
      * Adds the edit-meal use case.
