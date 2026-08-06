@@ -193,6 +193,17 @@ public class InMemoryDataAccessObject implements SignupUserDataAccessInterface,
     @Override
     public void editWorkout(LoggedWorkout workout) {
         workouts.put(workout.getId(), workout);
+        for (ExercisePerformed exercise : workout.getExercises()) {
+            if (exercise.getWorkoutId() == null) {
+                exercise.setWorkoutId(workout.getId());
+            }
+            if (exercise.getId() == null) {
+                saveExercisePerformed(exercise);
+            }
+            else {
+                editExercisePerformed(exercise);
+            }
+        }
     }
 
     @Override
