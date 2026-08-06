@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
@@ -27,13 +26,14 @@ import entity.User;
 import entity.WorkoutPlan;
 import use_case.recommendation.AiWorkoutDataAccessInterface;
 
+/**
+ * Data access object for retrieving AI generated workout plans.
+ */
 public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
     private static final Logger LOGGER = Logger.getLogger(AiWorkoutDataAccessObject.class.getName());
 
     private static final int HTTP_OK = 200;
-    private static final int TIMEOUT_MILLIS = 15000;
-    private static final int SEED_MAX = 100000;
     private static final int DEFAULT_CALORIES = 320;
     private static final int DEFAULT_FAT = 15;
     private static final int DEFAULT_CARBS = 45;
@@ -42,12 +42,13 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     private static final int DEFAULT_REPS = 12;
     private static final int DEFAULT_EX_DURATION = 10;
     private static final int HEX_PAD_LEN = 4;
-    private static final int JSON_TEXT_OFFSET = 9;
     private static final int DEFAULT_WORKOUT_DURATION = 45;
     private static final int MAX_EXERCISES_PER_WORKOUT = 3;
+    private static final int CONNECT_TIMEOUT_MILLIS = 10000;
+    private static final int READ_TIMEOUT_MILLIS = 15000;
 
     private static final String API_VERSION = "v1";
-    private static final String GEMINI_MODEL = "gemini-3.5-flash";
+    private static final String GEMINI_MODEL = "gemini-3.5-flash-lite";
 
     private static final Map<String, String[]> WORKOUT_EXERCISE_MAP = new HashMap<>();
     private static final Map<String, String[]> WORKOUT_INSTRUCTIONS_MAP = new HashMap<>();
@@ -84,7 +85,9 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 "Increase resistance and pedal standing up. Simulate climbing a steep hill.",
                 "Sprint at max effort for 30 seconds, then pedal easy for 60 seconds. Repeat 10 times."
         });
-        WORKOUT_SEARCH_MAP.put("biking", new String[]{"stationary+bike+workout", "hill+climbs+bike", "bike+sprint+intervals"});
+        WORKOUT_SEARCH_MAP.put("biking", new String[]{
+                "stationary+bike+workout", "hill+climbs+bike", "bike+sprint+intervals"
+        });
         WORKOUT_NUTRITION_MAP.put("biking", new String[]{"340", "10", "50"});
         WORKOUT_SUBCATEGORY_MAP.put("biking", new String[]{"BIKING", "BIKING", "BIKING"});
         WORKOUT_INTENSITY_MAP.put("biking", new String[]{"MEDIUM", "HIGH", "HIGH"});
@@ -152,7 +155,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         WORKOUT_INSTRUCTIONS_MAP.put("core", new String[]{
                 "Hold a straight body line on your forearms. Keep your core tight and don't let your hips sag.",
                 "Alternate bringing opposite elbow to knee. Move slowly and control the movement.",
-                "Lie flat on your back, raise your legs to 90 degrees, lower with control. Keep your lower back on the floor."
+                "Lie flat on your back, raise your legs to 90 degrees, lower with control."
         });
         WORKOUT_SEARCH_MAP.put("core", new String[]{"plank", "bicycle+crunches", "leg+raises"});
         WORKOUT_NUTRITION_MAP.put("core", new String[]{"200", "12", "30"});
@@ -180,7 +183,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         WORKOUT_INSTRUCTIONS_MAP.put("yoga", new String[]{
                 "Start on all fours, lift your hips up into an inverted V. Stretch your back and legs.",
                 "Step into a lunge position, extend your arms. Keep your front knee at 90 degrees.",
-                "Balance on one foot, place the other foot on your inner thigh. Focus on a point to maintain balance."
+                "Balance on one foot, place the other foot on your inner thigh."
         });
         WORKOUT_SEARCH_MAP.put("yoga", new String[]{"downward+dog", "warrior+pose", "tree+pose"});
         WORKOUT_NUTRITION_MAP.put("yoga", new String[]{"120", "4", "15"});
@@ -194,7 +197,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         WORKOUT_INSTRUCTIONS_MAP.put("flexibility", new String[]{
                 "Start on all fours, lift your hips up into an inverted V. Stretch your back and legs.",
                 "Step into a lunge position, extend your arms. Keep your front knee at 90 degrees.",
-                "Balance on one foot, place the other foot on your inner thigh. Focus on a point to maintain balance."
+                "Balance on one foot, place the other foot on your inner thigh."
         });
         WORKOUT_SEARCH_MAP.put("flexibility", new String[]{"downward+dog", "warrior+pose", "tree+pose"});
         WORKOUT_NUTRITION_MAP.put("flexibility", new String[]{"120", "4", "15"});
@@ -204,7 +207,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         WORKOUT_MUSCLE_MAP.put("flexibility", new String[]{"FULL_BODY", "LEGS", "CORE"});
         WORKOUT_CATEGORY_MAP.put("flexibility", new String[]{"FLEXIBILITY", "FLEXIBILITY", "FLEXIBILITY"});
 
-        GOAL_WORKOUT_TYPES.put(FitnessGoal.LOSE_WEIGHT, new String[]{"hiit", "running", "hiit", "biking", "hiit", "running", "strength"});
+        GOAL_WORKOUT_TYPES.put(FitnessGoal.LOSE_WEIGHT,
+                new String[]{"hiit", "running", "hiit", "biking", "hiit", "running", "strength"});
         GOAL_WORKOUT_TITLES.put(FitnessGoal.LOSE_WEIGHT, new String[]{
                 "HIIT Cardio", "Cardio Running", "Full Body HIIT",
                 "Cardio Biking", "HIIT Circuit", "Cardio Running", "Full Body Strength"
@@ -219,7 +223,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 "Full body strength training to build muscle and increase resting metabolism."
         });
 
-        GOAL_WORKOUT_TYPES.put(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, new String[]{"upper", "lower", "strength", "upper", "lower", "strength", "hiit"});
+        GOAL_WORKOUT_TYPES.put(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN,
+                new String[]{"upper", "lower", "strength", "upper", "lower", "strength", "hiit"});
         GOAL_WORKOUT_TITLES.put(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, new String[]{
                 "Upper Body Strength", "Lower Body Strength", "Full Body Strength",
                 "Upper Body Strength", "Lower Body Strength", "Full Body Strength", "HIIT Cardio"
@@ -234,7 +239,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 "HIIT cardio for cardiovascular health and conditioning between strength days."
         });
 
-        GOAL_WORKOUT_TYPES.put(FitnessGoal.INCREASE_ENDURANCE, new String[]{"running", "biking", "hiit", "running", "biking", "hiit", "running"});
+        GOAL_WORKOUT_TYPES.put(FitnessGoal.INCREASE_ENDURANCE,
+                new String[]{"running", "biking", "hiit", "running", "biking", "hiit", "running"});
         GOAL_WORKOUT_TITLES.put(FitnessGoal.INCREASE_ENDURANCE, new String[]{
                 "Cardio Running", "Cardio Biking", "HIIT Training",
                 "Cardio Running", "Cardio Biking", "HIIT Training", "Cardio Running"
@@ -249,7 +255,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 "Aerobic capacity run focusing on maintaining steady pace over distance."
         });
 
-        GOAL_WORKOUT_TYPES.put(FitnessGoal.FLEXIBILITY_AND_MOBILITY, new String[]{"yoga", "flexibility", "yoga", "flexibility", "yoga", "flexibility", "yoga"});
+        GOAL_WORKOUT_TYPES.put(FitnessGoal.FLEXIBILITY_AND_MOBILITY,
+                new String[]{"yoga", "flexibility", "yoga", "flexibility", "yoga", "flexibility", "yoga"});
         GOAL_WORKOUT_TITLES.put(FitnessGoal.FLEXIBILITY_AND_MOBILITY, new String[]{
                 "Yoga Flow", "Stretching & Mobility", "Yoga Flow",
                 "Stretching & Mobility", "Yoga Flow", "Stretching & Mobility", "Yoga Flow"
@@ -264,7 +271,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 "Restorative yoga focusing on deep stretching and relaxation."
         });
 
-        GOAL_WORKOUT_TYPES.put(FitnessGoal.MAINTAIN_GENERAL_FITNESS, new String[]{"strength", "running", "upper", "biking", "hiit", "lower", "strength"});
+        GOAL_WORKOUT_TYPES.put(FitnessGoal.MAINTAIN_GENERAL_FITNESS,
+                new String[]{"strength", "running", "upper", "biking", "hiit", "lower", "strength"});
         GOAL_WORKOUT_TITLES.put(FitnessGoal.MAINTAIN_GENERAL_FITNESS, new String[]{
                 "Full Body Strength", "Cardio Running", "Upper Body Strength",
                 "Cardio Biking", "HIIT Training", "Lower Body Strength", "Full Body Strength"
@@ -281,9 +289,11 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     }
 
     private final String apiKey;
-    private final Random random = new Random();
     private int lastUsedDuration = DEFAULT_WORKOUT_DURATION;
 
+    /**
+     * Default constructor for AiWorkoutDataAccessObject.
+     */
     public AiWorkoutDataAccessObject() {
         String key = loadKeyFromDotEnv();
         if (key == null || key.trim().isEmpty()) {
@@ -292,14 +302,17 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         this.apiKey = key;
         LOGGER.log(Level.INFO, "AiWorkoutDataAccessObject initialized. API Key present: {0}",
                 this.apiKey != null && !this.apiKey.isEmpty() && !"YOUR_API_KEY_HERE".equals(this.apiKey));
-        LOGGER.log(Level.INFO, "Using Gemini model: {0} with API version {1}", new Object[]{GEMINI_MODEL, API_VERSION});
     }
 
+    /**
+     * Constructs an instance with a provided API key.
+     *
+     * @param apiKey API key for Gemini
+     */
     public AiWorkoutDataAccessObject(final String apiKey) {
         this.apiKey = apiKey;
-        LOGGER.log(Level.INFO, "AiWorkoutDataAccessObject initialized with provided API Key. Valid: {0}",
+        LOGGER.log(Level.INFO, "AiWorkoutDataAccessObject initialized with key. Valid: {0}",
                 this.apiKey != null && !this.apiKey.isEmpty() && !"YOUR_API_KEY_HERE".equals(this.apiKey));
-        LOGGER.log(Level.INFO, "Using Gemini model: {0} with API version {1}", new Object[]{GEMINI_MODEL, API_VERSION});
     }
 
     private String loadKeyFromDotEnv() {
@@ -344,12 +357,13 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
         if (this.apiKey != null && !this.apiKey.trim().isEmpty() && !"YOUR_API_KEY_HERE".equals(this.apiKey)) {
             try {
-                List<WorkoutPlan> plans = callApiWithTimeout(user, numberOfDays);
+                final List<WorkoutPlan> plans = callApiWithTimeout(user, numberOfDays);
                 if (plans != null && !plans.isEmpty()) {
                     return plans;
                 }
-            } catch (Exception e) {
-                LOGGER.log(Level.WARNING, "API call failed or timed out: {0}", e.getMessage());
+            }
+            catch (final Exception ex) {
+                LOGGER.log(Level.WARNING, "API call failed or timed out: {0}", ex.getMessage());
             }
         }
 
@@ -357,7 +371,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return getFallbackPlans(user, numberOfDays);
     }
 
-    private List<WorkoutPlan> callApiWithTimeout(User user, int numberOfDays) throws Exception {
+    private List<WorkoutPlan> callApiWithTimeout(final User user, final int numberOfDays) throws Exception {
         final String endpoint = "https://generativelanguage.googleapis.com/" + API_VERSION + "/models/"
                 + GEMINI_MODEL + ":generateContent?key=" + this.apiKey;
 
@@ -365,19 +379,18 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
-        connection.setConnectTimeout(10000);
-        connection.setReadTimeout(15000);
+        connection.setConnectTimeout(CONNECT_TIMEOUT_MILLIS);
+        connection.setReadTimeout(READ_TIMEOUT_MILLIS);
         connection.setDoOutput(true);
 
-        String promptText = buildPrompt(user, numberOfDays);
+        final String promptText = buildPrompt(user, numberOfDays);
 
         final String jsonInputString = "{\n"
                 + "  \"contents\": [{\n"
                 + "    \"parts\": [{\"text\": " + sanitizeJsonString(promptText) + "}]\n"
                 + "  }],\n"
                 + "  \"generationConfig\": {\n"
-                + "    \"maxOutputTokens\": 1024,\n"
-                + "    \"temperature\": 0.5\n"
+                + "    \"responseMimeType\": \"application/json\"\n"
                 + "  }\n"
                 + "}";
 
@@ -402,51 +415,69 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
                 return parseGeminiJsonResponse(responseStr, user, numberOfDays);
             }
-        } else {
-            LOGGER.log(Level.WARNING, "API returned error code: {0}", responseCode);
+        }
+        else {
+            try (BufferedReader errReader = new BufferedReader(
+                    new InputStreamReader(connection.getErrorStream(), StandardCharsets.UTF_8))) {
+                final StringBuilder errResponse = new StringBuilder();
+                String errLine;
+                while ((errLine = errReader.readLine()) != null) {
+                    errResponse.append(errLine.trim());
+                }
+                LOGGER.log(Level.WARNING, "API returned error code: {0}, message: {1}",
+                        new Object[]{responseCode, errResponse.toString()});
+            }
         }
         return null;
     }
 
-    private String buildPrompt(User user, int numberOfDays) {
-        final LocalDate today = LocalDate.now();
-        final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEEE, MMM d");
-        final String startDateStr = today.format(fmt);
-
+    private String buildPrompt(final User user, final int numberOfDays) {
         final Set<DayOfWeek> preferredDays = user.getPreferredWorkoutDays() != null
                 && !user.getPreferredWorkoutDays().isEmpty()
                 ? user.getPreferredWorkoutDays()
                 : Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY);
 
-        FitnessGoal goal = user.getGoal();
+        final String equipmentListStr;
+        if (user.getEquipment() == null || user.getEquipment().isEmpty()) {
+            equipmentListStr = "Bodyweight only (No gym equipment)";
+        }
+        else {
+            final List<String> eqNames = new ArrayList<>();
+            for (final Equipment eq : user.getEquipment()) {
+                eqNames.add(eq.getDisplayName());
+            }
+            equipmentListStr = String.join(", ", eqNames);
+        }
+
+        final FitnessGoal goal = user.getGoal();
         String goalWorkoutTypes = "";
         String goalTitles = "";
         if (GOAL_WORKOUT_TYPES.containsKey(goal)) {
-            String[] types = GOAL_WORKOUT_TYPES.get(goal);
-            StringBuilder sb = new StringBuilder();
+            final String[] types = GOAL_WORKOUT_TYPES.get(goal);
+            final StringBuilder sb = new StringBuilder();
             for (int i = 0; i < Math.min(numberOfDays, types.length); i++) {
-                sb.append("Day ").append(i + 1).append(": ").append(types[i]).append("\n");
+                sb.append("Day ").append(i + 1).append(": ").append(types[i]).append("; ");
             }
             goalWorkoutTypes = sb.toString();
         }
 
         if (GOAL_WORKOUT_TITLES.containsKey(goal)) {
-            String[] titles = GOAL_WORKOUT_TITLES.get(goal);
-            StringBuilder sb = new StringBuilder();
+            final String[] titles = GOAL_WORKOUT_TITLES.get(goal);
+            final StringBuilder sb = new StringBuilder();
             for (int i = 0; i < Math.min(numberOfDays, titles.length); i++) {
-                sb.append("- Day ").append(i + 1).append(": \"").append(titles[i]).append("\"\n");
+                sb.append("Day ").append(i + 1).append(": ").append(titles[i]).append("; ");
             }
             goalTitles = sb.toString();
         }
 
-        return "Generate " + numberOfDays + "-day workout plan. Goal: " + goal + ".\n"
-                + "Workout days: " + preferredDays + ". Duration: " + this.lastUsedDuration + "min.\n"
-                + "Equipment: " + (user.getEquipment().isEmpty() ? "Bodyweight" : user.getEquipment()) + ".\n\n"
-                + "SUGGESTED STRUCTURE:\n" + goalWorkoutTypes + "\n"
-                + "SUGGESTED TITLES:\n" + goalTitles + "\n\n"
-                + "Return JSON array with: date, title, description, estimatedCaloriesBurned, "
+        return "Generate a " + numberOfDays + "-day workout plan as a raw JSON array. Goal: " + goal + ". "
+                + "Workout days: " + preferredDays + ". Duration: " + this.lastUsedDuration + "min. "
+                + "STRICT EQUIPMENT RESTRICTION: The user ONLY has access to: " + equipmentListStr + ". "
+                + "DO NOT recommend exercises requiring equipment outside this list. "
+                + "Structure: " + goalWorkoutTypes + " Titles: " + goalTitles + " "
+                + "Required fields per day: date, title, description, estimatedCaloriesBurned, "
                 + "estimatedFatBurnedGrams, estimatedCarbsBurnedGrams, "
-                + "exercises (name, sets, reps, durationMinutes, targetMuscleGroup, "
+                + "exercises (array of: name, sets, reps, durationMinutes, targetMuscleGroup, "
                 + "equipmentRequired, instructions, videoUrl).";
     }
 
@@ -488,7 +519,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return sb.toString();
     }
 
-    private List<WorkoutPlan> parseGeminiJsonResponse(final String response, User user, int numberOfDays) {
+    private List<WorkoutPlan> parseGeminiJsonResponse(final String response, final User user,
+                                                      final int numberOfDays) {
         final List<WorkoutPlan> plans = new ArrayList<>();
         final LocalDate today = LocalDate.now();
         final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("EEEE, MMM d");
@@ -499,15 +531,17 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
         try {
             String rawJson = response;
-            if (response.contains("\"text\": \"")) {
-                final int textIdx = response.indexOf("\"text\": \"");
-                final int start = textIdx + JSON_TEXT_OFFSET;
-                final int end = response.lastIndexOf("\"");
-                if (start < end) {
-                    rawJson = response.substring(start, end)
-                            .replace("\\n", " ")
-                            .replace("\\\"", "\"")
-                            .replace("\\\\", "\\");
+            if (response.contains("\"text\":")) {
+                final int textIdx = response.indexOf("\"text\":");
+                final int startQuote = response.indexOf("\"", textIdx + 7);
+                if (startQuote != -1) {
+                    final int endQuote = response.lastIndexOf("\"");
+                    if (startQuote < endQuote) {
+                        rawJson = response.substring(startQuote + 1, endQuote)
+                                .replace("\\n", " ")
+                                .replace("\\\"", "\"")
+                                .replace("\\\\", "\\");
+                    }
                 }
             }
 
@@ -568,7 +602,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                             "Rest day. Focus on recovery, hydration, and light stretching.",
                             "REST", "REST", "LOW", "NONE", "BODYWEIGHT",
                             0, 0, 0, 0, new ArrayList<>()));
-                } else {
+                }
+                else {
                     String desc = extractVal(block, "description");
                     if (desc.isEmpty()) {
                         desc = title + " workout session.";
@@ -588,9 +623,9 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                             if (exArrayEnd != -1 && exArrayEnd > exArrayStart) {
                                 final String exArray = block.substring(exArrayStart + 1, exArrayEnd);
                                 final String[] exBlocks = exArray.split("(?<=\\}),\\s*");
-                                List<Exercise> apiExercises = new ArrayList<>();
+                                final List<Exercise> apiExercises = new ArrayList<>();
 
-                                for (String exBlock : exBlocks) {
+                                for (final String exBlock : exBlocks) {
                                     if (!exBlock.contains("name")) {
                                         continue;
                                     }
@@ -598,19 +633,22 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                                     if (name.isEmpty()) {
                                         continue;
                                     }
-                                    final Integer sets = extractInteger(exBlock, "sets", DEFAULT_SETS);
-                                    final Integer reps = extractInteger(exBlock, "reps", DEFAULT_REPS);
-                                    final int exDuration = extractInt(exBlock, "durationMinutes",
-                                            DEFAULT_EX_DURATION);
+                                    final int sets = extractInt(exBlock, "sets", DEFAULT_SETS);
+                                    final int reps = extractInt(exBlock, "reps", DEFAULT_REPS);
+                                    final int exDuration = extractInt(exBlock, "durationMinutes", DEFAULT_EX_DURATION);
                                     final String targetMuscle = extractVal(exBlock, "targetMuscleGroup");
-                                    final String equipReq = extractVal(exBlock, "equipmentRequired");
+                                    String equipReq = extractVal(exBlock, "equipmentRequired");
                                     String inst = extractVal(exBlock, "instructions");
                                     String vid = extractVal(exBlock, "videoUrl");
 
-                                    String category = determineCategory(name);
-                                    String subCategory = determineSubCategory(name);
-                                    String intensity = determineIntensity(name);
-                                    String equipmentType = determineEquipment(name);
+                                    if (equipReq.isEmpty() || !userHasEquipment(user, equipReq)) {
+                                        equipReq = "Bodyweight";
+                                    }
+
+                                    final String category = determineCategory(name);
+                                    final String subCategory = determineSubCategory(name);
+                                    final String intensity = determineIntensity(name);
+                                    final String equipmentType = determineEquipment(name);
 
                                     if (inst.isEmpty()) {
                                         inst = getInstructionForExercise(name);
@@ -622,8 +660,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
                                     apiExercises.add(new Exercise(name, sets, reps, exDuration,
                                             targetMuscle.isEmpty() ? "Various" : targetMuscle,
-                                            equipReq.isEmpty() ? "Bodyweight" : equipReq,
-                                            inst, vid, category, subCategory, intensity, equipmentType));
+                                            equipReq, inst, vid, category, subCategory,
+                                            intensity, equipmentType));
                                 }
 
                                 if (!apiExercises.isEmpty()) {
@@ -634,7 +672,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                     }
 
                     while (exercises.size() < MAX_EXERCISES_PER_WORKOUT) {
-                        String fallbackName = "Bodyweight " + (exercises.size() + 1);
+                        final String fallbackName = "Bodyweight " + (exercises.size() + 1);
                         exercises.add(createExercise(fallbackName, title));
                     }
 
@@ -649,7 +687,6 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         }
         catch (final Exception ex) {
             LOGGER.log(Level.SEVERE, "Error parsing JSON: {0}", ex.getMessage());
-            ex.printStackTrace();
         }
 
         if (plans.size() < numberOfDays) {
@@ -660,28 +697,28 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return plans;
     }
 
-    private List<Exercise> getExercisesForWorkoutTitle(String title, User user) {
-        List<Exercise> exercises = new ArrayList<>();
-        String titleLower = title.toLowerCase();
+    private List<Exercise> getExercisesForWorkoutTitle(final String title, final User user) {
+        final List<Exercise> exercises = new ArrayList<>();
+        final String titleLower = title.toLowerCase();
 
-        String workoutType = determineWorkoutType(titleLower);
+        final String workoutType = determineWorkoutType(titleLower);
 
         if (WORKOUT_EXERCISE_MAP.containsKey(workoutType)) {
-            String[] exerciseNames = WORKOUT_EXERCISE_MAP.get(workoutType);
-            String[] instructions = WORKOUT_INSTRUCTIONS_MAP.get(workoutType);
-            String[] searchQueries = WORKOUT_SEARCH_MAP.get(workoutType);
-            String[] categories = WORKOUT_CATEGORY_MAP.get(workoutType);
-            String[] subCategories = WORKOUT_SUBCATEGORY_MAP.get(workoutType);
-            String[] intensities = WORKOUT_INTENSITY_MAP.get(workoutType);
-            String[] equipmentTypes = WORKOUT_EQUIPMENT_MAP.get(workoutType);
+            final String[] exerciseNames = WORKOUT_EXERCISE_MAP.get(workoutType);
+            final String[] instructions = WORKOUT_INSTRUCTIONS_MAP.get(workoutType);
+            final String[] searchQueries = WORKOUT_SEARCH_MAP.get(workoutType);
+            final String[] categories = WORKOUT_CATEGORY_MAP.get(workoutType);
+            final String[] subCategories = WORKOUT_SUBCATEGORY_MAP.get(workoutType);
+            final String[] intensities = WORKOUT_INTENSITY_MAP.get(workoutType);
+            final String[] equipmentTypes = WORKOUT_EQUIPMENT_MAP.get(workoutType);
 
             for (int i = 0; i < Math.min(MAX_EXERCISES_PER_WORKOUT, exerciseNames.length); i++) {
-                String name = exerciseNames[i];
-                String inst = (instructions != null && i < instructions.length) ? instructions[i]
+                final String name = exerciseNames[i];
+                final String inst = (instructions != null && i < instructions.length) ? instructions[i]
                         : "Perform " + name + " with proper form.";
-                String videoUrl = "https://www.youtube.com/results?search_query="
-                        + (searchQueries != null && i < searchQueries.length ? searchQueries[i] : name.replace(" ", "+"))
-                        + "+exercise+tutorial";
+                final String videoUrl = "https://www.youtube.com/results?search_query="
+                        + (searchQueries != null && i < searchQueries.length
+                        ? searchQueries[i] : name.replace(" ", "+")) + "+exercise+tutorial";
 
                 String equipmentType = (equipmentTypes != null && i < equipmentTypes.length)
                         ? equipmentTypes[i] : "BODYWEIGHT";
@@ -690,9 +727,10 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                     equipmentType = "BODYWEIGHT";
                 }
 
-                String category = (categories != null && i < categories.length) ? categories[i] : "GENERAL";
-                String subCategory = (subCategories != null && i < subCategories.length) ? subCategories[i] : "GENERAL";
-                String intensity = (intensities != null && i < intensities.length) ? intensities[i] : "MEDIUM";
+                final String category = (categories != null && i < categories.length) ? categories[i] : "GENERAL";
+                final String subCategory = (subCategories != null && i < subCategories.length)
+                        ? subCategories[i] : "GENERAL";
+                final String intensity = (intensities != null && i < intensities.length) ? intensities[i] : "MEDIUM";
 
                 exercises.add(new Exercise(name, DEFAULT_SETS, DEFAULT_REPS,
                         DEFAULT_EX_DURATION, "Various", equipmentType,
@@ -709,137 +747,189 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return exercises;
     }
 
-    private boolean userHasEquipment(User user, String equipmentType) {
-        if (equipmentType == null || equipmentType.equals("BODYWEIGHT")) {
+    private boolean userHasEquipment(final User user, final String equipmentType) {
+        if (equipmentType == null || "BODYWEIGHT".equalsIgnoreCase(equipmentType)
+                || "BODYWEIGHT_ONLY".equalsIgnoreCase(equipmentType)) {
             return true;
         }
-        if (user.getEquipment() == null || user.getEquipment().isEmpty()) {
+        if (user == null || user.getEquipment() == null || user.getEquipment().isEmpty()) {
             return false;
         }
-        for (Equipment eq : user.getEquipment()) {
-            if (eq.name().equals(equipmentType) || eq.name().contains(equipmentType)) {
+        for (final Equipment eq : user.getEquipment()) {
+            final String eqName = eq.name().toUpperCase();
+            final String reqType = equipmentType.toUpperCase();
+            if (eqName.contains(reqType) || reqType.contains(eqName)
+                    || eq.getDisplayName().equalsIgnoreCase(equipmentType)) {
                 return true;
             }
         }
         return false;
     }
 
-    private String determineWorkoutType(String title) {
+    private String determineWorkoutType(final String title) {
+        final String result;
         if (title.contains("yoga") || title.contains("stretch") || title.contains("flex")) {
-            return "yoga";
-        } else if (title.contains("hiit") || title.contains("interval")) {
-            return "hiit";
-        } else if (title.contains("cardio") || title.contains("run") || title.contains("running")) {
-            return "running";
-        } else if (title.contains("bike") || title.contains("biking") || title.contains("cycle")) {
-            return "biking";
-        } else if (title.contains("core") || title.contains("abs")) {
-            return "core";
-        } else if (title.contains("upper") || title.contains("push") || title.contains("pull")) {
-            return "upper";
-        } else if (title.contains("lower") || title.contains("leg") || title.contains("squat")) {
-            return "lower";
-        } else if (title.contains("strength") || title.contains("full body")) {
-            return "strength";
+            result = "yoga";
         }
-        return "strength";
+        else if (title.contains("hiit") || title.contains("interval")) {
+            result = "hiit";
+        }
+        else if (title.contains("cardio") || title.contains("run") || title.contains("running")) {
+            result = "running";
+        }
+        else if (title.contains("bike") || title.contains("biking") || title.contains("cycle")) {
+            result = "biking";
+        }
+        else if (title.contains("core") || title.contains("abs")) {
+            result = "core";
+        }
+        else if (title.contains("upper") || title.contains("push") || title.contains("pull")) {
+            result = "upper";
+        }
+        else if (title.contains("lower") || title.contains("leg") || title.contains("squat")) {
+            result = "lower";
+        }
+        else {
+            result = "strength";
+        }
+        return result;
     }
 
-    private String determineCategory(String exerciseName) {
-        String lower = exerciseName.toLowerCase();
-        if (lower.contains("run") || lower.contains("sprint") || lower.contains("jog")) {
-            return "CARDIO";
-        } else if (lower.contains("bike") || lower.contains("cycle") || lower.contains("pedal")) {
-            return "CARDIO";
-        } else if (lower.contains("push") || lower.contains("pull") || lower.contains("press")
+    private String determineCategory(final String exerciseName) {
+        final String lower = exerciseName.toLowerCase();
+        final String result;
+        if (lower.contains("run") || lower.contains("sprint") || lower.contains("jog")
+                || lower.contains("bike") || lower.contains("cycle") || lower.contains("pedal")) {
+            result = "CARDIO";
+        }
+        else if (lower.contains("push") || lower.contains("pull") || lower.contains("press")
                 || lower.contains("squat") || lower.contains("lunge") || lower.contains("deadlift")) {
-            return "STRENGTH";
-        } else if (lower.contains("burpee") || lower.contains("mountain") || lower.contains("jump")) {
-            return "HIIT";
-        } else if (lower.contains("plank") || lower.contains("crunch") || lower.contains("raise")) {
-            return "CORE";
-        } else if (lower.contains("yoga") || lower.contains("downward") || lower.contains("warrior")
+            result = "STRENGTH";
+        }
+        else if (lower.contains("burpee") || lower.contains("mountain") || lower.contains("jump")) {
+            result = "HIIT";
+        }
+        else if (lower.contains("plank") || lower.contains("crunch") || lower.contains("raise")) {
+            result = "CORE";
+        }
+        else if (lower.contains("yoga") || lower.contains("downward") || lower.contains("warrior")
                 || lower.contains("tree") || lower.contains("stretch")) {
-            return "FLEXIBILITY";
+            result = "FLEXIBILITY";
         }
-        return "GENERAL";
+        else {
+            result = "GENERAL";
+        }
+        return result;
     }
 
-    private String determineSubCategory(String exerciseName) {
-        String lower = exerciseName.toLowerCase();
+    private String determineSubCategory(final String exerciseName) {
+        final String lower = exerciseName.toLowerCase();
+        final String result;
         if (lower.contains("run") || lower.contains("sprint") || lower.contains("jog")) {
-            return "RUNNING";
-        } else if (lower.contains("bike") || lower.contains("cycle") || lower.contains("pedal")) {
-            return "BIKING";
-        } else if (lower.contains("push") || lower.contains("pull") || lower.contains("press")) {
-            return "UPPER_BODY";
-        } else if (lower.contains("squat") || lower.contains("lunge") || lower.contains("deadlift")
+            result = "RUNNING";
+        }
+        else if (lower.contains("bike") || lower.contains("cycle") || lower.contains("pedal")) {
+            result = "BIKING";
+        }
+        else if (lower.contains("push") || lower.contains("pull") || lower.contains("press")) {
+            result = "UPPER_BODY";
+        }
+        else if (lower.contains("squat") || lower.contains("lunge") || lower.contains("deadlift")
                 || lower.contains("calf")) {
-            return "LOWER_BODY";
-        } else if (lower.contains("burpee") || lower.contains("mountain") || lower.contains("jump")) {
-            return "FULL_BODY";
-        } else if (lower.contains("plank") || lower.contains("crunch") || lower.contains("raise")) {
-            return "CORE";
-        } else if (lower.contains("yoga") || lower.contains("downward") || lower.contains("warrior")
+            result = "LOWER_BODY";
+        }
+        else if (lower.contains("burpee") || lower.contains("mountain") || lower.contains("jump")) {
+            result = "FULL_BODY";
+        }
+        else if (lower.contains("plank") || lower.contains("crunch") || lower.contains("raise")) {
+            result = "CORE";
+        }
+        else if (lower.contains("yoga") || lower.contains("downward") || lower.contains("warrior")
                 || lower.contains("tree")) {
-            return "YOGA";
+            result = "YOGA";
         }
-        return "GENERAL";
+        else {
+            result = "GENERAL";
+        }
+        return result;
     }
 
-    private String determineIntensity(String exerciseName) {
-        String lower = exerciseName.toLowerCase();
+    private String determineIntensity(final String exerciseName) {
+        final String lower = exerciseName.toLowerCase();
+        final String result;
         if (lower.contains("sprint") || lower.contains("burpee") || lower.contains("hiit")) {
-            return "HIGH";
-        } else if (lower.contains("yoga") || lower.contains("stretch") || lower.contains("plank")) {
-            return "LOW";
+            result = "HIGH";
         }
-        return "MEDIUM";
+        else if (lower.contains("yoga") || lower.contains("stretch") || lower.contains("plank")) {
+            result = "LOW";
+        }
+        else {
+            result = "MEDIUM";
+        }
+        return result;
     }
 
-    private String determineEquipment(String exerciseName) {
-        String lower = exerciseName.toLowerCase();
+    private String determineEquipment(final String exerciseName) {
+        final String lower = exerciseName.toLowerCase();
+        final String result;
         if (lower.contains("bike") || lower.contains("cycle")) {
-            return "STATIONARY_BIKE";
-        } else if (lower.contains("pull") || lower.contains("chin")) {
-            return "PULL_UP_BAR";
-        } else if (lower.contains("press") && lower.contains("dumb")) {
-            return "DUMBBELLS";
-        } else if (lower.contains("deadlift") || lower.contains("barbell")) {
-            return "BARBELL";
+            result = "STATIONARY_BIKE";
         }
-        return "BODYWEIGHT";
+        else if (lower.contains("pull") || lower.contains("chin")) {
+            result = "PULL_UP_BAR";
+        }
+        else if (lower.contains("press") && lower.contains("dumb")) {
+            result = "DUMBBELLS";
+        }
+        else if (lower.contains("deadlift") || lower.contains("barbell")) {
+            result = "BARBELL";
+        }
+        else {
+            result = "BODYWEIGHT";
+        }
+        return result;
     }
 
-    private String getInstructionForExercise(String name) {
-        String lower = name.toLowerCase();
+    private String getInstructionForExercise(final String name) {
+        final String lower = name.toLowerCase();
+        final String result;
         if (lower.contains("push")) {
-            return "Lower your chest to the floor, push up explosively. Keep your body in a straight line.";
-        } else if (lower.contains("squat")) {
-            return "Keep your chest up, lower your hips back and down. Go to at least parallel.";
-        } else if (lower.contains("plank")) {
-            return "Hold a straight body line on your forearms. Keep your core tight.";
-        } else if (lower.contains("lunge")) {
-            return "Step forward, lower your hips until both knees are bent at 90 degrees.";
-        } else if (lower.contains("run") || lower.contains("jog")) {
-            return "Jog or run at a steady pace with proper form. Keep your back straight.";
-        } else if (lower.contains("bike") || lower.contains("cycle")) {
-            return "Pedal at moderate to high intensity. Maintain a steady cadence.";
-        } else if (lower.contains("burpee")) {
-            return "Drop to squat, kick feet back, do push-up, jump up. That's one rep.";
-        } else if (lower.contains("yoga") || lower.contains("downward") || lower.contains("warrior")) {
-            return "Perform the yoga pose with proper form and controlled breathing.";
+            result = "Lower your chest to the floor, push up explosively. Keep your body in a straight line.";
         }
-        return "Perform " + name + " with proper form. Maintain controlled movement throughout.";
+        else if (lower.contains("squat")) {
+            result = "Keep your chest up, lower your hips back and down. Go to at least parallel.";
+        }
+        else if (lower.contains("plank")) {
+            result = "Hold a straight body line on your forearms. Keep your core tight.";
+        }
+        else if (lower.contains("lunge")) {
+            result = "Step forward, lower your hips until both knees are bent at 90 degrees.";
+        }
+        else if (lower.contains("run") || lower.contains("jog")) {
+            result = "Jog or run at a steady pace with proper form. Keep your back straight.";
+        }
+        else if (lower.contains("bike") || lower.contains("cycle")) {
+            result = "Pedal at moderate to high intensity. Maintain a steady cadence.";
+        }
+        else if (lower.contains("burpee")) {
+            result = "Drop to squat, kick feet back, do push-up, jump up. That's one rep.";
+        }
+        else if (lower.contains("yoga") || lower.contains("downward") || lower.contains("warrior")) {
+            result = "Perform the yoga pose with proper form and controlled breathing.";
+        }
+        else {
+            result = "Perform " + name + " with proper form. Maintain controlled movement throughout.";
+        }
+        return result;
     }
 
-    private Exercise createExercise(String name, String title) {
-        String category = determineCategory(name);
-        String subCategory = determineSubCategory(name);
-        String intensity = determineIntensity(name);
-        String equipment = determineEquipment(name);
-        String instruction = getInstructionForExercise(name);
-        String videoUrl = "https://www.youtube.com/results?search_query="
+    private Exercise createExercise(final String name, final String title) {
+        final String category = determineCategory(name);
+        final String subCategory = determineSubCategory(name);
+        final String intensity = determineIntensity(name);
+        final String equipment = determineEquipment(name);
+        final String instruction = getInstructionForExercise(name);
+        final String videoUrl = "https://www.youtube.com/results?search_query="
                 + name.replace(" ", "+") + "+exercise+tutorial";
 
         return new Exercise(name, DEFAULT_SETS, DEFAULT_REPS,
@@ -917,40 +1007,6 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         }
     }
 
-    private Integer extractInteger(final String src, final String key, final int defaultVal) {
-        if (src == null || key == null) {
-            return defaultVal;
-        }
-        final int keyIdx = src.indexOf(key);
-        if (keyIdx == -1) {
-            return defaultVal;
-        }
-        int startVal = src.indexOf(":", keyIdx) + 1;
-        if (startVal == 0) {
-            return defaultVal;
-        }
-        while (startVal < src.length() && (src.charAt(startVal) == ' ' || src.charAt(startVal) == '"')) {
-            startVal++;
-        }
-
-        if (startVal >= src.length() || src.startsWith("null", startVal)) {
-            return null;
-        }
-
-        final StringBuilder numStr = new StringBuilder();
-        while (startVal < src.length() && (Character.isDigit(src.charAt(startVal))
-                || src.charAt(startVal) == '-')) {
-            numStr.append(src.charAt(startVal));
-            startVal++;
-        }
-        try {
-            return Integer.parseInt(numStr.toString());
-        }
-        catch (final Exception ex) {
-            return defaultVal;
-        }
-    }
-
     private List<WorkoutPlan> getFallbackPlans(final User user, final int numberOfDays) {
         LOGGER.info("Generating fallback plans");
         final List<WorkoutPlan> plans = new ArrayList<>();
@@ -968,13 +1024,13 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
             this.lastUsedDuration = targetDuration;
         }
 
-        FitnessGoal goal = user != null ? user.getGoal() : FitnessGoal.MAINTAIN_GENERAL_FITNESS;
-        String[] workoutTypes = GOAL_WORKOUT_TYPES.getOrDefault(goal,
+        final FitnessGoal goal = user != null ? user.getGoal() : FitnessGoal.MAINTAIN_GENERAL_FITNESS;
+        final String[] workoutTypes = GOAL_WORKOUT_TYPES.getOrDefault(goal,
                 new String[]{"strength", "running", "strength", "biking", "hiit", "running", "strength"});
-        String[] workoutTitles = GOAL_WORKOUT_TITLES.getOrDefault(goal,
+        final String[] workoutTitles = GOAL_WORKOUT_TITLES.getOrDefault(goal,
                 new String[]{"Full Body Strength", "Cardio Running", "Upper Body Strength",
                         "Cardio Biking", "HIIT Training", "Cardio Running", "Lower Body Strength"});
-        String[] workoutDescs = GOAL_WORKOUT_DESCS.getOrDefault(goal,
+        final String[] workoutDescs = GOAL_WORKOUT_DESCS.getOrDefault(goal,
                 new String[]{"Balanced full body strength workout.",
                         "Steady state cardio run for heart health.",
                         "Upper body strength and conditioning.",
@@ -999,16 +1055,17 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 workoutCounter++;
                 final String type = workoutTypes[typeIdx];
 
-                List<Exercise> exercises = getExercisesForWorkoutType(type, user);
+                final List<Exercise> exercises = getExercisesForWorkoutType(type, user);
 
-                String title = workoutTitles[typeIdx];
-                String desc = workoutDescs[typeIdx];
-                int[] nutrition = nutritionValues[typeIdx % nutritionValues.length];
+                final String title = workoutTitles[typeIdx];
+                final String desc = workoutDescs[typeIdx];
+                final int[] nutrition = nutritionValues[typeIdx % nutritionValues.length];
 
                 plans.add(new WorkoutPlan(dateLabel, title, desc,
                         "GENERAL", "GENERAL", "MEDIUM", "Various", "BODYWEIGHT",
                         targetDuration, nutrition[0], nutrition[1], nutrition[2], exercises));
-            } else {
+            }
+            else {
                 plans.add(new WorkoutPlan(dateLabel, "Rest & Recovery",
                         "Rest day. Focus on recovery, hydration, and light stretching.",
                         "REST", "REST", "LOW", "NONE", "BODYWEIGHT",
@@ -1020,25 +1077,25 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return plans;
     }
 
-    private List<Exercise> getExercisesForWorkoutType(String type, User user) {
-        List<Exercise> exercises = new ArrayList<>();
+    private List<Exercise> getExercisesForWorkoutType(final String type, final User user) {
+        final List<Exercise> exercises = new ArrayList<>();
 
         if (WORKOUT_EXERCISE_MAP.containsKey(type)) {
-            String[] exerciseNames = WORKOUT_EXERCISE_MAP.get(type);
-            String[] instructions = WORKOUT_INSTRUCTIONS_MAP.get(type);
-            String[] searchQueries = WORKOUT_SEARCH_MAP.get(type);
-            String[] categories = WORKOUT_CATEGORY_MAP.get(type);
-            String[] subCategories = WORKOUT_SUBCATEGORY_MAP.get(type);
-            String[] intensities = WORKOUT_INTENSITY_MAP.get(type);
-            String[] equipmentTypes = WORKOUT_EQUIPMENT_MAP.get(type);
+            final String[] exerciseNames = WORKOUT_EXERCISE_MAP.get(type);
+            final String[] instructions = WORKOUT_INSTRUCTIONS_MAP.get(type);
+            final String[] searchQueries = WORKOUT_SEARCH_MAP.get(type);
+            final String[] categories = WORKOUT_CATEGORY_MAP.get(type);
+            final String[] subCategories = WORKOUT_SUBCATEGORY_MAP.get(type);
+            final String[] intensities = WORKOUT_INTENSITY_MAP.get(type);
+            final String[] equipmentTypes = WORKOUT_EQUIPMENT_MAP.get(type);
 
             for (int i = 0; i < Math.min(MAX_EXERCISES_PER_WORKOUT, exerciseNames.length); i++) {
-                String name = exerciseNames[i];
-                String inst = (instructions != null && i < instructions.length) ? instructions[i]
+                final String name = exerciseNames[i];
+                final String inst = (instructions != null && i < instructions.length) ? instructions[i]
                         : "Perform " + name + " with proper form.";
-                String videoUrl = "https://www.youtube.com/results?search_query="
-                        + (searchQueries != null && i < searchQueries.length ? searchQueries[i] : name.replace(" ", "+"))
-                        + "+exercise+tutorial";
+                final String videoUrl = "https://www.youtube.com/results?search_query="
+                        + (searchQueries != null && i < searchQueries.length
+                        ? searchQueries[i] : name.replace(" ", "+")) + "+exercise+tutorial";
 
                 String equipmentType = (equipmentTypes != null && i < equipmentTypes.length)
                         ? equipmentTypes[i] : "BODYWEIGHT";
@@ -1047,9 +1104,10 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                     equipmentType = "BODYWEIGHT";
                 }
 
-                String category = (categories != null && i < categories.length) ? categories[i] : "GENERAL";
-                String subCategory = (subCategories != null && i < subCategories.length) ? subCategories[i] : "GENERAL";
-                String intensity = (intensities != null && i < intensities.length) ? intensities[i] : "MEDIUM";
+                final String category = (categories != null && i < categories.length) ? categories[i] : "GENERAL";
+                final String subCategory = (subCategories != null && i < subCategories.length)
+                        ? subCategories[i] : "GENERAL";
+                final String intensity = (intensities != null && i < intensities.length) ? intensities[i] : "MEDIUM";
 
                 exercises.add(new Exercise(name, DEFAULT_SETS, DEFAULT_REPS,
                         DEFAULT_EX_DURATION, "Various", equipmentType,

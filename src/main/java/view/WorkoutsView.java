@@ -32,6 +32,9 @@ import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
 
+/**
+ * View presenting personal workout plans and exercise guides in Swing UI.
+ */
 public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
     private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
@@ -65,6 +68,11 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private RecommendationController recommendationController;
     private int userPreferredDuration = 45;
 
+    /**
+     * Constructs a WorkoutsView panel bound to the view model.
+     *
+     * @param workoutsViewModel view model for workout state
+     */
     public WorkoutsView(final WorkoutsViewModel workoutsViewModel) {
         this.workoutsViewModel = workoutsViewModel;
         this.workoutsViewModel.addPropertyChangeListener(this);
@@ -106,20 +114,15 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
         this.refreshButton.addActionListener(evt -> {
             if (this.recommendationController != null) {
-                this.refreshButton.setEnabled(false);
-                this.refreshButton.setText("Generating Personalized Schedule...");
+                final WorkoutsState currentState = this.workoutsViewModel.getState();
+                currentState.setLoading(true);
+                this.workoutsViewModel.firePropertyChanged();
 
                 final SwingWorker<Void, Void> worker = new SwingWorker<>() {
                     @Override
                     protected Void doInBackground() {
                         recommendationController.execute();
                         return null;
-                    }
-
-                    @Override
-                    protected void done() {
-                        refreshButton.setEnabled(true);
-                        refreshButton.setText("Refresh 1-Week Schedule");
                     }
                 };
                 worker.execute();
@@ -137,28 +140,43 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         this.focusLabel.setText("Active Focus Target: " + state.getWorkoutFocus());
         this.scheduleContainer.removeAll();
 
-        final List<WorkoutPlan> plans = state.getWorkoutPlans();
+        if (state.isLoading()) {
+            this.refreshButton.setEnabled(false);
+            this.refreshButton.setText("Generating Personalized Schedule...");
 
-        if (plans == null || plans.isEmpty()) {
-            final JLabel emptyLabel = new JLabel("No schedule loaded. Update your profile and click refresh!");
-            emptyLabel.setFont(new Font("SansSerif", Font.ITALIC, CARD_TITLE_FONT_SIZE));
-            emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            this.scheduleContainer.add(emptyLabel);
+            final JLabel loadingLabel = new JLabel("Loading workout schedule...");
+            loadingLabel.setFont(new Font("SansSerif", Font.BOLD, CARD_TITLE_FONT_SIZE));
+            loadingLabel.setForeground(PRIMARY_COLOR);
+            loadingLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            this.scheduleContainer.add(loadingLabel);
         }
         else {
-            final JLabel weekHeader = new JLabel("Week 1 Routine");
-            weekHeader.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
-            weekHeader.setForeground(PRIMARY_COLOR);
-            weekHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
-            weekHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-            this.scheduleContainer.add(weekHeader);
+            this.refreshButton.setEnabled(true);
+            this.refreshButton.setText("Refresh 1-Week Schedule");
 
-            int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
-            for (int i = 0; i < totalDays; i++) {
-                final WorkoutPlan plan = plans.get(i);
-                final JPanel planCard = createPlanCard(plan, i + 1);
-                this.scheduleContainer.add(planCard);
-                this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 8)));
+            final List<WorkoutPlan> plans = state.getWorkoutPlans();
+
+            if (plans == null || plans.isEmpty()) {
+                final JLabel emptyLabel = new JLabel("No schedule loaded. Update your profile and click refresh!");
+                emptyLabel.setFont(new Font("SansSerif", Font.ITALIC, CARD_TITLE_FONT_SIZE));
+                emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                this.scheduleContainer.add(emptyLabel);
+            }
+            else {
+                final JLabel weekHeader = new JLabel("Week 1 Routine");
+                weekHeader.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
+                weekHeader.setForeground(PRIMARY_COLOR);
+                weekHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
+                weekHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+                this.scheduleContainer.add(weekHeader);
+
+                final int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
+                for (int i = 0; i < totalDays; i++) {
+                    final WorkoutPlan plan = plans.get(i);
+                    final JPanel planCard = createPlanCard(plan, i + 1);
+                    this.scheduleContainer.add(planCard);
+                    this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 8)));
+                }
             }
         }
 
@@ -239,9 +257,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
             for (final Exercise exercise : plan.getExercises()) {
                 final String btnText = String.format("%s [%ds x %dr]",
-                        exercise.getName(),
-                        exercise.getSets() != null ? exercise.getSets() : 0,
-                        exercise.getReps() != null ? exercise.getReps() : 0);
+                        exercise.getName(), exercise.getSets(), exercise.getReps());
                 final JButton exButton = new JButton(btnText);
                 exButton.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
                 exButton.setBackground(new Color(235, 243, 250));
@@ -275,9 +291,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         nameLabel.setForeground(PRIMARY_COLOR);
 
         final String targetSummary = String.format("%d sets x %d reps (%d mins) | Target: %s | Equip: %s",
-                exercise.getSets() != null ? exercise.getSets() : 0,
-                exercise.getReps() != null ? exercise.getReps() : 0,
-                exercise.getDurationMinutes(),
+                exercise.getSets(), exercise.getReps(), exercise.getDurationMinutes(),
                 exercise.getTargetMuscleGroup() != null ? exercise.getTargetMuscleGroup() : "N/A",
                 exercise.getEquipmentRequired() != null ? exercise.getEquipmentRequired() : "Bodyweight");
         final JLabel setsLabel = new JLabel("<html><center>" + targetSummary + "</center></html>",

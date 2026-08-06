@@ -6,6 +6,8 @@ import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
 import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.signup.SignupViewModel;
+import interface_adapter.workouts.WorkoutsState;
+import interface_adapter.workouts.WorkoutsViewModel;
 import use_case.login.LoginOutputBoundary;
 import use_case.login.LoginOutputData;
 
@@ -19,6 +21,7 @@ public class LoginPresenter implements LoginOutputBoundary {
     private final SignupViewModel signupViewModel;
     private final ProfileViewModel profileViewModel;
     private final ViewMealsViewModel mealsViewModel;
+    private final WorkoutsViewModel workoutsViewModel;
     private final RecommendationController recommendationController;
 
     /**
@@ -28,6 +31,8 @@ public class LoginPresenter implements LoginOutputBoundary {
      * @param loginViewModel view model for login state
      * @param signupViewModel view model for signup state
      * @param profileViewModel view model for user profile state
+     * @param mealsViewModel view model for user meals state
+     * @param workoutsViewModel view model for workouts state
      * @param recommendationController controller to trigger recommendations after login
      */
     public LoginPresenter(final ViewManagerModel viewManagerModel,
@@ -35,12 +40,14 @@ public class LoginPresenter implements LoginOutputBoundary {
                           final SignupViewModel signupViewModel,
                           final ProfileViewModel profileViewModel,
                           final ViewMealsViewModel mealsViewModel,
+                          final WorkoutsViewModel workoutsViewModel,
                           final RecommendationController recommendationController) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
         this.profileViewModel = profileViewModel;
         this.mealsViewModel = mealsViewModel;
+        this.workoutsViewModel = workoutsViewModel;
         this.recommendationController = recommendationController;
     }
 
@@ -53,61 +60,33 @@ public class LoginPresenter implements LoginOutputBoundary {
 
         final ProfileState profileState = this.profileViewModel.getState();
         profileState.setUsername(response.getUsername());
-        profileState.setHeightText(
-                String.valueOf(response.getHeight())
-        );
-        profileState.setWeightText(
-                String.valueOf(response.getWeight())
-        );
-        profileState.setActivityLevel(
-                response.getActivityLevel()
-        );
-        profileState.setGoal(
-                response.getGoal()
-        );
-        profileState.setProfilePicturePath(
-                response.getProfilePicturePath()
-        );
-
-        profileState.setDateOfBirth(
-                response.getDateOfBirth()
-        );
-        profileState.setGender(
-                response.getGender()
-        );
-        profileState.setBio(
-                response.getBio()
-        );
-        profileState.setPreferredUnitSystem(
-                response.getPreferredUnitSystem()
-        );
-        profileState.setEquipment(
-                response.getEquipment()
-        );
-        profileState.setDietaryRestrictions(
-                response.getDietaryRestrictions()
-        );
-        profileState.setPreferredWorkoutDays(
-                response.getPreferredWorkoutDays()
-        );
-        profileState.setPreferredWorkoutDurationMinutes(
-                response.getPreferredWorkoutDurationMinutes()
-        );
-        profileState.setPrivacySettings(
-                response.getPrivacySettings()
-        );
-
+        profileState.setHeightText(String.valueOf(response.getHeight()));
+        profileState.setWeightText(String.valueOf(response.getWeight()));
+        profileState.setActivityLevel(response.getActivityLevel());
+        profileState.setGoal(response.getGoal());
+        profileState.setProfilePicturePath(response.getProfilePicturePath());
+        profileState.setDateOfBirth(response.getDateOfBirth());
+        profileState.setGender(response.getGender());
+        profileState.setBio(response.getBio());
+        profileState.setPreferredUnitSystem(response.getPreferredUnitSystem());
+        profileState.setEquipment(response.getEquipment());
+        profileState.setDietaryRestrictions(response.getDietaryRestrictions());
+        profileState.setPreferredWorkoutDays(response.getPreferredWorkoutDays());
+        profileState.setPreferredWorkoutDurationMinutes(response.getPreferredWorkoutDurationMinutes());
+        profileState.setPrivacySettings(response.getPrivacySettings());
         profileState.setProfileError(null);
         profileState.setSaveConfirmation(null);
-
         this.profileViewModel.firePropertyChanged();
 
-        mealsViewModel.getState().setMeals(
-                response.getMeals()
-        );
-        mealsViewModel.firePropertyChanged();
+        this.mealsViewModel.getState().setMeals(response.getMeals());
+        this.mealsViewModel.firePropertyChanged();
 
-        recommendationController.execute();
+        if (this.workoutsViewModel != null) {
+            final WorkoutsState workoutsState = this.workoutsViewModel.getState();
+            workoutsState.setLoading(true);
+            this.workoutsViewModel.firePropertyChanged();
+        }
+
         if (this.recommendationController != null) {
             this.recommendationController.execute();
         }
@@ -117,9 +96,8 @@ public class LoginPresenter implements LoginOutputBoundary {
     }
 
     @Override
-    public void prepareFailView(String error) {
-        final LoginState loginState = loginViewModel.getState();
-
+    public void prepareFailView(final String error) {
+        final LoginState loginState = this.loginViewModel.getState();
         loginState.setLoginError(error);
         this.loginViewModel.firePropertyChanged();
     }

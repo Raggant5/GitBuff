@@ -4,6 +4,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;
 
+import javax.swing.SwingWorker;
+
 import entity.ActivityLevel;
 import entity.DietaryRestriction;
 import entity.Equipment;
@@ -11,6 +13,9 @@ import entity.FitnessGoal;
 import entity.Gender;
 import entity.PrivacySetting;
 import entity.UnitSystem;
+import interface_adapter.recommendation.RecommendationController;
+import interface_adapter.workouts.WorkoutsState;
+import interface_adapter.workouts.WorkoutsViewModel;
 import use_case.profile.EditProfileInputBoundary;
 import use_case.profile.EditProfileInputData;
 
@@ -20,6 +25,8 @@ import use_case.profile.EditProfileInputData;
 public class ProfileController {
 
     private final EditProfileInputBoundary editProfileUseCaseInteractor;
+    private RecommendationController recommendationController;
+    private WorkoutsViewModel workoutsViewModel;
 
     /**
      * Constructs a ProfileController instance.
@@ -28,6 +35,18 @@ public class ProfileController {
      */
     public ProfileController(final EditProfileInputBoundary editProfileUseCaseInteractor) {
         this.editProfileUseCaseInteractor = editProfileUseCaseInteractor;
+    }
+
+    /**
+     * Sets recommendation dependencies for triggering schedule updates.
+     *
+     * @param recommendationController controller to execute recommendations
+     * @param workoutsViewModel view model for workout state
+     */
+    public void setRecommendationDependencies(final RecommendationController recommendationController,
+                                              final WorkoutsViewModel workoutsViewModel) {
+        this.recommendationController = recommendationController;
+        this.workoutsViewModel = workoutsViewModel;
     }
 
     /**
@@ -62,5 +81,22 @@ public class ProfileController {
                 dietaryRestrictions, preferredWorkoutDays,
                 preferredWorkoutDurationMinutes, privacySettings);
         this.editProfileUseCaseInteractor.execute(inputData);
+
+        if (this.recommendationController != null) {
+            if (this.workoutsViewModel != null) {
+                final WorkoutsState state = this.workoutsViewModel.getState();
+                state.setLoading(true);
+                this.workoutsViewModel.firePropertyChanged();
+            }
+
+            final SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                @Override
+                protected Void doInBackground() {
+                    recommendationController.execute();
+                    return null;
+                }
+            };
+            worker.execute();
+        }
     }
 }
