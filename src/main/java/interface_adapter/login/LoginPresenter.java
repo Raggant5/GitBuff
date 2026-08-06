@@ -1,6 +1,7 @@
 package interface_adapter.login;
 
 import interface_adapter.ViewManagerModel;
+import interface_adapter.log_workout.workout.ViewWorkoutsViewModel;
 import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
@@ -19,6 +20,7 @@ public class LoginPresenter implements LoginOutputBoundary {
     private final SignupViewModel signupViewModel;
     private final ProfileViewModel profileViewModel;
     private final ViewMealsViewModel mealsViewModel;
+    private final ViewWorkoutsViewModel workoutsViewModel;
     private final RecommendationController recommendationController;
 
     /**
@@ -28,6 +30,8 @@ public class LoginPresenter implements LoginOutputBoundary {
      * @param loginViewModel view model for login state
      * @param signupViewModel view model for signup state
      * @param profileViewModel view model for user profile state
+     * @param mealsViewModel view model for the user's meal history
+     * @param workoutsViewModel view model for the user's workout history
      * @param recommendationController controller to trigger recommendations after login
      */
     public LoginPresenter(final ViewManagerModel viewManagerModel,
@@ -35,12 +39,14 @@ public class LoginPresenter implements LoginOutputBoundary {
                           final SignupViewModel signupViewModel,
                           final ProfileViewModel profileViewModel,
                           final ViewMealsViewModel mealsViewModel,
+                          final ViewWorkoutsViewModel workoutsViewModel,
                           final RecommendationController recommendationController) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
         this.profileViewModel = profileViewModel;
         this.mealsViewModel = mealsViewModel;
+        this.workoutsViewModel = workoutsViewModel;
         this.recommendationController = recommendationController;
     }
 
@@ -107,7 +113,9 @@ public class LoginPresenter implements LoginOutputBoundary {
         );
         mealsViewModel.firePropertyChanged();
 
-        recommendationController.execute();
+        workoutsViewModel.getState().setWorkouts(response.getWorkouts());
+        workoutsViewModel.firePropertyChanged();
+
         if (this.recommendationController != null) {
             this.recommendationController.execute();
         }

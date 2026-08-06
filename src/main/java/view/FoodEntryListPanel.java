@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 
 import entity.FoodEntry;
 import interface_adapter.nutrition.food.DeleteFoodController;
+import interface_adapter.nutrition.food.FoodEntryDisplayData;
 import interface_adapter.nutrition.food.PrepareEditFoodController;
 
 public class FoodEntryListPanel extends JPanel {
@@ -27,7 +28,8 @@ public class FoodEntryListPanel extends JPanel {
         removeAll();
         if (foodsList != null) {
             for (FoodEntry food : foodsList) {
-                this.add(new FoodEntryPanel(food, prepareEditFoodController, deleteFoodController));
+                this.add(new FoodEntryPanel(new FoodEntryDisplayData(food), prepareEditFoodController,
+                        deleteFoodController));
             }
         }
         revalidate();

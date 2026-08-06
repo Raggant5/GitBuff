@@ -18,34 +18,39 @@ public class AddFoodEntryInteractor implements AddFoodEntryInputBoundary {
 
     @Override
     public void execute(AddFoodEntryInputData inputData) {
-        try {
-            final FoodNutritionInputData nutritionInput = inputData.getFoodNutrition();
-
-            final FoodNutrition nutrition = new FoodNutrition(
-                    parseDoubleOrZero(nutritionInput.getCalories()),
-                    parseDoubleOrZero(nutritionInput.getProtein()),
-                    parseDoubleOrZero(nutritionInput.getCarbs()),
-                    parseDoubleOrZero(nutritionInput.getFat()));
-
-            final FoodEntry food = foodEntryFactory.create(
-                    inputData.getFoodName(),
-                    nutrition,
-                    parseDoubleOrZero(inputData.getQuantity()),
-                    inputData.getUnit(),
-                    parseDoubleOrZero(inputData.getGrams()));
-
-            addFoodPresenter.prepareSuccessView(new AddFoodEntryOutputData(food));
+        if (inputData.getFoodName() == null || inputData.getFoodName().isBlank()) {
+            addFoodPresenter.prepareFailView("Food name is required.");
         }
-        catch (NumberFormatException exc) {
-            addFoodPresenter.prepareFailView("Please enter valid numbers.");
+        else {
+            try {
+                final FoodNutritionInputData nutritionInput = inputData.getFoodNutrition();
+
+                final FoodNutrition nutrition = new FoodNutrition(
+                        parseNonNegativeDouble(nutritionInput.getCalories(), "Calories"),
+                        parseNonNegativeDouble(nutritionInput.getProtein(), "Protein"),
+                        parseNonNegativeDouble(nutritionInput.getCarbs(), "Carbs"),
+                        parseNonNegativeDouble(nutritionInput.getFat(), "Fat"));
+
+                final FoodEntry food = foodEntryFactory.create(
+                        inputData.getFoodName(), nutrition, parseNonNegativeDouble(inputData.getQuantity(), "Quantity"),
+                        inputData.getUnit(), parseNonNegativeDouble(inputData.getGrams(), "Grams"));
+
+                addFoodPresenter.prepareSuccessView(new AddFoodEntryOutputData(food));
+            }
+            catch (NumberFormatException exc) {
+                addFoodPresenter.prepareFailView("Please ensure all fields are valid.");
+            }
+            catch (IllegalArgumentException exc) {
+                addFoodPresenter.prepareFailView("Please ensure all fields are valid.");
+            }
         }
     }
 
-    private double parseDoubleOrZero(String value) {
-        double result = 0.0;
-        if (value != null && !value.isEmpty()) {
-            result = Double.parseDouble(value);
+    private double parseNonNegativeDouble(String value, String fieldName) {
+        final double parsed = Double.parseDouble(value);
+        if (parsed < 0) {
+            throw new IllegalArgumentException(fieldName + " cannot be negative.");
         }
-        return result;
+        return parsed;
     }
 }

@@ -26,9 +26,9 @@ public class AddFoodPresenter implements AddFoodEntryOutputBoundary {
 
     @Override
     public void prepareFailView(String errorMessage) {
-        final MealEditorState currentState = mealEditorViewModel.getState();
-        currentState.setErrorMessage(errorMessage);
-        mealEditorViewModel.firePropertyChanged();
+        final FoodEditorState currentState = foodEditorViewModel.getState();
+        currentState.setSubmitError(errorMessage);
+        foodEditorViewModel.firePropertyChanged();
     }
 
 }

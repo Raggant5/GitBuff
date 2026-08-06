@@ -41,6 +41,12 @@ public final class Main {
                 .addDeleteMealUseCase()
                 .addDeleteFoodUseCase()
                 .addSearchFoodUseCase()
+                .addAddExerciseUseCase()
+                .addAddWorkoutUseCase()
+                .addEditExerciseUseCase()
+                .addEditWorkoutUseCase()
+                .addDeleteWorkoutUseCase()
+                .addDeleteExerciseUseCase()
                 .build();
 
         try {

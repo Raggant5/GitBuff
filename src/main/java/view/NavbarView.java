@@ -23,6 +23,7 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
     private final String viewName = "navbar";
     private final JButton toDashboard = new JButton("Dashboard");
     private final JButton toWorkouts = new JButton("Workouts");
+    private final JButton toLogWorkouts = new JButton("Workout History");
     private final JButton toNutrition = new JButton("Nutrition");
     private final JButton toProfile = new JButton("Profile");
     private final JButton logOut = new JButton("Log Out");
@@ -45,6 +46,11 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
 
         this.toWorkouts.addActionListener(evt -> {
             mainViewManagerModel.setState("workouts");
+            mainViewManagerModel.firePropertyChanged();
+        });
+
+        this.toLogWorkouts.addActionListener(evt -> {
+            mainViewManagerModel.setState("view workouts");
             mainViewManagerModel.firePropertyChanged();
         });
 
@@ -71,6 +77,7 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
 
         this.add(this.toDashboard);
         this.add(this.toWorkouts);
+        this.add(this.toLogWorkouts);
         this.add(this.toNutrition);
         this.add(this.toProfile);
         this.add(this.logOut);
@@ -83,6 +90,7 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
 
         this.toDashboard.setBackground(defaultColor);
         this.toWorkouts.setBackground(defaultColor);
+        this.toLogWorkouts.setBackground(defaultColor);
         this.toNutrition.setBackground(defaultColor);
         this.toProfile.setBackground(defaultColor);
 
@@ -92,6 +100,9 @@ public class NavbarView extends JPanel implements PropertyChangeListener {
                 break;
             case "workouts":
                 this.toWorkouts.setBackground(selectedColour);
+                break;
+            case "view workouts":
+                this.toLogWorkouts.setBackground(selectedColour);
                 break;
             case "nutrition":
                 this.toNutrition.setBackground(selectedColour);
