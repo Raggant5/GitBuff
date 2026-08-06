@@ -8,8 +8,4 @@ public interface PrepareEditMealInputBoundary {
      */
     void execute(PrepareEditMealInputData inputData);
 
-    /**
-     * Executes the "Switch to Add Meal" Use Case.
-     */
-    void switchToAddMealEditor();
 }

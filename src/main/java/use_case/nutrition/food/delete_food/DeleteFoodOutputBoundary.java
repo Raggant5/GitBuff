@@ -9,10 +9,4 @@ public interface DeleteFoodOutputBoundary {
      * @param deleteFoodOutputData contains the food id to be deleted
      */
     void prepareSuccessView(DeleteFoodOutputData deleteFoodOutputData);
-
-    /**
-     * Prepares the failure view for the Delete Food Use Case.
-     * @param errorMessage the explanation of the failure
-     */
-    void prepareFailView(String errorMessage);
 }

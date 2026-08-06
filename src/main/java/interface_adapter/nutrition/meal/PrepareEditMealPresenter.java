@@ -20,6 +20,7 @@ public class PrepareEditMealPresenter implements PrepareEditMealOutputBoundary {
     public void prepareSuccessView(PrepareEditMealOutputData outputData) {
         final Meal meal = outputData.getMeal();
         final MealEditorState mealEditorState = mealEditorViewModel.getState();
+        mealEditorState.reset();
         mealEditorState.setEditingMeal(meal);
         mealEditorState.setDate(meal.getDate());
         mealEditorState.setName(meal.getName());
@@ -31,9 +32,4 @@ public class PrepareEditMealPresenter implements PrepareEditMealOutputBoundary {
         mealEditorViewModel.firePropertyChanged();
     }
 
-    @Override
-    public void switchToAddMealEditor() {
-        mainViewManagerModel.setState("nutrition");
-        mainViewManagerModel.firePropertyChanged();
-    }
 }

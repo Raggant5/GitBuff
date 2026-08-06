@@ -7,7 +7,7 @@ import java.util.List;
 public class Meal {
 
     private Integer id;
-    private String userId;
+    private final String userId;
     private LocalDate date;
     private String name;
     private final List<FoodEntry> foodEntries = new ArrayList<>();
@@ -23,13 +23,6 @@ public class Meal {
     }
 
     /**
-     * Remove all foods in the list of foods.
-     */
-    public void clearFoodEntries() {
-        foodEntries.clear();
-    }
-
-    /**
      * Replace the whole list of food entries.
      * @param foodEntries the new list of food entries
      */
@@ -37,14 +30,6 @@ public class Meal {
         final List<FoodEntry> copy = new ArrayList<>(foodEntries);
         this.foodEntries.clear();
         this.foodEntries.addAll(copy);
-    }
-
-    /**
-     * Add food to the list of foods.
-     * @param foodEntry the food being added to foods
-     */
-    public void addFoodEntry(FoodEntry foodEntry) {
-        foodEntries.add(foodEntry);
     }
 
     /**
@@ -65,10 +50,6 @@ public class Meal {
 
     public String getUserId() {
         return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public LocalDate getDate() {

@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import entity.Meal;
 import interface_adapter.nutrition.meal.DeleteMealController;
+import interface_adapter.nutrition.meal.MealDisplayData;
 import interface_adapter.nutrition.meal.PrepareEditMealController;
 import interface_adapter.nutrition.meal.ViewMealsState;
 import interface_adapter.nutrition.meal.ViewMealsViewModel;
@@ -57,7 +58,8 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
         mealListContainer.removeAll();
         errorLabel.setText(state.getError());
         for (Meal meal : state.getMeals()) {
-            mealListContainer.add(new MealPanel(meal, prepareEditMealController, deleteMealController));
+            mealListContainer.add(new MealPanel(new MealDisplayData(meal), prepareEditMealController,
+                    deleteMealController));
         }
 
         mealListContainer.revalidate();

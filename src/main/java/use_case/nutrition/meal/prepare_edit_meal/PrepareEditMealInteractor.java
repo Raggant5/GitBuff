@@ -15,9 +15,4 @@ public class PrepareEditMealInteractor implements PrepareEditMealInputBoundary {
         final Meal meal = inputData.getMeal();
         presenter.prepareSuccessView(new PrepareEditMealOutputData(meal));
     }
-
-    @Override
-    public void switchToAddMealEditor() {
-        presenter.switchToAddMealEditor();
-    }
 }

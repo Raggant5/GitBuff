@@ -17,9 +17,4 @@ public class DeleteMealPresenter implements DeleteMealOutputBoundary {
         viewMealsViewModel.getState().removeMeal(deleteMealOutputData.getMealId());
         viewMealsViewModel.firePropertyChanged();
     }
-
-    @Override
-    public void prepareFailView(String errorMessage) {
-
-    }
 }

@@ -24,45 +24,29 @@ public class AddMealInteractor implements AddMealInputBoundary {
 
     @Override
     public void execute(final AddMealInputData addMealInputData) {
-        final Meal meal = this.mealFactory.create(
-                addMealInputData.getUserId(),
-                addMealInputData.getDate(),
-                addMealInputData.getName()
-        );
-
-        final int mealId =
-                this.mealDataAccessObject.saveMeal(meal);
-
-        final List<FoodEntry> foodEntries =
-                addMealInputData.getFoodEntries();
-
-        System.out.println(
-                "Interactor received "
-                        + foodEntries.size()
-                        + " foods for meal ID "
-                        + mealId
-        );
-
-        for (FoodEntry food : foodEntries) {
-            food.setMealId(mealId);
-
-            System.out.println(
-                    "Saving food \""
-                            + food.getFoodName()
-                            + "\" for meal ID "
-                            + mealId
-            );
-
-            final int foodId =
-                    this.mealDataAccessObject.saveFoodEntry(food);
-
-            food.setId(foodId);
+        if (addMealInputData.getName() == null || addMealInputData.getName().isBlank()) {
+            this.addMealPresenter.prepareFailView("Meal name is required.");
         }
+        else {
+            try {
+                final Meal meal = this.mealFactory.create(addMealInputData.getUserId(), addMealInputData.getDate(),
+                        addMealInputData.getName());
 
-        meal.getFoodEntries().addAll(foodEntries);
+                final int mealId = mealDataAccessObject.saveMeal(meal);
 
-        this.addMealPresenter.prepareSuccessView(
-                new AddMealOutputData(meal)
-        );
+                final List<FoodEntry> foodEntries = addMealInputData.getFoodEntries();
+
+                meal.getFoodEntries().addAll(foodEntries);
+                for (FoodEntry food : foodEntries) {
+                    food.setMealId(mealId);
+                    food.setId(this.mealDataAccessObject.saveFoodEntry(food));
+                }
+
+                this.addMealPresenter.prepareSuccessView(new AddMealOutputData(meal));
+            }
+            catch (RuntimeException exc) {
+                this.addMealPresenter.prepareFailView("Unable to save meal. Please try again.");
+            }
+        }
     }
 }

@@ -7,13 +7,13 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import entity.Meal;
 import interface_adapter.nutrition.meal.DeleteMealController;
+import interface_adapter.nutrition.meal.MealDisplayData;
 import interface_adapter.nutrition.meal.PrepareEditMealController;
 
 public class MealPanel extends JPanel {
 
-    public MealPanel(Meal meal, PrepareEditMealController prepareEditMealController,
+    public MealPanel(MealDisplayData meal, PrepareEditMealController prepareEditMealController,
                      DeleteMealController deleteMealController) {
 
         setLayout(new BorderLayout());
@@ -31,11 +31,11 @@ public class MealPanel extends JPanel {
         final JButton deleteButton = new JButton("Delete Meal");
 
         editButton.addActionListener(evt -> {
-            prepareEditMealController.execute(meal);
+            prepareEditMealController.execute(meal.getEntity());
         });
 
         deleteButton.addActionListener(evt -> {
-            deleteMealController.execute(meal);
+            deleteMealController.execute(meal.getEntity());
         });
 
         buttonPanel.add(editButton);
