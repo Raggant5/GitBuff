@@ -55,12 +55,11 @@ public class EditExerciseInteractor implements EditExerciseInputBoundary {
     }
 
     private Integer parsePositiveInt(String value, String fieldName) {
-        if (Integer.parseInt(value) >= 0) {
-            return Integer.parseInt(value);
+        final int parsed = Integer.parseInt(value);
+        if (parsed > 0) {
+            return parsed;
         }
-        else {
-            throw new IllegalArgumentException(fieldName + " cannot be negative/zero.");
-        }
+        throw new IllegalArgumentException(fieldName + " must be positive.");
     }
 
     private Double parseNonNegativeDouble(String value, String fieldName) {
