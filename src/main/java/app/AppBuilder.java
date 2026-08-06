@@ -7,13 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import data_access.AiWorkoutDataAccessObject;
-import data_access.GoogleCalendarDataAccessObject;
-import data_access.GoogleCalendarServiceFactory;
-import data_access.MockSearchFoodDataAccessObject;
-import data_access.SQLiteMealDataAccessObject;
-import data_access.SQLiteUserDataAccessObject;
-import data_access.SpoonacularMealRecommendationDataAccessObject;
+import data_access.*;
 import entity.CommonUserFactory;
 import entity.FoodEntryFactory;
 import entity.MealFactory;
