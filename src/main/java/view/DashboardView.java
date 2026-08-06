@@ -22,12 +22,13 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
      *
      * @param dashboardViewModel view model managing dashboard state
      */
-    public DashboardView(final DashboardViewModel dashboardViewModel) {
+    public DashboardView(final DashboardViewModel dashboardViewModel, CalendarPanel calendarPanel) {
         dashboardViewModel.addPropertyChangeListener(this);
         this.setLayout(new BorderLayout());
         this.dashboardLabel = new JLabel();
-        this.add(this.dashboardLabel, BorderLayout.CENTER);
+        this.add(this.dashboardLabel, BorderLayout.NORTH);
         this.dashboardLabel.setText(dashboardViewModel.getState());
+        add(calendarPanel, BorderLayout.CENTER);
     }
 
     @Override
