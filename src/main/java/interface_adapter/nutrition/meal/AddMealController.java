@@ -6,34 +6,20 @@ import java.util.List;
 
 import entity.FoodEntry;
 import interface_adapter.login.LoginViewModel;
-import use_case.dashboard.DashboardInputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealInputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealInputData;
 
-/**
- * Controller for adding a meal.
- */
 public class AddMealController {
 
     private final AddMealInputBoundary addMealInteractor;
     private final LoginViewModel loginViewModel;
-    private final DashboardInputBoundary dashboardInteractor;
 
-    /**
-     * Constructs an AddMealController.
-     *
-     * @param addMealInteractor interactor for adding meals
-     * @param loginViewModel view model containing the logged-in user
-     * @param dashboardInteractor interactor for refreshing dashboard data
-     */
     public AddMealController(
             final AddMealInputBoundary addMealInteractor,
-            final LoginViewModel loginViewModel,
-            final DashboardInputBoundary dashboardInteractor
+            final LoginViewModel loginViewModel
     ) {
         this.addMealInteractor = addMealInteractor;
         this.loginViewModel = loginViewModel;
-        this.dashboardInteractor = dashboardInteractor;
     }
 
     /**
@@ -53,21 +39,20 @@ public class AddMealController {
 
         foodsToSave.removeAll(foodEntriesToRemove);
 
-        final String username =
-                this.loginViewModel.getState().getUsername();
+        System.out.println(
+                "Saving meal \"" + name
+                        + "\" with "
+                        + foodsToSave.size()
+                        + " foods."
+        );
 
-        final AddMealInputData inputData =
-                new AddMealInputData(
-                        name,
-                        username,
-                        LocalDate.now(),
-                        foodsToSave
-                );
+        final AddMealInputData inputData = new AddMealInputData(
+                name,
+                this.loginViewModel.getState().getUsername(),
+                LocalDate.now(),
+                foodsToSave
+        );
 
         this.addMealInteractor.execute(inputData);
-
-        if (this.dashboardInteractor != null) {
-            this.dashboardInteractor.execute(username);
-        }
     }
 }
