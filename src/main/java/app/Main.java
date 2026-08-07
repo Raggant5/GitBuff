@@ -28,6 +28,7 @@ public final class Main {
                 .addLoginView()
                 .addSignupView()
                 .addMainViews()
+                .addShareProgressUseCase()
                 .addDashboardUseCase()
                 .addCalendarUseCase()
                 .addNavbarView()

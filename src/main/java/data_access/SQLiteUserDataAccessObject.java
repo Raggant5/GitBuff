@@ -23,36 +23,22 @@ import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
 import use_case.profile.ProfileUserDataAccessInterface;
 import use_case.recommendation.RecommendationUserDataAccessInterface;
+import use_case.share.ShareProgressUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
 /**
- * SQLite implementation for storing and loading user information.
+ * SQLite implementation for storing and loading user information and workout stats.
  */
 public class SQLiteUserDataAccessObject
         implements SignupUserDataAccessInterface,
         LoginUserDataAccessInterface,
         LogoutUserDataAccessInterface,
         ProfileUserDataAccessInterface,
-        RecommendationUserDataAccessInterface {
+        RecommendationUserDataAccessInterface,
+        ShareProgressUserDataAccessInterface {
 
     private static final String SELECT_EXISTS_SQL = """
             SELECT username
-            FROM users
-            WHERE username = ?
-            """;
-
-    private static final String SAVE_USER_SQL = """
-            INSERT INTO users (
-                username, password, height, weight, activity_level, fitness_goal, profile_picture_path
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(username) DO UPDATE SET
-                password = excluded.password, height = excluded.height, weight = excluded.weight,
-                activity_level = excluded.activity_level, fitness_goal = excluded.fitness_goal,
-                profile_picture_path = excluded.profile_picture_path
-            """;
-
-    private static final String GET_USER_SQL = """
-            SELECT username, password, height, weight, activity_level, fitness_goal, profile_picture_path
             FROM users
             WHERE username = ?
             """;
@@ -74,7 +60,7 @@ public class SQLiteUserDataAccessObject
     }
 
     @Override
-    public void save(User user) {
+    public void save(final User user) {
         final String sql = """
                 INSERT INTO users (
                     username,
@@ -166,7 +152,7 @@ public class SQLiteUserDataAccessObject
 
                 connection.commit();
             }
-            catch (SQLException exception) {
+            catch (final SQLException exception) {
                 connection.rollback();
                 throw exception;
             }
@@ -174,7 +160,7 @@ public class SQLiteUserDataAccessObject
                 connection.setAutoCommit(true);
             }
         }
-        catch (SQLException exception) {
+        catch (final SQLException exception) {
             throw new RuntimeException(
                     "Could not save user.",
                     exception
@@ -183,7 +169,7 @@ public class SQLiteUserDataAccessObject
     }
 
     @Override
-    public User get(String username) {
+    public User get(final String username) {
         final String sql = """
                 SELECT
                     username,
@@ -296,7 +282,7 @@ public class SQLiteUserDataAccessObject
                 return user;
             }
         }
-        catch (SQLException exception) {
+        catch (final SQLException exception) {
             throw new RuntimeException(
                     "Could not load user.",
                     exception
@@ -304,9 +290,61 @@ public class SQLiteUserDataAccessObject
         }
     }
 
+    @Override
+    public User getCurrentUser() {
+        if (this.currentUsername == null) {
+            return null;
+        }
+        return get(this.currentUsername);
+    }
+
+    @Override
+    public int getTotalMinutesWorkedOut(final String username) {
+        final String sql = """
+                SELECT SUM(duration_minutes) AS total_minutes
+                FROM logged_workouts
+                WHERE username = ?
+                """;
+        try (Connection connection = Database.connect();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("total_minutes");
+                }
+            }
+        }
+        catch (final SQLException exception) {
+            return 0;
+        }
+        return 0;
+    }
+
+    @Override
+    public int getTotalCompletedWorkouts(final String username) {
+        final String sql = """
+                SELECT COUNT(*) AS total_count
+                FROM logged_workouts
+                WHERE username = ?
+                """;
+        try (Connection connection = Database.connect();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("total_count");
+                }
+            }
+        }
+        catch (final SQLException exception) {
+            return 0;
+        }
+        return 0;
+    }
+
     private void saveEquipment(
-            Connection connection,
-            User user
+            final Connection connection,
+            final User user
     ) throws SQLException {
         final String deleteSql = """
                 DELETE FROM user_equipment
@@ -330,7 +368,7 @@ public class SQLiteUserDataAccessObject
         try (PreparedStatement insertStatement =
                      connection.prepareStatement(insertSql)) {
 
-            for (Equipment equipment : user.getEquipment()) {
+            for (final Equipment equipment : user.getEquipment()) {
                 insertStatement.setString(1, user.getName());
                 insertStatement.setString(
                         2,
@@ -344,8 +382,8 @@ public class SQLiteUserDataAccessObject
     }
 
     private void saveDietaryRestrictions(
-            Connection connection,
-            User user
+            final Connection connection,
+            final User user
     ) throws SQLException {
         final String deleteSql = """
                 DELETE FROM user_dietary_restrictions
@@ -369,7 +407,7 @@ public class SQLiteUserDataAccessObject
         try (PreparedStatement insertStatement =
                      connection.prepareStatement(insertSql)) {
 
-            for (DietaryRestriction restriction
+            for (final DietaryRestriction restriction
                     : user.getDietaryRestrictions()) {
 
                 insertStatement.setString(1, user.getName());
@@ -385,8 +423,8 @@ public class SQLiteUserDataAccessObject
     }
 
     private void saveWorkoutDays(
-            Connection connection,
-            User user
+            final Connection connection,
+            final User user
     ) throws SQLException {
         final String deleteSql = """
                 DELETE FROM user_workout_days
@@ -410,7 +448,7 @@ public class SQLiteUserDataAccessObject
         try (PreparedStatement insertStatement =
                      connection.prepareStatement(insertSql)) {
 
-            for (DayOfWeek day
+            for (final DayOfWeek day
                     : user.getPreferredWorkoutDays()) {
 
                 insertStatement.setString(1, user.getName());
@@ -423,8 +461,8 @@ public class SQLiteUserDataAccessObject
     }
 
     private void savePrivacySettings(
-            Connection connection,
-            User user
+            final Connection connection,
+            final User user
     ) throws SQLException {
         final String deleteSql = """
                 DELETE FROM user_privacy_settings
@@ -448,7 +486,7 @@ public class SQLiteUserDataAccessObject
         try (PreparedStatement insertStatement =
                      connection.prepareStatement(insertSql)) {
 
-            for (PrivacySetting setting
+            for (final PrivacySetting setting
                     : user.getPrivacySettings()) {
 
                 insertStatement.setString(1, user.getName());
@@ -464,8 +502,8 @@ public class SQLiteUserDataAccessObject
     }
 
     private Set<Equipment> loadEquipment(
-            Connection connection,
-            String username
+            final Connection connection,
+            final String username
     ) throws SQLException {
         final Set<Equipment> equipmentSet = new HashSet<>();
 
@@ -500,8 +538,8 @@ public class SQLiteUserDataAccessObject
 
     private Set<DietaryRestriction>
     loadDietaryRestrictions(
-            Connection connection,
-            String username
+            final Connection connection,
+            final String username
     ) throws SQLException {
 
         final Set<DietaryRestriction> restrictions =
@@ -537,8 +575,8 @@ public class SQLiteUserDataAccessObject
     }
 
     private Set<DayOfWeek> loadWorkoutDays(
-            Connection connection,
-            String username
+            final Connection connection,
+            final String username
     ) throws SQLException {
         final Set<DayOfWeek> workoutDays =
                 new HashSet<>();
@@ -573,8 +611,8 @@ public class SQLiteUserDataAccessObject
     }
 
     private Set<PrivacySetting> loadPrivacySettings(
-            Connection connection,
-            String username
+            final Connection connection,
+            final String username
     ) throws SQLException {
         final Set<PrivacySetting> settings =
                 new HashSet<>();
@@ -615,6 +653,6 @@ public class SQLiteUserDataAccessObject
 
     @Override
     public String getCurrentUsername() {
-        return currentUsername;
+        return this.currentUsername;
     }
 }

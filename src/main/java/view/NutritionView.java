@@ -16,6 +16,9 @@ import interface_adapter.nutrition.NutritionViewModel;
 import interface_adapter.nutrition.meal.MealEditorViewModel;
 import interface_adapter.recommendation.RecommendationController;
 
+/**
+ * View for displaying nutrition recommendations and meal options.
+ */
 public class NutritionView extends JPanel implements PropertyChangeListener {
 
     private static final int MEAL_AREA_ROWS = 4;
@@ -37,8 +40,16 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
 
     private RecommendationController recommendationController;
 
-    public NutritionView(NutritionViewModel nutritionViewModel, MainViewManagerModel mainViewManagerModel,
-                         MealEditorViewModel mealEditorViewModel, ViewMealsView viewMealsView) {
+    /**
+     * Constructs a NutritionView instance.
+     *
+     * @param nutritionViewModel view model managing nutrition state
+     * @param mainViewManagerModel manager model for top-level view navigation
+     * @param mealEditorViewModel view model for editing meals
+     * @param viewMealsView sub-view for viewing meals
+     */
+    public NutritionView(final NutritionViewModel nutritionViewModel, final MainViewManagerModel mainViewManagerModel,
+                         final MealEditorViewModel mealEditorViewModel, final ViewMealsView viewMealsView) {
         this.viewMealsView = viewMealsView;
         this.nutritionViewModel = nutritionViewModel;
         this.mainViewManagerModel = mainViewManagerModel;
@@ -58,7 +69,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
 
         refreshButton.addActionListener(evt -> {
             if (recommendationController != null) {
-                recommendationController.execute();
+                recommendationController.executeMealRecommendationsOnly();
             }
         });
         mealRecommendationsArea.setEditable(false);
@@ -78,14 +89,14 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         displayState(nutritionViewModel.getState());
     }
 
-    private void displayState(NutritionState state) {
+    private void displayState(final NutritionState state) {
         calorieLabel.setText("Daily calorie target: " + state.getDailyCalorieTarget() + " kcal");
         proteinLabel.setText("Daily protein target: " + state.getDailyProteinGrams() + " g");
         bmiLabel.setText(String.format("BMI: %.1f", state.getBmi()));
         messageLabel.setText(state.getMessage());
 
         final StringBuilder mealsText = new StringBuilder();
-        for (MealRecommendation meal : state.getMealRecommendations()) {
+        for (final MealRecommendation meal : state.getMealRecommendations()) {
             mealsText.append(meal.getTitle())
                     .append(" (").append(meal.getReadyInMinutes()).append(" min)\n");
         }
@@ -93,7 +104,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(final PropertyChangeEvent evt) {
         displayState((NutritionState) evt.getNewValue());
     }
 
@@ -101,7 +112,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         return viewName;
     }
 
-    public void setRecommendationController(RecommendationController recommendationController) {
+    public void setRecommendationController(final RecommendationController recommendationController) {
         this.recommendationController = recommendationController;
     }
 }

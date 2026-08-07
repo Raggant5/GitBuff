@@ -6,7 +6,7 @@ package entity;
 public enum PrivacySetting {
 
     SHARE_PROFILE("Share Profile Bio & Picture"),
-    SHARE_WORKOUT_LOGS("Share Workout Activity"),
+    SHARE_WORKOUT_LOGS("Share Completed Workouts"),
     SHARE_PERSONAL_RECORDS("Share Personal Records (PRs)"),
     SHARE_STREAK("Share Workout Streak"),
     SHARE_MEAL_LOGS("Share Meal Logs");
