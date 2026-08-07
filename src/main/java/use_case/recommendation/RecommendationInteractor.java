@@ -13,7 +13,6 @@ import entity.User;
 import entity.WorkoutPlan;
 
 /**
- * Interactor implementing the business logic for recommendation generation.
  * Interactor that computes target macros and generates structured AI workout routines and meal suggestions.
  */
 public class RecommendationInteractor implements RecommendationInputBoundary {
@@ -61,6 +60,7 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 this.recommendationPresenter.prepareSuccessView(defaultOutput);
             }
             else {
+                ensureProfileDefaults(user);
                 presentRecommendationFor(user);
             }
         }
@@ -85,6 +85,7 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
         final String activitySummary = user.getActivityLevel() != null
                 ? user.getActivityLevel().getDescription()
                 : ActivityLevel.MODERATELY_ACTIVE.getDescription();
+
         List<MealRecommendation> meals = new ArrayList<>();
         if (this.foodRecommendationDataAccessObject != null) {
             meals = this.foodRecommendationDataAccessObject.generateMealRecommendations(user, dailyCalorieTarget);
@@ -96,7 +97,7 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 dailyProteinGrams,
                 focusSummary,
                 activitySummary,
-                plans
+                plans,
                 meals
         );
 

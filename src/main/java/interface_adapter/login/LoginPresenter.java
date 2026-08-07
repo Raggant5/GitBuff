@@ -40,8 +40,8 @@ public class LoginPresenter implements LoginOutputBoundary {
      * @param mealsViewModel view model for user meals state
      * @param workoutsViewModel view model for workouts state
      * @param recommendationController controller to trigger recommendations after login
-     * @param dashboardInteractor  interactor for loading dashboard data
-     * @param workoutsViewModel view model for the user's workout history
+     * @param dashboardInteractor interactor for loading dashboard data
+     * @param viewWorkoutsViewModel view model for the user's workout history
      */
     public LoginPresenter(final ViewManagerModel viewManagerModel,
                           final LoginViewModel loginViewModel,
@@ -60,6 +60,7 @@ public class LoginPresenter implements LoginOutputBoundary {
         this.workoutsViewModel = workoutsViewModel;
         this.recommendationController = recommendationController;
         this.dashboardInteractor = dashboardInteractor;
+        this.viewWorkoutsViewModel = viewWorkoutsViewModel;
     }
 
     @Override
@@ -71,48 +72,20 @@ public class LoginPresenter implements LoginOutputBoundary {
 
         final ProfileState profileState = this.profileViewModel.getState();
         profileState.setUsername(response.getUsername());
-        profileState.setHeightText(
-                String.valueOf(response.getHeight())
-        );
-        profileState.setWeightText(
-                String.valueOf(response.getWeight())
-        );
-        profileState.setActivityLevel(
-                response.getActivityLevel()
-        );
-        profileState.setGoal(
-                response.getGoal()
-        );
-        profileState.setProfilePicturePath(
-                response.getProfilePicturePath()
-        );
-        profileState.setDateOfBirth(
-                response.getDateOfBirth()
-        );
-        profileState.setGender(
-                response.getGender()
-        );
-        profileState.setBio(
-                response.getBio()
-        );
-        profileState.setPreferredUnitSystem(
-                response.getPreferredUnitSystem()
-        );
-        profileState.setEquipment(
-                response.getEquipment()
-        );
-        profileState.setDietaryRestrictions(
-                response.getDietaryRestrictions()
-        );
-        profileState.setPreferredWorkoutDays(
-                response.getPreferredWorkoutDays()
-        );
-        profileState.setPreferredWorkoutDurationMinutes(
-                response.getPreferredWorkoutDurationMinutes()
-        );
-        profileState.setPrivacySettings(
-                response.getPrivacySettings()
-        );
+        profileState.setHeightText(String.valueOf(response.getHeight()));
+        profileState.setWeightText(String.valueOf(response.getWeight()));
+        profileState.setActivityLevel(response.getActivityLevel());
+        profileState.setGoal(response.getGoal());
+        profileState.setProfilePicturePath(response.getProfilePicturePath());
+        profileState.setDateOfBirth(response.getDateOfBirth());
+        profileState.setGender(response.getGender());
+        profileState.setBio(response.getBio());
+        profileState.setPreferredUnitSystem(response.getPreferredUnitSystem());
+        profileState.setEquipment(response.getEquipment());
+        profileState.setDietaryRestrictions(response.getDietaryRestrictions());
+        profileState.setPreferredWorkoutDays(response.getPreferredWorkoutDays());
+        profileState.setPreferredWorkoutDurationMinutes(response.getPreferredWorkoutDurationMinutes());
+        profileState.setPrivacySettings(response.getPrivacySettings());
 
         profileState.setProfileError(null);
         profileState.setSaveConfirmation(null);
@@ -139,9 +112,7 @@ public class LoginPresenter implements LoginOutputBoundary {
         }
 
         if (this.dashboardInteractor != null) {
-            this.dashboardInteractor.execute(
-                    response.getUsername()
-            );
+            this.dashboardInteractor.execute(response.getUsername());
         }
 
         this.viewManagerModel.setState("app shell");
@@ -150,18 +121,14 @@ public class LoginPresenter implements LoginOutputBoundary {
 
     @Override
     public void prepareFailView(final String error) {
-        final LoginState loginState =
-                this.loginViewModel.getState();
-
+        final LoginState loginState = this.loginViewModel.getState();
         loginState.setLoginError(error);
         this.loginViewModel.firePropertyChanged();
     }
 
     @Override
     public void switchToSignupView() {
-        this.viewManagerModel.setState(
-                this.signupViewModel.getViewName()
-        );
+        this.viewManagerModel.setState(this.signupViewModel.getViewName());
         this.viewManagerModel.firePropertyChanged();
     }
 }

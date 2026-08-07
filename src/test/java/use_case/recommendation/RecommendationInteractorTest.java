@@ -36,56 +36,6 @@ public class RecommendationInteractorTest {
     private static final int TEST_REPS = 10;
     private static final int TEST_DURATION = 10;
     private static final int DEFAULT_DURATION_MINUTES = 45;
-
-    /**
-     * Fake data access object implementing RecommendationUserDataAccessInterface for unit testing.
-     */
-    private static class FakeDataAccessObject implements RecommendationUserDataAccessInterface {
-        private final Map<String, User> users = new HashMap<>();
-        private String currentUsername;
-
-        void save(final User user) {
-            this.users.put(user.getName(), user);
-        }
-
-        void setCurrentUsername(final String username) {
-            this.currentUsername = username;
-        }
-
-        @Override
-        public User get(final String username) {
-            return this.users.get(username);
-        }
-
-        @Override
-        public String getCurrentUsername() {
-            return this.currentUsername;
-        }
-    }
-
-    /**
-     * Fake AI Workout data access object implementing AiWorkoutDataAccessInterface for unit testing.
-     */
-    private static class FakeAiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
-        @Override
-        public List<WorkoutPlan> generateWorkoutPlans(final User user) {
-            final List<WorkoutPlan> plans = new ArrayList<>();
-            final List<Exercise> exercises = new ArrayList<>();
-            exercises.add(new Exercise("Push-Ups", TEST_SETS, TEST_REPS, TEST_DURATION,
-                    "Chest", "Bodyweight", "Lower chest to ground.", "http://example.com",
-                    "STRENGTH", "UPPER_BODY", "MEDIUM", "BODYWEIGHT"));
-            plans.add(new WorkoutPlan("Monday, Aug 3", "Upper Body", "Chest focus",
-                    "STRENGTH", "UPPER_BODY", "MEDIUM", "CHEST", "BODYWEIGHT",
-                    DEFAULT_DURATION_MINUTES, ESTIMATED_CALORIES_BURN,
-                    ESTIMATED_FAT_BURN, ESTIMATED_CARBS_BURN, exercises));
-            return plans;
-        }
-
-        @Override
-        public List<WorkoutPlan> generateWorkoutPlans(final User user, final int numberOfDays) {
-            return generateWorkoutPlans(user);
-        }
-    }
     private static final int MEAL_READY_MINUTES = 20;
 
     @Test
@@ -216,10 +166,19 @@ public class RecommendationInteractorTest {
         public List<WorkoutPlan> generateWorkoutPlans(final User user) {
             final List<WorkoutPlan> plans = new ArrayList<>();
             final List<Exercise> exercises = new ArrayList<>();
-            exercises.add(new Exercise("Push-Ups", "3 sets of 10", "Lower chest to ground.", "http://example.com"));
+            exercises.add(new Exercise("Push-Ups", TEST_SETS, TEST_REPS, TEST_DURATION,
+                    "Chest", "Bodyweight", "Lower chest to ground.", "http://example.com",
+                    "STRENGTH", "UPPER_BODY", "MEDIUM", "BODYWEIGHT"));
             plans.add(new WorkoutPlan("Monday, Aug 3", "Upper Body", "Chest focus",
-                    ESTIMATED_CALORIES_BURN, ESTIMATED_FAT_BURN, ESTIMATED_CARBS_BURN, exercises));
+                    "STRENGTH", "UPPER_BODY", "MEDIUM", "CHEST", "BODYWEIGHT",
+                    DEFAULT_DURATION_MINUTES, ESTIMATED_CALORIES_BURN,
+                    ESTIMATED_FAT_BURN, ESTIMATED_CARBS_BURN, exercises));
             return plans;
+        }
+
+        @Override
+        public List<WorkoutPlan> generateWorkoutPlans(final User user, final int numberOfDays) {
+            return generateWorkoutPlans(user);
         }
     }
 
