@@ -1,6 +1,10 @@
 package entity;
 
+/**
+ * Represents an exercise performed as part of a logged workout.
+ */
 public class ExercisePerformed {
+
     private Integer id;
     private Integer workoutId;
     private String exerciseName;
@@ -11,13 +15,68 @@ public class ExercisePerformed {
     private Double distanceKm;
     private boolean isCardio;
 
-    public ExercisePerformed(String exerciseName, Integer sets, Integer reps,
-                             Double weight, double durationMins, Double distanceKm, boolean isCardio) {
+    /**
+     * Constructs a newly performed exercise.
+     *
+     * @param exerciseName exercise name
+     * @param sets number of sets
+     * @param reps number of reps
+     * @param weight weight used
+     * @param durationMins duration in minutes
+     * @param distanceKm distance in kilometres
+     * @param isCardio whether the exercise is cardio
+     */
+    public ExercisePerformed(
+            final String exerciseName,
+            final Integer sets,
+            final Integer reps,
+            final Double weight,
+            final double durationMins,
+            final Double distanceKm,
+            final boolean isCardio
+    ) {
+        this(
+                null,
+                null,
+                exerciseName,
+                sets,
+                reps,
+                weight,
+                durationMins,
+                distanceKm,
+                isCardio
+        );
+    }
+
+    /**
+     * Constructs an exercise loaded from persistence.
+     *
+     * @param id database exercise ID
+     * @param workoutId owning workout ID
+     * @param exerciseName exercise name
+     * @param sets number of sets
+     * @param reps number of reps
+     * @param weight weight used
+     * @param durationMins duration in minutes
+     * @param distanceKm distance in kilometres
+     * @param isCardio whether the exercise is cardio
+     */
+    public ExercisePerformed(
+            final Integer id,
+            final Integer workoutId,
+            final String exerciseName,
+            final Integer sets,
+            final Integer reps,
+            final Double weight,
+            final double durationMins,
+            final Double distanceKm,
+            final boolean isCardio
+    ) {
+        this.id = id;
+        this.workoutId = workoutId;
         this.exerciseName = exerciseName;
         this.sets = sets;
         this.reps = reps;
-        this.id = null;
-        this.workoutId = null;
         this.weight = weight;
         this.durationMins = durationMins;
         this.distanceKm = distanceKm;
@@ -25,74 +84,82 @@ public class ExercisePerformed {
     }
 
     public Integer getId() {
-        return id;
+        return this.id;
     }
 
-    public void setId(Integer id) {
+    public void setId(final Integer id) {
         this.id = id;
     }
 
     public Integer getWorkoutId() {
-        return workoutId;
+        return this.workoutId;
     }
 
-    public void setWorkoutId(int workoutId) {
+    public void setWorkoutId(final int workoutId) {
         this.workoutId = workoutId;
     }
 
     public String getExerciseName() {
-        return exerciseName;
+        return this.exerciseName;
     }
 
-    public void setExerciseName(String exerciseName) {
+    public void setExerciseName(
+            final String exerciseName
+    ) {
         this.exerciseName = exerciseName;
     }
 
     public Integer getSets() {
-        return sets;
+        return this.sets;
     }
 
-    public void setSets(Integer sets) {
+    public void setSets(final Integer sets) {
         this.sets = sets;
     }
 
     public Integer getReps() {
-        return reps;
+        return this.reps;
     }
 
-    public void setReps(Integer reps) {
+    public void setReps(final Integer reps) {
         this.reps = reps;
     }
 
     public Double getWeight() {
-        return weight;
+        return this.weight;
     }
 
-    public void setWeight(Double weight) {
+    public void setWeight(final Double weight) {
         this.weight = weight;
     }
 
     public double getDurationMins() {
-        return durationMins;
+        return this.durationMins;
     }
 
-    public void setDurationMins(double durationMins) {
+    public void setDurationMins(
+            final double durationMins
+    ) {
         this.durationMins = durationMins;
     }
 
     public Double getDistanceKm() {
-        return distanceKm;
+        return this.distanceKm;
     }
 
-    public void setDistanceKm(Double distanceKm) {
+    public void setDistanceKm(
+            final Double distanceKm
+    ) {
         this.distanceKm = distanceKm;
     }
 
     public boolean getIsCardio() {
-        return isCardio;
+        return this.isCardio;
     }
 
-    public void setIsCardio(boolean isCardio) {
+    public void setIsCardio(
+            final boolean isCardio
+    ) {
         this.isCardio = isCardio;
     }
 }

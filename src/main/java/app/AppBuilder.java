@@ -10,11 +10,11 @@ import javax.swing.WindowConstants;
 import data_access.AiWorkoutDataAccessObject;
 import data_access.GoogleCalendarDataAccessObject;
 import data_access.GoogleCalendarServiceFactory;
-import data_access.InMemoryDataAccessObject;
 import data_access.MockSearchFoodDataAccessObject;
 import data_access.SearchFoodDataAccessObject;
 import data_access.SQLiteMealDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
+import data_access.SQLiteWorkoutDataAccessObject;
 import data_access.SpoonacularMealRecommendationDataAccessObject;
 import entity.CommonUserFactory;
 import entity.ExercisePerformedFactory;
@@ -254,7 +254,8 @@ public class AppBuilder {
 
     private final ExercisePerformedFactory exercisePerformedFactory = new ExercisePerformedFactory();
     private final LoggedWorkoutFactory loggedWorkoutFactory = new LoggedWorkoutFactory();
-    private final InMemoryDataAccessObject workoutDataAccessObject = new InMemoryDataAccessObject();
+    private final SQLiteWorkoutDataAccessObject workoutDataAccessObject =
+            new SQLiteWorkoutDataAccessObject();
     private final AddWorkoutDataAccessInterface addWorkoutDataAccessObject = workoutDataAccessObject;
     private final ViewWorkoutDataAccessInterface viewWorkoutsDataAccessObject = workoutDataAccessObject;
     private final EditWorkoutDataAccessInterface editWorkoutDataAccessObject = workoutDataAccessObject;
@@ -498,7 +499,7 @@ public class AppBuilder {
         final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
                 this.viewManagerModel, this.loginViewModel, this.signupViewModel,
                 this.profileViewModel, this.viewMealsViewModel, this.workoutViewModel,
-                this.recommendationController, this.dashboardInteractor, this.viewWorkoutsViewModel, 
+                this.recommendationController, this.dashboardInteractor, this.viewWorkoutsViewModel,
                 this.calendarController);
         final LoginInputBoundary loginInteractor = new LoginInteractor(
                 this.userDataAccessObject, loginOutputBoundary, viewMealsDataAccessObject,
