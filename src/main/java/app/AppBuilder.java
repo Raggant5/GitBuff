@@ -607,18 +607,6 @@ public class AppBuilder {
                 addMealController
         );
 
-        final AddMealInputBoundary addMealInteractor = new AddMealInteractor(
-                addMealPresenter,
-                this.addMealDataAccessObject,
-                this.mealFactory
-        );
-
-        final AddMealController addMealController = new AddMealController(
-                addMealInteractor,
-                this.loginViewModel, this.dashboardInteractor
-        );
-
-        this.mealEditorView.setAddMealController(addMealController);
         return this;
     }
 

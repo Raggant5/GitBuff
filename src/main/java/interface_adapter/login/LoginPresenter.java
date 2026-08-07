@@ -55,7 +55,7 @@ public class LoginPresenter implements LoginOutputBoundary {
             final WorkoutsViewModel workoutsViewModel,
             final RecommendationController recommendationController,
             final DashboardInputBoundary dashboardInteractor,
-            final ViewWorkoutsViewModel viewWorkoutsViewModel)
+            final ViewWorkoutsViewModel viewWorkoutsViewModel,
             final CalendarController calendarController) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
