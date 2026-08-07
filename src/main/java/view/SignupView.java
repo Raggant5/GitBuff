@@ -90,7 +90,9 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
 
         this.toLogin.addActionListener(evt -> {
             if (SignupView.this.signupController != null) {
-                SignupView.this.signupController.switchToLoginView();
+                final String username = SignupView.this.usernameInputField.getText();
+                final String password = new String(SignupView.this.passwordInputField.getPassword());
+                SignupView.this.signupController.switchToLoginView(username, password);
             }
         });
 

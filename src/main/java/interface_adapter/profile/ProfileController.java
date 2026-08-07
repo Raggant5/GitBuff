@@ -52,20 +52,7 @@ public class ProfileController {
     /**
      * Executes the Edit Profile Use Case.
      *
-     * @param height height in meters
-     * @param weight weight in kg
-     * @param activityLevel activity level selection
-     * @param goal fitness goal selection
-     * @param profilePicturePath profile image file path
-     * @param dateOfBirth date of birth
-     * @param gender gender selection
-     * @param bio user bio description
-     * @param preferredUnitSystem preferred measurement units
-     * @param equipment set of available equipment
-     * @param dietaryRestrictions set of dietary restrictions
-     * @param preferredWorkoutDays set of preferred workout days
-     * @param preferredWorkoutDurationMinutes target workout duration in minutes
-     * @param privacySettings set of enabled privacy settings
+     * @param inputData the profile fields to save, already built by the caller
      */
     public void execute(final float height, final float weight, final ActivityLevel activityLevel,
                         final FitnessGoal goal, final String profilePicturePath,
@@ -98,5 +85,7 @@ public class ProfileController {
             }
         };
         worker.execute();
+    public void execute(final EditProfileInputData inputData) {
+        this.editProfileUseCaseInteractor.execute(inputData);
     }
 }

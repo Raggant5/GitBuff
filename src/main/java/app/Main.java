@@ -16,7 +16,7 @@ public final class Main {
     }
 
     /**
-     * Builds and runs the Clean Architecture implementation of the application.
+     * Builds and runs the application.
      *
      * @param args command line arguments
      */
@@ -27,6 +27,7 @@ public final class Main {
                 .addLoginView()
                 .addSignupView()
                 .addMainViews()
+                .addDashboardUseCase()
                 .addNavbarView()
                 .addShellView()
                 .addSignupUseCase()
@@ -41,6 +42,12 @@ public final class Main {
                 .addDeleteMealUseCase()
                 .addDeleteFoodUseCase()
                 .addSearchFoodUseCase()
+                .addAddExerciseUseCase()
+                .addAddWorkoutUseCase()
+                .addEditExerciseUseCase()
+                .addEditWorkoutUseCase()
+                .addDeleteWorkoutUseCase()
+                .addDeleteExerciseUseCase()
                 .build();
 
         try {

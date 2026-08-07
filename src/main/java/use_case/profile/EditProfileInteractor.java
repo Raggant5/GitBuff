@@ -27,14 +27,16 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
         final String username = this.userDataAccessObject.getCurrentUsername();
         if (username == null) {
             this.profilePresenter.prepareFailView("No user is currently logged in.");
-            return;
         }
-
-        if (editProfileInputData.getHeight() <= 0.0f || editProfileInputData.getWeight() <= 0.0f) {
+        else if (editProfileInputData.getHeight() <= 0.0f || editProfileInputData.getWeight() <= 0.0f) {
             this.profilePresenter.prepareFailView("Height and weight must both be greater than zero.");
-            return;
         }
+        else {
+            saveProfileAndNotify(username, editProfileInputData);
+        }
+    }
 
+    private void saveProfileAndNotify(final String username, final EditProfileInputData editProfileInputData) {
         final User user = this.userDataAccessObject.get(username);
         user.setHeight(editProfileInputData.getHeight());
         user.setWeight(editProfileInputData.getWeight());
@@ -53,13 +55,7 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
 
         this.userDataAccessObject.save(user);
 
-        final EditProfileOutputData outputData = new EditProfileOutputData(
-                user.getName(), user.getHeight(), user.getWeight(),
-                user.getActivityLevel(), user.getGoal(), user.getProfilePicturePath(),
-                user.getDateOfBirth(), user.getGender(), user.getBio(),
-                user.getPreferredUnitSystem(), user.getEquipment(), user.getDietaryRestrictions(),
-                user.getPreferredWorkoutDays(), user.getPreferredWorkoutDurationMinutes(),
-                user.getPrivacySettings());
+        final EditProfileOutputData outputData = new EditProfileOutputData(user);
         this.profilePresenter.prepareSuccessView(outputData);
     }
 }

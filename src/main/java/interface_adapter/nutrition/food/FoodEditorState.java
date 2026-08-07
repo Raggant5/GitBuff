@@ -35,7 +35,13 @@ public class FoodEditorState {
     private String quantity = "1";
     private FoodUnit unit = FoodUnit.GRAM;
 
-    private String error = "";
+    private String caloriesError = "";
+    private String proteinError = "";
+    private String carbsError = "";
+    private String fatError = "";
+    private String quantityError = "";
+    private String gramsError = "";
+    private String submitError = "";
 
     /**
      * Resets the values when the food editor is no longer needed for reuse later.
@@ -65,7 +71,13 @@ public class FoodEditorState {
         quantity = "1";
         unit = FoodUnit.GRAM;
 
-        error = "";
+        caloriesError = "";
+        proteinError = "";
+        carbsError = "";
+        fatError = "";
+        quantityError = "";
+        gramsError = "";
+        submitError = "";
     }
 
     public String getSearchQuery() {
@@ -265,12 +277,60 @@ public class FoodEditorState {
         recalculateTotals();
     }
 
-    public String getError() {
-        return error;
+    public String getCaloriesError() {
+        return caloriesError;
     }
 
-    public void setError(String error) {
-        this.error = error;
+    public void setCaloriesError(String caloriesError) {
+        this.caloriesError = caloriesError;
+    }
+
+    public String getProteinError() {
+        return proteinError;
+    }
+
+    public void setProteinError(String proteinError) {
+        this.proteinError = proteinError;
+    }
+
+    public String getCarbsError() {
+        return carbsError;
+    }
+
+    public void setCarbsError(String carbsError) {
+        this.carbsError = carbsError;
+    }
+
+    public String getFatError() {
+        return fatError;
+    }
+
+    public void setFatError(String fatError) {
+        this.fatError = fatError;
+    }
+
+    public String getQuantityError() {
+        return quantityError;
+    }
+
+    public void setQuantityError(String quantityError) {
+        this.quantityError = quantityError;
+    }
+
+    public String getGramsError() {
+        return gramsError;
+    }
+
+    public void setGramsError(String gramsError) {
+        this.gramsError = gramsError;
+    }
+
+    public String getSubmitError() {
+        return submitError;
+    }
+
+    public void setSubmitError(String submitError) {
+        this.submitError = submitError;
     }
 
     private double getQuantityValue() {

@@ -33,6 +33,7 @@ public class RecommendationPresenter implements RecommendationOutputBoundary {
         nutritionState.setBmi(outputData.getBmi());
         nutritionState.setDailyCalorieTarget(outputData.getDailyCalorieTarget());
         nutritionState.setDailyProteinGrams(outputData.getDailyProteinGrams());
+        nutritionState.setMealRecommendations(outputData.getMealRecommendations());
         nutritionState.setMessage("");
         this.nutritionViewModel.firePropertyChanged();
 

@@ -16,6 +16,7 @@ import entity.ActivityLevel;
 import entity.CommonUser;
 import entity.Exercise;
 import entity.FitnessGoal;
+import entity.MealRecommendation;
 import entity.User;
 import entity.WorkoutPlan;
 
@@ -85,11 +86,13 @@ public class RecommendationInteractorTest {
             return generateWorkoutPlans(user);
         }
     }
+    private static final int MEAL_READY_MINUTES = 20;
 
     @Test
     public void executeWithCompleteProfileProducesRecommendation() {
         final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
         final FakeAiWorkoutDataAccessObject aiDao = new FakeAiWorkoutDataAccessObject();
+        final FakeFoodRecommendationDataAccessObject foodDao = new FakeFoodRecommendationDataAccessObject();
 
         final User user = new CommonUser("aahir", "password");
         user.setHeight(TEST_HEIGHT);
@@ -104,11 +107,14 @@ public class RecommendationInteractorTest {
             public void prepareSuccessView(final RecommendationOutputData outputData) {
                 assertEquals(EXPECTED_CALORIES, outputData.getDailyCalorieTarget());
                 assertEquals(EXPECTED_PROTEIN, outputData.getDailyProteinGrams());
-                assertEquals(user.getBMI(), outputData.getBmi(), 0.0001);
+                assertEquals(user.getBmi(), outputData.getBmi(), 0.0001);
                 assertEquals(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN.getWorkoutFocus(), outputData.getWorkoutFocus());
                 assertEquals(1, outputData.getWorkoutPlans().size());
                 assertEquals("Upper Body", outputData.getWorkoutPlans().get(0).getTitle());
                 assertEquals(ESTIMATED_CALORIES_BURN, outputData.getWorkoutPlans().get(0).getEstimatedCaloriesBurned());
+                assertEquals(1, outputData.getMealRecommendations().size());
+                assertEquals("Chicken and Rice", outputData.getMealRecommendations().get(0).getTitle());
+                assertEquals(EXPECTED_CALORIES, foodDao.lastRequestedCalories);
             }
 
             @Override
@@ -117,13 +123,14 @@ public class RecommendationInteractorTest {
             }
         };
 
-        new RecommendationInteractor(dataAccessObject, presenter, aiDao).execute();
+        new RecommendationInteractor(dataAccessObject, presenter, aiDao, foodDao).execute();
     }
 
     @Test
     public void executeWithNoLoggedInUserFails() {
         final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
         final FakeAiWorkoutDataAccessObject aiDao = new FakeAiWorkoutDataAccessObject();
+        final FakeFoodRecommendationDataAccessObject foodDao = new FakeFoodRecommendationDataAccessObject();
         final boolean[] failed = {false};
 
         final RecommendationOutputBoundary presenter = new RecommendationOutputBoundary() {
@@ -139,7 +146,7 @@ public class RecommendationInteractorTest {
             }
         };
 
-        new RecommendationInteractor(dataAccessObject, presenter, aiDao).execute();
+        new RecommendationInteractor(dataAccessObject, presenter, aiDao, foodDao).execute();
         assertTrue(failed[0]);
     }
 
@@ -147,6 +154,7 @@ public class RecommendationInteractorTest {
     public void executeWithIncompleteProfileShowsDefaultView() {
         final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
         final FakeAiWorkoutDataAccessObject aiDao = new FakeAiWorkoutDataAccessObject();
+        final FakeFoodRecommendationDataAccessObject foodDao = new FakeFoodRecommendationDataAccessObject();
 
         final User user = new CommonUser("aahir", "password");
         dataAccessObject.save(user);
@@ -157,8 +165,10 @@ public class RecommendationInteractorTest {
             @Override
             public void prepareSuccessView(final RecommendationOutputData outputData) {
                 succeeded[0] = true;
-                assertTrue(outputData.getDailyCalorieTarget() > 0);
-                assertFalse(outputData.getWorkoutPlans().isEmpty());
+                assertEquals(0.0, outputData.getBmi());
+                assertEquals(0, outputData.getDailyCalorieTarget());
+                assertTrue(outputData.getWorkoutPlans().isEmpty());
+                assertTrue(outputData.getMealRecommendations().isEmpty());
             }
 
             @Override
@@ -167,8 +177,66 @@ public class RecommendationInteractorTest {
             }
         };
 
-        new RecommendationInteractor(dataAccessObject, presenter, aiDao).execute();
+        new RecommendationInteractor(dataAccessObject, presenter, aiDao, foodDao).execute();
         assertTrue(succeeded[0]);
         assertNull(dataAccessObject.get("nobody"));
+    }
+
+    /**
+     * Fake data access object implementing RecommendationUserDataAccessInterface for unit testing.
+     */
+    private static final class FakeDataAccessObject implements RecommendationUserDataAccessInterface {
+        private final Map<String, User> users = new HashMap<>();
+        private String currentUsername;
+
+        void save(final User user) {
+            this.users.put(user.getName(), user);
+        }
+
+        void setCurrentUsername(final String username) {
+            this.currentUsername = username;
+        }
+
+        @Override
+        public User get(final String username) {
+            return this.users.get(username);
+        }
+
+        @Override
+        public String getCurrentUsername() {
+            return this.currentUsername;
+        }
+    }
+
+    /**
+     * Fake AI Workout data access object implementing AiWorkoutDataAccessInterface for unit testing.
+     */
+    private static final class FakeAiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
+        @Override
+        public List<WorkoutPlan> generateWorkoutPlans(final User user) {
+            final List<WorkoutPlan> plans = new ArrayList<>();
+            final List<Exercise> exercises = new ArrayList<>();
+            exercises.add(new Exercise("Push-Ups", "3 sets of 10", "Lower chest to ground.", "http://example.com"));
+            plans.add(new WorkoutPlan("Monday, Aug 3", "Upper Body", "Chest focus",
+                    ESTIMATED_CALORIES_BURN, ESTIMATED_FAT_BURN, ESTIMATED_CARBS_BURN, exercises));
+            return plans;
+        }
+    }
+
+    /**
+     * Fake food recommendation data access object implementing FoodRecommendationDataAccessInterface
+     * for unit testing.
+     */
+    private static final class FakeFoodRecommendationDataAccessObject
+            implements FoodRecommendationDataAccessInterface {
+        private int lastRequestedCalories;
+
+        @Override
+        public List<MealRecommendation> generateMealRecommendations(final User user, final int targetCalories) {
+            this.lastRequestedCalories = targetCalories;
+            final List<MealRecommendation> meals = new ArrayList<>();
+            meals.add(new MealRecommendation("Chicken and Rice", MEAL_READY_MINUTES, "http://example.com/recipe"));
+            return meals;
+        }
     }
 }

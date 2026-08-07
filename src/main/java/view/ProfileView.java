@@ -49,16 +49,24 @@ import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
 import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
+import use_case.profile.EditProfileInputData;
 
 /**
  * The View for editing the current user's profile with matching modern styling and horizontal grids.
  */
-public class ProfileView extends JPanel implements PropertyChangeListener {
+public class ProfileView extends JPanel
+        implements PropertyChangeListener {
 
-    private static final Color PRIMARY_COLOR = new Color(41, 128, 185);
-    private static final Color ACCENT_COLOR = new Color(52, 152, 219);
-    private static final Color BG_DARK = new Color(245, 247, 250);
-    private static final Color CARD_BORDER = new Color(220, 224, 230);
+    private static final Color PRIMARY_COLOR =
+            new Color(41, 128, 185);
+    private static final Color ACCENT_COLOR =
+            new Color(52, 152, 219);
+    private static final Color BG_DARK =
+            new Color(245, 247, 250);
+    private static final Color CARD_BORDER =
+            new Color(220, 224, 230);
+    private static final Color LIGHT_TEXT_COLOR =
+            new Color(236, 240, 241);
 
     private static final int PICTURE_PREVIEW_SIZE = 96;
     private static final int DEFAULT_WORKOUT_DURATION = 45;
@@ -66,6 +74,21 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     private static final float CM_PER_METRE = 100f;
     private static final float LBS_PER_KG = 2.20462f;
     private static final float INCHES_PER_METRE = 39.3701f;
+
+    private static final String FONT_SANS_SERIF = "SansSerif";
+    private static final int SECTION_PADDING_VERTICAL = 15;
+    private static final int SECTION_PADDING_HORIZONTAL = 20;
+    private static final int TITLE_FONT_SIZE = 20;
+    private static final int SMALL_FONT_SIZE = 13;
+    private static final int SAVE_BUTTON_FONT_SIZE = 14;
+    private static final int SAVE_BUTTON_WIDTH = 800;
+    private static final int SAVE_BUTTON_HEIGHT = 42;
+    private static final int SMALL_GAP = 5;
+    private static final int CARD_GAP = 12;
+    private static final int CHECKBOX_GRID_COLUMNS = 3;
+    private static final int SCROLL_UNIT_INCREMENT = 16;
+    private static final int CARD_PADDING_VERTICAL = 8;
+    private static final int CARD_PADDING_HORIZONTAL = 12;
 
     private final String viewName = "profile";
     private final ProfileViewModel profileViewModel;
@@ -116,45 +139,156 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         this.setLayout(new BorderLayout());
         this.setBackground(BG_DARK);
 
+        final JPanel topPanel = createTopPanel();
+        wireControlListeners();
+        final JPanel formContainer = buildFormContainer();
+
+        final JScrollPane scrollPane =
+                new JScrollPane(formContainer);
+
+        scrollPane.getVerticalScrollBar()
+                .setUnitIncrement(SCROLL_UNIT_INCREMENT);
+
+        scrollPane.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+        );
+
+        scrollPane.setBorder(null);
+
+        this.add(topPanel, BorderLayout.NORTH);
+        this.add(scrollPane, BorderLayout.CENTER);
+        this.add(this.saveButton, BorderLayout.SOUTH);
+
+        displayState(
+                this.profileViewModel.getState()
+        );
+    }
+
+    private JPanel createTopPanel() {
         final JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setBackground(PRIMARY_COLOR);
-        topPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        topPanel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        SECTION_PADDING_VERTICAL,
+                        SECTION_PADDING_HORIZONTAL,
+                        SECTION_PADDING_VERTICAL,
+                        SECTION_PADDING_HORIZONTAL
+                )
+        );
+
+        final JLabel title =
+                new JLabel("User Profile Settings");
+
+        title.setFont(
+                new Font(
+                        FONT_SANS_SERIF,
+                        Font.BOLD,
+                        TITLE_FONT_SIZE
+                )
+        );
 
         final JLabel title = new JLabel("User Profile Settings");
         title.setFont(new Font("SansSerif", Font.BOLD, 20));
         title.setForeground(Color.WHITE);
 
-        this.usernameLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        this.usernameLabel.setForeground(new Color(236, 240, 241));
+        this.usernameLabel.setFont(
+                new Font(
+                        FONT_SANS_SERIF,
+                        Font.PLAIN,
+                        SMALL_FONT_SIZE
+                )
+        );
+
+        this.usernameLabel.setForeground(LIGHT_TEXT_COLOR);
 
         topPanel.add(title);
-        topPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        topPanel.add(
+                Box.createRigidArea(
+                        new Dimension(0, SMALL_GAP)
+                )
+        );
         topPanel.add(this.usernameLabel);
 
+        return topPanel;
+    }
+
+    private void wireControlListeners() {
+        this.choosePictureButton.addActionListener(
+                this::onChoosePicture
+        );
+
+        this.saveButton.addActionListener(
+                this::onSave
+        );
+
+        this.unitSystemBox.addActionListener(
+                event -> updateUnitLabels()
+        );
+
+        styleButton(
+                this.choosePictureButton,
+                PRIMARY_COLOR
+        );
+
+        styleButton(
+                this.saveButton,
+                ACCENT_COLOR
+        );
+
+        this.saveButton.setFont(
+                new Font(
+                        FONT_SANS_SERIF,
+                        Font.BOLD,
+                        SAVE_BUTTON_FONT_SIZE
+                )
+        );
+
+        this.saveButton.setPreferredSize(
+                new Dimension(SAVE_BUTTON_WIDTH, SAVE_BUTTON_HEIGHT)
+        );
+    }
+
+    private JPanel buildFormContainer() {
         final JPanel formContainer = new JPanel();
-        formContainer.setLayout(new BoxLayout(formContainer, BoxLayout.Y_AXIS));
+        formContainer.setLayout(
+                new BoxLayout(
+                        formContainer,
+                        BoxLayout.Y_AXIS
+                )
+        );
 
         formContainer.setBackground(BG_DARK);
-        formContainer.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        formContainer.setBorder(
+                BorderFactory.createEmptyBorder(
+                        SECTION_PADDING_VERTICAL,
+                        SECTION_PADDING_HORIZONTAL,
+                        SECTION_PADDING_VERTICAL,
+                        SECTION_PADDING_HORIZONTAL
+                )
+        );
 
-        this.choosePictureButton.addActionListener(this::onChoosePicture);
-        this.saveButton.addActionListener(this::onSave);
-        this.unitSystemBox.addActionListener(event -> updateUnitLabels());
-
-        styleButton(this.choosePictureButton, PRIMARY_COLOR);
-        styleButton(this.saveButton, ACCENT_COLOR);
+        final JPanel picCard =
+                createCardPanel("Profile Picture");
 
         this.saveButton.setFont(new Font("SansSerif", Font.BOLD, 14));
         this.saveButton.setPreferredSize(new Dimension(800, 42));
 
         final JPanel picCard = createCardPanel("Profile Picture");
         picCard.add(this.pictureLabel);
-        picCard.add(Box.createRigidArea(new Dimension(0, 5)));
+        picCard.add(
+                Box.createRigidArea(
+                        new Dimension(0, SMALL_GAP)
+                )
+        );
         picCard.add(this.choosePictureButton);
 
         formContainer.add(picCard);
-        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+        formContainer.add(
+                Box.createRigidArea(
+                        new Dimension(0, CARD_GAP)
+                )
+        );
 
         final JPanel bioCard = createCardPanel("Bio");
         this.bioArea.setLineWrap(true);
@@ -162,46 +296,102 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         bioCard.add(new JScrollPane(this.bioArea));
 
         formContainer.add(bioCard);
-        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+        formContainer.add(
+                Box.createRigidArea(
+                        new Dimension(0, CARD_GAP)
+                )
+        );
 
         formContainer.add(createMetricsCard());
-        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+        formContainer.add(
+                Box.createRigidArea(
+                        new Dimension(0, CARD_GAP)
+                )
+        );
 
         formContainer.add(createStrategyCard());
-        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+        formContainer.add(
+                Box.createRigidArea(
+                        new Dimension(0, CARD_GAP)
+                )
+        );
 
         formContainer.add(createEquipmentPanel());
-        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+        formContainer.add(
+                Box.createRigidArea(
+                        new Dimension(0, CARD_GAP)
+                )
+        );
 
-        formContainer.add(createCheckBoxGridPanel("Dietary Restrictions", DietaryRestriction.values(),
-                this.dietaryCheckBoxes, 3));
-        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+        addPreferencesSections(formContainer);
 
-        formContainer.add(createCheckBoxGridPanel("Preferred Workout Days", DayOfWeek.values(),
-                this.dayCheckBoxes, 3));
-        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+        return formContainer;
+    }
 
-        formContainer.add(createDurationPanel());
-        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+    private void addPreferencesSections(final JPanel formContainer) {
+        formContainer.add(
+                createCheckBoxGridPanel(
+                        "Dietary Restrictions",
+                        DietaryRestriction.values(),
+                        this.dietaryCheckBoxes,
+                        CHECKBOX_GRID_COLUMNS
+                )
+        );
 
-        formContainer.add(createPrivacyPanel());
-        formContainer.add(Box.createRigidArea(new Dimension(0, 12)));
+        formContainer.add(
+                Box.createRigidArea(
+                        new Dimension(0, CARD_GAP)
+                )
+        );
 
-        this.statusLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        this.statusLabel.setForeground(PRIMARY_COLOR);
+        formContainer.add(
+                createCheckBoxGridPanel(
+                        "Preferred Workout Days",
+                        DayOfWeek.values(),
+                        this.dayCheckBoxes,
+                        CHECKBOX_GRID_COLUMNS
+                )
+        );
+
+        formContainer.add(
+                Box.createRigidArea(
+                        new Dimension(0, CARD_GAP)
+                )
+        );
+
+        formContainer.add(
+                createDurationPanel()
+        );
+
+        formContainer.add(
+                Box.createRigidArea(
+                        new Dimension(0, CARD_GAP)
+                )
+        );
+
+        formContainer.add(
+                createPrivacyPanel()
+        );
+
+        formContainer.add(
+                Box.createRigidArea(
+                        new Dimension(0, CARD_GAP)
+                )
+        );
+
+        this.statusLabel.setFont(
+                new Font(
+                        FONT_SANS_SERIF,
+                        Font.BOLD,
+                        SMALL_FONT_SIZE
+                )
+        );
+
+        this.statusLabel.setForeground(
+                PRIMARY_COLOR
+        );
 
         formContainer.add(this.statusLabel);
-
-        final JScrollPane scrollPane = new JScrollPane(formContainer);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setBorder(null);
-
-        this.add(topPanel, BorderLayout.NORTH);
-        this.add(scrollPane, BorderLayout.CENTER);
-        this.add(this.saveButton, BorderLayout.SOUTH);
-
-        displayState(this.profileViewModel.getState());
     }
 
     /**
@@ -231,13 +421,37 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         panel.setBackground(Color.WHITE);
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        final TitledBorder border = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(CARD_BORDER, 1), title);
-        border.setTitleFont(new Font("SansSerif", Font.BOLD, 13));
+        final TitledBorder border =
+                BorderFactory.createTitledBorder(
+                        BorderFactory.createLineBorder(
+                                CARD_BORDER,
+                                1
+                        ),
+                        title
+                );
+
+        border.setTitleFont(
+                new Font(
+                        FONT_SANS_SERIF,
+                        Font.BOLD,
+                        SMALL_FONT_SIZE
+                )
+        );
+
         border.setTitleColor(PRIMARY_COLOR);
 
-        panel.setBorder(BorderFactory.createCompoundBorder(border,
-                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+        panel.setBorder(
+                BorderFactory.createCompoundBorder(
+                        border,
+                        BorderFactory.createEmptyBorder(
+                                CARD_PADDING_VERTICAL,
+                                CARD_PADDING_HORIZONTAL,
+                                CARD_PADDING_VERTICAL,
+                                CARD_PADDING_HORIZONTAL
+                        )
+                )
+        );
+
         return panel;
     }
 
@@ -302,11 +516,26 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         return card;
     }
 
-    private <E extends Enum<E>> JPanel createCheckBoxGridPanel(final String title, final E[] values,
-                                                               final Map<E, JCheckBox> checkBoxMap,
-                                                               final int columns) {
-        final JPanel card = createCardPanel(title);
-        final JPanel grid = new JPanel(new GridLayout(0, columns, 8, 4));
+    private <E extends Enum<E>>
+            JPanel createCheckBoxGridPanel(
+            final String title,
+            final E[] values,
+            final Map<E, JCheckBox> checkBoxMap,
+            final int columns
+    ) {
+        final JPanel card =
+                createCardPanel(title);
+
+        final JPanel grid =
+                new JPanel(
+                        new GridLayout(
+                                0,
+                                columns,
+                                8,
+                                4
+                        )
+                );
+
         grid.setBackground(Color.WHITE);
 
         for (final E value : values) {
@@ -389,23 +618,31 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     private int getPreferredWorkoutDurationMinutes() {
         final String durationText = this.preferredWorkoutDurationField.getText().trim();
 
+        final int durationMinutes;
         if (durationText.isEmpty()) {
-            return DEFAULT_WORKOUT_DURATION;
+            durationMinutes = DEFAULT_WORKOUT_DURATION;
         }
-
-        final int durationMinutes = Integer.parseInt(durationText);
-        if (durationMinutes <= 0) {
-            throw new NumberFormatException("Workout duration must be positive.");
+        else {
+            durationMinutes = Integer.parseInt(durationText);
+            if (durationMinutes <= 0) {
+                throw new NumberFormatException(
+                        "Workout duration must be positive."
+                );
+            }
         }
 
         return durationMinutes;
     }
 
-    private void onSave(final ActionEvent event) {
-        if (this.profileController == null) {
-            return;
+    private void onSave(
+            final ActionEvent event
+    ) {
+        if (this.profileController != null) {
+            trySaveProfile();
         }
+    }
 
+    private void trySaveProfile() {
         try {
             final UnitSystem selectedUnit = (UnitSystem) this.unitSystemBox.getSelectedItem();
             final float rawHeight = Float.parseFloat(this.heightField.getText().trim());
@@ -489,8 +726,22 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         if (path == null || path.isBlank()) {
             this.pictureLabel.setText("No picture selected");
             this.pictureLabel.setIcon(null);
-            return;
         }
+        else {
+            final ImageIcon icon =
+                    new ImageIcon(path);
+
+            final Image scaled =
+                    icon.getImage()
+                            .getScaledInstance(
+                                    PICTURE_PREVIEW_SIZE,
+                                    PICTURE_PREVIEW_SIZE,
+                                    Image.SCALE_SMOOTH
+                            );
+
+            this.pictureLabel.setIcon(
+                    new ImageIcon(scaled)
+            );
 
         final ImageIcon icon = new ImageIcon(path);
         final Image scaled = icon.getImage().getScaledInstance(PICTURE_PREVIEW_SIZE,
@@ -506,6 +757,60 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
 
         updateUnitLabels();
 
+        displayHeightAndWeight(state);
+        displayDateOfBirth(state);
+
+        this.genderBox.setSelectedItem(
+                state.getGender()
+        );
+
+        this.bioArea.setText(
+                state.getBio()
+        );
+
+        this.activityLevelBox.setSelectedItem(
+                state.getActivityLevel()
+        );
+
+        this.goalBox.setSelectedItem(
+                state.getGoal()
+        );
+
+        setSelectedItems(
+                this.equipmentCheckBoxes,
+                state.getEquipment()
+        );
+
+        setSelectedItems(
+                this.dietaryCheckBoxes,
+                state.getDietaryRestrictions()
+        );
+
+        setSelectedItems(
+                this.dayCheckBoxes,
+                state.getPreferredWorkoutDays()
+        );
+
+        displayWorkoutDuration(state);
+
+        setSelectedItems(
+                this.privacyCheckBoxes,
+                state.getPrivacySettings()
+        );
+
+        displayCombinedBikeCheckbox(state);
+
+        this.selectedProfilePicturePath =
+                state.getProfilePicturePath();
+
+        setPicturePreview(
+                this.selectedProfilePicturePath
+        );
+
+        displayStatusMessage(state);
+    }
+
+    private void displayHeightAndWeight(final ProfileState state) {
         try {
             final float heightMetres = Float.parseFloat(state.getHeightText());
             final float weightKg = Float.parseFloat(state.getWeightText());
@@ -523,13 +828,16 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
             this.heightField.setText("");
             this.weightField.setText("");
         }
+    }
 
+    private void displayDateOfBirth(final ProfileState state) {
         if (state.getDateOfBirth() == null) {
             this.dobField.setText("");
         }
         else {
             this.dobField.setText(state.getDateOfBirth().toString());
         }
+    }
 
         this.genderBox.setSelectedItem(state.getGender());
         this.bioArea.setText(state.getBio());
@@ -539,7 +847,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         setSelectedItems(this.equipmentCheckBoxes, state.getEquipment());
         setSelectedItems(this.dietaryCheckBoxes, state.getDietaryRestrictions());
         setSelectedItems(this.dayCheckBoxes, state.getPreferredWorkoutDays());
-
+    private void displayWorkoutDuration(final ProfileState state) {
         final int savedDuration = state.getPreferredWorkoutDurationMinutes();
         if (savedDuration > 0) {
             this.preferredWorkoutDurationField.setText(String.valueOf(savedDuration));
@@ -547,9 +855,11 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         else {
             this.preferredWorkoutDurationField.setText(String.valueOf(DEFAULT_WORKOUT_DURATION));
         }
+    }
 
         setSelectedItems(this.privacyCheckBoxes, state.getPrivacySettings());
 
+    private void displayCombinedBikeCheckbox(final ProfileState state) {
         if (state.getEquipment() != null) {
             boolean hasBike = false;
             for (final Equipment equipment : state.getEquipment()) {
@@ -561,10 +871,12 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
             }
             this.eqCombinedBikeCheckBox.setSelected(hasBike);
         }
+    }
 
         this.selectedProfilePicturePath = state.getProfilePicturePath();
         setPicturePreview(this.selectedProfilePicturePath);
 
+    private void displayStatusMessage(final ProfileState state) {
         if (state.getProfileError() != null) {
             this.statusLabel.setText(state.getProfileError());
         }
