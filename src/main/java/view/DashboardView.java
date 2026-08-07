@@ -38,9 +38,9 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
     private static final int HORIZONTAL_GAP = 10;
     private static final int VERTICAL_GAP = 10;
 
-    private static final int CHART_MIN_WIDTH = 250;
+    private static final int SIDEBAR_PREFERRED_WIDTH = 320;
+    private static final int CHART_MIN_WIDTH = 200;
     private static final int CHART_MIN_HEIGHT = 150;
-    private static final double SPLIT_PANE_RESIZE_WEIGHT = 0.35;
 
     private final String viewName = "dashboard";
 
@@ -74,23 +74,25 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
             }
         });
 
-        // Top section: Combine both Nutrition Charts side-by-side
-        final JPanel chartsTopSection = new JPanel(new GridLayout(1, 2, HORIZONTAL_GAP, VERTICAL_GAP));
+        // Left Side: Nutrition Charts stacked vertically
+        final JPanel chartsSideSection = new JPanel(new GridLayout(2, 1, HORIZONTAL_GAP, VERTICAL_GAP));
+        chartsSideSection.setPreferredSize(new Dimension(SIDEBAR_PREFERRED_WIDTH, 0));
+        chartsSideSection.setMinimumSize(new Dimension(SIDEBAR_PREFERRED_WIDTH, 0));
 
         this.calorieChartContainer.setBorder(BorderFactory.createTitledBorder("Calories"));
         this.macroChartContainer.setBorder(BorderFactory.createTitledBorder("Today's Macronutrients"));
         this.calendarContainer.setBorder(BorderFactory.createTitledBorder("Calendar Schedule"));
 
-        chartsTopSection.add(this.calorieChartContainer);
-        chartsTopSection.add(this.macroChartContainer);
+        chartsSideSection.add(this.calorieChartContainer);
+        chartsSideSection.add(this.macroChartContainer);
 
-        // Bottom section: Large Calendar panel
+        // Right Side: Calendar Panel
         this.calendarContainer.add(calendarPanel, BorderLayout.CENTER);
 
-        // Vertical Split Pane: Top gets ~35% height, Bottom Calendar gets ~65% height
+        // Horizontal Split Pane
         final JSplitPane splitPane = new JSplitPane(
-                JSplitPane.VERTICAL_SPLIT, chartsTopSection, this.calendarContainer);
-        splitPane.setResizeWeight(SPLIT_PANE_RESIZE_WEIGHT);
+                JSplitPane.HORIZONTAL_SPLIT, chartsSideSection, this.calendarContainer);
+        splitPane.setDividerLocation(SIDEBAR_PREFERRED_WIDTH);
         splitPane.setContinuousLayout(true);
         splitPane.setBorder(null);
 
