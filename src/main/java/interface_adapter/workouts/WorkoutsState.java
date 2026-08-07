@@ -14,6 +14,7 @@ public class WorkoutsState {
     private String activityLevelDescription = "";
     private List<WorkoutPlan> workoutPlans = new ArrayList<>();
     private String message = "";
+    private boolean isLoading;
 
     public String getWorkoutFocus() {
         return this.workoutFocus;
@@ -45,5 +46,13 @@ public class WorkoutsState {
 
     public void setMessage(final String message) {
         this.message = message;
+    }
+
+    public boolean isLoading() {
+        return this.isLoading;
+    }
+
+    public void setLoading(final boolean isLoading) {
+        this.isLoading = isLoading;
     }
 }

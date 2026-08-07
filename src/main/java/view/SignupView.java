@@ -21,6 +21,8 @@ import javax.swing.event.DocumentListener;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupState;
 import interface_adapter.signup.SignupViewModel;
+import interface_adapter.workouts.WorkoutsState;
+import interface_adapter.workouts.WorkoutsViewModel;
 
 /**
  * The View for the Signup Use Case.
@@ -41,6 +43,7 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
     private final JTextField usernameInputField = new JTextField(FIELD_COLUMNS);
     private final JPasswordField passwordInputField = new JPasswordField(FIELD_COLUMNS);
     private final JPasswordField repeatPasswordInputField = new JPasswordField(FIELD_COLUMNS);
+    private final JLabel statusLabel = new JLabel();
     private SignupController signupController;
 
     private final JButton signUp;
@@ -130,6 +133,8 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
 
         buttons.setMaximumSize(buttons.getPreferredSize());
 
+        this.statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         this.add(Box.createVerticalGlue());
         this.add(title);
         this.add(Box.createVerticalStrut(VSTRUT_LARGE));
@@ -139,8 +144,31 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
         this.add(Box.createVerticalStrut(VSTRUT_SMALL));
         this.add(repeatPasswordInfo);
         this.add(Box.createVerticalStrut(VSTRUT_SMALL));
+        this.add(this.statusLabel);
+        this.add(Box.createVerticalStrut(VSTRUT_SMALL));
         this.add(buttons);
         this.add(Box.createVerticalGlue());
+    }
+
+    /**
+     * Binds to workouts view model to reflect schedule loading status.
+     *
+     * @param workoutsViewModel view model for workout state
+     */
+    public void setWorkoutsViewModel(final WorkoutsViewModel workoutsViewModel) {
+        if (workoutsViewModel != null) {
+            workoutsViewModel.addPropertyChangeListener(evt -> {
+                if (evt.getNewValue() instanceof WorkoutsState) {
+                    final WorkoutsState state = (WorkoutsState) evt.getNewValue();
+                    if (state.isLoading()) {
+                        this.statusLabel.setText("Loading workout schedule...");
+                    }
+                    else if ("Loading workout schedule...".equals(this.statusLabel.getText())) {
+                        this.statusLabel.setText("");
+                    }
+                }
+            });
+        }
     }
 
     private void addUsernameListener() {

@@ -46,6 +46,7 @@ public class RecommendationPresenter implements RecommendationOutputBoundary {
         workoutsState.setActivityLevelDescription(outputData.getActivityLevelDescription());
         workoutsState.setWorkoutPlans(outputData.getWorkoutPlans());
         workoutsState.setMessage("");
+        workoutsState.setLoading(false);
         this.workoutsViewModel.firePropertyChanged();
 
         if (this.calendarController != null) {
@@ -61,6 +62,7 @@ public class RecommendationPresenter implements RecommendationOutputBoundary {
 
         final WorkoutsState workoutsState = this.workoutsViewModel.getState();
         workoutsState.setMessage(errorMessage);
+        workoutsState.setLoading(false);
         this.workoutsViewModel.firePropertyChanged();
     }
 }

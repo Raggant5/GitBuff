@@ -164,6 +164,7 @@ import use_case.nutrition.meal.prepare_edit_meal.PrepareEditMealInteractor;
 import use_case.profile.EditProfileInputBoundary;
 import use_case.profile.EditProfileInteractor;
 import use_case.profile.EditProfileOutputBoundary;
+import use_case.profile.ProfileUserDataAccessInterface;
 import use_case.recommendation.AiWorkoutDataAccessInterface;
 import use_case.recommendation.FoodRecommendationDataAccessInterface;
 import use_case.recommendation.RecommendationInputBoundary;
@@ -197,7 +198,6 @@ public class AppBuilder {
 
     private static final int APP_WIDTH = 1000;
     private static final int APP_HEIGHT = 700;
-    private static final String DEFAULT_AI_KEY = "API KEY GOES HERE";
 
     private final JPanel cardPanel = new JPanel();
     private final CardLayout cardLayout = new CardLayout();
@@ -207,26 +207,14 @@ public class AppBuilder {
 
     private final JPanel mainPanel = new JPanel();
     private final CardLayout mainCardLayout = new CardLayout();
-    private final MainViewManagerModel mainViewManagerModel =
-            new MainViewManagerModel();
-    private final MainViewManager mainViewManager =
-            new MainViewManager(
-                    mainPanel,
-                    mainCardLayout,
-                    mainViewManagerModel
-            );
+    private final MainViewManagerModel mainViewManagerModel = new MainViewManagerModel();
 
-    private final UserFactory userFactory =
-            new CommonUserFactory();
+    private final UserFactory userFactory = new CommonUserFactory();
 
-    private final SQLiteUserDataAccessObject userDataAccessObject =
-            new SQLiteUserDataAccessObject();
+    private final SQLiteUserDataAccessObject userDataAccessObject = new SQLiteUserDataAccessObject();
     private final SQLiteMealDataAccessObject mealDataAccessObject = new SQLiteMealDataAccessObject();
 
-    private final DashboardDataAccessInterface dashboardDataAccessObject = mealDataAccessObject;
-    private final AiWorkoutDataAccessInterface aiWorkoutDao =
-            new AiWorkoutDataAccessObject();
-
+    private final AiWorkoutDataAccessInterface aiWorkoutDao = new AiWorkoutDataAccessObject();
     private final FoodRecommendationDataAccessInterface foodRecommendationDao =
             new SpoonacularMealRecommendationDataAccessObject();
 
@@ -247,28 +235,15 @@ public class AppBuilder {
     private ProfileView profileView;
     private NavbarView navbarView;
 
-    private final FoodEntryFactory foodEntryFactory =
-            new FoodEntryFactory();
-    private final MealFactory mealFactory =
-            new MealFactory();
+    private final FoodEntryFactory foodEntryFactory = new FoodEntryFactory();
+    private final MealFactory mealFactory = new MealFactory();
 
-    private final AddMealDataAccessInterface addMealDataAccessObject =
-            mealDataAccessObject;
-
-    private final ViewMealDataAccessInterface viewMealsDataAccessObject =
-            mealDataAccessObject;
-
-    private final EditMealDataAccessInterface editMealDataAccessObject =
-            mealDataAccessObject;
-
-    private final EditFoodDataAccessInterface editFoodDataAccessObject =
-            mealDataAccessObject;
-
-    private final DeleteMealDataAccessInterface deleteMealDataAccessObject =
-            mealDataAccessObject;
-
-    private final DeleteFoodDataAccessInterface deleteFoodDataAccessObject =
-            mealDataAccessObject;
+    private final AddMealDataAccessInterface addMealDataAccessObject = mealDataAccessObject;
+    private final ViewMealDataAccessInterface viewMealsDataAccessObject = mealDataAccessObject;
+    private final EditMealDataAccessInterface editMealDataAccessObject = mealDataAccessObject;
+    private final EditFoodDataAccessInterface editFoodDataAccessObject = mealDataAccessObject;
+    private final DeleteMealDataAccessInterface deleteMealDataAccessObject = mealDataAccessObject;
+    private final DeleteFoodDataAccessInterface deleteFoodDataAccessObject = mealDataAccessObject;
 
     private ViewMealsView viewMealsView;
     private MealEditorView mealEditorView;
@@ -377,6 +352,9 @@ public class AppBuilder {
     public AppBuilder addLoginView() {
         this.loginViewModel = new LoginViewModel();
         this.loginView = new LoginView(this.loginViewModel);
+        if (this.workoutViewModel != null) {
+            this.loginView.setWorkoutsViewModel(this.workoutViewModel);
+        }
         this.cardPanel.add(this.loginView, this.loginView.getViewName());
         return this;
     }
@@ -394,12 +372,17 @@ public class AppBuilder {
         this.nutritionViewModel = new NutritionViewModel();
         this.profileViewModel = new ProfileViewModel();
         this.profileView = new ProfileView(this.profileViewModel);
+        this.profileView.setWorkoutsViewModel(this.workoutViewModel);
         this.mealEditorViewModel = new MealEditorViewModel();
         this.foodEditorViewModel = new FoodEditorViewModel();
         this.foodEditorView = new FoodEditorView(this.foodEditorViewModel);
 
-        final PrepareEditFoodPresenter prepareEditFoodPresenter = new PrepareEditFoodPresenter(foodEditorViewModel,
-                mealEditorViewModel);
+        if (this.loginView != null) {
+            this.loginView.setWorkoutsViewModel(this.workoutViewModel);
+        }
+
+        final PrepareEditFoodPresenter prepareEditFoodPresenter = new PrepareEditFoodPresenter(
+                foodEditorViewModel, mealEditorViewModel);
         final PrepareEditFoodInputBoundary prepareEditFoodInteractor = new PrepareEditFoodInteractor(
                 prepareEditFoodPresenter);
         final PrepareEditFoodController prepareEditFoodController = new PrepareEditFoodController(
@@ -408,8 +391,8 @@ public class AppBuilder {
                 mainViewManagerModel);
         this.nutritionViewModel = new NutritionViewModel();
         this.viewMealsViewModel = new ViewMealsViewModel();
-        final PrepareEditMealPresenter prepareEditMealPresenter = new PrepareEditMealPresenter(mealEditorViewModel,
-                this.mainViewManagerModel);
+        final PrepareEditMealPresenter prepareEditMealPresenter = new PrepareEditMealPresenter(
+                mealEditorViewModel, this.mainViewManagerModel);
         final PrepareEditMealInputBoundary prepareEditMealInteractor = new PrepareEditMealInteractor(
                 prepareEditMealPresenter);
         final PrepareEditMealController prepareEditMealController = new PrepareEditMealController(
@@ -497,19 +480,12 @@ public class AppBuilder {
 
     /**
      * Adds dashboard use case to application.
+     *
      * @return this builder
      */
     public AppBuilder addDashboardUseCase() {
-
-        final DashboardOutputBoundary dashboardPresenter =
-                new DashboardPresenter(this.dashboardViewModel);
-
-        this.dashboardInteractor =
-                new DashboardInteractor(
-                        this.mealDataAccessObject,
-                        dashboardPresenter
-                );
-
+        final DashboardOutputBoundary dashboardPresenter = new DashboardPresenter(this.dashboardViewModel);
+        this.dashboardInteractor = new DashboardInteractor(this.mealDataAccessObject, dashboardPresenter);
         return this;
     }
 
@@ -521,8 +497,9 @@ public class AppBuilder {
     public AppBuilder addLoginUseCase() {
         final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
                 this.viewManagerModel, this.loginViewModel, this.signupViewModel,
-                this.profileViewModel, this.viewMealsViewModel, this.recommendationController,
-                this.dashboardInteractor, this.viewWorkoutsViewModel, this.calendarController);
+                this.profileViewModel, this.viewMealsViewModel, this.workoutViewModel,
+                this.recommendationController, this.dashboardInteractor, this.viewWorkoutsViewModel, 
+                this.calendarController);
         final LoginInputBoundary loginInteractor = new LoginInteractor(
                 this.userDataAccessObject, loginOutputBoundary, viewMealsDataAccessObject,
                 viewWorkoutsDataAccessObject);
@@ -557,9 +534,10 @@ public class AppBuilder {
     public AppBuilder addProfileUseCase() {
         final EditProfileOutputBoundary profileOutputBoundary = new ProfilePresenter(this.profileViewModel);
         final EditProfileInputBoundary editProfileInteractor = new EditProfileInteractor(
-                this.userDataAccessObject, profileOutputBoundary, this.recommendationInteractor);
+                (ProfileUserDataAccessInterface) this.userDataAccessObject, profileOutputBoundary);
 
         final ProfileController profileController = new ProfileController(editProfileInteractor);
+        profileController.setRecommendationDependencies(this.recommendationController, this.workoutViewModel);
         this.profileView.setProfileController(profileController);
         return this;
     }
@@ -587,30 +565,21 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addAddFoodUseCase() {
-        final AddFoodEntryOutputBoundary addFoodPresenter =
-                new AddFoodPresenter(
-                        mealEditorViewModel,
-                        foodEditorViewModel
-                );
+        final AddFoodEntryOutputBoundary addFoodPresenter = new AddFoodPresenter(
+                mealEditorViewModel, foodEditorViewModel);
+        final AddFoodEntryInputBoundary addFoodEntryInteractor = new AddFoodEntryInteractor(
+                addFoodPresenter, foodEntryFactory);
+        final AddFoodController addFoodController = new AddFoodController(addFoodEntryInteractor);
 
-        final AddFoodEntryInputBoundary addFoodEntryInteractor =
-                new AddFoodEntryInteractor(
-                        addFoodPresenter,
-                        foodEntryFactory
-                );
-
-        final AddFoodController addFoodController =
-                new AddFoodController(
-                        addFoodEntryInteractor
-                );
-
-        foodEditorView.setAddFoodController(
-                addFoodController
-        );
-
+        foodEditorView.setAddFoodController(addFoodController);
         return this;
     }
 
+    /**
+     * Adds the add-meal use case.
+     *
+     * @return this builder
+     */
     public AppBuilder addAddMealUseCase() {
         final AddMealOutputBoundary addMealPresenter =
                 new AddMealPresenter(
@@ -638,9 +607,20 @@ public class AppBuilder {
                 addMealController
         );
 
+        final AddMealInputBoundary addMealInteractor = new AddMealInteractor(
+                addMealPresenter,
+                this.addMealDataAccessObject,
+                this.mealFactory
+        );
+
+        final AddMealController addMealController = new AddMealController(
+                addMealInteractor,
+                this.loginViewModel, this.dashboardInteractor
+        );
+
+        this.mealEditorView.setAddMealController(addMealController);
         return this;
     }
-
 
     /**
      * Adds the edit-meal use case.
@@ -653,6 +633,7 @@ public class AppBuilder {
         final EditMealInputBoundary editMealInteractor = new EditMealInteractor(editMealPresenter,
                 editMealDataAccessObject, deleteFoodDataAccessObject);
         final EditMealController editMealController = new EditMealController(editMealInteractor);
+
         mealEditorView.setEditMealController(editMealController);
         return this;
     }
@@ -663,27 +644,13 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addEditFoodUseCase() {
-        final EditFoodOutputBoundary editFoodPresenter =
-                new EditFoodPresenter(
-                        mealEditorViewModel,
-                        foodEditorViewModel
-                );
+        final EditFoodOutputBoundary editFoodPresenter = new EditFoodPresenter(
+                mealEditorViewModel, foodEditorViewModel);
+        final EditFoodInputBoundary editFoodInteractor = new EditFoodInteractor(
+                editFoodPresenter, editFoodDataAccessObject);
+        final EditFoodController editFoodController = new EditFoodController(editFoodInteractor);
 
-        final EditFoodInputBoundary editFoodInteractor =
-                new EditFoodInteractor(
-                        editFoodPresenter,
-                        editFoodDataAccessObject
-                );
-
-        final EditFoodController editFoodController =
-                new EditFoodController(
-                        editFoodInteractor
-                );
-
-        foodEditorView.setEditFoodController(
-                editFoodController
-        );
-
+        foodEditorView.setEditFoodController(editFoodController);
         return this;
     }
 
@@ -714,6 +681,7 @@ public class AppBuilder {
                 deleteMealController
         );
 
+        viewMealsView.setDeleteMealController(deleteMealController);
         return this;
     }
 
@@ -723,29 +691,19 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addDeleteFoodUseCase() {
-        final DeleteFoodOutputBoundary deleteFoodPresenter =
-                new DeleteFoodPresenter(
-                        mealEditorViewModel
-                );
+        final DeleteFoodOutputBoundary deleteFoodPresenter = new DeleteFoodPresenter(mealEditorViewModel);
 
-        final DeleteFoodInputBoundary deleteFoodInteractor =
-                new DeleteFoodInteractor(
-                        deleteFoodPresenter
-                );
+        final DeleteFoodInputBoundary deleteFoodInteractor = new DeleteFoodInteractor(deleteFoodPresenter);
 
-        final DeleteFoodController deleteFoodController =
-                new DeleteFoodController(
-                        deleteFoodInteractor
-                );
+        final DeleteFoodController deleteFoodController = new DeleteFoodController(deleteFoodInteractor);
 
-        mealEditorView.setDeleteFoodController(
-                deleteFoodController
-        );
+        mealEditorView.setDeleteFoodController(deleteFoodController);
         return this;
     }
 
     /**
      * Adds the Search Food Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addSearchFoodUseCase() {
@@ -753,12 +711,14 @@ public class AppBuilder {
         final SearchFoodInputBoundary searchFoodInteractor = new SearchFoodInteractor(searchFoodDataAccessObject,
                 searchFoodPresenter);
         final SearchFoodController searchFoodController = new SearchFoodController(searchFoodInteractor);
+
         foodEditorView.setSearchFoodController(searchFoodController);
         return this;
     }
 
     /**
      * Adds the Add Exercise Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addAddExerciseUseCase() {
@@ -773,6 +733,7 @@ public class AppBuilder {
 
     /**
      * Adds the Add Workout Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addAddWorkoutUseCase() {
@@ -788,6 +749,7 @@ public class AppBuilder {
 
     /**
      * Adds the Edit Workout Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addEditWorkoutUseCase() {
@@ -802,6 +764,7 @@ public class AppBuilder {
 
     /**
      * Adds the Edit Exercise Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addEditExerciseUseCase() {
@@ -816,6 +779,7 @@ public class AppBuilder {
 
     /**
      * Adds the Delete Workout Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addDeleteWorkoutUseCase() {
@@ -829,11 +793,11 @@ public class AppBuilder {
 
     /**
      * Adds the Delete Exercise Use Case to the application.
+     *
      * @return this builder
      */
     public AppBuilder addDeleteExerciseUseCase() {
-        final DeleteExerciseOutputBoundary deleteExercisePresenter =
-                new DeleteExercisePresenter(workoutEditorViewModel);
+        final DeleteExerciseOutputBoundary deleteExercisePresenter = new DeleteExercisePresenter(workoutEditorViewModel);
         final DeleteExerciseInputBoundary deleteExerciseInteractor = new DeleteExerciseInteractor(
                 deleteExercisePresenter);
         final DeleteExerciseController deleteExerciseController = new DeleteExerciseController(
