@@ -118,72 +118,98 @@ public final class SQLiteWorkoutDataAccessObject
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection connection = Database.connect();
-             PreparedStatement statement =
-                     connection.prepareStatement(
-                             sql,
-                             Statement.RETURN_GENERATED_KEYS
-                     )) {
+        try (Connection connection = Database.connect()) {
 
-            statement.setInt(
-                    1,
-                    exercisePerformed.getWorkoutId()
-            );
+            connection.setAutoCommit(false);
 
-            statement.setString(
-                    2,
-                    exercisePerformed.getExerciseName()
-            );
+            try (PreparedStatement statement =
+                         connection.prepareStatement(
+                                 sql,
+                                 Statement.RETURN_GENERATED_KEYS
+                         )) {
 
-            setNullableInteger(
-                    statement,
-                    3,
-                    exercisePerformed.getSets()
-            );
+                statement.setInt(
+                        1,
+                        exercisePerformed.getWorkoutId()
+                );
 
-            setNullableInteger(
-                    statement,
-                    4,
-                    exercisePerformed.getReps()
-            );
+                statement.setString(
+                        2,
+                        exercisePerformed.getExerciseName()
+                );
 
-            setNullableDouble(
-                    statement,
-                    5,
-                    exercisePerformed.getWeight()
-            );
+                setNullableInteger(
+                        statement,
+                        3,
+                        exercisePerformed.getSets()
+                );
 
-            statement.setDouble(
-                    6,
-                    exercisePerformed.getDurationMins()
-            );
+                setNullableInteger(
+                        statement,
+                        4,
+                        exercisePerformed.getReps()
+                );
 
-            setNullableDouble(
-                    statement,
-                    7,
-                    exercisePerformed.getDistanceKm()
-            );
+                setNullableDouble(
+                        statement,
+                        5,
+                        exercisePerformed.getWeight()
+                );
 
-            statement.setInt(
-                    8,
-                    exercisePerformed.getIsCardio()
-                            ? 1 : 0
-            );
+                statement.setDouble(
+                        6,
+                        exercisePerformed.getDurationMins()
+                );
 
-            statement.executeUpdate();
+                setNullableDouble(
+                        statement,
+                        7,
+                        exercisePerformed.getDistanceKm()
+                );
 
-            try (ResultSet generatedKeys =
-                         statement.getGeneratedKeys()) {
+                statement.setInt(
+                        8,
+                        exercisePerformed.getIsCardio()
+                                ? 1 : 0
+                );
 
-                if (generatedKeys.next()) {
+                statement.executeUpdate();
 
-                    final int exerciseId =
-                            generatedKeys.getInt(1);
+                try (ResultSet generatedKeys =
+                             statement.getGeneratedKeys()) {
 
-                    exercisePerformed.setId(exerciseId);
+                    if (generatedKeys.next()) {
 
-                    return exerciseId;
+                        final int exerciseId =
+                                generatedKeys.getInt(1);
+
+                        exercisePerformed.setId(exerciseId);
+
+                        final String userId =
+                                getUserIdForWorkout(
+                                        connection,
+                                        exercisePerformed.getWorkoutId()
+                                );
+
+                        updateTotalWorkoutMinutes(
+                                connection,
+                                userId
+                        );
+
+                        connection.commit();
+
+                        return exerciseId;
+                    }
                 }
+
+                connection.rollback();
+            }
+            catch (final SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+            finally {
+                connection.setAutoCommit(true);
             }
         }
         catch (final SQLException exception) {
@@ -479,61 +505,85 @@ public final class SQLiteWorkoutDataAccessObject
                 WHERE id = ?
                 """;
 
-        try (Connection connection = Database.connect();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (Connection connection = Database.connect()) {
 
-            statement.setInt(
-                    1,
-                    exercisePerformed.getWorkoutId()
-            );
+            connection.setAutoCommit(false);
 
-            statement.setString(
-                    2,
-                    exercisePerformed.getExerciseName()
-            );
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
 
-            setNullableInteger(
-                    statement,
-                    3,
-                    exercisePerformed.getSets()
-            );
+                statement.setInt(
+                        1,
+                        exercisePerformed.getWorkoutId()
+                );
 
-            setNullableInteger(
-                    statement,
-                    4,
-                    exercisePerformed.getReps()
-            );
+                statement.setString(
+                        2,
+                        exercisePerformed.getExerciseName()
+                );
 
-            setNullableDouble(
-                    statement,
-                    5,
-                    exercisePerformed.getWeight()
-            );
+                setNullableInteger(
+                        statement,
+                        3,
+                        exercisePerformed.getSets()
+                );
 
-            statement.setDouble(
-                    6,
-                    exercisePerformed.getDurationMins()
-            );
+                setNullableInteger(
+                        statement,
+                        4,
+                        exercisePerformed.getReps()
+                );
 
-            setNullableDouble(
-                    statement,
-                    7,
-                    exercisePerformed.getDistanceKm()
-            );
+                setNullableDouble(
+                        statement,
+                        5,
+                        exercisePerformed.getWeight()
+                );
 
-            statement.setInt(
-                    8,
-                    exercisePerformed.getIsCardio()
-                            ? 1 : 0
-            );
+                statement.setDouble(
+                        6,
+                        exercisePerformed.getDurationMins()
+                );
 
-            statement.setInt(
-                    9,
-                    exercisePerformed.getId()
-            );
+                setNullableDouble(
+                        statement,
+                        7,
+                        exercisePerformed.getDistanceKm()
+                );
 
-            statement.executeUpdate();
+                statement.setInt(
+                        8,
+                        exercisePerformed.getIsCardio()
+                                ? 1 : 0
+                );
+
+                statement.setInt(
+                        9,
+                        exercisePerformed.getId()
+                );
+
+                statement.executeUpdate();
+
+                final String userId =
+                        getUserIdForWorkout(
+                                connection,
+                                exercisePerformed.getWorkoutId()
+                        );
+
+                updateTotalWorkoutMinutes(
+                        connection,
+                        userId
+                );
+
+                connection.commit();
+            }
+            catch (final SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+            finally {
+                connection.setAutoCommit(true);
+            }
         }
         catch (final SQLException exception) {
             throw new RuntimeException(
@@ -568,28 +618,43 @@ public final class SQLiteWorkoutDataAccessObject
 
             connection.setAutoCommit(false);
 
-            try (PreparedStatement exerciseStatement =
-                         connection.prepareStatement(
-                                 deleteExercisesSql
-                         );
-                 PreparedStatement workoutStatement =
-                         connection.prepareStatement(
-                                 deleteWorkoutSql
-                         )) {
+            try {
+                final String userId =
+                        getUserIdForWorkout(
+                                connection,
+                                workoutId
+                        );
 
-                exerciseStatement.setInt(
-                        1,
-                        workoutId
+                try (PreparedStatement exerciseStatement =
+                             connection.prepareStatement(
+                                     deleteExercisesSql
+                             )) {
+
+                    exerciseStatement.setInt(
+                            1,
+                            workoutId
+                    );
+
+                    exerciseStatement.executeUpdate();
+                }
+
+                try (PreparedStatement workoutStatement =
+                             connection.prepareStatement(
+                                     deleteWorkoutSql
+                             )) {
+
+                    workoutStatement.setInt(
+                            1,
+                            workoutId
+                    );
+
+                    workoutStatement.executeUpdate();
+                }
+
+                updateTotalWorkoutMinutes(
+                        connection,
+                        userId
                 );
-
-                exerciseStatement.executeUpdate();
-
-                workoutStatement.setInt(
-                        1,
-                        workoutId
-                );
-
-                workoutStatement.executeUpdate();
 
                 connection.commit();
             }
@@ -619,27 +684,173 @@ public final class SQLiteWorkoutDataAccessObject
             final int exercisePerformedId
     ) {
 
-        final String sql = """
+        final String findUserSql = """
+                SELECT logged_workouts.user_id
+                FROM exercises_performed
+                JOIN logged_workouts
+                    ON exercises_performed.workout_id =
+                       logged_workouts.id
+                WHERE exercises_performed.id = ?
+                """;
+
+        final String deleteSql = """
                 DELETE FROM exercises_performed
                 WHERE id = ?
                 """;
 
-        try (Connection connection = Database.connect();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (Connection connection = Database.connect()) {
 
-            statement.setInt(
-                    1,
-                    exercisePerformedId
-            );
+            connection.setAutoCommit(false);
 
-            statement.executeUpdate();
+            try {
+                String userId = null;
+
+                try (PreparedStatement findStatement =
+                             connection.prepareStatement(
+                                     findUserSql
+                             )) {
+
+                    findStatement.setInt(
+                            1,
+                            exercisePerformedId
+                    );
+
+                    try (ResultSet resultSet =
+                                 findStatement.executeQuery()) {
+
+                        if (resultSet.next()) {
+                            userId =
+                                    resultSet.getString(
+                                            "user_id"
+                                    );
+                        }
+                    }
+                }
+
+                try (PreparedStatement deleteStatement =
+                             connection.prepareStatement(
+                                     deleteSql
+                             )) {
+
+                    deleteStatement.setInt(
+                            1,
+                            exercisePerformedId
+                    );
+
+                    deleteStatement.executeUpdate();
+                }
+
+                if (userId != null) {
+                    updateTotalWorkoutMinutes(
+                            connection,
+                            userId
+                    );
+                }
+
+                connection.commit();
+            }
+            catch (final SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+            finally {
+                connection.setAutoCommit(true);
+            }
         }
         catch (final SQLException exception) {
             throw new RuntimeException(
                     "Failed to delete exercise.",
                     exception
             );
+        }
+    }
+
+    /**
+     * Finds the user that owns a workout.
+     *
+     * @param connection database connection
+     * @param workoutId workout ID
+     * @return username belonging to the workout
+     * @throws SQLException if the user cannot be loaded
+     */
+    private static String getUserIdForWorkout(
+            final Connection connection,
+            final int workoutId
+    ) throws SQLException {
+
+        final String sql = """
+                SELECT user_id
+                FROM logged_workouts
+                WHERE id = ?
+                """;
+
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setInt(
+                    1,
+                    workoutId
+            );
+
+            try (ResultSet resultSet =
+                         statement.executeQuery()) {
+
+                if (resultSet.next()) {
+                    return resultSet.getString(
+                            "user_id"
+                    );
+                }
+            }
+        }
+
+        throw new SQLException(
+                "Could not find user for workout."
+        );
+    }
+
+    /**
+     * Recalculates and stores a user's total workout
+     * minutes.
+     *
+     * @param connection database connection
+     * @param userId username
+     * @throws SQLException if the update fails
+     */
+    private static void updateTotalWorkoutMinutes(
+            final Connection connection,
+            final String userId
+    ) throws SQLException {
+
+        final String sql = """
+                UPDATE users
+                SET total_workout_minutes = (
+                    SELECT COALESCE(
+                        SUM(exercises_performed.duration_mins),
+                        0
+                    )
+                    FROM logged_workouts
+                    LEFT JOIN exercises_performed
+                        ON logged_workouts.id =
+                           exercises_performed.workout_id
+                    WHERE logged_workouts.user_id = ?
+                )
+                WHERE username = ?
+                """;
+
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(
+                    1,
+                    userId
+            );
+
+            statement.setString(
+                    2,
+                    userId
+            );
+
+            statement.executeUpdate();
         }
     }
 
