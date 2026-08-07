@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import entity.Exercise;
 import entity.WorkoutPlan;
@@ -32,7 +33,7 @@ import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
 
 /**
- * Modern Workouts View displaying daily AI workout plans, exercise details, and calorie burn estimates.
+ * View presenting personal workout plans and exercise guides in Swing UI.
  */
 public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
@@ -42,25 +43,35 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private static final Color REST_COLOR = new Color(149, 165, 166);
     private static final Color CARD_BORDER = new Color(220, 224, 230);
     private static final Color BURN_BG = new Color(245, 247, 250);
+    private static final Color DURATION_BG = new Color(230, 240, 250);
 
-    private static final int MODAL_WIDTH = 450;
-    private static final int MODAL_HEIGHT = 320;
-    private static final int DAYS_IN_WEEK = 7;
+    private static final int TITLE_FONT_SIZE = 20;
+    private static final int HEADER_FONT_SIZE = 16;
+    private static final int CARD_TITLE_FONT_SIZE = 14;
+    private static final int BODY_FONT_SIZE = 12;
+    private static final int SMALL_FONT_SIZE = 11;
+
+    private static final int MODAL_WIDTH = 500;
+    private static final int MODAL_HEIGHT = 400;
+    private static final int DAYS_PER_WEEK = 7;
+    private static final int SCROLL_UNIT_INCREMENT = 16;
+    private static final int REFRESH_BTN_HEIGHT = 40;
+    private static final int REFRESH_BTN_WIDTH = 800;
 
     private final String viewName = "workouts";
     private final WorkoutsViewModel workoutsViewModel;
 
     private final JLabel focusLabel = new JLabel();
-    private final JPanel week1Container = new JPanel();
-    private final JPanel week2Container = new JPanel();
-    private final JButton refreshButton = new JButton("Refresh 2-Week Schedule");
+    private final JPanel scheduleContainer = new JPanel();
+    private final JButton refreshButton = new JButton("Refresh 1-Week Schedule");
 
     private RecommendationController recommendationController;
+    private int userPreferredDuration = 45;
 
     /**
-     * Constructs a WorkoutsView instance.
+     * Constructs a WorkoutsView panel bound to the view model.
      *
-     * @param workoutsViewModel view model for managing workout schedule state
+     * @param workoutsViewModel view model for workout state
      */
     public WorkoutsView(final WorkoutsViewModel workoutsViewModel) {
         this.workoutsViewModel = workoutsViewModel;
@@ -75,48 +86,46 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         topPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
         final JLabel title = new JLabel("Personal Workout Schedule");
-        title.setFont(new Font("SansSerif", Font.BOLD, 20));
+        title.setFont(new Font("SansSerif", Font.BOLD, TITLE_FONT_SIZE));
         title.setForeground(Color.WHITE);
 
-        this.focusLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        this.focusLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE + 1));
         this.focusLabel.setForeground(new Color(236, 240, 241));
 
         topPanel.add(title);
         topPanel.add(Box.createRigidArea(new Dimension(0, 5)));
         topPanel.add(this.focusLabel);
 
-        this.week1Container.setLayout(new BoxLayout(this.week1Container, BoxLayout.Y_AXIS));
-        this.week1Container.setBackground(BG_DARK);
+        this.scheduleContainer.setLayout(new BoxLayout(this.scheduleContainer, BoxLayout.Y_AXIS));
+        this.scheduleContainer.setBackground(BG_DARK);
+        this.scheduleContainer.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
-        this.week2Container.setLayout(new BoxLayout(this.week2Container, BoxLayout.Y_AXIS));
-        this.week2Container.setBackground(BG_DARK);
-
-        final JPanel schedulePanel = new JPanel();
-        schedulePanel.setLayout(new BoxLayout(schedulePanel, BoxLayout.Y_AXIS));
-        schedulePanel.setBackground(BG_DARK);
-        schedulePanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-
-        schedulePanel.add(createWeekHeader("Week 1 Routine"));
-        schedulePanel.add(this.week1Container);
-        schedulePanel.add(Box.createRigidArea(new Dimension(0, 15)));
-        schedulePanel.add(createWeekHeader("Week 2 Routine"));
-        schedulePanel.add(this.week2Container);
-
-        final JScrollPane scrollPane = new JScrollPane(schedulePanel);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        final JScrollPane scrollPane = new JScrollPane(this.scheduleContainer);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(SCROLL_UNIT_INCREMENT);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(null);
 
-        this.refreshButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        this.refreshButton.setFont(new Font("SansSerif", Font.BOLD, CARD_TITLE_FONT_SIZE));
         this.refreshButton.setBackground(ACCENT_COLOR);
         this.refreshButton.setForeground(Color.WHITE);
         this.refreshButton.setFocusPainted(false);
         this.refreshButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        this.refreshButton.setPreferredSize(new Dimension(800, 40));
+        this.refreshButton.setPreferredSize(new Dimension(REFRESH_BTN_WIDTH, REFRESH_BTN_HEIGHT));
 
         this.refreshButton.addActionListener(evt -> {
             if (this.recommendationController != null) {
-                this.recommendationController.execute();
+                final WorkoutsState currentState = this.workoutsViewModel.getState();
+                currentState.setLoading(true);
+                this.workoutsViewModel.firePropertyChanged();
+
+                final SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                    @Override
+                    protected Void doInBackground() {
+                        recommendationController.execute();
+                        return null;
+                    }
+                };
+                worker.execute();
             }
         });
 
@@ -127,102 +136,143 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         displayState(this.workoutsViewModel.getState());
     }
 
-    private JLabel createWeekHeader(final String text) {
-        final JLabel header = new JLabel(text);
-        header.setFont(new Font("SansSerif", Font.BOLD, 16));
-        header.setForeground(PRIMARY_COLOR);
-        header.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-        return header;
-    }
-
     private void displayState(final WorkoutsState state) {
         this.focusLabel.setText("Active Focus Target: " + state.getWorkoutFocus());
-        this.week1Container.removeAll();
-        this.week2Container.removeAll();
+        this.scheduleContainer.removeAll();
 
-        final List<WorkoutPlan> plans = state.getWorkoutPlans();
+        if (state.isLoading()) {
+            this.refreshButton.setEnabled(false);
+            this.refreshButton.setText("Generating Personalized Schedule...");
 
-        if (plans.isEmpty()) {
-            final JLabel emptyLabel = new JLabel("No schedule loaded. Update your profile and click refresh!");
-            emptyLabel.setFont(new Font("SansSerif", Font.ITALIC, 14));
-            this.week1Container.add(emptyLabel);
+            final JLabel loadingLabel = new JLabel("Loading workout schedule...");
+            loadingLabel.setFont(new Font("SansSerif", Font.BOLD, CARD_TITLE_FONT_SIZE));
+            loadingLabel.setForeground(PRIMARY_COLOR);
+            loadingLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            this.scheduleContainer.add(loadingLabel);
         }
         else {
-            for (int i = 0; i < plans.size(); i++) {
-                final WorkoutPlan plan = plans.get(i);
-                final JPanel targetWeekContainer = (i < DAYS_IN_WEEK) ? this.week1Container : this.week2Container;
+            this.refreshButton.setEnabled(true);
+            this.refreshButton.setText("Refresh 1-Week Schedule");
 
-                final JPanel planCard = new JPanel();
-                planCard.setLayout(new BoxLayout(planCard, BoxLayout.Y_AXIS));
-                planCard.setBackground(Color.WHITE);
-                planCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+            final List<WorkoutPlan> plans = state.getWorkoutPlans();
 
-                final boolean isRestDay = plan.getExercises().isEmpty();
-                final Color headerColor = isRestDay ? REST_COLOR : PRIMARY_COLOR;
+            if (plans == null || plans.isEmpty()) {
+                final JLabel emptyLabel = new JLabel("No schedule loaded. Update your profile and click refresh!");
+                emptyLabel.setFont(new Font("SansSerif", Font.ITALIC, CARD_TITLE_FONT_SIZE));
+                emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                this.scheduleContainer.add(emptyLabel);
+            }
+            else {
+                final JLabel weekHeader = new JLabel("Week 1 Routine");
+                weekHeader.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
+                weekHeader.setForeground(PRIMARY_COLOR);
+                weekHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
+                weekHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+                this.scheduleContainer.add(weekHeader);
 
-                planCard.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createMatteBorder(0, 5, 0, 0, headerColor),
-                        BorderFactory.createCompoundBorder(
-                                BorderFactory.createLineBorder(CARD_BORDER, 1),
-                                BorderFactory.createEmptyBorder(10, 12, 10, 12)
-                        )
-                ));
-
-                final JLabel dateTitleLabel = new JLabel(String.format("%s — %s", plan.getDate(), plan.getTitle()));
-                dateTitleLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-                dateTitleLabel.setForeground(headerColor);
-
-                final JLabel descLabel = new JLabel(plan.getDescription());
-                descLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-                descLabel.setForeground(new Color(100, 110, 120));
-
-                planCard.add(dateTitleLabel);
-                planCard.add(Box.createRigidArea(new Dimension(0, 3)));
-                planCard.add(descLabel);
-
-                if (!isRestDay) {
-                    final JLabel burnLabel = new JLabel(String.format("Est. Burn: %d Cal | %dg Fat | %dg Carbs",
-                            plan.getEstimatedCaloriesBurned(),
-                            plan.getEstimatedFatBurnedGrams(),
-                            plan.getEstimatedCarbsBurnedGrams()));
-                    burnLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
-                    burnLabel.setForeground(PRIMARY_COLOR);
-                    burnLabel.setOpaque(true);
-                    burnLabel.setBackground(BURN_BG);
-                    burnLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
-
-                    planCard.add(Box.createRigidArea(new Dimension(0, 5)));
-                    planCard.add(burnLabel);
-
-                    planCard.add(Box.createRigidArea(new Dimension(0, 8)));
-                    final JPanel exercisesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
-                    exercisesPanel.setBackground(Color.WHITE);
-
-                    for (final Exercise exercise : plan.getExercises()) {
-                        final JButton exButton = new JButton(exercise.getName() + " ["
-                                + exercise.getSetsAndReps() + "]");
-                        exButton.setFont(new Font("SansSerif", Font.PLAIN, 12));
-                        exButton.setBackground(new Color(235, 243, 250));
-                        exButton.setForeground(PRIMARY_COLOR);
-                        exButton.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 1));
-                        exButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                        exButton.setFocusPainted(false);
-
-                        exButton.addActionListener(evt -> showExerciseGuideModal(exercise));
-                        exercisesPanel.add(exButton);
-                    }
-                    planCard.add(exercisesPanel);
+                final int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
+                for (int i = 0; i < totalDays; i++) {
+                    final WorkoutPlan plan = plans.get(i);
+                    final JPanel planCard = createPlanCard(plan, i + 1);
+                    this.scheduleContainer.add(planCard);
+                    this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 8)));
                 }
-
-                targetWeekContainer.add(planCard);
-                targetWeekContainer.add(Box.createRigidArea(new Dimension(0, 8)));
             }
         }
 
-        this.week1Container.revalidate();
-        this.week2Container.revalidate();
+        this.scheduleContainer.revalidate();
+        this.scheduleContainer.repaint();
         this.revalidate();
         this.repaint();
+    }
+
+    private JPanel createPlanCard(final WorkoutPlan plan, final int dayNumber) {
+        final JPanel planCard = new JPanel();
+        planCard.setLayout(new BoxLayout(planCard, BoxLayout.Y_AXIS));
+        planCard.setBackground(Color.WHITE);
+        planCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        final boolean isRestDay = plan.getExercises() == null || plan.getExercises().isEmpty();
+        final Color headerColor = isRestDay ? REST_COLOR : PRIMARY_COLOR;
+
+        planCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 5, 0, 0, headerColor),
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(CARD_BORDER, 1),
+                        BorderFactory.createEmptyBorder(10, 12, 10, 12)
+                )
+        ));
+
+        final String dateStr = (plan.getDate() != null && !plan.getDate().trim().isEmpty())
+                ? plan.getDate() : ("Day " + dayNumber);
+
+        int duration = this.userPreferredDuration;
+        if (plan.getEstimatedDurationMinutes() > 0) {
+            duration = plan.getEstimatedDurationMinutes();
+        }
+
+        final JLabel dateTitleLabel = new JLabel(String.format("%s — %s", dateStr, plan.getTitle()));
+        dateTitleLabel.setFont(new Font("SansSerif", Font.BOLD, CARD_TITLE_FONT_SIZE));
+        dateTitleLabel.setForeground(headerColor);
+        dateTitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        final JLabel descLabel = new JLabel(plan.getDescription());
+        descLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
+        descLabel.setForeground(new Color(100, 110, 120));
+        descLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        planCard.add(dateTitleLabel);
+        planCard.add(Box.createRigidArea(new Dimension(0, 3)));
+        planCard.add(descLabel);
+
+        if (!isRestDay) {
+            final JLabel durationLabel = new JLabel(String.format("Duration: %d minutes", duration));
+            durationLabel.setFont(new Font("SansSerif", Font.BOLD, SMALL_FONT_SIZE));
+            durationLabel.setForeground(new Color(41, 98, 150));
+            durationLabel.setOpaque(true);
+            durationLabel.setBackground(DURATION_BG);
+            durationLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+            durationLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            final JLabel burnLabel = new JLabel(String.format("Est. Burn: %d Cal | %dg Fat | %dg Carbs",
+                    plan.getEstimatedCaloriesBurned(),
+                    plan.getEstimatedFatBurnedGrams(),
+                    plan.getEstimatedCarbsBurnedGrams()));
+            burnLabel.setFont(new Font("SansSerif", Font.BOLD, SMALL_FONT_SIZE));
+            burnLabel.setForeground(PRIMARY_COLOR);
+            burnLabel.setOpaque(true);
+            burnLabel.setBackground(BURN_BG);
+            burnLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+            burnLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            planCard.add(Box.createRigidArea(new Dimension(0, 5)));
+            planCard.add(durationLabel);
+            planCard.add(Box.createRigidArea(new Dimension(0, 3)));
+            planCard.add(burnLabel);
+
+            planCard.add(Box.createRigidArea(new Dimension(0, 8)));
+            final JPanel exercisesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+            exercisesPanel.setBackground(Color.WHITE);
+            exercisesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            for (final Exercise exercise : plan.getExercises()) {
+                final String btnText = String.format("%s [%ds x %dr]",
+                        exercise.getName(), exercise.getSets(), exercise.getReps());
+                final JButton exButton = new JButton(btnText);
+                exButton.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
+                exButton.setBackground(new Color(235, 243, 250));
+                exButton.setForeground(PRIMARY_COLOR);
+                exButton.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 1));
+                exButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                exButton.setFocusPainted(false);
+
+                exButton.addActionListener(evt -> showExerciseGuideModal(exercise));
+                exercisesPanel.add(exButton);
+            }
+            planCard.add(exercisesPanel);
+        }
+
+        return planCard;
     }
 
     private void showExerciseGuideModal(final Exercise exercise) {
@@ -237,47 +287,68 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         contentPanel.setBackground(Color.WHITE);
 
         final JLabel nameLabel = new JLabel(exercise.getName(), SwingConstants.CENTER);
-        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        nameLabel.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
         nameLabel.setForeground(PRIMARY_COLOR);
 
-        final JLabel setsLabel = new JLabel("Target: " + exercise.getSetsAndReps(), SwingConstants.CENTER);
-        setsLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
+        final String targetSummary = String.format("%d sets x %d reps (%d mins) | Target: %s | Equip: %s",
+                exercise.getSets(), exercise.getReps(), exercise.getDurationMinutes(),
+                exercise.getTargetMuscleGroup() != null ? exercise.getTargetMuscleGroup() : "N/A",
+                exercise.getEquipmentRequired() != null ? exercise.getEquipmentRequired() : "Bodyweight");
+        final JLabel setsLabel = new JLabel("<html><center>" + targetSummary + "</center></html>",
+                SwingConstants.CENTER);
+        setsLabel.setFont(new Font("SansSerif", Font.BOLD, BODY_FONT_SIZE));
         setsLabel.setForeground(ACCENT_COLOR);
 
         final JPanel topBox = new JPanel();
         topBox.setLayout(new BoxLayout(topBox, BoxLayout.Y_AXIS));
         topBox.setBackground(Color.WHITE);
         topBox.add(nameLabel);
+        topBox.add(Box.createRigidArea(new Dimension(0, 4)));
         topBox.add(setsLabel);
 
-        final JLabel instLabel = new JLabel("<html><body style='width: 320px; text-align: center; color: #333333;'>"
-                + exercise.getInstructions() + "</body></html>", SwingConstants.CENTER);
-        instLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        final String instructions = (exercise.getInstructions() != null
+                && !exercise.getInstructions().trim().isEmpty())
+                ? exercise.getInstructions()
+                : "Perform this movement with proper posture, controlled cadence, and full range of motion.";
+
+        final JLabel instLabel = new JLabel("<html><body style='width: 360px; text-align: left; color: #333333;'>"
+                + instructions + "</body></html>");
+        instLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE + 1));
 
         final JPanel btnPanel = new JPanel(new FlowLayout());
         btnPanel.setBackground(Color.WHITE);
 
-        final JButton videoBtn = new JButton("Open Video / GIF Guide in Browser");
+        final JButton videoBtn = new JButton("Open Video Guide on YouTube");
         videoBtn.setBackground(PRIMARY_COLOR);
         videoBtn.setForeground(Color.WHITE);
         videoBtn.setFocusPainted(false);
         videoBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         videoBtn.addActionListener(evt -> {
-            if (exercise.getVideoUrl() != null && !exercise.getVideoUrl().isEmpty()) {
-                try {
-                    Desktop.getDesktop().browse(new URI(exercise.getVideoUrl()));
-                }
-                catch (final Exception ex) {
-                    JOptionPane.showMessageDialog(dialog, "Could not open URL: " + exercise.getVideoUrl());
-                }
+            String targetUrl = exercise.getVideoUrl();
+            if (targetUrl == null || targetUrl.trim().isEmpty()) {
+                targetUrl = "https://www.youtube.com/results?search_query="
+                        + exercise.getName().replace(" ", "+") + "+exercise+tutorial";
+            }
+            try {
+                Desktop.getDesktop().browse(new URI(targetUrl));
+            }
+            catch (final Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Could not open URL: " + targetUrl);
             }
         });
 
         btnPanel.add(videoBtn);
 
+        final JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setBackground(Color.WHITE);
+        final JScrollPane instScroll = new JScrollPane(instLabel);
+        instScroll.setBorder(null);
+        instScroll.setBackground(Color.WHITE);
+        centerPanel.add(instScroll, BorderLayout.CENTER);
+
         contentPanel.add(topBox, BorderLayout.NORTH);
-        contentPanel.add(instLabel, BorderLayout.CENTER);
+        contentPanel.add(centerPanel, BorderLayout.CENTER);
         contentPanel.add(btnPanel, BorderLayout.SOUTH);
 
         dialog.add(contentPanel);
@@ -289,21 +360,15 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         displayState((WorkoutsState) evt.getNewValue());
     }
 
-    /**
-     * Gets the view name.
-     *
-     * @return view name string
-     */
     public String getViewName() {
-        return this.viewName;
+        return viewName;
     }
 
-    /**
-     * Sets the recommendation controller.
-     *
-     * @param recommendationController controller instance
-     */
     public void setRecommendationController(final RecommendationController recommendationController) {
         this.recommendationController = recommendationController;
+    }
+
+    public void setUserPreferredDuration(final int minutes) {
+        this.userPreferredDuration = minutes > 0 ? minutes : 45;
     }
 }

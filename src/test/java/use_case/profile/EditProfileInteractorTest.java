@@ -16,19 +16,17 @@ import entity.FitnessGoal;
 import entity.Gender;
 import entity.UnitSystem;
 import entity.User;
+import org.junit.jupiter.api.Test;
 import use_case.recommendation.RecommendationInputBoundary;
 
 public class EditProfileInteractorTest {
 
     @Test
-    public void executeSavesProfileAndRefreshesRecommendations() {
+    public void executeSavesProfile() {
         final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
         final User user = new CommonUser("aahir", "password");
         dataAccessObject.save(user);
         dataAccessObject.currentUsername = "aahir";
-
-        final boolean[] recommendationRefreshed = {false};
-        final RecommendationInputBoundary recommendationInteractor = () -> recommendationRefreshed[0] = true;
 
         final EditProfileOutputBoundary presenter = new EditProfileOutputBoundary() {
             @Override
@@ -63,9 +61,8 @@ public class EditProfileInteractorTest {
                 .privacySettings(new HashSet<>())
                 .build();
 
-        new EditProfileInteractor(dataAccessObject, presenter, recommendationInteractor).execute(inputData);
+        new EditProfileInteractor(dataAccessObject, presenter).execute(inputData);
 
-        assertTrue(recommendationRefreshed[0]);
         assertEquals("/tmp/pic.png", dataAccessObject.get("aahir").getProfilePicturePath());
     }
 
@@ -75,10 +72,6 @@ public class EditProfileInteractorTest {
         final User user = new CommonUser("aahir", "password");
         dataAccessObject.save(user);
         dataAccessObject.currentUsername = "aahir";
-
-        final RecommendationInputBoundary recommendationInteractor = () -> {
-            throw new AssertionError("Should not refresh recommendations on failure");
-        };
 
         final boolean[] failed = {false};
         final EditProfileOutputBoundary presenter = new EditProfileOutputBoundary() {
@@ -110,7 +103,7 @@ public class EditProfileInteractorTest {
                 .privacySettings(new HashSet<>())
                 .build();
 
-        new EditProfileInteractor(dataAccessObject, presenter, recommendationInteractor).execute(inputData);
+        new EditProfileInteractor(dataAccessObject, presenter).execute(inputData);
         assertTrue(failed[0]);
     }
 
