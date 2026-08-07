@@ -1,5 +1,6 @@
 package interface_adapter.recommendation;
 
+import interface_adapter.calendar.CalendarController;
 import interface_adapter.nutrition.NutritionState;
 import interface_adapter.nutrition.NutritionViewModel;
 import interface_adapter.workouts.WorkoutsState;
@@ -14,6 +15,7 @@ public class RecommendationPresenter implements RecommendationOutputBoundary {
 
     private final NutritionViewModel nutritionViewModel;
     private final WorkoutsViewModel workoutsViewModel;
+    private final CalendarController calendarController;
 
     /**
      * Constructs a RecommendationPresenter instance.
@@ -22,9 +24,11 @@ public class RecommendationPresenter implements RecommendationOutputBoundary {
      * @param workoutsViewModel the workouts view model
      */
     public RecommendationPresenter(final NutritionViewModel nutritionViewModel,
-                                   final WorkoutsViewModel workoutsViewModel) {
+                                   final WorkoutsViewModel workoutsViewModel,
+                                   final CalendarController calendarController) {
         this.nutritionViewModel = nutritionViewModel;
         this.workoutsViewModel = workoutsViewModel;
+        this.calendarController = calendarController;
     }
 
     @Override
@@ -42,7 +46,12 @@ public class RecommendationPresenter implements RecommendationOutputBoundary {
         workoutsState.setActivityLevelDescription(outputData.getActivityLevelDescription());
         workoutsState.setWorkoutPlans(outputData.getWorkoutPlans());
         workoutsState.setMessage("");
+        workoutsState.setLoading(false);
         this.workoutsViewModel.firePropertyChanged();
+
+        if (this.calendarController != null) {
+            this.calendarController.replaceWorkoutPlans(outputData.getWorkoutPlans());
+        }
     }
 
     @Override
@@ -53,6 +62,7 @@ public class RecommendationPresenter implements RecommendationOutputBoundary {
 
         final WorkoutsState workoutsState = this.workoutsViewModel.getState();
         workoutsState.setMessage(errorMessage);
+        workoutsState.setLoading(false);
         this.workoutsViewModel.firePropertyChanged();
     }
 }

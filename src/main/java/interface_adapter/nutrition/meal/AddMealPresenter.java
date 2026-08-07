@@ -5,6 +5,7 @@ import java.util.List;
 
 import entity.Meal;
 import interface_adapter.MainViewManagerModel;
+import interface_adapter.calendar.CalendarController;
 import use_case.dashboard.DashboardInputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealOutputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealOutputData;
@@ -18,6 +19,7 @@ public class AddMealPresenter implements AddMealOutputBoundary {
     private final ViewMealsViewModel viewMealsViewModel;
     private final MainViewManagerModel mainViewManagerModel;
     private final DashboardInputBoundary dashboardInteractor;
+    private final CalendarController calendarController;
 
     /**
      * Constructs an AddMealPresenter.
@@ -31,12 +33,14 @@ public class AddMealPresenter implements AddMealOutputBoundary {
             final MealEditorViewModel mealEditorViewModel,
             final ViewMealsViewModel viewMealsViewModel,
             final MainViewManagerModel mainViewManagerModel,
-            final DashboardInputBoundary dashboardInteractor
+            final DashboardInputBoundary dashboardInteractor,
+            final CalendarController calendarController
     ) {
         this.mealEditorViewModel = mealEditorViewModel;
         this.viewMealsViewModel = viewMealsViewModel;
         this.mainViewManagerModel = mainViewManagerModel;
         this.dashboardInteractor = dashboardInteractor;
+        this.calendarController = calendarController;
     }
 
     @Override
@@ -62,6 +66,10 @@ public class AddMealPresenter implements AddMealOutputBoundary {
         mealsState.setMeals(meals);
         this.viewMealsViewModel.setState(mealsState);
         this.viewMealsViewModel.firePropertyChanged();
+
+        if (this.calendarController != null) {
+            this.calendarController.addMeal(savedMeal);
+        }
 
         if (this.dashboardInteractor != null) {
             this.dashboardInteractor.execute(

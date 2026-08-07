@@ -1,8 +1,13 @@
 package use_case.recommendation;
 
+import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import entity.ActivityLevel;
+import entity.FitnessGoal;
 import entity.MealRecommendation;
 import entity.User;
 import entity.WorkoutPlan;
@@ -13,6 +18,8 @@ import entity.WorkoutPlan;
 public class RecommendationInteractor implements RecommendationInputBoundary {
 
     private static final double RESTING_KCAL_PER_KG = 22.0;
+    private static final int DEFAULT_DURATION_MINUTES = 45;
+    private static final int WEEK_DAYS = 7;
 
     private final RecommendationUserDataAccessInterface userDataAccessObject;
     private final RecommendationOutputBoundary recommendationPresenter;
@@ -22,9 +29,9 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
     /**
      * Constructs a RecommendationInteractor instance.
      *
-     * @param userDataAccessObject user data access interface
+     * @param userDataAccessObject data access object for user profile lookup
      * @param recommendationOutputBoundary presenter output boundary
-     * @param aiWorkoutDataAccessObject AI workout generation data access interface
+     * @param aiWorkoutDataAccessObject AI workout data access object
      * @param foodRecommendationDataAccessObject meal suggestion data access interface
      */
     public RecommendationInteractor(final RecommendationUserDataAccessInterface userDataAccessObject,
@@ -53,6 +60,7 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 this.recommendationPresenter.prepareSuccessView(defaultOutput);
             }
             else {
+                ensureProfileDefaults(user);
                 presentRecommendationFor(user);
             }
         }
@@ -67,8 +75,16 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
 
         List<WorkoutPlan> plans = new ArrayList<>();
         if (this.aiWorkoutDataAccessObject != null) {
-            plans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user);
+            plans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user, WEEK_DAYS);
         }
+
+        final String focusSummary = user.getGoal() != null
+                ? user.getGoal().getWorkoutFocus()
+                : FitnessGoal.MAINTAIN_GENERAL_FITNESS.getWorkoutFocus();
+
+        final String activitySummary = user.getActivityLevel() != null
+                ? user.getActivityLevel().getDescription()
+                : ActivityLevel.MODERATELY_ACTIVE.getDescription();
 
         List<MealRecommendation> meals = new ArrayList<>();
         if (this.foodRecommendationDataAccessObject != null) {
@@ -79,11 +95,31 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                 user.getBmi(),
                 dailyCalorieTarget,
                 dailyProteinGrams,
-                user.getGoal().getWorkoutFocus(),
-                user.getActivityLevel().getDescription(),
+                focusSummary,
+                activitySummary,
                 plans,
-                meals);
+                meals
+        );
 
         this.recommendationPresenter.prepareSuccessView(outputData);
+    }
+
+    private void ensureProfileDefaults(final User user) {
+        if (user.getGoal() == null) {
+            user.setGoal(FitnessGoal.MAINTAIN_GENERAL_FITNESS);
+        }
+        if (user.getActivityLevel() == null) {
+            user.setActivityLevel(ActivityLevel.MODERATELY_ACTIVE);
+        }
+        if (user.getPreferredWorkoutDays() == null || user.getPreferredWorkoutDays().isEmpty()) {
+            final Set<DayOfWeek> defaultDays = new HashSet<>();
+            defaultDays.add(DayOfWeek.MONDAY);
+            defaultDays.add(DayOfWeek.WEDNESDAY);
+            defaultDays.add(DayOfWeek.FRIDAY);
+            user.setPreferredWorkoutDays(defaultDays);
+        }
+        if (user.getPreferredWorkoutDurationMinutes() <= 0) {
+            user.setPreferredWorkoutDurationMinutes(DEFAULT_DURATION_MINUTES);
+        }
     }
 }

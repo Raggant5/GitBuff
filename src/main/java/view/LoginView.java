@@ -20,6 +20,8 @@ import javax.swing.event.DocumentListener;
 import interface_adapter.login.LoginController;
 import interface_adapter.login.LoginState;
 import interface_adapter.login.LoginViewModel;
+import interface_adapter.workouts.WorkoutsState;
+import interface_adapter.workouts.WorkoutsViewModel;
 
 /**
  * The View for when the user is logging into the program.
@@ -40,6 +42,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
     private final JLabel usernameErrorField = new JLabel();
 
     private final JPasswordField passwordInputField = new JPasswordField(FIELD_COLUMNS);
+    private final JLabel statusLabel = new JLabel();
 
     private final JButton logIn;
     private final JButton signup;
@@ -160,6 +163,7 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         this.usernameErrorField.setMinimumSize(new Dimension(ROW_WIDTH, ERROR_HEIGHT));
         this.usernameErrorField.setMaximumSize(new Dimension(ROW_WIDTH, ERROR_HEIGHT));
 
+        this.statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttons.setMaximumSize(buttons.getPreferredSize());
 
         this.add(Box.createVerticalGlue());
@@ -167,8 +171,30 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         this.add(usernameInfo);
         this.add(this.usernameErrorField);
         this.add(passwordInfo);
+        this.add(this.statusLabel);
         this.add(buttons);
         this.add(Box.createVerticalGlue());
+    }
+
+    /**
+     * Binds to workouts view model to reflect loading status during login.
+     *
+     * @param workoutsViewModel view model for workout schedule state
+     */
+    public void setWorkoutsViewModel(final WorkoutsViewModel workoutsViewModel) {
+        if (workoutsViewModel != null) {
+            workoutsViewModel.addPropertyChangeListener(evt -> {
+                if (evt.getNewValue() instanceof WorkoutsState) {
+                    final WorkoutsState state = (WorkoutsState) evt.getNewValue();
+                    if (state.isLoading()) {
+                        this.statusLabel.setText("Loading workout schedule...");
+                    }
+                    else {
+                        this.statusLabel.setText("");
+                    }
+                }
+            });
+        }
     }
 
     @Override

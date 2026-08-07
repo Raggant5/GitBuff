@@ -55,7 +55,8 @@ public class DashboardView extends JPanel
      * @param dashboardViewModel view model managing dashboard state
      */
     public DashboardView(
-            final DashboardViewModel dashboardViewModel
+            final DashboardViewModel dashboardViewModel,
+            final CalendarPanel calendarPanel
     ) {
         dashboardViewModel.addPropertyChangeListener(this);
 
@@ -106,14 +107,8 @@ public class DashboardView extends JPanel
                 )
         );
 
-        final JLabel calendarPlaceholder =
-                new JLabel(
-                        "Calendar goes here",
-                        SwingConstants.CENTER
-                );
-
         this.calendarContainer.add(
-                calendarPlaceholder,
+                calendarPanel,
                 BorderLayout.CENTER
         );
 

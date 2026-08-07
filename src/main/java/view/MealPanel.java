@@ -35,7 +35,7 @@ public class MealPanel extends JPanel {
         });
 
         deleteButton.addActionListener(evt -> {
-            deleteMealController.execute(meal.getId());
+            deleteMealController.execute(meal.getEntity());
         });
 
         buttonPanel.add(editButton);
