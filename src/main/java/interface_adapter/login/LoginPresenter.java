@@ -3,6 +3,7 @@ package interface_adapter.login;
 import javax.swing.SwingWorker;
 
 import interface_adapter.ViewManagerModel;
+import interface_adapter.calendar.CalendarController;
 import interface_adapter.log_workout.workout.ViewWorkoutsViewModel;
 import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileState;
@@ -29,6 +30,7 @@ public class LoginPresenter implements LoginOutputBoundary {
     private final ViewWorkoutsViewModel viewWorkoutsViewModel;
     private final RecommendationController recommendationController;
     private final DashboardInputBoundary dashboardInteractor;
+    private final CalendarController calendarController;
 
     /**
      * Constructs a LoginPresenter instance.
@@ -40,18 +42,21 @@ public class LoginPresenter implements LoginOutputBoundary {
      * @param mealsViewModel view model for user meals state
      * @param workoutsViewModel view model for workouts state
      * @param recommendationController controller to trigger recommendations after login
-     * @param dashboardInteractor interactor for loading dashboard data
-     * @param viewWorkoutsViewModel view model for the user's workout history
+     * @param dashboardInteractor  interactor for loading dashboard data
+     * @param workoutsViewModel view model for the user's workout history
+     * @param calendarController controller for loading and synchronizing calendar events
      */
-    public LoginPresenter(final ViewManagerModel viewManagerModel,
-                          final LoginViewModel loginViewModel,
-                          final SignupViewModel signupViewModel,
-                          final ProfileViewModel profileViewModel,
-                          final ViewMealsViewModel mealsViewModel,
-                          final WorkoutsViewModel workoutsViewModel,
-                          final RecommendationController recommendationController,
-                          final DashboardInputBoundary dashboardInteractor,
-                          final ViewWorkoutsViewModel viewWorkoutsViewModel) {
+    public LoginPresenter(
+            final ViewManagerModel viewManagerModel,
+            final LoginViewModel loginViewModel,
+            final SignupViewModel signupViewModel,
+            final ProfileViewModel profileViewModel,
+            final ViewMealsViewModel mealsViewModel,
+            final WorkoutsViewModel workoutsViewModel,
+            final RecommendationController recommendationController,
+            final DashboardInputBoundary dashboardInteractor,
+            final ViewWorkoutsViewModel viewWorkoutsViewModel,
+            final CalendarController calendarController) {
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
@@ -60,6 +65,7 @@ public class LoginPresenter implements LoginOutputBoundary {
         this.workoutsViewModel = workoutsViewModel;
         this.recommendationController = recommendationController;
         this.dashboardInteractor = dashboardInteractor;
+        this.calendarController = calendarController;
         this.viewWorkoutsViewModel = viewWorkoutsViewModel;
     }
 
@@ -98,6 +104,11 @@ public class LoginPresenter implements LoginOutputBoundary {
             final WorkoutsState workoutsState = this.workoutsViewModel.getState();
             workoutsState.setLoading(true);
             this.workoutsViewModel.firePropertyChanged();
+        }
+
+        if (this.calendarController != null) {
+            this.calendarController.loadCalendarEvents();
+            this.calendarController.synchronizeMeals(response.getMeals());
         }
 
         if (this.recommendationController != null) {

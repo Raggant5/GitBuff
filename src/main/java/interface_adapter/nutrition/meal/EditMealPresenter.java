@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import entity.Meal;
 import interface_adapter.MainViewManagerModel;
+import interface_adapter.calendar.CalendarController;
 import use_case.nutrition.meal.edit_meal.EditMealOutputBoundary;
 import use_case.nutrition.meal.edit_meal.EditMealOutputData;
 
@@ -13,12 +14,14 @@ public class EditMealPresenter implements EditMealOutputBoundary {
     private final ViewMealsViewModel viewMealsViewModel;
     private final MealEditorViewModel mealEditorViewModel;
     private final MainViewManagerModel mainViewManagerModel;
+    private final CalendarController calendarController;
 
     public EditMealPresenter(ViewMealsViewModel viewMealsViewModel, MealEditorViewModel mealEditorViewModel,
-                             MainViewManagerModel mainViewManagerModel) {
+                             MainViewManagerModel mainViewManagerModel, CalendarController calendarController) {
         this.viewMealsViewModel = viewMealsViewModel;
         this.mealEditorViewModel = mealEditorViewModel;
         this.mainViewManagerModel = mainViewManagerModel;
+        this.calendarController = calendarController;
     }
 
     @Override
@@ -36,6 +39,10 @@ public class EditMealPresenter implements EditMealOutputBoundary {
         viewMealsViewModel.firePropertyChanged();
         mealEditorViewModel.getState().reset();
         mealEditorViewModel.firePropertyChanged();
+
+        if (calendarController != null) {
+            calendarController.updateMeal(outputData.getMeal());
+        }
 
         mainViewManagerModel.setState("nutrition");
         mainViewManagerModel.firePropertyChanged();

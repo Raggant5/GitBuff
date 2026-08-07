@@ -24,10 +24,12 @@ public final class Main {
         final AppBuilder appBuilder = new AppBuilder();
 
         final JFrame application = appBuilder
+                .addCalendarPanel()
                 .addLoginView()
                 .addSignupView()
                 .addMainViews()
                 .addDashboardUseCase()
+                .addCalendarUseCase()
                 .addNavbarView()
                 .addShellView()
                 .addSignupUseCase()

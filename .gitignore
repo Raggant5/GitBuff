@@ -9,8 +9,14 @@ target/
 data/
 *.db
 
+# Local secrets and authorization
+credentials.json
+client_secret_*.json
+tokens/
+
 # Resources Folder
 resources/
 
 # API Keys
 .env
+
