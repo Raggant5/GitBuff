@@ -75,28 +75,28 @@ public class ProfileController {
                         final Set<DayOfWeek> preferredWorkoutDays,
                         final int preferredWorkoutDurationMinutes,
                         final Set<PrivacySetting> privacySettings) {
+        if (this.workoutsViewModel != null) {
+            final WorkoutsState state = this.workoutsViewModel.getState();
+            state.setLoading(true);
+            this.workoutsViewModel.firePropertyChanged();
+        }
+
         final EditProfileInputData inputData = new EditProfileInputData(
                 height, weight, activityLevel, goal, profilePicturePath,
                 dateOfBirth, gender, bio, preferredUnitSystem, equipment,
                 dietaryRestrictions, preferredWorkoutDays,
                 preferredWorkoutDurationMinutes, privacySettings);
-        this.editProfileUseCaseInteractor.execute(inputData);
 
-        if (this.recommendationController != null) {
-            if (this.workoutsViewModel != null) {
-                final WorkoutsState state = this.workoutsViewModel.getState();
-                state.setLoading(true);
-                this.workoutsViewModel.firePropertyChanged();
-            }
-
-            final SwingWorker<Void, Void> worker = new SwingWorker<>() {
-                @Override
-                protected Void doInBackground() {
+        final SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                editProfileUseCaseInteractor.execute(inputData);
+                if (recommendationController != null) {
                     recommendationController.execute();
-                    return null;
                 }
-            };
-            worker.execute();
-        }
+                return null;
+            }
+        };
+        worker.execute();
     }
 }

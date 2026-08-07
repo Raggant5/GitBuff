@@ -1,30 +1,25 @@
 package use_case.profile;
 
 import entity.User;
-import use_case.recommendation.RecommendationInputBoundary;
 
 /**
- * The Edit Profile Interactor. Saves profile details and refreshes personalized recommendations.
+ * The Edit Profile Interactor. Saves profile details.
  */
 public class EditProfileInteractor implements EditProfileInputBoundary {
 
     private final ProfileUserDataAccessInterface userDataAccessObject;
     private final EditProfileOutputBoundary profilePresenter;
-    private final RecommendationInputBoundary recommendationInteractor;
 
     /**
      * Constructs an EditProfileInteractor instance.
      *
      * @param userDataAccessObject profile data access object
      * @param profileOutputBoundary profile output boundary presenter
-     * @param recommendationInteractor interactor boundary for refreshing recommendations
      */
     public EditProfileInteractor(final ProfileUserDataAccessInterface userDataAccessObject,
-                                 final EditProfileOutputBoundary profileOutputBoundary,
-                                 final RecommendationInputBoundary recommendationInteractor) {
+                                 final EditProfileOutputBoundary profileOutputBoundary) {
         this.userDataAccessObject = userDataAccessObject;
         this.profilePresenter = profileOutputBoundary;
-        this.recommendationInteractor = recommendationInteractor;
     }
 
     @Override
@@ -66,7 +61,5 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
                 user.getPreferredWorkoutDays(), user.getPreferredWorkoutDurationMinutes(),
                 user.getPrivacySettings());
         this.profilePresenter.prepareSuccessView(outputData);
-
-        this.recommendationInteractor.execute();
     }
 }

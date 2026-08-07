@@ -341,7 +341,7 @@ public class AppBuilder {
     public AppBuilder addProfileUseCase() {
         final EditProfileOutputBoundary profileOutputBoundary = new ProfilePresenter(this.profileViewModel);
         final EditProfileInputBoundary editProfileInteractor = new EditProfileInteractor(
-                this.userDataAccessObject, profileOutputBoundary, this.recommendationInteractor);
+                this.userDataAccessObject, profileOutputBoundary);
 
         final ProfileController profileController = new ProfileController(editProfileInteractor);
         profileController.setRecommendationDependencies(this.recommendationController, this.workoutViewModel);
