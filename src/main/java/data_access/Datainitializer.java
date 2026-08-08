@@ -39,6 +39,8 @@ public final class Datainitializer {
                         bio TEXT NOT NULL DEFAULT '',
                         preferred_unit_system TEXT NOT NULL
                             DEFAULT 'METRIC',
+                        total_workout_minutes REAL NOT NULL DEFAULT 0,
+          
                         preferred_workout_duration_minutes INTEGER
                             NOT NULL DEFAULT 45
                     );
