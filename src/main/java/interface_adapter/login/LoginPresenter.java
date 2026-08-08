@@ -41,10 +41,12 @@ public class LoginPresenter implements LoginOutputBoundary {
      * @param profileViewModel view model for user profile state
      * @param mealsViewModel view model for user meals state
      * @param workoutsViewModel view model for workouts state
-     * @param recommendationController controller to trigger recommendations after login
-     * @param dashboardInteractor  interactor for loading dashboard data
-     * @param workoutsViewModel view model for the user's workout history
-     * @param calendarController controller for loading and synchronizing calendar events
+     * @param recommendationController controller to trigger recommendations
+     *        after login
+     * @param dashboardInteractor interactor for loading dashboard data
+     * @param viewWorkoutsViewModel view model for the user's workout history
+     * @param calendarController controller for loading and synchronizing
+     *        calendar events
      */
     public LoginPresenter(
             final ViewManagerModel viewManagerModel,
@@ -57,6 +59,7 @@ public class LoginPresenter implements LoginOutputBoundary {
             final DashboardInputBoundary dashboardInteractor,
             final ViewWorkoutsViewModel viewWorkoutsViewModel,
             final CalendarController calendarController) {
+
         this.viewManagerModel = viewManagerModel;
         this.loginViewModel = loginViewModel;
         this.signupViewModel = signupViewModel;
@@ -71,75 +74,170 @@ public class LoginPresenter implements LoginOutputBoundary {
 
     @Override
     public void prepareSuccessView(final LoginOutputData response) {
-        final LoginState loginState = this.loginViewModel.getState();
+
+        final LoginState loginState =
+                this.loginViewModel.getState();
+
         loginState.setUsername(response.getUsername());
         loginState.setLoginError(null);
+
         this.loginViewModel.firePropertyChanged();
 
-        final ProfileState profileState = this.profileViewModel.getState();
-        profileState.setUsername(response.getUsername());
-        profileState.setHeightText(String.valueOf(response.getHeight()));
-        profileState.setWeightText(String.valueOf(response.getWeight()));
-        profileState.setActivityLevel(response.getActivityLevel());
-        profileState.setGoal(response.getGoal());
-        profileState.setProfilePicturePath(response.getProfilePicturePath());
-        profileState.setDateOfBirth(response.getDateOfBirth());
-        profileState.setGender(response.getGender());
-        profileState.setBio(response.getBio());
-        profileState.setPreferredUnitSystem(response.getPreferredUnitSystem());
-        profileState.setEquipment(response.getEquipment());
-        profileState.setDietaryRestrictions(response.getDietaryRestrictions());
-        profileState.setPreferredWorkoutDays(response.getPreferredWorkoutDays());
-        profileState.setPreferredWorkoutDurationMinutes(response.getPreferredWorkoutDurationMinutes());
-        profileState.setPrivacySettings(response.getPrivacySettings());
+        final ProfileState profileState =
+                this.profileViewModel.getState();
+
+        profileState.setUsername(
+                response.getUsername()
+        );
+
+        profileState.setHeightText(
+                String.valueOf(response.getHeight())
+        );
+
+        profileState.setWeightText(
+                String.valueOf(response.getWeight())
+        );
+
+        profileState.setActivityLevel(
+                response.getActivityLevel()
+        );
+
+        profileState.setGoal(
+                response.getGoal()
+        );
+
+        profileState.setProfilePicturePath(
+                response.getProfilePicturePath()
+        );
+
+        profileState.setDateOfBirth(
+                response.getDateOfBirth()
+        );
+
+        profileState.setGender(
+                response.getGender()
+        );
+
+        profileState.setBio(
+                response.getBio()
+        );
+
+        profileState.setPreferredUnitSystem(
+                response.getPreferredUnitSystem()
+        );
+
+        profileState.setEquipment(
+                response.getEquipment()
+        );
+
+        profileState.setDietaryRestrictions(
+                response.getDietaryRestrictions()
+        );
+
+        profileState.setPreferredWorkoutDays(
+                response.getPreferredWorkoutDays()
+        );
+
+        profileState.setPreferredWorkoutDurationMinutes(
+                response.getPreferredWorkoutDurationMinutes()
+        );
+
+        profileState.setPrivacySettings(
+                response.getPrivacySettings()
+        );
 
         profileState.setProfileError(null);
         profileState.setSaveConfirmation(null);
+
         this.profileViewModel.firePropertyChanged();
 
-        this.mealsViewModel.getState().setMeals(response.getMeals());
+        /*
+         * Reload saved meals from SQLite into the meals view.
+         */
+        this.mealsViewModel.getState().setMeals(
+                response.getMeals()
+        );
+
         this.mealsViewModel.firePropertyChanged();
 
+        /*
+         * Reload saved workouts from SQLite into
+         * the workout-history view.
+         */
+        this.viewWorkoutsViewModel.getState().setWorkouts(
+                response.getWorkouts()
+        );
+
+        this.viewWorkoutsViewModel.firePropertyChanged();
+
         if (this.workoutsViewModel != null) {
-            final WorkoutsState workoutsState = this.workoutsViewModel.getState();
+
+            final WorkoutsState workoutsState =
+                    this.workoutsViewModel.getState();
+
             workoutsState.setLoading(true);
+
             this.workoutsViewModel.firePropertyChanged();
         }
 
         if (this.calendarController != null) {
+
             this.calendarController.loadCalendarEvents();
-            this.calendarController.synchronizeMeals(response.getMeals());
+
+            this.calendarController.synchronizeMeals(
+                    response.getMeals()
+            );
         }
 
         if (this.recommendationController != null) {
-            final SwingWorker<Void, Void> worker = new SwingWorker<>() {
-                @Override
-                protected Void doInBackground() {
-                    recommendationController.execute();
-                    return null;
-                }
-            };
+
+            final SwingWorker<Void, Void> worker =
+                    new SwingWorker<>() {
+
+                        @Override
+                        protected Void doInBackground() {
+
+                            recommendationController.execute();
+
+                            return null;
+                        }
+                    };
+
             worker.execute();
         }
 
         if (this.dashboardInteractor != null) {
-            this.dashboardInteractor.execute(response.getUsername());
+
+            this.dashboardInteractor.execute(
+                    response.getUsername()
+            );
         }
 
-        this.viewManagerModel.setState("app shell");
+        this.viewManagerModel.setState(
+                "app shell"
+        );
+
         this.viewManagerModel.firePropertyChanged();
     }
 
     @Override
     public void prepareFailView(final String error) {
-        final LoginState loginState = this.loginViewModel.getState();
+
+        final LoginState loginState =
+                this.loginViewModel.getState();
+
         loginState.setLoginError(error);
+
         this.loginViewModel.firePropertyChanged();
     }
 
     @Override
     public void switchToSignupView() {
-        this.viewManagerModel.setState(this.signupViewModel.getViewName());
+
+        this.viewManagerModel.setState(
+                this.signupViewModel.getViewName()
+        );
+
         this.viewManagerModel.firePropertyChanged();
     }
 }

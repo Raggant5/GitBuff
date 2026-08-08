@@ -16,6 +16,7 @@ import data_access.MockSearchFoodDataAccessObject;
 import data_access.SQLiteMealDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
 import data_access.SearchFoodDataAccessObject;
+import data_access.SQLiteWorkoutDataAccessObject;
 import data_access.SpoonacularMealRecommendationDataAccessObject;
 import entity.CommonUserFactory;
 import entity.ExercisePerformedFactory;
@@ -264,7 +265,8 @@ public class AppBuilder {
 
     private final ExercisePerformedFactory exercisePerformedFactory = new ExercisePerformedFactory();
     private final LoggedWorkoutFactory loggedWorkoutFactory = new LoggedWorkoutFactory();
-    private final InMemoryDataAccessObject workoutDataAccessObject = new InMemoryDataAccessObject();
+    private final SQLiteWorkoutDataAccessObject workoutDataAccessObject =
+            new SQLiteWorkoutDataAccessObject();
     private final AddWorkoutDataAccessInterface addWorkoutDataAccessObject = workoutDataAccessObject;
     private final ViewWorkoutDataAccessInterface viewWorkoutsDataAccessObject = workoutDataAccessObject;
     private final EditWorkoutDataAccessInterface editWorkoutDataAccessObject = workoutDataAccessObject;

@@ -39,6 +39,8 @@ public final class Datainitializer {
                         bio TEXT NOT NULL DEFAULT '',
                         preferred_unit_system TEXT NOT NULL
                             DEFAULT 'METRIC',
+                        total_workout_minutes REAL NOT NULL DEFAULT 0,
+          
                         preferred_workout_duration_minutes INTEGER
                             NOT NULL DEFAULT 45
                     );
@@ -124,8 +126,35 @@ public final class Datainitializer {
                     );
                     """);
 
+            statement.execute("""
+                    CREATE TABLE IF NOT EXISTS logged_workouts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id TEXT NOT NULL,
+                        workout_date TEXT NOT NULL,
+                        FOREIGN KEY (user_id)
+                            REFERENCES users(username)
+                            ON DELETE CASCADE
+                    );
+                    """);
+
+            statement.execute("""
+                    CREATE TABLE IF NOT EXISTS exercises_performed (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        workout_id INTEGER NOT NULL,
+                        exercise_name TEXT NOT NULL,
+                        sets INTEGER,
+                        reps INTEGER,
+                        weight REAL,
+                        duration_mins REAL NOT NULL DEFAULT 0,
+                        distance_km REAL,
+                        is_cardio INTEGER NOT NULL DEFAULT 0,
+                        FOREIGN KEY (workout_id)
+                            REFERENCES logged_workouts(id)
+                            ON DELETE CASCADE
+                    );
+                    """);
+
             System.out.println("Database initialized.");
         }
     }
 }
-
