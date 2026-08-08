@@ -1,9 +1,12 @@
 package use_case.share;
 
+import java.util.List;
+
+import entity.LoggedWorkout;
 import entity.User;
 
 /**
- * Data access interface for retrieving share data.
+ * Data access interface for retrieving user profile and logged workout data to share.
  */
 public interface ShareProgressUserDataAccessInterface {
 
@@ -15,18 +18,26 @@ public interface ShareProgressUserDataAccessInterface {
     User getCurrentUser();
 
     /**
-     * Calculates the all-time total minutes worked out across completed workouts.
+     * Gets total completed workout count for user.
      *
-     * @param username user name
-     * @return total minutes worked out
-     */
-    int getTotalMinutesWorkedOut(final String username);
-
-    /**
-     * Gets total completed workout count.
-     *
-     * @param username user name
-     * @return total completed workouts
+     * @param username username
+     * @return count of logged workouts
      */
     int getTotalCompletedWorkouts(final String username);
+
+    /**
+     * Gets all-time total minutes worked out for user.
+     *
+     * @param username username
+     * @return total minutes worked out
+     */
+    double getTotalMinutesWorkedOut(final String username);
+
+    /**
+     * Gets logged workout list for user.
+     *
+     * @param username username
+     * @return list of logged workouts
+     */
+    List<LoggedWorkout> getWorkoutsForUser(final String username);
 }

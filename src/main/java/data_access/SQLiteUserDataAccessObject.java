@@ -23,7 +23,6 @@ import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
 import use_case.profile.ProfileUserDataAccessInterface;
 import use_case.recommendation.RecommendationUserDataAccessInterface;
-import use_case.share.ShareProgressUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
 /**
@@ -34,8 +33,7 @@ public class SQLiteUserDataAccessObject
         LoginUserDataAccessInterface,
         LogoutUserDataAccessInterface,
         ProfileUserDataAccessInterface,
-        RecommendationUserDataAccessInterface,
-        ShareProgressUserDataAccessInterface {
+        RecommendationUserDataAccessInterface {
 
     private static final String SELECT_EXISTS_SQL = """
             SELECT username
@@ -290,7 +288,6 @@ public class SQLiteUserDataAccessObject
         }
     }
 
-    @Override
     public User getCurrentUser() {
         if (this.currentUsername == null) {
             return null;
@@ -299,47 +296,13 @@ public class SQLiteUserDataAccessObject
     }
 
     @Override
-    public int getTotalMinutesWorkedOut(final String username) {
-        final String sql = """
-                SELECT SUM(duration_minutes) AS total_minutes
-                FROM logged_workouts
-                WHERE username = ?
-                """;
-        try (Connection connection = Database.connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, username);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getInt("total_minutes");
-                }
-            }
-        }
-        catch (final SQLException exception) {
-            return 0;
-        }
-        return 0;
+    public void setCurrentUsername(final String name) {
+        this.currentUsername = name;
     }
 
     @Override
-    public int getTotalCompletedWorkouts(final String username) {
-        final String sql = """
-                SELECT COUNT(*) AS total_count
-                FROM logged_workouts
-                WHERE username = ?
-                """;
-        try (Connection connection = Database.connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, username);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getInt("total_count");
-                }
-            }
-        }
-        catch (final SQLException exception) {
-            return 0;
-        }
-        return 0;
+    public String getCurrentUsername() {
+        return this.currentUsername;
     }
 
     private void saveEquipment(
@@ -644,15 +607,5 @@ public class SQLiteUserDataAccessObject
         }
 
         return settings;
-    }
-
-    @Override
-    public void setCurrentUsername(final String name) {
-        this.currentUsername = name;
-    }
-
-    @Override
-    public String getCurrentUsername() {
-        return this.currentUsername;
     }
 }

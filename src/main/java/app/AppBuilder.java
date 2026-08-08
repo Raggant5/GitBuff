@@ -10,13 +10,13 @@ import javax.swing.WindowConstants;
 import data_access.AiWorkoutDataAccessObject;
 import data_access.GoogleCalendarDataAccessObject;
 import data_access.GoogleCalendarServiceFactory;
-import data_access.InMemoryDataAccessObject;
 import data_access.JavaMailDataAccessObject;
 import data_access.MockSearchFoodDataAccessObject;
 import data_access.SQLiteMealDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
-import data_access.SearchFoodDataAccessObject;
 import data_access.SQLiteWorkoutDataAccessObject;
+import data_access.SearchFoodDataAccessObject;
+import data_access.ShareProgressUserDataAccessComposite;
 import data_access.SpoonacularMealRecommendationDataAccessObject;
 import entity.CommonUserFactory;
 import entity.ExercisePerformedFactory;
@@ -265,14 +265,16 @@ public class AppBuilder {
 
     private final ExercisePerformedFactory exercisePerformedFactory = new ExercisePerformedFactory();
     private final LoggedWorkoutFactory loggedWorkoutFactory = new LoggedWorkoutFactory();
-    private final SQLiteWorkoutDataAccessObject workoutDataAccessObject =
-            new SQLiteWorkoutDataAccessObject();
-    private final AddWorkoutDataAccessInterface addWorkoutDataAccessObject = workoutDataAccessObject;
-    private final ViewWorkoutDataAccessInterface viewWorkoutsDataAccessObject = workoutDataAccessObject;
-    private final EditWorkoutDataAccessInterface editWorkoutDataAccessObject = workoutDataAccessObject;
-    private final EditExerciseDataAccessInterface editExerciseDataAccessObject = workoutDataAccessObject;
-    private final DeleteWorkoutDataAccessInterface deleteWorkoutDataAccessObject = workoutDataAccessObject;
-    private final DeleteExerciseDataAccessInterface deleteExerciseDataAccessObject = workoutDataAccessObject;
+
+    // Single shared instance of SQLiteWorkoutDataAccessObject
+    private final SQLiteWorkoutDataAccessObject workoutDataAccessObject = new SQLiteWorkoutDataAccessObject();
+    private final AddWorkoutDataAccessInterface addWorkoutDataAccessObject = this.workoutDataAccessObject;
+    private final ViewWorkoutDataAccessInterface viewWorkoutsDataAccessObject = this.workoutDataAccessObject;
+    private final EditWorkoutDataAccessInterface editWorkoutDataAccessObject = this.workoutDataAccessObject;
+    private final EditExerciseDataAccessInterface editExerciseDataAccessObject = this.workoutDataAccessObject;
+    private final DeleteWorkoutDataAccessInterface deleteWorkoutDataAccessObject = this.workoutDataAccessObject;
+    private final DeleteExerciseDataAccessInterface deleteExerciseDataAccessObject = this.workoutDataAccessObject;
+
     private WorkoutEditorViewModel workoutEditorViewModel;
     private ExerciseEditorViewModel exerciseEditorViewModel;
     private ViewWorkoutsViewModel viewWorkoutsViewModel;
@@ -345,8 +347,12 @@ public class AppBuilder {
     public AppBuilder addShareProgressUseCase() {
         this.shareProgressViewModel = new ShareProgressViewModel();
         final ShareProgressOutputBoundary presenter = new ShareProgressPresenter(this.shareProgressViewModel);
+
+        final ShareProgressUserDataAccessInterface compositeDao =
+                new ShareProgressUserDataAccessComposite(this.userDataAccessObject, this.workoutDataAccessObject);
+
         final ShareProgressInputBoundary interactor = new ShareProgressInteractor(
-                (ShareProgressUserDataAccessInterface) this.userDataAccessObject, this.emailDataAccessObject, presenter);
+                compositeDao, this.emailDataAccessObject, presenter);
         this.shareProgressController = new ShareProgressController(interactor);
 
         if (this.dashboardView != null) {

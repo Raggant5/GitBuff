@@ -74,10 +74,10 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
             }
         });
 
-        // Left Side: Nutrition Charts stacked vertically
+        // Left Side: Nutrition Charts stacked vertically with lower minimum width to enable dragging
         final JPanel chartsSideSection = new JPanel(new GridLayout(2, 1, HORIZONTAL_GAP, VERTICAL_GAP));
         chartsSideSection.setPreferredSize(new Dimension(SIDEBAR_PREFERRED_WIDTH, 0));
-        chartsSideSection.setMinimumSize(new Dimension(SIDEBAR_PREFERRED_WIDTH, 0));
+        chartsSideSection.setMinimumSize(new Dimension(200, 0));
 
         this.calorieChartContainer.setBorder(BorderFactory.createTitledBorder("Calories"));
         this.macroChartContainer.setBorder(BorderFactory.createTitledBorder("Today's Macronutrients"));
@@ -88,12 +88,14 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
 
         // Right Side: Calendar Panel
         this.calendarContainer.add(calendarPanel, BorderLayout.CENTER);
+        this.calendarContainer.setMinimumSize(new Dimension(400, 0));
 
-        // Horizontal Split Pane
+        // Horizontal Split Pane (Vertical Divider Bar)
         final JSplitPane splitPane = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT, chartsSideSection, this.calendarContainer);
         splitPane.setDividerLocation(SIDEBAR_PREFERRED_WIDTH);
         splitPane.setContinuousLayout(true);
+        splitPane.setOneTouchExpandable(true);
         splitPane.setBorder(null);
 
         this.add(topActionPanel, BorderLayout.NORTH);
