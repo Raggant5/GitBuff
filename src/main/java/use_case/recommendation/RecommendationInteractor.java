@@ -61,12 +61,26 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
             }
             else {
                 ensureProfileDefaults(user);
-                presentRecommendationFor(user);
+                presentRecommendationFor(user, true);
             }
         }
     }
 
-    private void presentRecommendationFor(final User user) {
+    @Override
+    public void executeMealRecommendationsOnly() {
+        final String username = this.userDataAccessObject.getCurrentUsername();
+        if (username == null) {
+            this.recommendationPresenter.prepareFailView("No user is currently logged in.");
+            return;
+        }
+        final User user = this.userDataAccessObject.get(username);
+        if (user != null) {
+            ensureProfileDefaults(user);
+            presentRecommendationFor(user, false);
+        }
+    }
+
+    private void presentRecommendationFor(final User user, final boolean includeWorkouts) {
         final double restingCalories = RESTING_KCAL_PER_KG * user.getWeight();
         final double maintenanceCalories = restingCalories * user.getActivityLevel().getCalorieMultiplier();
         final int dailyCalorieTarget =
@@ -74,7 +88,7 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
         final int dailyProteinGrams = (int) Math.round(user.getWeight() * user.getGoal().getProteinGramsPerKg());
 
         List<WorkoutPlan> plans = new ArrayList<>();
-        if (this.aiWorkoutDataAccessObject != null) {
+        if (includeWorkouts && this.aiWorkoutDataAccessObject != null) {
             plans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user, WEEK_DAYS);
         }
 

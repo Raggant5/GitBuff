@@ -24,4 +24,11 @@ public class RecommendationController {
     public void execute() {
         this.recommendationUseCaseInteractor.execute();
     }
+
+    /**
+     * Executes meal recommendations refresh only.
+     */
+    public void executeMealRecommendationsOnly() {
+        this.recommendationUseCaseInteractor.executeMealRecommendationsOnly();
+    }
 }

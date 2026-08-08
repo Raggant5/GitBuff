@@ -55,26 +55,22 @@ public final class SQLiteWorkoutDataAccessObject
                              Statement.RETURN_GENERATED_KEYS
                      )) {
 
-            statement.setString(
-                    1,
-                    workout.getUserId()
-            );
+            String userId = workout.getUserId();
+            if (userId == null || userId.isBlank()) {
+                final SQLiteUserDataAccessObject userDao = new SQLiteUserDataAccessObject();
+                userId = userDao.getCurrentUsername();
+            }
 
-            statement.setString(
-                    2,
-                    workout.getDate().toString()
-            );
+            statement.setString(1, userId);
+            statement.setString(2, workout.getDate().toString());
 
             statement.executeUpdate();
 
-            try (ResultSet generatedKeys =
-                         statement.getGeneratedKeys()) {
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
 
                 if (generatedKeys.next()) {
 
-                    final int workoutId =
-                            generatedKeys.getInt(1);
-
+                    final int workoutId = generatedKeys.getInt(1);
                     workout.setId(workoutId);
 
                     return workoutId;
@@ -344,11 +340,6 @@ public final class SQLiteWorkoutDataAccessObject
         final List<LoggedWorkout> workouts =
                 new ArrayList<>();
 
-        /*
-         * This preserves the behaviour of the old
-         * InMemoryDataAccessObject, which displayed
-         * workouts from the last seven days.
-         */
         final LocalDate cutoff =
                 LocalDate.now().minusDays(6);
 
@@ -458,11 +449,6 @@ public final class SQLiteWorkoutDataAccessObject
             );
         }
 
-        /*
-         * Same behaviour as the old in-memory DAO:
-         * newly-added exercises are inserted while
-         * existing exercises are updated.
-         */
         for (ExercisePerformed exercise
                 : workout.getExercises()) {
 
