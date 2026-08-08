@@ -84,13 +84,17 @@ class CalendarControllerTest {
         final String today = LocalDate.now().format(
                 DateTimeFormatter.ofPattern("EEEE, MMM d", Locale.ENGLISH));
         final Exercise exercise = new Exercise(
-                "Squat", "3 x 10", "Lower with control", "");
+                "Squat", 3, 10, 5,
+                "Legs", "None", "Lower with control", "",
+                "Strength", "Lower Body", "Moderate", "Bodyweight");
         final WorkoutPlan workout = new WorkoutPlan(
                 today, "Strength", "Leg session",
-                300, 10, 30, List.of(exercise));
+                "Strength", "Lower Body", "Moderate", "Legs", "Bodyweight",
+                30, 300, 10, 30, List.of(exercise));
         final WorkoutPlan rest = new WorkoutPlan(
                 today, "Rest & Recovery", "Rest",
-                0, 0, 0, List.of());
+                "Recovery", "Rest", "Low", "Full Body", "None",
+                0, 0, 0, 0, List.of());
 
         controller.replaceWorkoutPlans(List.of(workout, rest));
 
