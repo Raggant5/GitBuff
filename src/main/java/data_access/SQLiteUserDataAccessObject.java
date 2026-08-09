@@ -306,6 +306,21 @@ public class SQLiteUserDataAccessObject
         return this.currentUsername;
     }
 
+    // --- ADDED METHOD START ---
+
+    /**
+     * Returns the currently logged-in User object, or null if no user is logged in.
+     * @return the current User or null.
+     */
+    public User getCurrentUser() {
+        if (this.currentUsername == null) {
+            return null;
+        }
+        return get(this.currentUsername);
+    }
+
+    // --- ADDED METHOD END ---
+
     private void saveEquipment(
             final Connection connection,
             final User user
