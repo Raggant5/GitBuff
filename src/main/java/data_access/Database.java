@@ -21,15 +21,13 @@ public final class Database {
     /**
      * Opens a connection to the SQLite database and enables foreign keys.
      *
-     * @return an active database connection
-     * @throws SQLException if the data directory cannot be created or the
-     *         database connection fails
+     * @return an active database connection.
+     * @throws SQLException if the data directory cannot be created or the database connection fails.
      */
     public static Connection connect() throws SQLException {
         createDataDirectory();
 
-        final Connection connection =
-                DriverManager.getConnection(URL);
+        final Connection connection = DriverManager.getConnection(URL);
 
         try (Statement statement = connection.createStatement()) {
             statement.execute("PRAGMA foreign_keys = ON;");
@@ -41,24 +39,17 @@ public final class Database {
     /**
      * Creates the database directory when it does not already exist.
      *
-     * @throws SQLException if the directory cannot be created or if a file
-     *         named data already exists
+     * @throws SQLException if the directory cannot be created or if a file named data already exists.
      */
     private static void createDataDirectory() throws SQLException {
-        final File dataDirectory =
-                new File(DATABASE_DIRECTORY);
+        final File dataDirectory = new File(DATABASE_DIRECTORY);
 
-        if (!dataDirectory.exists()
-                && !dataDirectory.mkdirs()) {
-            throw new SQLException(
-                    "Could not create data directory."
-            );
+        if (!dataDirectory.exists() && !dataDirectory.mkdirs()) {
+            throw new SQLException("Could not create data directory.");
         }
 
         if (!dataDirectory.isDirectory()) {
-            throw new SQLException(
-                    "'data' exists but is not a directory."
-            );
+            throw new SQLException("'data' exists but is not a directory.");
         }
     }
 }

@@ -21,12 +21,9 @@ import use_case.calendar.remove_event.RemoveCalendarEventInputData;
 /**
  * Controller for the calendar feature: keeps the user's calendar in sync with meals and
  * generated workout plans, and dispatches add/remove/load requests.
- *
- * <p>Reads and compares against {@link CalendarEventDisplayData} (the state's display DTO)
- * rather than the {@code entity.CalendarEvent} entity, keeping this interface_adapter-layer
- * class free of entity-layer dependencies.
  */
 public class CalendarController {
+
     private static final String MEAL_REFERENCE_PREFIX = "GitBuff meal ID: ";
     private static final String WORKOUT_REFERENCE = "GitBuff workout schedule";
     private static final DateTimeFormatter WORKOUT_DATE_FORMAT =
@@ -38,12 +35,21 @@ public class CalendarController {
     private final LoginViewModel loginViewModel;
     private final CalendarViewModel calendarViewModel;
 
+    /**
+     * Constructs a CalendarController instance.
+     *
+     * @param addInteractor boundary for adding calendar events.
+     * @param removeInteractor boundary for removing calendar events.
+     * @param loadInteractor boundary for loading calendar events.
+     * @param loginViewModel view model for obtaining logged in user session.
+     * @param calendarViewModel view model managing calendar display state.
+     */
     public CalendarController(
-            AddCalendarEventInputBoundary addInteractor,
-            RemoveCalendarEventInputBoundary removeInteractor,
-            LoadCalendarEventsInputBoundary loadInteractor,
-            LoginViewModel loginViewModel,
-            CalendarViewModel calendarViewModel) {
+            final AddCalendarEventInputBoundary addInteractor,
+            final RemoveCalendarEventInputBoundary removeInteractor,
+            final LoadCalendarEventsInputBoundary loadInteractor,
+            final LoginViewModel loginViewModel,
+            final CalendarViewModel calendarViewModel) {
         this.addInteractor = addInteractor;
         this.removeInteractor = removeInteractor;
         this.loadInteractor = loadInteractor;
@@ -51,6 +57,9 @@ public class CalendarController {
         this.calendarViewModel = calendarViewModel;
     }
 
+    /**
+     * Dispatches request to load calendar events for the active user.
+     */
     public void loadCalendarEvents() {
         final String userId = getCurrentUserId();
         if (userId == null) {
@@ -58,17 +67,17 @@ public class CalendarController {
         }
 
         final LoadCalendarEventsInputData inputData = new LoadCalendarEventsInputData(userId);
-        loadInteractor.loadCalendarEvents(inputData);
+        this.loadInteractor.loadCalendarEvents(inputData);
     }
 
     /**
      * Adds a saved meal to the current user's Google Calendar.
      *
-     * @param mealId id of the saved meal
-     * @param name meal name
-     * @param date meal date
+     * @param mealId id of the saved meal.
+     * @param name meal name.
+     * @param date meal date.
      */
-    public void addMeal(int mealId, String name, LocalDate date) {
+    public void addMeal(final int mealId, final String name, final LocalDate date) {
         if (date == null) {
             return;
         }
@@ -79,11 +88,11 @@ public class CalendarController {
     /**
      * Replaces a meal's calendar event with its current values.
      *
-     * @param mealId id of the edited meal
-     * @param name updated meal name
-     * @param date updated meal date
+     * @param mealId id of the edited meal.
+     * @param name updated meal name.
+     * @param date updated meal date.
      */
-    public void updateMeal(int mealId, String name, LocalDate date) {
+    public void updateMeal(final int mealId, final String name, final LocalDate date) {
         removeMeal(mealId);
         addMeal(mealId, name, date);
     }
@@ -91,26 +100,25 @@ public class CalendarController {
     /**
      * Removes the calendar event associated with a saved meal.
      *
-     * @param mealId id of the meal being deleted
+     * @param mealId id of the meal being deleted.
      */
-    public void removeMeal(int mealId) {
+    public void removeMeal(final int mealId) {
         removeEventWithDescription(MEAL_REFERENCE_PREFIX + mealId);
     }
 
     /**
      * Makes the user's Google Calendar meal events match the meals saved in GitBuff.
-     * This also backfills meals that existed before calendar integration was enabled.
      *
-     * @param meals meals currently saved for the logged-in user
+     * @param meals meals currently saved for the logged-in user.
      */
-    public void synchronizeMeals(List<Meal> meals) {
-        if (calendarViewModel.getState().getErrorMessage() != null) {
+    public void synchronizeMeals(final List<Meal> meals) {
+        if (this.calendarViewModel.getState().getErrorMessage() != null) {
             return;
         }
 
         final List<Meal> desiredMeals = new ArrayList<>();
         if (meals != null) {
-            for (Meal meal : meals) {
+            for (final Meal meal : meals) {
                 if (meal != null && meal.getId() != null && meal.getDate() != null) {
                     desiredMeals.add(meal);
                 }
@@ -118,8 +126,8 @@ public class CalendarController {
         }
 
         final List<CalendarEventDisplayData> currentEvents =
-                List.copyOf(calendarViewModel.getState().getCalendarEvents());
-        for (CalendarEventDisplayData event : currentEvents) {
+                List.copyOf(this.calendarViewModel.getState().getCalendarEvents());
+        for (final CalendarEventDisplayData event : currentEvents) {
             if (event.getDescription() != null
                     && event.getDescription().startsWith(MEAL_REFERENCE_PREFIX)) {
                 final Meal matchingMeal = findMatchingMeal(desiredMeals, event);
@@ -132,28 +140,27 @@ public class CalendarController {
             }
         }
 
-        for (Meal meal : desiredMeals) {
+        for (final Meal meal : desiredMeals) {
             addMeal(meal.getId(), meal.getName(), meal.getDate());
         }
     }
 
     /**
      * Replaces the user's generated workout events with a new workout plan.
-     * Rest days are intentionally omitted from the calendar.
      *
-     * @param workoutPlans generated workout plans
+     * @param workoutPlans generated workout plans.
      */
-    public void replaceWorkoutPlans(List<WorkoutPlan> workoutPlans) {
-        if (calendarViewModel.getState().getErrorMessage() != null) {
+    public void replaceWorkoutPlans(final List<WorkoutPlan> workoutPlans) {
+        if (this.calendarViewModel.getState().getErrorMessage() != null) {
             return;
         }
 
         final List<CalendarEventDisplayData> currentEvents =
-                List.copyOf(calendarViewModel.getState().getCalendarEvents());
+                List.copyOf(this.calendarViewModel.getState().getCalendarEvents());
         final List<ScheduledWorkout> desiredWorkouts = new ArrayList<>();
 
         if (workoutPlans != null) {
-            for (WorkoutPlan plan : workoutPlans) {
+            for (final WorkoutPlan plan : workoutPlans) {
                 if (plan != null && plan.getExercises() != null
                         && !plan.getExercises().isEmpty()) {
                     final LocalDate date = parseWorkoutDate(plan.getDate());
@@ -167,7 +174,7 @@ public class CalendarController {
             }
         }
 
-        for (CalendarEventDisplayData event : currentEvents) {
+        for (final CalendarEventDisplayData event : currentEvents) {
             if (event.getDescription() != null
                     && event.getDescription().contains(WORKOUT_REFERENCE)) {
                 final ScheduledWorkout match = findMatchingWorkout(
@@ -181,14 +188,14 @@ public class CalendarController {
             }
         }
 
-        for (ScheduledWorkout workout : desiredWorkouts) {
+        for (final ScheduledWorkout workout : desiredWorkouts) {
             addEvent(workout.title(), workout.description(), workout.date());
         }
     }
 
     private ScheduledWorkout findMatchingWorkout(
-            List<ScheduledWorkout> workouts, CalendarEventDisplayData event) {
-        for (ScheduledWorkout workout : workouts) {
+            final List<ScheduledWorkout> workouts, final CalendarEventDisplayData event) {
+        for (final ScheduledWorkout workout : workouts) {
             if (workout.title().equals(event.getTitle())
                     && workout.description().equals(event.getDescription())
                     && workout.date().equals(event.getActivityDate())) {
@@ -198,8 +205,8 @@ public class CalendarController {
         return null;
     }
 
-    private Meal findMatchingMeal(List<Meal> meals, CalendarEventDisplayData event) {
-        for (Meal meal : meals) {
+    private Meal findMatchingMeal(final List<Meal> meals, final CalendarEventDisplayData event) {
+        for (final Meal meal : meals) {
             if (("Meal: " + meal.getName()).equals(event.getTitle())
                     && (MEAL_REFERENCE_PREFIX + meal.getId()).equals(event.getDescription())
                     && meal.getDate().equals(event.getActivityDate())) {
@@ -209,17 +216,17 @@ public class CalendarController {
         return null;
     }
 
-    private void addEvent(String title, String description, LocalDate date) {
+    private void addEvent(final String title, final String description, final LocalDate date) {
         final String userId = getCurrentUserId();
         if (userId == null || date == null) {
             return;
         }
 
-        addInteractor.addCalendarEvent(new AddCalendarEventInputData(
+        this.addInteractor.addCalendarEvent(new AddCalendarEventInputData(
                 userId, title, description, date));
     }
 
-    private void removeEventWithDescription(String description) {
+    private void removeEventWithDescription(final String description) {
         CalendarEventDisplayData matchingEvent = findEventWithDescription(description);
         if (matchingEvent == null) {
             loadCalendarEvents();
@@ -231,8 +238,8 @@ public class CalendarController {
         }
     }
 
-    private CalendarEventDisplayData findEventWithDescription(String description) {
-        for (CalendarEventDisplayData event : calendarViewModel.getState().getCalendarEvents()) {
+    private CalendarEventDisplayData findEventWithDescription(final String description) {
+        for (final CalendarEventDisplayData event : this.calendarViewModel.getState().getCalendarEvents()) {
             if (description.equals(event.getDescription())) {
                 return event;
             }
@@ -240,20 +247,20 @@ public class CalendarController {
         return null;
     }
 
-    private void removeEvent(CalendarEventDisplayData event) {
-        removeInteractor.removeCalendarEvent(new RemoveCalendarEventInputData(
+    private void removeEvent(final CalendarEventDisplayData event) {
+        this.removeInteractor.removeCalendarEvent(new RemoveCalendarEventInputData(
                 event.getUserId(), event.getEventId()));
     }
 
     private String getCurrentUserId() {
-        final String userId = loginViewModel.getState().getUsername();
+        final String userId = this.loginViewModel.getState().getUsername();
         if (userId == null || userId.isBlank()) {
             return null;
         }
         return userId;
     }
 
-    private LocalDate parseWorkoutDate(String dateText) {
+    private LocalDate parseWorkoutDate(final String dateText) {
         if (dateText == null || dateText.isBlank()) {
             return null;
         }
@@ -269,7 +276,7 @@ public class CalendarController {
             }
             return parsed;
         }
-        catch (DateTimeParseException exception) {
+        catch (final DateTimeParseException exception) {
             return null;
         }
     }

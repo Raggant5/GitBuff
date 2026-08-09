@@ -20,7 +20,7 @@ public class MockSearchFoodDataAccessObject implements SearchFoodDataAccessInter
     );
 
     @Override
-    public List<FoodSearchResult> searchFood(String searchQuery) {
+    public List<FoodSearchResult> searchFood(final String searchQuery) {
         return new ArrayList<>(MOCK_RESULTS);
     }
 }

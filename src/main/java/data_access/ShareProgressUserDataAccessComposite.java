@@ -17,8 +17,8 @@ public class ShareProgressUserDataAccessComposite implements ShareProgressUserDa
     /**
      * Constructs a ShareProgressUserDataAccessComposite instance.
      *
-     * @param userDataAccessObject user profile DAO
-     * @param workoutDataAccessObject workout DAO
+     * @param userDataAccessObject user profile DAO.
+     * @param workoutDataAccessObject workout DAO.
      */
     public ShareProgressUserDataAccessComposite(final SQLiteUserDataAccessObject userDataAccessObject,
                                                 final SQLiteWorkoutDataAccessObject workoutDataAccessObject) {

@@ -17,64 +17,59 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 
+/**
+ * Factory for creating authorized Google Calendar API instances.
+ */
 public final class GoogleCalendarServiceFactory {
 
+    private static final int PORT = 8888;
+
     private GoogleCalendarServiceFactory() {
+        // Utility class.
     }
 
+    /**
+     * Builds and authorizes a Google Calendar service instance.
+     *
+     * @return authorized Calendar service.
+     */
     public static Calendar create() {
         try {
-            NetHttpTransport transport =
-                    GoogleNetHttpTransport.newTrustedTransport();
+            final NetHttpTransport transport = GoogleNetHttpTransport.newTrustedTransport();
 
-            InputStream credentialsFile =
-                    GoogleCalendarServiceFactory.class
-                            .getResourceAsStream("/credentials.json");
+            final InputStream credentialsFile = GoogleCalendarServiceFactory.class
+                    .getResourceAsStream("/credentials.json");
 
             if (credentialsFile == null) {
-                throw new IllegalStateException(
-                        "credentials.json was not found.");
+                throw new IllegalStateException("credentials.json was not found.");
             }
 
-            GoogleClientSecrets clientSecrets =
-                    GoogleClientSecrets.load(
-                            GsonFactory.getDefaultInstance(),
-                            new InputStreamReader(credentialsFile));
+            final GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+                    GsonFactory.getDefaultInstance(),
+                    new InputStreamReader(credentialsFile));
 
-            GoogleAuthorizationCodeFlow authorizationFlow =
-                    new GoogleAuthorizationCodeFlow.Builder(
-                            transport,
-                            GsonFactory.getDefaultInstance(),
-                            clientSecrets,
-                            List.of(CalendarScopes.CALENDAR))
-                            .setDataStoreFactory(
-                                    new FileDataStoreFactory(
-                                            new File("tokens")))
-                            .setAccessType("offline")
-                            .build();
-
-            LocalServerReceiver receiver =
-                    new LocalServerReceiver.Builder()
-                            .setPort(8888)
-                            .build();
-
-            Credential credential =
-                    new AuthorizationCodeInstalledApp(
-                            authorizationFlow,
-                            receiver)
-                            .authorize("gitbuff");
-
-            return new Calendar.Builder(
+            final GoogleAuthorizationCodeFlow authorizationFlow = new GoogleAuthorizationCodeFlow.Builder(
                     transport,
                     GsonFactory.getDefaultInstance(),
-                    credential)
+                    clientSecrets,
+                    List.of(CalendarScopes.CALENDAR))
+                    .setDataStoreFactory(new FileDataStoreFactory(new File("tokens")))
+                    .setAccessType("offline")
+                    .build();
+
+            final LocalServerReceiver receiver = new LocalServerReceiver.Builder()
+                    .setPort(PORT)
+                    .build();
+
+            final Credential credential = new AuthorizationCodeInstalledApp(authorizationFlow, receiver)
+                    .authorize("gitbuff");
+
+            return new Calendar.Builder(transport, GsonFactory.getDefaultInstance(), credential)
                     .setApplicationName("GitBuff")
                     .build();
         }
-        catch (Exception exception) {
-            throw new IllegalStateException(
-                    "Could not create Google Calendar service.",
-                    exception);
+        catch (final Exception exception) {
+            throw new IllegalStateException("Could not create Google Calendar service.", exception);
         }
     }
 }

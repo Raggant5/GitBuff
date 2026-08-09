@@ -13,7 +13,7 @@ public class SignupController {
     /**
      * Constructs a SignupController instance.
      *
-     * @param userSignupUseCaseInteractor interactor boundary for executing signup logic
+     * @param userSignupUseCaseInteractor interactor boundary for executing signup logic.
      */
     public SignupController(final SignupInputBoundary userSignupUseCaseInteractor) {
         this.userSignupUseCaseInteractor = userSignupUseCaseInteractor;
@@ -22,9 +22,9 @@ public class SignupController {
     /**
      * Executes the Signup Use Case.
      *
-     * @param username the username to sign up
-     * @param password1 the password
-     * @param password2 the password repeated
+     * @param username the username to sign up.
+     * @param password1 the password.
+     * @param password2 the password repeated.
      */
     public void execute(final String username, final String password1, final String password2) {
         final SignupInputData signupInputData = new SignupInputData(username, password1, password2);
@@ -34,8 +34,8 @@ public class SignupController {
     /**
      * Executes the switch view request to navigate to LoginView with transferred credentials.
      *
-     * @param username the entered username to transfer
-     * @param password the entered password to transfer
+     * @param username the entered username to transfer.
+     * @param password the entered password to transfer.
      */
     public void switchToLoginView(final String username, final String password) {
         this.userSignupUseCaseInteractor.switchToLoginView(username, password);

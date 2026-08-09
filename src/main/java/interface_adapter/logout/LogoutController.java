@@ -13,7 +13,7 @@ public class LogoutController {
     /**
      * Constructs a LogoutController instance.
      *
-     * @param logoutUseCaseInteractor interactor boundary for executing logout logic
+     * @param logoutUseCaseInteractor interactor boundary for executing logout logic.
      */
     public LogoutController(final LogoutInputBoundary logoutUseCaseInteractor) {
         this.logoutUseCaseInteractor = logoutUseCaseInteractor;
@@ -22,7 +22,7 @@ public class LogoutController {
     /**
      * Executes the Logout Use Case.
      *
-     * @param username the username of the user logging out
+     * @param username the username of the user logging out.
      */
     public void execute(final String username) {
         final LogoutInputData logoutInputData = new LogoutInputData(username);

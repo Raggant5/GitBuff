@@ -16,11 +16,6 @@ import use_case.recommendation.RecommendationOutputData;
 
 /**
  * Presenter for the Recommendation Use Case. Updates Nutrition and Workouts view models.
- *
- * <p>Converts the {@code entity.WorkoutPlan}/{@code entity.Exercise} entities returned by the
- * use case layer into {@link WorkoutPlanDisplayData}/{@link RecommendedExerciseDisplayData}
- * before they reach {@link WorkoutsState} - the use case layer is allowed to depend on
- * entities, but this interface_adapter layer is not.
  */
 public class RecommendationPresenter implements RecommendationOutputBoundary {
 
@@ -31,9 +26,9 @@ public class RecommendationPresenter implements RecommendationOutputBoundary {
     /**
      * Constructs a RecommendationPresenter instance.
      *
-     * @param nutritionViewModel the nutrition view model
-     * @param workoutsViewModel the workouts view model
-     * @param calendarController controller used to reflect new workout plans on the calendar
+     * @param nutritionViewModel the nutrition view model.
+     * @param workoutsViewModel the workouts view model.
+     * @param calendarController controller used to reflect new workout plans on the calendar.
      */
     public RecommendationPresenter(final NutritionViewModel nutritionViewModel,
                                    final WorkoutsViewModel workoutsViewModel,

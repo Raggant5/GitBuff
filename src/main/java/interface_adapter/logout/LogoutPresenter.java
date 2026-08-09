@@ -20,9 +20,9 @@ public class LogoutPresenter implements LogoutOutputBoundary {
     /**
      * Constructs a LogoutPresenter instance.
      *
-     * @param viewManagerModel manager model for top-level view navigation
-     * @param profileViewModel view model for logged-in profile state
-     * @param loginViewModel view model for login state
+     * @param viewManagerModel manager model for top-level view navigation.
+     * @param profileViewModel view model for logged-in profile state.
+     * @param loginViewModel view model for login state.
      */
     public LogoutPresenter(final ViewManagerModel viewManagerModel,
                            final ProfileViewModel profileViewModel,

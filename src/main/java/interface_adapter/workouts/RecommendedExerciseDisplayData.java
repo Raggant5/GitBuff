@@ -1,9 +1,7 @@
 package interface_adapter.workouts;
 
 /**
- * Display-only view of a single AI-recommended exercise within a {@link WorkoutPlanDisplayData},
- * so the view in this layer doesn't need to depend on the {@code entity.Exercise} entity
- * directly.
+ * Display-only view of a single AI-recommended exercise within a {@link WorkoutPlanDisplayData}.
  */
 public class RecommendedExerciseDisplayData {
 
@@ -19,14 +17,14 @@ public class RecommendedExerciseDisplayData {
     /**
      * Constructs a RecommendedExerciseDisplayData instance.
      *
-     * @param name exercise name
-     * @param sets number of sets, or {@code null} if not applicable
-     * @param reps number of reps, or {@code null} if not applicable
-     * @param durationMinutes duration in minutes
-     * @param targetMuscleGroup the primary muscle group targeted
-     * @param equipmentRequired the equipment needed to perform the exercise
-     * @param instructions step-by-step performance instructions
-     * @param videoUrl a link to a video demonstration, or blank if unavailable
+     * @param name exercise name.
+     * @param sets number of sets, or {@code null} if not applicable.
+     * @param reps number of reps, or {@code null} if not applicable.
+     * @param durationMinutes duration in minutes.
+     * @param targetMuscleGroup the primary muscle group targeted.
+     * @param equipmentRequired the equipment needed to perform the exercise.
+     * @param instructions step-by-step performance instructions.
+     * @param videoUrl a link to a video demonstration, or blank if unavailable.
      */
     public RecommendedExerciseDisplayData(final String name, final Integer sets, final Integer reps,
                                           final int durationMinutes, final String targetMuscleGroup,
@@ -42,34 +40,74 @@ public class RecommendedExerciseDisplayData {
         this.videoUrl = videoUrl;
     }
 
+    /**
+     * Gets exercise name.
+     *
+     * @return name string.
+     */
     public String getName() {
         return this.name;
     }
 
+    /**
+     * Gets number of sets.
+     *
+     * @return sets integer, or null.
+     */
     public Integer getSets() {
         return this.sets;
     }
 
+    /**
+     * Gets number of reps.
+     *
+     * @return reps integer, or null.
+     */
     public Integer getReps() {
         return this.reps;
     }
 
+    /**
+     * Gets duration in minutes.
+     *
+     * @return duration integer.
+     */
     public int getDurationMinutes() {
         return this.durationMinutes;
     }
 
+    /**
+     * Gets target muscle group.
+     *
+     * @return target muscle group string.
+     */
     public String getTargetMuscleGroup() {
         return this.targetMuscleGroup;
     }
 
+    /**
+     * Gets required equipment.
+     *
+     * @return equipment string.
+     */
     public String getEquipmentRequired() {
         return this.equipmentRequired;
     }
 
+    /**
+     * Gets instructions.
+     *
+     * @return instructions string.
+     */
     public String getInstructions() {
         return this.instructions;
     }
 
+    /**
+     * Gets video URL.
+     *
+     * @return video URL string.
+     */
     public String getVideoUrl() {
         return this.videoUrl;
     }

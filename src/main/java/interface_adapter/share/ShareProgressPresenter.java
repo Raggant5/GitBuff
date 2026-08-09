@@ -10,6 +10,11 @@ public class ShareProgressPresenter implements ShareProgressOutputBoundary {
 
     private final ShareProgressViewModel viewModel;
 
+    /**
+     * Constructs a ShareProgressPresenter instance.
+     *
+     * @param viewModel the share progress view model.
+     */
     public ShareProgressPresenter(final ShareProgressViewModel viewModel) {
         this.viewModel = viewModel;
     }
