@@ -37,13 +37,6 @@ public class PrepareEditExercisePresenter implements PrepareEditExerciseOutputBo
         workoutEditorViewModel.firePropertyChanged();
     }
 
-    @Override
-    public void switchToAddExerciseEditor() {
-        final WorkoutEditorState state = workoutEditorViewModel.getState();
-        state.setShowExerciseEditor(true);
-        workoutEditorViewModel.firePropertyChanged();
-    }
-
     private String displayDouble(Double value) {
         String result = "";
         if (value != null) {

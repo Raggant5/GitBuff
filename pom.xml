@@ -110,8 +110,7 @@
                         </goals>
                         <configuration>
                             <formats>
-                                <format>CSV</format>
-                                <format>XML</format>
+                                <format>HTML</format>
                             </formats>
                         </configuration>
                     </execution>

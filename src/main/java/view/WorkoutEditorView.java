@@ -61,7 +61,9 @@ public class WorkoutEditorView extends JPanel implements PropertyChangeListener 
         final JPanel buttonPanel = new JPanel(new FlowLayout());
         final JButton addExerciseButton = new JButton("Add Exercise");
         addExerciseButton.addActionListener(evt -> {
-            prepareEditExerciseController.switchToAddExerciseEditor();
+            final WorkoutEditorState state = workoutEditorViewModel.getState();
+            state.setShowExerciseEditor(true);
+            workoutEditorViewModel.firePropertyChanged();
         });
 
         final JButton saveButton = new JButton("Save Workout");

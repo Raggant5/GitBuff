@@ -7,9 +7,4 @@ public interface PrepareEditFoodInputBoundary {
      * @param inputData the data to be edited upon
      */
     void execute(PrepareEditFoodInputData inputData);
-
-    /**
-     * Executes the "Switch to Add Food" Use Case.
-     */
-    void switchToAddFoodEditor();
 }

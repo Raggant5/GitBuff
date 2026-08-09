@@ -58,6 +58,8 @@ import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.nutrition.NutritionViewModel;
 import interface_adapter.nutrition.food.AddFoodController;
 import interface_adapter.nutrition.food.AddFoodPresenter;
+import interface_adapter.nutrition.food.ChangeServingSizeController;
+import interface_adapter.nutrition.food.ChangeServingSizePresenter;
 import interface_adapter.nutrition.food.DeleteFoodController;
 import interface_adapter.nutrition.food.DeleteFoodPresenter;
 import interface_adapter.nutrition.food.EditFoodController;
@@ -131,6 +133,9 @@ import use_case.login.LoginOutputBoundary;
 import use_case.logout.LogoutInputBoundary;
 import use_case.logout.LogoutInteractor;
 import use_case.logout.LogoutOutputBoundary;
+import use_case.nutrition.food.change_serving_size.ChangeServingSizeInputBoundary;
+import use_case.nutrition.food.change_serving_size.ChangeServingSizeInteractor;
+import use_case.nutrition.food.change_serving_size.ChangeServingSizeOutputBoundary;
 import use_case.nutrition.food.create_food.AddFoodEntryInputBoundary;
 import use_case.nutrition.food.create_food.AddFoodEntryInteractor;
 import use_case.nutrition.food.create_food.AddFoodEntryOutputBoundary;
@@ -145,6 +150,7 @@ import use_case.nutrition.food.prepare_edit_food.PrepareEditFoodInteractor;
 import use_case.nutrition.food.search_food.SearchFoodDataAccessInterface;
 import use_case.nutrition.food.search_food.SearchFoodInputBoundary;
 import use_case.nutrition.food.search_food.SearchFoodInteractor;
+import use_case.nutrition.food.search_food.SearchFoodOutputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealDataAccessInterface;
 import use_case.nutrition.meal.add_meal.AddMealInputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealInteractor;
@@ -662,6 +668,23 @@ public class AppBuilder {
     }
 
     /**
+     * Adds the change-serving-size use case.
+     *
+     * @return this builder
+     */
+    public AppBuilder addChangeServingSizeUseCase() {
+        final ChangeServingSizeOutputBoundary changeServingSizePresenter = new ChangeServingSizePresenter(
+                foodEditorViewModel);
+        final ChangeServingSizeInputBoundary changeServingSizeInteractor = new ChangeServingSizeInteractor(
+                changeServingSizePresenter);
+        final ChangeServingSizeController changeServingSizeController = new ChangeServingSizeController(
+                changeServingSizeInteractor);
+
+        foodEditorView.setChangeServingSizeController(changeServingSizeController);
+        return this;
+    }
+
+    /**
      * Adds the delete-meal use case.
      *
      * @return this builder
@@ -697,7 +720,7 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addSearchFoodUseCase() {
-        final SearchFoodPresenter searchFoodPresenter = new SearchFoodPresenter(foodEditorViewModel);
+        final SearchFoodOutputBoundary searchFoodPresenter = new SearchFoodPresenter(foodEditorViewModel);
         final SearchFoodInputBoundary searchFoodInteractor = new SearchFoodInteractor(searchFoodDataAccessObject,
                 searchFoodPresenter);
         final SearchFoodController searchFoodController = new SearchFoodController(searchFoodInteractor);

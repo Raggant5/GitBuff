@@ -47,11 +47,4 @@ public class PrepareEditFoodPresenter implements PrepareEditFoodOutputBoundary {
         foodEditorViewModel.firePropertyChanged();
         mealEditorViewModel.firePropertyChanged();
     }
-
-    @Override
-    public void switchToAddFoodEditor() {
-        final MealEditorState state = mealEditorViewModel.getState();
-        state.setShowFoodEditor(true);
-        mealEditorViewModel.firePropertyChanged();
-    }
 }

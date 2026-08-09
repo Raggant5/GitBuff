@@ -73,7 +73,9 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
         final JPanel buttonPanel = new JPanel(new FlowLayout());
         final JButton addFoodButton = new JButton("Add Food");
         addFoodButton.addActionListener(evt -> {
-            prepareEditFoodController.switchToAddFoodEditor();
+            final MealEditorState state = mealEditorViewModel.getState();
+            state.setShowFoodEditor(true);
+            mealEditorViewModel.firePropertyChanged();
         });
 
         final JButton saveButton = new JButton("Save Meal");
