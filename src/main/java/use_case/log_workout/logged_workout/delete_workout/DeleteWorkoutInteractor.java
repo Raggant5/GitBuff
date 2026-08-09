@@ -1,5 +1,7 @@
 package use_case.log_workout.logged_workout.delete_workout;
 
+import use_case.DataAccessException;
+
 public class DeleteWorkoutInteractor implements DeleteWorkoutInputBoundary {
 
     private final DeleteWorkoutOutputBoundary deleteWorkoutPresenter;
@@ -13,7 +15,13 @@ public class DeleteWorkoutInteractor implements DeleteWorkoutInputBoundary {
 
     @Override
     public void execute(DeleteWorkoutInputData deleteWorkoutInputData) {
-        workoutDataAccessObject.deleteWorkout(deleteWorkoutInputData.getWorkoutId());
-        deleteWorkoutPresenter.prepareSuccessView(new DeleteWorkoutOutputData(deleteWorkoutInputData.getWorkoutId()));
+        try {
+            workoutDataAccessObject.deleteWorkout(deleteWorkoutInputData.getWorkoutId());
+            deleteWorkoutPresenter.prepareSuccessView(
+                    new DeleteWorkoutOutputData(deleteWorkoutInputData.getWorkoutId()));
+        }
+        catch (DataAccessException exc) {
+            deleteWorkoutPresenter.prepareFailView("Unable to delete workout. Please try again.");
+        }
     }
 }

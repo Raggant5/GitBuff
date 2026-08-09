@@ -1,57 +1,50 @@
 package interface_adapter.nutrition.food;
 
-import entity.FoodEntry;
 import entity.FoodUnit;
 
 /**
- * Display-only view of a FoodEntry, for rendering in panels/lists without the panel depending on the
- * entity directly.
+ * DTO for FoodEntry, so the View/Interface Adapter never holds entities.
  */
 public class FoodEntryDisplayData {
 
-    private final FoodEntry foodEntry;
+    private final Integer id;
+    private final String foodName;
+    private final FoodNutritionDisplayData nutrition;
+    private final double quantity;
+    private final FoodUnit unit;
+    private final double grams;
 
-    public FoodEntryDisplayData(FoodEntry foodEntry) {
-        this.foodEntry = foodEntry;
+    public FoodEntryDisplayData(Integer id, String foodName, FoodNutritionDisplayData nutrition, double quantity,
+                                FoodUnit unit, double grams) {
+        this.id = id;
+        this.foodName = foodName;
+        this.nutrition = nutrition;
+        this.quantity = quantity;
+        this.unit = unit;
+        this.grams = grams;
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     public String getFoodName() {
-        return foodEntry.getFoodName();
+        return foodName;
     }
 
-    public double getCalories() {
-        return foodEntry.getNutrition().getCalories();
-    }
-
-    public double getProtein() {
-        return foodEntry.getNutrition().getProtein();
-    }
-
-    public double getFat() {
-        return foodEntry.getNutrition().getFat();
-    }
-
-    public double getCarbs() {
-        return foodEntry.getNutrition().getCarbs();
+    public FoodNutritionDisplayData getNutrition() {
+        return nutrition;
     }
 
     public double getQuantity() {
-        return foodEntry.getQuantity();
+        return quantity;
     }
 
     public FoodUnit getUnit() {
-        return foodEntry.getUnit();
+        return unit;
     }
 
     public double getGrams() {
-        return foodEntry.getGrams();
-    }
-
-    /**
-     * Gets the underlying entity for the Edit/Delete controllers.
-     * @return the wrapped food entry
-     */
-    public FoodEntry getEntity() {
-        return foodEntry;
+        return grams;
     }
 }

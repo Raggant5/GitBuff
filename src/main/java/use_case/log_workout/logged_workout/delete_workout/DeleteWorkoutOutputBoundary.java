@@ -9,4 +9,10 @@ public interface DeleteWorkoutOutputBoundary {
      * @param deleteWorkoutOutputData contains the workout id to be deleted
      */
     void prepareSuccessView(DeleteWorkoutOutputData deleteWorkoutOutputData);
+
+    /**
+     * Prepares the failure view for the Delete Workout Case.
+     * @param errorMessage the explanation of the failure
+     */
+    void prepareFailView(String errorMessage);
 }

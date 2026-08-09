@@ -18,6 +18,7 @@ public enum FoodUnit {
     /**
      * Fixed grams-per-unit conversion rate. Not meaningful for DEFAULT_SERVING,
      * whose gram equivalent instead comes from the selected search result's serving size.
+     * @return the grams per unit of the serving size
      */
     public double getGramsPerUnit() {
         return gramsPerUnit;

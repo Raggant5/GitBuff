@@ -1,6 +1,5 @@
 package interface_adapter.log_workout.exercise;
 
-import entity.ExercisePerformed;
 import interface_adapter.log_workout.workout.WorkoutEditorState;
 import interface_adapter.log_workout.workout.WorkoutEditorViewModel;
 import use_case.log_workout.exercise_performed.prepare_edit_exercise.PrepareEditExerciseOutputBoundary;
@@ -18,18 +17,19 @@ public class PrepareEditExercisePresenter implements PrepareEditExerciseOutputBo
 
     @Override
     public void prepareSuccessView(PrepareEditExerciseOutputData outputData) {
-        final ExercisePerformed exercise = outputData.getExercisePerformed();
-
         final ExerciseEditorState state = exerciseEditorViewModel.getState();
         state.reset();
-        state.setEditingExercise(exercise);
-        state.setExerciseName(exercise.getExerciseName());
-        state.setSets(displayInt(exercise.getSets()));
-        state.setReps(displayInt(exercise.getReps()));
-        state.setWeight(displayDouble(exercise.getWeight()));
-        state.setDurationMins(String.valueOf(exercise.getDurationMins()));
-        state.setDistanceKm(displayDouble(exercise.getDistanceKm()));
-        state.setIsCardio(exercise.getIsCardio());
+        state.setEditingExercisePerformedId(outputData.getId());
+        state.setExerciseName(outputData.getExerciseName());
+        final StrengthDetailsDisplayData strengthDetailsDisplayData = new StrengthDetailsDisplayData(
+                outputData.getStrengthDetailsData().getSets(), outputData.getStrengthDetailsData().getReps(),
+                outputData.getStrengthDetailsData().getWeight());
+        state.setSets(strengthDetailsDisplayData.getSets());
+        state.setReps(strengthDetailsDisplayData.getReps());
+        state.setWeight(strengthDetailsDisplayData.getWeight());
+        state.setDurationMins(String.valueOf(outputData.getDurationMins()));
+        state.setDistanceKm(displayDouble(outputData.getDistanceKm()));
+        state.setIsCardio(outputData.getIsCardio());
 
         final WorkoutEditorState workoutState = workoutEditorViewModel.getState();
         workoutState.setShowExerciseEditor(true);
@@ -42,14 +42,6 @@ public class PrepareEditExercisePresenter implements PrepareEditExerciseOutputBo
         final WorkoutEditorState state = workoutEditorViewModel.getState();
         state.setShowExerciseEditor(true);
         workoutEditorViewModel.firePropertyChanged();
-    }
-
-    private String displayInt(Integer value) {
-        String result = "";
-        if (value != null) {
-            result = String.valueOf(value);
-        }
-        return result;
     }
 
     private String displayDouble(Double value) {

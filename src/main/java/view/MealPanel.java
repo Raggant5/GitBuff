@@ -31,11 +31,11 @@ public class MealPanel extends JPanel {
         final JButton deleteButton = new JButton("Delete Meal");
 
         editButton.addActionListener(evt -> {
-            prepareEditMealController.execute(meal.getEntity());
+            prepareEditMealController.execute(meal.getId());
         });
 
         deleteButton.addActionListener(evt -> {
-            deleteMealController.execute(meal.getEntity());
+            deleteMealController.execute(meal.getId());
         });
 
         buttonPanel.add(editButton);

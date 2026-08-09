@@ -1,82 +1,132 @@
 package use_case.log_workout.exercise_performed.edit_exercise;
 
 import entity.ExercisePerformed;
+import entity.ExercisePerformedFactory;
+import entity.StrengthDetails;
+import use_case.log_workout.StrengthDetailsData;
+import use_case.log_workout.StrengthDetailsInput;
+import use_case.log_workout.exercise_performed.ExerciseValidationErrors;
 
 public class EditExerciseInteractor implements EditExerciseInputBoundary {
 
     private final EditExerciseOutputBoundary presenter;
-    private final EditExerciseDataAccessInterface dataAccess;
+    private final ExercisePerformedFactory exercisePerformedFactory;
 
-    public EditExerciseInteractor(EditExerciseOutputBoundary presenter, EditExerciseDataAccessInterface dataAccess) {
+    public EditExerciseInteractor(EditExerciseOutputBoundary presenter,
+                                  ExercisePerformedFactory exercisePerformedFactory) {
         this.presenter = presenter;
-        this.dataAccess = dataAccess;
+        this.exercisePerformedFactory = exercisePerformedFactory;
     }
 
     @Override
     public void execute(EditExerciseInputData inputData) {
+        final ExerciseValidationErrors errors = new ExerciseValidationErrors();
+
         if (inputData.getExerciseName() == null || inputData.getExerciseName().isBlank()) {
-            presenter.prepareFailView("Exercise name is required.");
+            errors.setGeneralError("Exercise name is required.");
+        }
+
+        final boolean isCardio = inputData.isCardio();
+        final ParsedExercise parsed = validateAndParse(inputData, errors, isCardio);
+
+        if (errors.hasErrors()) {
+            presenter.prepareFailView(errors);
         }
         else {
-            try {
-                final ExercisePerformed exercise = inputData.getExercisePerformed();
-                exercise.setExerciseName(inputData.getExerciseName());
-                exercise.setDurationMins(parsePositiveDouble(inputData.getDuration(), "Duration"));
-                if (inputData.isCardio()) {
-                    exercise.setDistanceKm(parsePositiveDouble(inputData.getDistance(), "Distance"));
-                    exercise.setSets(null);
-                    exercise.setReps(null);
-                    exercise.setWeight(null);
-                    exercise.setIsCardio(true);
-                }
-                else {
-                    exercise.setSets(parsePositiveInt(inputData.getSets(), "Sets"));
-                    exercise.setReps(parsePositiveInt(inputData.getReps(), "Reps"));
-                    exercise.setWeight(parseNonNegativeDouble(inputData.getWeight(), "Weight"));
-                    exercise.setDistanceKm(null);
-                    exercise.setIsCardio(false);
-                }
-                if (exercise.getId() != null) {
-                    dataAccess.editExercisePerformed(exercise);
-                }
+            final Integer id = inputData.getId();
+            final ExercisePerformed exercise = exercisePerformedFactory.create(inputData.getExerciseName(),
+                    parsed.strengthDetails(), parsed.durationMins(), parsed.distanceKm(), isCardio);
 
-                presenter.prepareSuccessView(new EditExerciseOutputData(exercise));
+            if (id != null && id > 0) {
+                exercise.setId(id);
             }
-            catch (NumberFormatException exc) {
-                presenter.prepareFailView("Please ensure all fields are valid.");
-            }
-            catch (IllegalArgumentException exc) {
-                presenter.prepareFailView("Please ensure all fields are valid.");
-            }
-            catch (RuntimeException exc) {
-                presenter.prepareFailView("Unable to save exercise. Please try again.");
-            }
+            final StrengthDetailsData savedDetails = new StrengthDetailsData(exercise.getSets(),
+                    exercise.getReps(), exercise.getWeight());
+            presenter.prepareSuccessView(new EditExerciseOutputData(id, exercise.getExerciseName(),
+                    savedDetails, exercise.getDurationMins(), exercise.getDistanceKm(), exercise.getIsCardio()));
         }
     }
 
-    private Integer parsePositiveInt(String value, String fieldName) {
-        final int parsed = Integer.parseInt(value);
-        if (parsed > 0) {
-            return parsed;
+    private ParsedExercise validateAndParse(EditExerciseInputData inputData, ExerciseValidationErrors errors,
+                                            boolean isCardio) {
+        final Double durationMins = parsePositiveDouble(inputData.getDuration());
+        if (durationMins == null) {
+            errors.setDurationError("Duration must be a positive number");
         }
-        throw new IllegalArgumentException(fieldName + " must be positive.");
-    }
 
-    private Double parseNonNegativeDouble(String value, String fieldName) {
-        if (Double.parseDouble(value) >= 0) {
-            return Double.parseDouble(value);
+        Integer sets = null;
+        Integer reps = null;
+        Double weight = null;
+        Double distanceKm = null;
+
+        if (isCardio) {
+            distanceKm = parsePositiveDouble(inputData.getDistance());
+            if (distanceKm == null) {
+                errors.setDistanceError("Distance must be a positive number");
+            }
         }
         else {
-            throw new IllegalArgumentException(fieldName + " cannot be negative.");
+            sets = parsePositiveInt(inputData.getSets());
+            if (sets == null) {
+                errors.setSetsError("Sets must be a positive number");
+            }
+
+            reps = parsePositiveInt(inputData.getReps());
+            if (reps == null) {
+                errors.setRepsError("Reps must be a positive number");
+            }
+
+            weight = parseNonNegativeDouble(inputData.getWeight());
+            if (weight == null) {
+                errors.setWeightError("Weight must be a non-negative number");
+            }
         }
 
+        return new ParsedExercise(new StrengthDetails(sets, reps, weight), durationMins, distanceKm);
     }
 
-    private double parsePositiveDouble(String value, String fieldName) {
-        final double parsed = Double.parseDouble(value);
-        if (parsed <= 0) {
-            throw new IllegalArgumentException(fieldName + " must be positive.");
+    private Integer parsePositiveInt(String value) {
+        Integer result = null;
+        try {
+            final int parsed = Integer.parseInt(value);
+            if (parsed > 0) {
+                result = parsed;
+            }
         }
-        return parsed;
+        catch (NumberFormatException exc) {
+            result = null;
+        }
+        return result;
+    }
+
+    private Double parseNonNegativeDouble(String value) {
+        Double result = null;
+        try {
+            final double parsed = Double.parseDouble(value);
+            if (parsed >= 0) {
+                result = parsed;
+            }
+        }
+        catch (NumberFormatException exc) {
+            result = null;
+        }
+        return result;
+    }
+
+    private Double parsePositiveDouble(String value) {
+        Double result = null;
+        try {
+            final double parsed = Double.parseDouble(value);
+            if (parsed > 0) {
+                result = parsed;
+            }
+        }
+        catch (NumberFormatException exc) {
+            result = null;
+        }
+        return result;
+    }
+
+    private record ParsedExercise(StrengthDetails strengthDetails, Double durationMins, Double distanceKm) {
     }
 }

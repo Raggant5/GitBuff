@@ -1,16 +1,14 @@
 package use_case.log_workout.exercise_performed.delete_exercise;
 
-import entity.ExercisePerformed;
-
 public class DeleteExerciseOutputData {
 
-    private final ExercisePerformed exercisePerformed;
+    private final Integer id;
 
-    public DeleteExerciseOutputData(ExercisePerformed exercisePerformed) {
-        this.exercisePerformed = exercisePerformed;
+    public DeleteExerciseOutputData(Integer id) {
+        this.id = id;
     }
 
-    public ExercisePerformed getExercisePerformed() {
-        return exercisePerformed;
+    public Integer getId() {
+        return id;
     }
 }

@@ -1,16 +1,14 @@
 package use_case.nutrition.meal.prepare_edit_meal;
 
-import entity.Meal;
-
 public class PrepareEditMealInputData {
 
-    private final Meal meal;
+    private final int mealId;
 
-    public PrepareEditMealInputData(Meal meal) {
-        this.meal = meal;
+    public PrepareEditMealInputData(int mealId) {
+        this.mealId = mealId;
     }
 
-    public Meal getMeal() {
-        return meal;
+    public int getMealId() {
+        return mealId;
     }
 }

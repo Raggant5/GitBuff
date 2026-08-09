@@ -31,23 +31,6 @@ public class LoggedWorkout {
         this.date = date;
     }
 
-    /**
-     * Constructs a workout loaded from persistence.
-     *
-     * @param id database workout ID
-     * @param userId user who completed the workout
-     * @param date date the workout was completed
-     */
-    public LoggedWorkout(
-            final Integer id,
-            final String userId,
-            final LocalDate date
-    ) {
-        this.id = id;
-        this.userId = userId;
-        this.date = date;
-    }
-
     public Integer getId() {
         return this.id;
     }

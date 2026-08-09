@@ -1,52 +1,62 @@
 package interface_adapter.log_workout.exercise;
 
-import entity.ExercisePerformed;
-
 /**
- * Display-only view of an ExercisePerformed, for rendering in panels/lists without the panel depending on
- * the entity directly.
+ * Display-only view of an exercise performed, so panels/state in this layer don't need
+ * to depend on the use case DTO directly.
  */
 public class ExercisePerformedDisplayData {
 
-    private final ExercisePerformed exercisePerformed;
+    private final Integer id;
+    private final String exerciseName;
+    private final StrengthDetailsDisplayData strengthDetailsDisplayData;
+    private final double durationMins;
+    private final Double distanceKm;
+    private final boolean isCardio;
 
-    public ExercisePerformedDisplayData(ExercisePerformed exercisePerformed) {
-        this.exercisePerformed = exercisePerformed;
+    public ExercisePerformedDisplayData(Integer id, String exerciseName,
+                                        StrengthDetailsDisplayData strengthDetailsDisplayData,
+                                        double durationMins, Double distanceKm, boolean isCardio) {
+        this.id = id;
+        this.exerciseName = exerciseName;
+        this.strengthDetailsDisplayData = strengthDetailsDisplayData;
+        this.durationMins = durationMins;
+        this.distanceKm = distanceKm;
+        this.isCardio = isCardio;
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     public String getExerciseName() {
-        return exercisePerformed.getExerciseName();
+        return exerciseName;
     }
 
-    public Integer getSets() {
-        return exercisePerformed.getSets();
+    public StrengthDetailsDisplayData getStrengthDetailsDisplayData() {
+        return strengthDetailsDisplayData;
     }
 
-    public Integer getReps() {
-        return exercisePerformed.getReps();
+    public String getSets() {
+        return strengthDetailsDisplayData.getSets();
     }
 
-    public Double getWeight() {
-        return exercisePerformed.getWeight();
+    public String getReps() {
+        return strengthDetailsDisplayData.getReps();
+    }
+
+    public String getWeight() {
+        return strengthDetailsDisplayData.getWeight();
     }
 
     public double getDurationMins() {
-        return exercisePerformed.getDurationMins();
+        return durationMins;
     }
 
     public Double getDistanceKm() {
-        return exercisePerformed.getDistanceKm();
+        return distanceKm;
     }
 
     public boolean getIsCardio() {
-        return exercisePerformed.getIsCardio();
-    }
-
-    /**
-     * Gets the underlying entity needed for the Edit/Delete controllers.
-     * @return the wrapped exercise performed
-     */
-    public ExercisePerformed getEntity() {
-        return exercisePerformed;
+        return isCardio;
     }
 }

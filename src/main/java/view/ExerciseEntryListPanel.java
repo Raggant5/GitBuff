@@ -5,7 +5,6 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
-import entity.ExercisePerformed;
 import interface_adapter.log_workout.exercise.DeleteExerciseController;
 import interface_adapter.log_workout.exercise.ExercisePerformedDisplayData;
 import interface_adapter.log_workout.exercise.PrepareEditExerciseController;
@@ -23,14 +22,14 @@ public class ExerciseEntryListPanel extends JPanel {
      * @param prepareEditExerciseController executes the Prepare Switch to Edit Exercise View Use Case
      * @param deleteExerciseController executes the Delete Exercise Use Case
      */
-    public void setExercises(List<ExercisePerformed> exercisesList,
+    public void setExercises(List<ExercisePerformedDisplayData> exercisesList,
                              PrepareEditExerciseController prepareEditExerciseController,
                              DeleteExerciseController deleteExerciseController) {
         removeAll();
         if (exercisesList != null) {
-            for (ExercisePerformed exercisePerformed : exercisesList) {
-                this.add(new ExerciseEntryPanel(new ExercisePerformedDisplayData(exercisePerformed),
-                        prepareEditExerciseController, deleteExerciseController));
+            for (ExercisePerformedDisplayData exercisePerformed : exercisesList) {
+                this.add(new ExerciseEntryPanel(exercisePerformed, prepareEditExerciseController,
+                        deleteExerciseController));
             }
         }
         revalidate();

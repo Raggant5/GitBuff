@@ -1,40 +1,33 @@
 package use_case.log_workout.exercise_performed.edit_exercise;
 
-import entity.ExercisePerformed;
+import use_case.log_workout.StrengthDetailsInput;
 
 public class EditExerciseInputData {
 
-    private final ExercisePerformed exercisePerformed;
+    private final Integer id;
     private final String exerciseName;
-    private final String sets;
-    private final String reps;
-    private final String weight;
+    private final StrengthDetailsInput strengthDetailsInput;
     private final boolean isCardio;
     private final String distance;
     private final String duration;
 
     public EditExerciseInputData(
-            ExercisePerformed exercisePerformed,
+            Integer id,
             String exerciseName,
-            String sets,
-            String reps,
-            String weight,
+            StrengthDetailsInput strengthDetailsInput,
             boolean isCardio,
             String distance,
-            String duration
-    ) {
-        this.exercisePerformed = exercisePerformed;
+            String duration) {
+        this.id = id;
         this.exerciseName = exerciseName;
-        this.sets = sets;
-        this.reps = reps;
-        this.weight = weight;
+        this.strengthDetailsInput = strengthDetailsInput;
         this.isCardio = isCardio;
         this.distance = distance;
         this.duration = duration;
     }
 
-    public ExercisePerformed getExercisePerformed() {
-        return exercisePerformed;
+    public Integer getId() {
+        return id;
     }
 
     public String getExerciseName() {
@@ -42,15 +35,15 @@ public class EditExerciseInputData {
     }
 
     public String getSets() {
-        return sets;
+        return strengthDetailsInput.getSets();
     }
 
     public String getReps() {
-        return reps;
+        return strengthDetailsInput.getReps();
     }
 
     public String getWeight() {
-        return weight;
+        return strengthDetailsInput.getWeight();
     }
 
     public boolean isCardio() {

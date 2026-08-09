@@ -1,10 +1,13 @@
 package interface_adapter.log_workout.workout;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import entity.LoggedWorkout;
 import interface_adapter.MainViewManagerModel;
+import interface_adapter.log_workout.exercise.ExercisePerformedDisplayData;
+import interface_adapter.log_workout.exercise.StrengthDetailsDisplayData;
+import use_case.log_workout.exercise_performed.ExercisePerformedData;
 import use_case.log_workout.logged_workout.edit_workout.EditWorkoutOutputBoundary;
 import use_case.log_workout.logged_workout.edit_workout.EditWorkoutOutputData;
 
@@ -24,16 +27,19 @@ public class EditWorkoutPresenter implements EditWorkoutOutputBoundary {
 
     @Override
     public void prepareSuccessView(EditWorkoutOutputData outputData) {
-        final ViewWorkoutsState viewWorkoutsState = viewWorkoutsViewModel.getState();
-        final List<LoggedWorkout> workouts = viewWorkoutsState.getWorkouts();
-        for (int i = 0; i < workouts.size(); i++) {
-            if (Objects.equals(workouts.get(i).getId(), outputData.getWorkout().getId())) {
-                workouts.set(i, outputData.getWorkout());
-                break;
-            }
+        final List<ExercisePerformedDisplayData> exercises = new ArrayList<>();
+        for (ExercisePerformedData exercise : outputData.getExercises()) {
+            final StrengthDetailsDisplayData strengthDetailsDisplayData = new StrengthDetailsDisplayData(
+                    exercise.getSets(), exercise.getReps(), exercise.getWeight());
+            exercises.add(new ExercisePerformedDisplayData(exercise.getId(), exercise.getExerciseName(),
+                    strengthDetailsDisplayData, exercise.getDurationMins(), exercise.getDistanceKm(),
+                    exercise.getIsCardio()));
         }
+        final LoggedWorkoutDisplayData workout = new LoggedWorkoutDisplayData(outputData.getId(),
+                outputData.getDate(), exercises);
 
-        viewWorkoutsState.setWorkouts(workouts);
+        final ViewWorkoutsState viewWorkoutsState = viewWorkoutsViewModel.getState();
+        viewWorkoutsState.replaceWorkout(workout);
         viewWorkoutsViewModel.firePropertyChanged();
         workoutEditorViewModel.getState().reset();
         workoutEditorViewModel.firePropertyChanged();

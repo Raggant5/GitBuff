@@ -24,12 +24,29 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
     private static final String API_URL = "https://calorieapiadmin.com";
     private static final int LIMIT = 5;
     private static final int SKIP = 0;
+    private static final String MEAL_KEY = "meal";
+    private static final String MACROS_KEY = "macros";
     private final OkHttpClient client = new OkHttpClient();
 
     @Override
-    public List<FoodSearchResult> searchFood(String searchQuery) throws IOException {
-
+    public List<FoodSearchResult> searchFood(String searchQuery) {
         final String token = loadKeyFromDotEnv("NUTRITION_API_KEY");
+        List<FoodSearchResult> results;
+        if (token == null || token.isBlank()) {
+            results = new MockSearchFoodDataAccessObject().searchFood(searchQuery);
+        }
+        else {
+            try {
+                results = fetchFromApi(searchQuery, token);
+            }
+            catch (IOException exc) {
+                results = new MockSearchFoodDataAccessObject().searchFood(searchQuery);
+            }
+        }
+        return results;
+    }
+
+    private List<FoodSearchResult> fetchFromApi(String searchQuery, String token) throws IOException {
 
         final Request request = new Request.Builder()
                 .url(String.format(
@@ -62,15 +79,15 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
                         food.getString("name"),
                         food.getString("serving"),
                         food.getDouble("serving_size"),
-                        food.getJSONObject("meal").getDouble("calories"),
-                        food.getJSONObject("meal")
-                                .getJSONObject("macros")
+                        food.getJSONObject(MEAL_KEY).getDouble("calories"),
+                        food.getJSONObject(MEAL_KEY)
+                                .getJSONObject(MACROS_KEY)
                                 .getDouble("protein"),
-                        food.getJSONObject("meal")
-                                .getJSONObject("macros")
+                        food.getJSONObject(MEAL_KEY)
+                                .getJSONObject(MACROS_KEY)
                                 .getDouble("carbs"),
-                        food.getJSONObject("meal")
-                                .getJSONObject("macros")
+                        food.getJSONObject(MEAL_KEY)
+                                .getJSONObject(MACROS_KEY)
                                 .getDouble("fat")
                 ));
             }
@@ -81,21 +98,22 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
 
     private String loadKeyFromDotEnv(String apiKeyName) {
         final File envFile = new File(".env");
+        String result = null;
         if (!envFile.exists()) {
-            return null;
+            result = null;
         }
         try (Scanner scanner = new Scanner(envFile, StandardCharsets.UTF_8)) {
             while (scanner.hasNextLine()) {
                 final String line = scanner.nextLine().trim();
                 if (line.startsWith(apiKeyName + "=")) {
-                    return line.substring(
+                    result = line.substring(
                             (apiKeyName + "=").length()).trim();
                 }
             }
         }
-        catch (Exception ignored) {
-            // Return null if .env cannot be read
+        catch (IOException ignored) {
+            result = null;
         }
-        return null;
+        return result;
     }
 }

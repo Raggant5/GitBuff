@@ -53,7 +53,7 @@ class CalendarControllerTest {
                 "amir", LocalDate.of(2026, 8, 6), "Lunch");
         meal.setId(12);
 
-        controller.addMeal(meal);
+        controller.addMeal(meal.getId(), meal.getName(), meal.getDate());
 
         assertEquals(1, addedEvents.size());
         assertEquals("Meal: Lunch", addedEvents.get(0).getTitle());
@@ -73,7 +73,7 @@ class CalendarControllerTest {
                         "GitBuff meal ID: 4",
                         LocalDate.now())));
 
-        controller.removeMeal(meal);
+        controller.removeMeal(meal.getId());
 
         assertEquals(1, removedEvents.size());
         assertEquals("google-event-4", removedEvents.get(0).getEventID());
@@ -84,13 +84,16 @@ class CalendarControllerTest {
         final String today = LocalDate.now().format(
                 DateTimeFormatter.ofPattern("EEEE, MMM d", Locale.ENGLISH));
         final Exercise exercise = new Exercise(
-                "Squat", "3 x 10", "Lower with control", "");
+                "Squat", 3, 10, 5, "Legs", "Barbell", "Lower with control", "",
+                "STRENGTH", "LOWER_BODY", "MEDIUM", "BARBELL");
         final WorkoutPlan workout = new WorkoutPlan(
                 today, "Strength", "Leg session",
-                300, 10, 30, List.of(exercise));
+                "STRENGTH", "LOWER_BODY", "MEDIUM", "Legs", "BARBELL",
+                30, 300, 10, 30, List.of(exercise));
         final WorkoutPlan rest = new WorkoutPlan(
                 today, "Rest & Recovery", "Rest",
-                0, 0, 0, List.of());
+                "REST", "REST", "LOW", "", "",
+                0, 0, 0, 0, List.<Exercise>of());
 
         controller.replaceWorkoutPlans(List.of(workout, rest));
 

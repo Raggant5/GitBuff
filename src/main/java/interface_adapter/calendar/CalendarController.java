@@ -57,38 +57,37 @@ public class CalendarController {
     /**
      * Adds a saved meal to the current user's Google Calendar.
      *
-     * @param meal saved meal
+     * @param mealId id of the saved meal
+     * @param name meal name
+     * @param date meal date
      */
-    public void addMeal(Meal meal) {
-        if (meal == null || meal.getId() == null) {
+    public void addMeal(int mealId, String name, LocalDate date) {
+        if (date == null) {
             return;
         }
 
-        addEvent(
-                "Meal: " + meal.getName(),
-                MEAL_REFERENCE_PREFIX + meal.getId(),
-                meal.getDate());
+        addEvent("Meal: " + name, MEAL_REFERENCE_PREFIX + mealId, date);
     }
 
     /**
      * Replaces a meal's calendar event with its current values.
      *
-     * @param meal edited meal
+     * @param mealId id of the edited meal
+     * @param name updated meal name
+     * @param date updated meal date
      */
-    public void updateMeal(Meal meal) {
-        removeMeal(meal);
-        addMeal(meal);
+    public void updateMeal(int mealId, String name, LocalDate date) {
+        removeMeal(mealId);
+        addMeal(mealId, name, date);
     }
 
     /**
      * Removes the calendar event associated with a saved meal.
      *
-     * @param meal meal being deleted
+     * @param mealId id of the meal being deleted
      */
-    public void removeMeal(Meal meal) {
-        if (meal != null && meal.getId() != null) {
-            removeEventWithDescription(MEAL_REFERENCE_PREFIX + meal.getId());
-        }
+    public void removeMeal(int mealId) {
+        removeEventWithDescription(MEAL_REFERENCE_PREFIX + mealId);
     }
 
     /**
@@ -127,7 +126,7 @@ public class CalendarController {
         }
 
         for (Meal meal : desiredMeals) {
-            addMeal(meal);
+            addMeal(meal.getId(), meal.getName(), meal.getDate());
         }
     }
 

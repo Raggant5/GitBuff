@@ -1,17 +1,37 @@
 package use_case.nutrition.meal.edit_meal;
 
-import entity.Meal;
+import java.time.LocalDate;
+import java.util.List;
+
+import use_case.nutrition.food.FoodEntryData;
 
 public class EditMealOutputData {
 
-    private final Meal meal;
+    private final int id;
+    private final LocalDate date;
+    private final String name;
+    private final List<FoodEntryData> foodEntries;
 
-    public EditMealOutputData(Meal meal) {
-        this.meal = meal;
+    public EditMealOutputData(int id, LocalDate date, String name, List<FoodEntryData> foodEntries) {
+        this.id = id;
+        this.date = date;
+        this.name = name;
+        this.foodEntries = foodEntries;
     }
 
-    public Meal getMeal() {
-        return meal;
+    public int getId() {
+        return id;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<FoodEntryData> getFoodEntries() {
+        return foodEntries;
+    }
 }

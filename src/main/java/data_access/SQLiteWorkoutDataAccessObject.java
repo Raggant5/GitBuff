@@ -1,5 +1,6 @@
 package data_access;
 
+import use_case.DataAccessException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,8 +13,7 @@ import java.util.List;
 
 import entity.ExercisePerformed;
 import entity.LoggedWorkout;
-import use_case.log_workout.exercise_performed.delete_exercise.DeleteExerciseDataAccessInterface;
-import use_case.log_workout.exercise_performed.edit_exercise.EditExerciseDataAccessInterface;
+import entity.StrengthDetails;
 import use_case.log_workout.logged_workout.add_workout.AddWorkoutDataAccessInterface;
 import use_case.log_workout.logged_workout.delete_workout.DeleteWorkoutDataAccessInterface;
 import use_case.log_workout.logged_workout.edit_workout.EditWorkoutDataAccessInterface;
@@ -27,9 +27,7 @@ public final class SQLiteWorkoutDataAccessObject
         implements AddWorkoutDataAccessInterface,
         ViewWorkoutDataAccessInterface,
         EditWorkoutDataAccessInterface,
-        EditExerciseDataAccessInterface,
-        DeleteWorkoutDataAccessInterface,
-        DeleteExerciseDataAccessInterface {
+        DeleteWorkoutDataAccessInterface {
 
     /**
      * Saves a logged workout.
@@ -78,7 +76,7 @@ public final class SQLiteWorkoutDataAccessObject
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to save workout.",
                     exception
             );
@@ -100,6 +98,61 @@ public final class SQLiteWorkoutDataAccessObject
             final ExercisePerformed exercisePerformed
     ) {
 
+        try (Connection connection = Database.connect()) {
+
+            connection.setAutoCommit(false);
+
+            try {
+                final int exerciseId =
+                        insertExercisePerformedRow(
+                                connection,
+                                exercisePerformed
+                        );
+
+                final String userId =
+                        getUserIdForWorkout(
+                                connection,
+                                exercisePerformed.getWorkoutId()
+                        );
+
+                updateTotalWorkoutMinutes(
+                        connection,
+                        userId
+                );
+
+                connection.commit();
+
+                return exerciseId;
+            }
+            catch (final SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+            finally {
+                connection.setAutoCommit(true);
+            }
+        }
+        catch (final SQLException exception) {
+            throw new DataAccessException(
+                    "Failed to save exercise.",
+                    exception
+            );
+        }
+    }
+
+    /**
+     * Inserts a performed exercise row using the given connection, without committing.
+     *
+     * @param connection shared database connection
+     * @param exercisePerformed exercise to insert
+     * @return generated exercise ID
+     * @throws SQLException if the insert fails
+     */
+    private static int insertExercisePerformedRow(
+            final Connection connection,
+            final ExercisePerformed exercisePerformed
+    ) throws SQLException {
+
         final String sql = """
                 INSERT INTO exercises_performed (
                     workout_id,
@@ -114,105 +167,72 @@ public final class SQLiteWorkoutDataAccessObject
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection connection = Database.connect()) {
+        try (PreparedStatement statement =
+                     connection.prepareStatement(
+                             sql,
+                             Statement.RETURN_GENERATED_KEYS
+                     )) {
 
-            connection.setAutoCommit(false);
-
-            try (PreparedStatement statement =
-                         connection.prepareStatement(
-                                 sql,
-                                 Statement.RETURN_GENERATED_KEYS
-                         )) {
-
-                statement.setInt(
-                        1,
-                        exercisePerformed.getWorkoutId()
-                );
-
-                statement.setString(
-                        2,
-                        exercisePerformed.getExerciseName()
-                );
-
-                setNullableInteger(
-                        statement,
-                        3,
-                        exercisePerformed.getSets()
-                );
-
-                setNullableInteger(
-                        statement,
-                        4,
-                        exercisePerformed.getReps()
-                );
-
-                setNullableDouble(
-                        statement,
-                        5,
-                        exercisePerformed.getWeight()
-                );
-
-                statement.setDouble(
-                        6,
-                        exercisePerformed.getDurationMins()
-                );
-
-                setNullableDouble(
-                        statement,
-                        7,
-                        exercisePerformed.getDistanceKm()
-                );
-
-                statement.setInt(
-                        8,
-                        exercisePerformed.getIsCardio()
-                                ? 1 : 0
-                );
-
-                statement.executeUpdate();
-
-                try (ResultSet generatedKeys =
-                             statement.getGeneratedKeys()) {
-
-                    if (generatedKeys.next()) {
-
-                        final int exerciseId =
-                                generatedKeys.getInt(1);
-
-                        exercisePerformed.setId(exerciseId);
-
-                        final String userId =
-                                getUserIdForWorkout(
-                                        connection,
-                                        exercisePerformed.getWorkoutId()
-                                );
-
-                        updateTotalWorkoutMinutes(
-                                connection,
-                                userId
-                        );
-
-                        connection.commit();
-
-                        return exerciseId;
-                    }
-                }
-
-                connection.rollback();
-            }
-            catch (final SQLException exception) {
-                connection.rollback();
-                throw exception;
-            }
-            finally {
-                connection.setAutoCommit(true);
-            }
-        }
-        catch (final SQLException exception) {
-            throw new RuntimeException(
-                    "Failed to save exercise.",
-                    exception
+            statement.setInt(
+                    1,
+                    exercisePerformed.getWorkoutId()
             );
+
+            statement.setString(
+                    2,
+                    exercisePerformed.getExerciseName()
+            );
+
+            setNullableInteger(
+                    statement,
+                    3,
+                    exercisePerformed.getSets()
+            );
+
+            setNullableInteger(
+                    statement,
+                    4,
+                    exercisePerformed.getReps()
+            );
+
+            setNullableDouble(
+                    statement,
+                    5,
+                    exercisePerformed.getWeight()
+            );
+
+            statement.setDouble(
+                    6,
+                    exercisePerformed.getDurationMins()
+            );
+
+            setNullableDouble(
+                    statement,
+                    7,
+                    exercisePerformed.getDistanceKm()
+            );
+
+            statement.setInt(
+                    8,
+                    exercisePerformed.getIsCardio()
+                            ? 1 : 0
+            );
+
+            statement.executeUpdate();
+
+            try (ResultSet generatedKeys =
+                         statement.getGeneratedKeys()) {
+
+                if (generatedKeys.next()) {
+
+                    final int exerciseId =
+                            generatedKeys.getInt(1);
+
+                    exercisePerformed.setId(exerciseId);
+
+                    return exerciseId;
+                }
+            }
         }
 
         throw new IllegalStateException(
@@ -290,9 +310,7 @@ public final class SQLiteWorkoutDataAccessObject
                                     resultSet.getString(
                                             "exercise_name"
                                     ),
-                                    sets,
-                                    reps,
-                                    weight,
+                                    new StrengthDetails(sets, reps, weight),
                                     resultSet.getDouble(
                                             "duration_mins"
                                     ),
@@ -317,7 +335,7 @@ public final class SQLiteWorkoutDataAccessObject
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to load exercises.",
                     exception
             );
@@ -401,7 +419,7 @@ public final class SQLiteWorkoutDataAccessObject
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to load workouts.",
                     exception
             );
@@ -411,13 +429,85 @@ public final class SQLiteWorkoutDataAccessObject
     }
 
     /**
-     * Updates an existing workout.
+     * Gets a single workout, including its exercises, by id.
      *
-     * @param workout workout to update
+     * @param workoutId workout ID
+     * @return the workout
      */
     @Override
-    public void editWorkout(
-            final LoggedWorkout workout
+    public LoggedWorkout getWorkoutById(
+            final int workoutId
+    ) {
+
+        final String sql = """
+                SELECT
+                    id,
+                    user_id,
+                    workout_date
+                FROM logged_workouts
+                WHERE id = ?
+                """;
+
+        try (Connection connection = Database.connect();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setInt(1, workoutId);
+
+            try (ResultSet resultSet =
+                         statement.executeQuery()) {
+
+                if (resultSet.next()) {
+
+                    final LoggedWorkout workout =
+                            new LoggedWorkout(
+                                    resultSet.getString(
+                                            "user_id"
+                                    ),
+                                    LocalDate.parse(
+                                            resultSet.getString(
+                                                    "workout_date"
+                                            )
+                                    )
+                            );
+
+                    workout.setId(workoutId);
+
+                    workout.setExercises(
+                            getExercisesForWorkout(
+                                    workoutId
+                            )
+                    );
+
+                    return workout;
+                }
+            }
+        }
+        catch (final SQLException exception) {
+            throw new DataAccessException(
+                    "Failed to load workout.",
+                    exception
+            );
+        }
+
+        throw new DataAccessException(
+                "Workout not found: " + workoutId
+        );
+    }
+
+    /**
+     * Updates an existing workout: applies the new workout date, deletes any removed
+     * exercises, and inserts/updates the remaining exercises, all as a single atomic
+     * transaction on one connection.
+     *
+     * @param workout the updated workout
+     * @param exerciseIdsToDelete ids of exercises to remove from the workout
+     * @return the persisted workout, with generated ids populated on any newly-inserted exercises
+     */
+    @Override
+    public LoggedWorkout editWorkout(
+            final LoggedWorkout workout,
+            final List<Integer> exerciseIdsToDelete
     ) {
 
         final String sql = """
@@ -426,56 +516,98 @@ public final class SQLiteWorkoutDataAccessObject
                 WHERE id = ?
                 """;
 
-        try (Connection connection = Database.connect();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (Connection connection = Database.connect()) {
 
-            statement.setString(
-                    1,
-                    workout.getDate().toString()
-            );
+            connection.setAutoCommit(false);
 
-            statement.setInt(
-                    2,
-                    workout.getId()
-            );
+            try {
+                for (Integer exerciseId : exerciseIdsToDelete) {
+                    if (exerciseId != null && exerciseId > 0) {
+                        deleteExercisePerformedRow(
+                                connection,
+                                exerciseId
+                        );
+                    }
+                }
 
-            statement.executeUpdate();
+                try (PreparedStatement statement =
+                             connection.prepareStatement(sql)) {
+
+                    statement.setString(
+                            1,
+                            workout.getDate().toString()
+                    );
+
+                    statement.setInt(
+                            2,
+                            workout.getId()
+                    );
+
+                    statement.executeUpdate();
+                }
+
+                for (ExercisePerformed exercise
+                        : workout.getExercises()) {
+
+                    if (exercise.getWorkoutId() == null) {
+                        exercise.setWorkoutId(
+                                workout.getId()
+                        );
+                    }
+
+                    if (exercise.getId() == null) {
+                        insertExercisePerformedRow(
+                                connection,
+                                exercise
+                        );
+                    }
+                    else {
+                        updateExercisePerformedRow(
+                                connection,
+                                exercise
+                        );
+                    }
+                }
+
+                final String userId = workout.getUserId();
+                if (userId != null && !userId.isBlank()) {
+                    updateTotalWorkoutMinutes(
+                            connection,
+                            userId
+                    );
+                }
+
+                connection.commit();
+            }
+            catch (final SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+            finally {
+                connection.setAutoCommit(true);
+            }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to edit workout.",
                     exception
             );
         }
 
-        for (ExercisePerformed exercise
-                : workout.getExercises()) {
-
-            if (exercise.getWorkoutId() == null) {
-                exercise.setWorkoutId(
-                        workout.getId()
-                );
-            }
-
-            if (exercise.getId() == null) {
-                saveExercisePerformed(exercise);
-            }
-            else {
-                editExercisePerformed(exercise);
-            }
-        }
+        return workout;
     }
 
     /**
-     * Updates an existing performed exercise.
+     * Updates an existing performed exercise row using the given connection, without committing.
      *
+     * @param connection shared database connection
      * @param exercisePerformed exercise to update
+     * @throws SQLException if the update fails
      */
-    @Override
-    public void editExercisePerformed(
+    private static void updateExercisePerformedRow(
+            final Connection connection,
             final ExercisePerformed exercisePerformed
-    ) {
+    ) throws SQLException {
 
         final String sql = """
                 UPDATE exercises_performed
@@ -491,91 +623,89 @@ public final class SQLiteWorkoutDataAccessObject
                 WHERE id = ?
                 """;
 
-        try (Connection connection = Database.connect()) {
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            connection.setAutoCommit(false);
-
-            try (PreparedStatement statement =
-                         connection.prepareStatement(sql)) {
-
-                statement.setInt(
-                        1,
-                        exercisePerformed.getWorkoutId()
-                );
-
-                statement.setString(
-                        2,
-                        exercisePerformed.getExerciseName()
-                );
-
-                setNullableInteger(
-                        statement,
-                        3,
-                        exercisePerformed.getSets()
-                );
-
-                setNullableInteger(
-                        statement,
-                        4,
-                        exercisePerformed.getReps()
-                );
-
-                setNullableDouble(
-                        statement,
-                        5,
-                        exercisePerformed.getWeight()
-                );
-
-                statement.setDouble(
-                        6,
-                        exercisePerformed.getDurationMins()
-                );
-
-                setNullableDouble(
-                        statement,
-                        7,
-                        exercisePerformed.getDistanceKm()
-                );
-
-                statement.setInt(
-                        8,
-                        exercisePerformed.getIsCardio()
-                                ? 1 : 0
-                );
-
-                statement.setInt(
-                        9,
-                        exercisePerformed.getId()
-                );
-
-                statement.executeUpdate();
-
-                final String userId =
-                        getUserIdForWorkout(
-                                connection,
-                                exercisePerformed.getWorkoutId()
-                        );
-
-                updateTotalWorkoutMinutes(
-                        connection,
-                        userId
-                );
-
-                connection.commit();
-            }
-            catch (final SQLException exception) {
-                connection.rollback();
-                throw exception;
-            }
-            finally {
-                connection.setAutoCommit(true);
-            }
-        }
-        catch (final SQLException exception) {
-            throw new RuntimeException(
-                    "Failed to edit exercise.",
-                    exception
+            statement.setInt(
+                    1,
+                    exercisePerformed.getWorkoutId()
             );
+
+            statement.setString(
+                    2,
+                    exercisePerformed.getExerciseName()
+            );
+
+            setNullableInteger(
+                    statement,
+                    3,
+                    exercisePerformed.getSets()
+            );
+
+            setNullableInteger(
+                    statement,
+                    4,
+                    exercisePerformed.getReps()
+            );
+
+            setNullableDouble(
+                    statement,
+                    5,
+                    exercisePerformed.getWeight()
+            );
+
+            statement.setDouble(
+                    6,
+                    exercisePerformed.getDurationMins()
+            );
+
+            setNullableDouble(
+                    statement,
+                    7,
+                    exercisePerformed.getDistanceKm()
+            );
+
+            statement.setInt(
+                    8,
+                    exercisePerformed.getIsCardio()
+                            ? 1 : 0
+            );
+
+            statement.setInt(
+                    9,
+                    exercisePerformed.getId()
+            );
+
+            statement.executeUpdate();
+        }
+    }
+
+    /**
+     * Deletes a performed exercise row using the given connection, without committing.
+     *
+     * @param connection shared database connection
+     * @param exercisePerformedId exercise ID
+     * @throws SQLException if the delete fails
+     */
+    private static void deleteExercisePerformedRow(
+            final Connection connection,
+            final int exercisePerformedId
+    ) throws SQLException {
+
+        final String sql = """
+                DELETE FROM exercises_performed
+                WHERE id = ?
+                """;
+
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setInt(
+                    1,
+                    exercisePerformedId
+            );
+
+            statement.executeUpdate();
         }
     }
 
@@ -653,99 +783,8 @@ public final class SQLiteWorkoutDataAccessObject
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to delete workout.",
-                    exception
-            );
-        }
-    }
-
-    /**
-     * Deletes one performed exercise.
-     *
-     * @param exercisePerformedId exercise ID
-     */
-    @Override
-    public void deleteExercisePerformed(
-            final int exercisePerformedId
-    ) {
-
-        final String findUserSql = """
-                SELECT logged_workouts.user_id
-                FROM exercises_performed
-                JOIN logged_workouts
-                    ON exercises_performed.workout_id =
-                       logged_workouts.id
-                WHERE exercises_performed.id = ?
-                """;
-
-        final String deleteSql = """
-                DELETE FROM exercises_performed
-                WHERE id = ?
-                """;
-
-        try (Connection connection = Database.connect()) {
-
-            connection.setAutoCommit(false);
-
-            try {
-                String userId = null;
-
-                try (PreparedStatement findStatement =
-                             connection.prepareStatement(
-                                     findUserSql
-                             )) {
-
-                    findStatement.setInt(
-                            1,
-                            exercisePerformedId
-                    );
-
-                    try (ResultSet resultSet =
-                                 findStatement.executeQuery()) {
-
-                        if (resultSet.next()) {
-                            userId =
-                                    resultSet.getString(
-                                            "user_id"
-                                    );
-                        }
-                    }
-                }
-
-                try (PreparedStatement deleteStatement =
-                             connection.prepareStatement(
-                                     deleteSql
-                             )) {
-
-                    deleteStatement.setInt(
-                            1,
-                            exercisePerformedId
-                    );
-
-                    deleteStatement.executeUpdate();
-                }
-
-                if (userId != null) {
-                    updateTotalWorkoutMinutes(
-                            connection,
-                            userId
-                    );
-                }
-
-                connection.commit();
-            }
-            catch (final SQLException exception) {
-                connection.rollback();
-                throw exception;
-            }
-            finally {
-                connection.setAutoCommit(true);
-            }
-        }
-        catch (final SQLException exception) {
-            throw new RuntimeException(
-                    "Failed to delete exercise.",
                     exception
             );
         }

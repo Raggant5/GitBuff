@@ -1,6 +1,5 @@
 package interface_adapter.nutrition.meal;
 
-import entity.Meal;
 import interface_adapter.calendar.CalendarController;
 import use_case.nutrition.meal.delete_meal.DeleteMealInputBoundary;
 import use_case.nutrition.meal.delete_meal.DeleteMealInputData;
@@ -17,13 +16,13 @@ public class DeleteMealController {
 
     /**
      * Executes the Delete Meal Use Case.
-     * @param meal meal to delete
+     * @param mealId id of the meal to delete
      */
-    public void execute(Meal meal) {
+    public void execute(int mealId) {
         if (calendarController != null) {
-            calendarController.removeMeal(meal);
+            calendarController.removeMeal(mealId);
         }
-        deleteMealInputInteractor.execute(new DeleteMealInputData(meal.getId()));
+        deleteMealInputInteractor.execute(new DeleteMealInputData(mealId));
     }
 
 }

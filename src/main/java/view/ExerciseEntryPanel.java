@@ -45,11 +45,11 @@ public class ExerciseEntryPanel extends JPanel {
         final JButton deleteButton = new JButton("Delete");
 
         editButton.addActionListener(evt -> {
-            prepareEditExerciseController.execute(exercisePerformed.getEntity());
+            prepareEditExerciseController.execute(exercisePerformed);
         });
 
         deleteButton.addActionListener(evt -> {
-            deleteExerciseController.execute(exercisePerformed.getEntity());
+            deleteExerciseController.execute(exercisePerformed.getId());
         });
 
         final JPanel buttonPanel = new JPanel();

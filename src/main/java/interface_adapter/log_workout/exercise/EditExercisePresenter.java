@@ -2,6 +2,7 @@ package interface_adapter.log_workout.exercise;
 
 import interface_adapter.log_workout.workout.WorkoutEditorState;
 import interface_adapter.log_workout.workout.WorkoutEditorViewModel;
+import use_case.log_workout.exercise_performed.ExerciseValidationErrors;
 import use_case.log_workout.exercise_performed.edit_exercise.EditExerciseOutputBoundary;
 import use_case.log_workout.exercise_performed.edit_exercise.EditExerciseOutputData;
 
@@ -18,7 +19,14 @@ public class EditExercisePresenter implements EditExerciseOutputBoundary {
 
     @Override
     public void prepareSuccessView(EditExerciseOutputData outputData) {
+        final StrengthDetailsDisplayData strengthDetailsDisplayData = new StrengthDetailsDisplayData(
+                outputData.getSets(), outputData.getReps(), outputData.getWeight());
+        final ExercisePerformedDisplayData updated = new ExercisePerformedDisplayData(outputData.getId(),
+                outputData.getExerciseName(), strengthDetailsDisplayData,
+                outputData.getDurationMins(), outputData.getDistanceKm(), outputData.getIsCardio());
+
         final WorkoutEditorState state = workoutEditorViewModel.getState();
+        state.replaceExercise(updated);
         state.setShowExerciseEditor(false);
         workoutEditorViewModel.firePropertyChanged();
         exerciseEditorViewModel.getState().reset();
@@ -26,9 +34,14 @@ public class EditExercisePresenter implements EditExerciseOutputBoundary {
     }
 
     @Override
-    public void prepareFailView(String errorMessage) {
-        exerciseEditorViewModel.getState().setSubmitError(errorMessage);
+    public void prepareFailView(ExerciseValidationErrors errors) {
+        final ExerciseEditorState state = exerciseEditorViewModel.getState();
+        state.setSetsError(errors.getSetsError());
+        state.setRepsError(errors.getRepsError());
+        state.setWeightError(errors.getWeightError());
+        state.setDurationError(errors.getDurationError());
+        state.setDistanceError(errors.getDistanceError());
+        state.setSubmitError(errors.getGeneralError());
         exerciseEditorViewModel.firePropertyChanged();
-
     }
 }

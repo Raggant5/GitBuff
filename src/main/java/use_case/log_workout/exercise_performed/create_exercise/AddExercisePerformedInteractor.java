@@ -2,6 +2,9 @@ package use_case.log_workout.exercise_performed.create_exercise;
 
 import entity.ExercisePerformed;
 import entity.ExercisePerformedFactory;
+import entity.StrengthDetails;
+import use_case.log_workout.StrengthDetailsData;
+import use_case.log_workout.exercise_performed.ExerciseValidationErrors;
 
 public class AddExercisePerformedInteractor implements AddExercisePerformedInputBoundary {
 
@@ -16,69 +19,117 @@ public class AddExercisePerformedInteractor implements AddExercisePerformedInput
 
     @Override
     public void execute(AddExercisePerformedInputData inputData) {
+        final ExerciseValidationErrors errors = new ExerciseValidationErrors();
         if (inputData.getName() == null || inputData.getName().isBlank()) {
-            addExercisePresenter.prepareFailView("Exercise name is required.");
+            errors.setGeneralError("Exercise name is required.");
+        }
+
+        final boolean isCardio = inputData.isCardio();
+        final Double duration = parsePositiveDouble(inputData.getDuration());
+        if (duration == null) {
+            errors.setDurationError("Duration must be a positive number");
+        }
+
+        final Double distance;
+        final Integer sets;
+        final Integer reps;
+        final Double weight;
+        if (isCardio) {
+            distance = parsePositiveDouble(inputData.getDistance());
+            if (distance == null) {
+                errors.setDistanceError("Distance must be a positive number");
+            }
+            sets = null;
+            reps = null;
+            weight = null;
         }
         else {
-            try {
-                final boolean isCardio = inputData.isCardio();
-                final double duration = parsePositiveDouble(inputData.getDuration(), "Duration");
-                Double distance;
-                Integer sets;
-                Integer reps;
-                Double weight;
-                if (isCardio) {
-                    distance = parsePositiveDouble(inputData.getDistance(), "Distance");
-                    sets = null;
-                    reps = null;
-                    weight = null;
-                }
-
-                else {
-                    sets = parsePositiveInt(inputData.getSets(), "Sets");
-                    reps = parsePositiveInt(inputData.getReps(), "Reps");
-                    weight = parseNonNegativeDouble(inputData.getWeight(), "Weight");
-                    distance = null;
-                }
-
-                final ExercisePerformed exercisePerformed = exercisePerformedFactory.create(inputData.getName(),
-                        sets, reps, weight, duration, distance, isCardio);
-
-                addExercisePresenter.prepareSuccessView(new AddExercisePerformedOutputData(exercisePerformed));
+            sets = parsePositiveInt(inputData.getSets());
+            if (sets == null) {
+                errors.setSetsError("Sets must be a positive number");
             }
-            catch (NumberFormatException exc) {
-                addExercisePresenter.prepareFailView("Please ensure all fields are valid.");
+            reps = parsePositiveInt(inputData.getReps());
+            if (reps == null) {
+                errors.setRepsError("Reps must be a positive number");
             }
-            catch (IllegalArgumentException exc) {
-                addExercisePresenter.prepareFailView("Please ensure all fields are valid");
+            weight = parseNonNegativeDouble(inputData.getWeight());
+            if (weight == null) {
+                errors.setWeightError("Weight must be a non-negative number");
             }
+            distance = null;
+        }
+
+        if (errors.hasErrors()) {
+            addExercisePresenter.prepareFailView(errors);
+        }
+        else {
+            final ExercisePerformed exercisePerformed = exercisePerformedFactory.create(inputData.getName(),
+                    new StrengthDetails(sets, reps, weight), duration, distance, isCardio);
+
+            final StrengthDetailsData savedDetails = new StrengthDetailsData(exercisePerformed.getSets(),
+                    exercisePerformed.getReps(), exercisePerformed.getWeight());
+            addExercisePresenter.prepareSuccessView(new AddExercisePerformedOutputData(
+                    exercisePerformed.getId(), exercisePerformed.getExerciseName(),
+                    savedDetails, exercisePerformed.getDurationMins(),
+                    exercisePerformed.getDistanceKm(), exercisePerformed.getIsCardio()));
         }
     }
 
-    private Integer parsePositiveInt(String value, String fieldName) {
-        if (Integer.parseInt(value) > 0) {
-            return Integer.parseInt(value);
+    private Integer parsePositiveInt(String value) {
+        Integer result = null;
+        try {
+            final int parsed = Integer.parseInt(value);
+            if (parsed > 0) {
+                result = parsed;
+            }
         }
-        else {
-            throw new IllegalArgumentException(fieldName + " cannot be negative/zero.");
+        catch (NumberFormatException exc) {
+            result = null;
         }
+        return result;
     }
 
-
-    private Double parseNonNegativeDouble(String value, String fieldName) {
-        if (Double.parseDouble(value) >= 0) {
-            return Double.parseDouble(value);
+    private Double parseNonNegativeDouble(String value) {
+        Double result = null;
+        try {
+            final double parsed = Double.parseDouble(value);
+            if (parsed >= 0) {
+                result = parsed;
+            }
         }
-        else {
-            throw new IllegalArgumentException(fieldName + " cannot be negative.");
+        catch (NumberFormatException exc) {
+            result = null;
         }
+        return result;
     }
 
-    private double parsePositiveDouble(String value, String fieldName) {
-        final double parsed = Double.parseDouble(value);
-        if (parsed <= 0) {
-            throw new IllegalArgumentException(fieldName + " must be positive.");
+    private Double parsePositiveDouble(String value) {
+        Double result = null;
+        try {
+            final double parsed = Double.parseDouble(value);
+            if (parsed > 0) {
+                result = parsed;
+            }
         }
-        return parsed;
+        catch (NumberFormatException exc) {
+            result = null;
+        }
+        return result;
+    }
+
+    private String displayInt(Integer value) {
+        String result = "";
+        if (value != null) {
+            result = String.valueOf(value);
+        }
+        return result;
+    }
+
+    private String displayDouble(Double value) {
+        String result = "";
+        if (value != null) {
+            result = String.valueOf(value);
+        }
+        return result;
     }
 }

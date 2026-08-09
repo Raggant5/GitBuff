@@ -17,4 +17,10 @@ public class DeleteWorkoutPresenter implements DeleteWorkoutOutputBoundary {
         viewWorkoutsViewModel.getState().removeWorkout(deleteWorkoutOutputData.getWorkoutId());
         viewWorkoutsViewModel.firePropertyChanged();
     }
+
+    @Override
+    public void prepareFailView(String errorMessage) {
+        viewWorkoutsViewModel.getState().setError(errorMessage);
+        viewWorkoutsViewModel.firePropertyChanged();
+    }
 }

@@ -1,5 +1,7 @@
 package use_case.nutrition.food.edit_food;
 
+import use_case.nutrition.food.FoodValidationErrors;
+
 public interface EditFoodOutputBoundary {
 
     /**
@@ -10,8 +12,8 @@ public interface EditFoodOutputBoundary {
 
     /**
      * Prepares the failure view.
-     * @param errorMessage reason the edit failed
+     * @param errors per-field reason the edit failed
      */
-    void prepareFailView(String errorMessage);
+    void prepareFailView(FoodValidationErrors errors);
 
 }

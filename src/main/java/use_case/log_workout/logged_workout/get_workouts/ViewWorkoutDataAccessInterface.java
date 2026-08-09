@@ -23,4 +23,11 @@ public interface ViewWorkoutDataAccessInterface {
      * @return the exercises performed
      */
     List<ExercisePerformed> getExercisesForWorkout(int workoutId);
+
+    /**
+     * Gets a single workout, including its exercises, by id.
+     * @param workoutId the workout id
+     * @return the workout
+     */
+    LoggedWorkout getWorkoutById(int workoutId);
 }

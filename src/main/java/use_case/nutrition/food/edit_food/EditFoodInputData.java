@@ -1,27 +1,26 @@
 package use_case.nutrition.food.edit_food;
 
-import entity.FoodEntry;
 import entity.FoodUnit;
-import use_case.nutrition.food.FoodNutritionInputData;
+import use_case.nutrition.food.FoodNutritionInput;
 
 public class EditFoodInputData {
 
-    private final FoodEntry foodEntry;
+    private final Integer id;
     private final String foodName;
-    private final FoodNutritionInputData nutrition;
+    private final FoodNutritionInput nutrition;
     private final String quantity;
     private final FoodUnit unit;
     private final String grams;
 
     public EditFoodInputData(
-            FoodEntry foodEntry,
+            Integer id,
             String foodName,
-            FoodNutritionInputData nutrition,
+            FoodNutritionInput nutrition,
             String quantity,
             FoodUnit unit,
             String grams
     ) {
-        this.foodEntry = foodEntry;
+        this.id = id;
         this.foodName = foodName;
         this.nutrition = nutrition;
         this.quantity = quantity;
@@ -29,15 +28,15 @@ public class EditFoodInputData {
         this.grams = grams;
     }
 
-    public FoodEntry getFoodEntry() {
-        return foodEntry;
+    public Integer getId() {
+        return id;
     }
 
     public String getFoodName() {
         return foodName;
     }
 
-    public FoodNutritionInputData getNutrition() {
+    public FoodNutritionInput getNutrition() {
         return nutrition;
     }
 

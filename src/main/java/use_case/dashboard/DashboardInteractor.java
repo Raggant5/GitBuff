@@ -3,6 +3,8 @@ package use_case.dashboard;
 import java.time.LocalDate;
 import java.util.Map;
 
+import use_case.DataAccessException;
+
 /**
  * Interactor for loading dashboard information.
  */
@@ -29,36 +31,35 @@ public class DashboardInteractor implements DashboardInputBoundary {
     public void execute(final String userId) {
         if (userId == null || userId.isBlank()) {
             this.dashboardPresenter.prepareFailView(
-                    "No user is currently logged in."
-            );
-            return;
+                    "No user is currently logged in.");
         }
+        else {
+            try {
+                final Map<LocalDate, Double> caloriesByDate =
+                        this.dashboardDataAccessObject.getCaloriesByDate(
+                                userId
+                        );
 
-        try {
-            final Map<LocalDate, Double> caloriesByDate =
-                    this.dashboardDataAccessObject.getCaloriesByDate(
-                            userId
-                    );
+                final MacroData macroData =
+                        this.dashboardDataAccessObject.getMacrosForToday(
+                                userId
+                        );
 
-            final MacroData macroData =
-                    this.dashboardDataAccessObject.getMacrosForToday(
-                            userId
-                    );
+                final DashboardOutputData outputData =
+                        new DashboardOutputData(
+                                caloriesByDate,
+                                macroData
+                        );
 
-            final DashboardOutputData outputData =
-                    new DashboardOutputData(
-                            caloriesByDate,
-                            macroData
-                    );
-
-            this.dashboardPresenter.prepareSuccessView(
-                    outputData
-            );
-        }
-        catch (final RuntimeException exception) {
-            this.dashboardPresenter.prepareFailView(
-                    "Could not load dashboard data."
-            );
+                this.dashboardPresenter.prepareSuccessView(
+                        outputData
+                );
+            }
+            catch (final DataAccessException exception) {
+                this.dashboardPresenter.prepareFailView(
+                        "Could not load dashboard data."
+                );
+            }
         }
     }
 }
