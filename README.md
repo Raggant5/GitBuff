@@ -89,6 +89,16 @@ View a visual summary of workout and nutrition progress through charts and other
 
 ## Installation
 
+## Feedback
+
+> We welcome feedback on the application, including bug reports, feature suggestions, and usability feedback.
+
+Feedback can be submitted through our [**Feedback Form**](https://docs.google.com/forms/d/e/1FAIpQLSdLqkp0E_zSTOKUOojNN7_6Zn8LMysItFsH9yk7WXaEKcF-2A/viewform?usp=publish-editor).
+
+When submitting feedback, please provide enough information for us to understand the issue or suggestion. For bug reports, include the steps taken, the expected behaviour, and the actual behaviour whenever possible.
+
+Feedback will be reviewed by the project team and used to identify bugs, improve existing features, and prioritize potential improvements. Submission of feedback does not guarantee that a requested feature will be implemented.
+
 ## Contributing
 
 1. Fork the repository (or create a branch, if you have write access).
