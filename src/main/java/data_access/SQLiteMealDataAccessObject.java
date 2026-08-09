@@ -1,6 +1,5 @@
 package data_access;
-import use_case.dashboard.MacroData;
-import use_case.DataAccessException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,14 +7,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import use_case.dashboard.DashboardDataAccessInterface;
+
 import entity.FoodEntry;
 import entity.FoodNutrition;
 import entity.FoodUnit;
 import entity.Meal;
+import use_case.DataAccessException;
+import use_case.dashboard.DashboardDataAccessInterface;
+import use_case.dashboard.MacroData;
 import use_case.nutrition.meal.add_meal.AddMealDataAccessInterface;
 import use_case.nutrition.meal.delete_meal.DeleteMealDataAccessInterface;
 import use_case.nutrition.meal.edit_meal.EditMealDataAccessInterface;
@@ -110,14 +112,6 @@ public final class SQLiteMealDataAccessObject implements
         }
     }
 
-    /**
-     * Inserts a food-entry row using the given connection.
-     *
-     * @param connection shared database connection
-     * @param foodEntry food entry to insert
-     * @return generated food-entry ID
-     * @throws SQLException if the insert fails
-     */
     private static int insertFoodEntryRow(
             final Connection connection,
             final FoodEntry foodEntry
@@ -425,15 +419,6 @@ public final class SQLiteMealDataAccessObject implements
         );
     }
 
-    /**
-     * Updates an existing meal: applies the new name/date, deletes any removed food
-     * entries, and inserts/updates the remaining food entries, all as a single atomic
-     * transaction on one connection.
-     *
-     * @param meal the updated meal
-     * @param foodEntryIdsToDelete ids of food entries to remove from the meal
-     * @return the persisted meal, with generated ids populated on any newly-inserted food entries
-     */
     @Override
     public Meal editMeal(final Meal meal, final List<Integer> foodEntryIdsToDelete) {
         final String sql = """
@@ -448,7 +433,7 @@ public final class SQLiteMealDataAccessObject implements
             connection.setAutoCommit(false);
 
             try {
-                for (Integer foodEntryId : foodEntryIdsToDelete) {
+                for (final Integer foodEntryId : foodEntryIdsToDelete) {
                     if (foodEntryId != null && foodEntryId > 0) {
                         deleteFoodEntryRow(connection, foodEntryId);
                     }
@@ -473,7 +458,7 @@ public final class SQLiteMealDataAccessObject implements
                     statement.executeUpdate();
                 }
 
-                for (FoodEntry food : meal.getFoodEntries()) {
+                for (final FoodEntry food : meal.getFoodEntries()) {
                     if (food.getMealId() == null) {
                         food.setMealId(meal.getId());
                     }
@@ -506,13 +491,6 @@ public final class SQLiteMealDataAccessObject implements
         return meal;
     }
 
-    /**
-     * Updates a food-entry row using the given connection, without committing.
-     *
-     * @param connection shared database connection
-     * @param foodEntry food entry to update
-     * @throws SQLException if the update fails
-     */
     private static void updateFoodEntryRow(
             final Connection connection,
             final FoodEntry foodEntry
@@ -632,13 +610,6 @@ public final class SQLiteMealDataAccessObject implements
         }
     }
 
-    /**
-     * Deletes a food-entry row using the given connection, without committing.
-     *
-     * @param connection shared database connection
-     * @param foodEntryId food entry ID
-     * @throws SQLException if the delete fails
-     */
     private static void deleteFoodEntryRow(
             final Connection connection,
             final int foodEntryId

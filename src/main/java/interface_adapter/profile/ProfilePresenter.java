@@ -5,6 +5,11 @@ import use_case.profile.EditProfileOutputData;
 
 /**
  * The Presenter for the Edit Profile Use Case.
+ *
+ * <p>Converts the entity-layer enums carried by {@link EditProfileOutputData} into the
+ * interface_adapter-layer {@code *Option} enums, via {@link ProfileEnumMapper}, before storing
+ * them in {@link ProfileState} - the use case layer is allowed to depend on entities, but this
+ * interface_adapter layer is not.
  */
 public class ProfilePresenter implements EditProfileOutputBoundary {
 
@@ -25,18 +30,19 @@ public class ProfilePresenter implements EditProfileOutputBoundary {
         profileState.setUsername(outputData.getUsername());
         profileState.setHeightText(String.valueOf(outputData.getHeight()));
         profileState.setWeightText(String.valueOf(outputData.getWeight()));
-        profileState.setActivityLevel(outputData.getActivityLevel());
-        profileState.setGoal(outputData.getGoal());
+        profileState.setActivityLevel(ProfileEnumMapper.toOption(outputData.getActivityLevel()));
+        profileState.setGoal(ProfileEnumMapper.toOption(outputData.getGoal()));
         profileState.setProfilePicturePath(outputData.getProfilePicturePath());
         profileState.setDateOfBirth(outputData.getDateOfBirth());
-        profileState.setGender(outputData.getGender());
+        profileState.setGender(ProfileEnumMapper.toOption(outputData.getGender()));
         profileState.setBio(outputData.getBio());
-        profileState.setPreferredUnitSystem(outputData.getPreferredUnitSystem());
-        profileState.setEquipment(outputData.getEquipment());
-        profileState.setDietaryRestrictions(outputData.getDietaryRestrictions());
+        profileState.setPreferredUnitSystem(ProfileEnumMapper.toOption(outputData.getPreferredUnitSystem()));
+        profileState.setEquipment(ProfileEnumMapper.toEquipmentOptions(outputData.getEquipment()));
+        profileState.setDietaryRestrictions(
+                ProfileEnumMapper.toDietaryOptions(outputData.getDietaryRestrictions()));
         profileState.setPreferredWorkoutDays(outputData.getPreferredWorkoutDays());
         profileState.setPreferredWorkoutDurationMinutes(outputData.getPreferredWorkoutDurationMinutes());
-        profileState.setPrivacySettings(outputData.getPrivacySettings());
+        profileState.setPrivacySettings(ProfileEnumMapper.toPrivacyOptions(outputData.getPrivacySettings()));
         profileState.setProfileError(null);
         profileState.setSaveConfirmation("Profile saved.");
         this.profileViewModel.firePropertyChanged();
@@ -50,3 +56,4 @@ public class ProfilePresenter implements EditProfileOutputBoundary {
         this.profileViewModel.firePropertyChanged();
     }
 }
+

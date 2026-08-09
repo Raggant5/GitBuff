@@ -10,7 +10,9 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -26,14 +28,19 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import entity.Exercise;
-import entity.WorkoutPlan;
 import interface_adapter.recommendation.RecommendationController;
+import interface_adapter.workouts.RecommendedExerciseDisplayData;
+import interface_adapter.workouts.WorkoutPlanDisplayData;
 import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
 
 /**
  * View presenting personal workout plans and exercise guides in Swing UI.
+ *
+ * <p>Renders {@link WorkoutPlanDisplayData} and {@link RecommendedExerciseDisplayData} - the
+ * display DTOs produced by {@code interface_adapter.recommendation.RecommendationPresenter} -
+ * rather than the {@code entity.WorkoutPlan}/{@code entity.Exercise} entities, so this
+ * view-layer class does not depend on the entity layer.
  */
 public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
@@ -57,6 +64,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private static final int SCROLL_UNIT_INCREMENT = 16;
     private static final int REFRESH_BTN_HEIGHT = 40;
     private static final int REFRESH_BTN_WIDTH = 800;
+    private static final int DEFAULT_PREFERRED_DURATION = 45;
 
     private final String viewName = "workouts";
     private final WorkoutsViewModel workoutsViewModel;
@@ -66,7 +74,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private final JButton refreshButton = new JButton("Refresh 1-Week Schedule");
 
     private RecommendationController recommendationController;
-    private int userPreferredDuration = 45;
+    private int userPreferredDuration = DEFAULT_PREFERRED_DURATION;
 
     /**
      * Constructs a WorkoutsView panel bound to the view model.
@@ -154,7 +162,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             this.refreshButton.setEnabled(true);
             this.refreshButton.setText("Refresh 1-Week Schedule");
 
-            final List<WorkoutPlan> plans = state.getWorkoutPlans();
+            final List<WorkoutPlanDisplayData> plans = state.getWorkoutPlans();
 
             if (plans == null || plans.isEmpty()) {
                 final JLabel emptyLabel = new JLabel("No schedule loaded. Update your profile and click refresh!");
@@ -172,7 +180,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
                 final int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
                 for (int i = 0; i < totalDays; i++) {
-                    final WorkoutPlan plan = plans.get(i);
+                    final WorkoutPlanDisplayData plan = plans.get(i);
                     final JPanel planCard = createPlanCard(plan, i + 1);
                     this.scheduleContainer.add(planCard);
                     this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 8)));
@@ -186,7 +194,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         this.repaint();
     }
 
-    private JPanel createPlanCard(final WorkoutPlan plan, final int dayNumber) {
+    private JPanel createPlanCard(final WorkoutPlanDisplayData plan, final int dayNumber) {
         final JPanel planCard = new JPanel();
         planCard.setLayout(new BoxLayout(planCard, BoxLayout.Y_AXIS));
         planCard.setBackground(Color.WHITE);
@@ -255,7 +263,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             exercisesPanel.setBackground(Color.WHITE);
             exercisesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            for (final Exercise exercise : plan.getExercises()) {
+            for (final RecommendedExerciseDisplayData exercise : plan.getExercises()) {
                 final String btnText = String.format("%s [%ds x %dr]",
                         exercise.getName(), exercise.getSets(), exercise.getReps());
                 final JButton exButton = new JButton(btnText);
@@ -275,7 +283,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         return planCard;
     }
 
-    private void showExerciseGuideModal(final Exercise exercise) {
+    private void showExerciseGuideModal(final RecommendedExerciseDisplayData exercise) {
         final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this),
                 "Exercise Guide: " + exercise.getName());
         dialog.setModal(true);
@@ -333,7 +341,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             try {
                 Desktop.getDesktop().browse(new URI(targetUrl));
             }
-            catch (final Exception ex) {
+            catch (final IOException | URISyntaxException ex) {
                 JOptionPane.showMessageDialog(dialog, "Could not open URL: " + targetUrl);
             }
         });
@@ -369,6 +377,8 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     }
 
     public void setUserPreferredDuration(final int minutes) {
-        this.userPreferredDuration = minutes > 0 ? minutes : 45;
+        this.userPreferredDuration = minutes > 0 ? minutes : DEFAULT_PREFERRED_DURATION;
     }
 }
+
+

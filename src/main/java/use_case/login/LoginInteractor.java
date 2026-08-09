@@ -5,6 +5,7 @@ import java.util.List;
 import entity.LoggedWorkout;
 import entity.Meal;
 import entity.User;
+import use_case.DataAccessException;
 import use_case.log_workout.logged_workout.get_workouts.ViewWorkoutDataAccessInterface;
 import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 
@@ -41,49 +42,54 @@ public class LoginInteractor implements LoginInputBoundary {
         final String username = loginInputData.getUsername();
         final String password = loginInputData.getPassword();
 
-        if (!userDataAccessObject.existsByName(username)) {
-            loginPresenter.prepareFailView(
-                    username + ": Account does not exist."
+        try {
+            if (!userDataAccessObject.existsByName(username)) {
+                loginPresenter.prepareFailView(
+                        username + ": Account does not exist."
+                );
+                return;
+            }
+
+            final User user = userDataAccessObject.get(username);
+
+            if (!password.equals(user.getPassword())) {
+                loginPresenter.prepareFailView(
+                        "Incorrect password for \"" + username + "\"."
+                );
+                return;
+            }
+
+            final List<Meal> meals =
+                    mealsDataAccessObject.getMealsForUser(user.getName());
+            final List<LoggedWorkout> workouts = workoutsDataAccessObject.getWorkoutsForUser(user.getName());
+            userDataAccessObject.setCurrentUsername(username);
+
+            final LoginOutputData loginOutputData = new LoginOutputData(
+                    user.getName(),
+                    user.getHeight(),
+                    user.getWeight(),
+                    user.getActivityLevel(),
+                    user.getGoal(),
+                    user.getProfilePicturePath(),
+                    user.getDateOfBirth(),
+                    user.getGender(),
+                    user.getBio(),
+                    user.getPreferredUnitSystem(),
+                    user.getEquipment(),
+                    user.getDietaryRestrictions(),
+                    user.getPreferredWorkoutDays(),
+                    user.getPreferredWorkoutDurationMinutes(),
+                    user.getPrivacySettings(),
+                    meals,
+                    workouts,
+                    false
             );
-            return;
+
+            loginPresenter.prepareSuccessView(loginOutputData);
         }
-
-        final User user = userDataAccessObject.get(username);
-
-        if (!password.equals(user.getPassword())) {
-            loginPresenter.prepareFailView(
-                    "Incorrect password for \"" + username + "\"."
-            );
-            return;
+        catch (final DataAccessException exception) {
+            loginPresenter.prepareFailView("Unable to log in right now. Please try again.");
         }
-
-        final List<Meal> meals =
-                mealsDataAccessObject.getMealsForUser(user.getName());
-        final List<LoggedWorkout> workouts = workoutsDataAccessObject.getWorkoutsForUser(user.getName());
-        userDataAccessObject.setCurrentUsername(username);
-
-        final LoginOutputData loginOutputData = new LoginOutputData(
-                user.getName(),
-                user.getHeight(),
-                user.getWeight(),
-                user.getActivityLevel(),
-                user.getGoal(),
-                user.getProfilePicturePath(),
-                user.getDateOfBirth(),
-                user.getGender(),
-                user.getBio(),
-                user.getPreferredUnitSystem(),
-                user.getEquipment(),
-                user.getDietaryRestrictions(),
-                user.getPreferredWorkoutDays(),
-                user.getPreferredWorkoutDurationMinutes(),
-                user.getPrivacySettings(),
-                meals,
-                workouts,
-                false
-        );
-
-        loginPresenter.prepareSuccessView(loginOutputData);
     }
 
     @Override
@@ -91,3 +97,5 @@ public class LoginInteractor implements LoginInputBoundary {
         this.loginPresenter.switchToSignupView();
     }
 }
+
+

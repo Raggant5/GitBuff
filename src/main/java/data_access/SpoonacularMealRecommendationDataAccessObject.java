@@ -22,8 +22,7 @@ import okhttp3.Response;
 import use_case.recommendation.FoodRecommendationDataAccessInterface;
 
 /**
- * DAO requesting a one-day meal plan matching a target calorie count, via the Spoonacular Food API
- * (https://spoonacular.com/food-api).
+ * DAO requesting a one-day meal plan matching a target calorie count, via the Spoonacular Food API.
  */
 public class SpoonacularMealRecommendationDataAccessObject implements FoodRecommendationDataAccessInterface {
 
@@ -51,7 +50,7 @@ public class SpoonacularMealRecommendationDataAccessObject implements FoodRecomm
     /**
      * Constructs a SpoonacularMealRecommendationDataAccessObject with an explicit API key.
      *
-     * @param apiKey the Spoonacular API key
+     * @param apiKey the Spoonacular API key.
      */
     public SpoonacularMealRecommendationDataAccessObject(final String apiKey) {
         this.apiKey = apiKey;
@@ -90,7 +89,7 @@ public class SpoonacularMealRecommendationDataAccessObject implements FoodRecomm
     }
 
     private List<MealRecommendation> fetchMealsFromApi(final int targetCalories,
-                                                         final Set<DietaryRestriction> dietaryRestrictions) {
+                                                       final Set<DietaryRestriction> dietaryRestrictions) {
         List<MealRecommendation> result;
         try {
             final StringBuilder url = new StringBuilder(BASE_URL)
@@ -139,11 +138,10 @@ public class SpoonacularMealRecommendationDataAccessObject implements FoodRecomm
     }
 
     /**
-     * Maps the user's dietary restrictions to a single Spoonacular {@code diet} value. Spoonacular only
-     * accepts one diet per request, so the first matching restriction (in enum declaration order) wins.
+     * Maps the user's dietary restrictions to a single Spoonacular {@code diet} value.
      *
-     * @param dietaryRestrictions the user's selected dietary restrictions
-     * @return a Spoonacular diet value, or an empty string if none of the restrictions map to one
+     * @param dietaryRestrictions the user's selected dietary restrictions.
+     * @return a Spoonacular diet value, or an empty string if none of the restrictions map to one.
      */
     String mapToSpoonacularDiet(final Set<DietaryRestriction> dietaryRestrictions) {
         String diet = "";
@@ -185,11 +183,9 @@ public class SpoonacularMealRecommendationDataAccessObject implements FoodRecomm
 
     /**
      * Maps restrictions with no direct Spoonacular {@code diet} equivalent to an ingredient exclude list.
-     * The Halal list is a best-effort exclusion of the most common non-Halal ingredients (pork and
-     * alcohol) - it is not a certified Halal filter, since Spoonacular has no such diet type.
      *
-     * @param dietaryRestrictions the user's selected dietary restrictions
-     * @return a comma-separated ingredient exclude list, or an empty string if none apply
+     * @param dietaryRestrictions the user's selected dietary restrictions.
+     * @return a comma-separated ingredient exclude list, or an empty string if none apply.
      */
     String mapToExcludedIngredients(final Set<DietaryRestriction> dietaryRestrictions) {
         final List<String> excludes = new ArrayList<>();

@@ -7,6 +7,9 @@ import interface_adapter.ViewModel;
  */
 public class ShareProgressViewModel extends ViewModel<ShareProgressState> {
 
+    /**
+     * Constructs a ShareProgressViewModel instance.
+     */
     public ShareProgressViewModel() {
         super("share progress");
         setState(new ShareProgressState());

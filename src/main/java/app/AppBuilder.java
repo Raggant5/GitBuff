@@ -15,7 +15,7 @@ import data_access.SQLiteMealDataAccessObject;
 import data_access.SQLiteUserDataAccessObject;
 import data_access.SQLiteWorkoutDataAccessObject;
 import data_access.SearchFoodDataAccessObject;
-import data_access.ShareProgressUserDataAccessComposite;
+import data_access.ShareProgressUserDataAccessFacade;
 import data_access.SpoonacularMealRecommendationDataAccessObject;
 import entity.CommonUserFactory;
 import entity.ExercisePerformedFactory;
@@ -169,12 +169,12 @@ import use_case.nutrition.meal.prepare_edit_meal.PrepareEditMealInteractor;
 import use_case.profile.EditProfileInputBoundary;
 import use_case.profile.EditProfileInteractor;
 import use_case.profile.EditProfileOutputBoundary;
-import use_case.profile.ProfileUserDataAccessInterface;
 import use_case.recommendation.AiWorkoutDataAccessInterface;
 import use_case.recommendation.FoodRecommendationDataAccessInterface;
 import use_case.recommendation.RecommendationInputBoundary;
 import use_case.recommendation.RecommendationInteractor;
 import use_case.recommendation.RecommendationOutputBoundary;
+import use_case.recommendation.StandardCalorieCalculationStrategy;
 import use_case.share.ShareEmailDataAccessInterface;
 import use_case.share.ShareProgressInputBoundary;
 import use_case.share.ShareProgressInteractor;
@@ -345,11 +345,11 @@ public class AppBuilder {
         this.shareProgressViewModel = new ShareProgressViewModel();
         final ShareProgressOutputBoundary presenter = new ShareProgressPresenter(this.shareProgressViewModel);
 
-        final ShareProgressUserDataAccessInterface compositeDao =
-                new ShareProgressUserDataAccessComposite(this.userDataAccessObject, this.workoutDataAccessObject);
+        final ShareProgressUserDataAccessInterface shareDataFacade =
+                new ShareProgressUserDataAccessFacade(this.userDataAccessObject, this.workoutDataAccessObject);
 
         final ShareProgressInputBoundary interactor = new ShareProgressInteractor(
-                compositeDao, this.emailDataAccessObject, presenter);
+                shareDataFacade, this.emailDataAccessObject, presenter);
         this.shareProgressController = new ShareProgressController(interactor);
 
         if (this.dashboardView != null) {
@@ -549,7 +549,7 @@ public class AppBuilder {
                 this.nutritionViewModel, this.workoutViewModel, this.calendarController);
         this.recommendationInteractor = new RecommendationInteractor(
                 this.userDataAccessObject, recommendationOutputBoundary, this.aiWorkoutDao,
-                this.foodRecommendationDao);
+                this.foodRecommendationDao, new StandardCalorieCalculationStrategy());
         this.recommendationController = new RecommendationController(this.recommendationInteractor);
         this.nutritionView.setRecommendationController(this.recommendationController);
         this.workoutsView.setRecommendationController(this.recommendationController);
@@ -564,7 +564,7 @@ public class AppBuilder {
     public AppBuilder addProfileUseCase() {
         final EditProfileOutputBoundary profileOutputBoundary = new ProfilePresenter(this.profileViewModel);
         final EditProfileInputBoundary editProfileInteractor = new EditProfileInteractor(
-                (ProfileUserDataAccessInterface) this.userDataAccessObject, profileOutputBoundary);
+                this.userDataAccessObject, profileOutputBoundary);
 
         final ProfileController profileController = new ProfileController(editProfileInteractor);
         profileController.setRecommendationDependencies(this.recommendationController, this.workoutViewModel);
@@ -844,3 +844,5 @@ public class AppBuilder {
         return application;
     }
 }
+
+

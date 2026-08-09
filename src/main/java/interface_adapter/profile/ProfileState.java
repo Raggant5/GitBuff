@@ -5,16 +5,17 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import entity.ActivityLevel;
-import entity.DietaryRestriction;
-import entity.Equipment;
-import entity.FitnessGoal;
-import entity.Gender;
-import entity.PrivacySetting;
-import entity.UnitSystem;
-
 /**
  * The state for the Profile View Model.
+ *
+ * <p>Holds the interface_adapter-layer {@code *Option} enums ({@link ActivityLevelOption},
+ * {@link FitnessGoalOption}, {@link GenderOption}, {@link UnitSystemOption},
+ * {@link EquipmentOption}, {@link DietaryRestrictionOption}, {@link PrivacySettingOption})
+ * rather than the {@code entity.*} enums they mirror, so this interface_adapter-layer class -
+ * and {@code view.ProfileView}, which reads it - does not depend on the entity layer.
+ * {@link ProfileController} and {@code interface_adapter.profile.ProfilePresenter} are
+ * responsible for translating to/from the entity enums (via {@link ProfileEnumMapper}) at the
+ * use case boundary.
  */
 public class ProfileState {
 
@@ -23,19 +24,19 @@ public class ProfileState {
     private String username = "";
     private String heightText = "";
     private String weightText = "";
-    private ActivityLevel activityLevel = ActivityLevel.MODERATELY_ACTIVE;
-    private FitnessGoal goal = FitnessGoal.MAINTAIN_GENERAL_FITNESS;
+    private ActivityLevelOption activityLevel = ActivityLevelOption.MODERATELY_ACTIVE;
+    private FitnessGoalOption goal = FitnessGoalOption.MAINTAIN_GENERAL_FITNESS;
     private String profilePicturePath;
 
     private LocalDate dateOfBirth;
-    private Gender gender = Gender.PREFER_NOT_TO_SAY;
+    private GenderOption gender = GenderOption.PREFER_NOT_TO_SAY;
     private String bio = "";
-    private UnitSystem preferredUnitSystem = UnitSystem.METRIC;
-    private Set<Equipment> equipment = new HashSet<>();
-    private Set<DietaryRestriction> dietaryRestrictions = new HashSet<>();
+    private UnitSystemOption preferredUnitSystem = UnitSystemOption.METRIC;
+    private Set<EquipmentOption> equipment = new HashSet<>();
+    private Set<DietaryRestrictionOption> dietaryRestrictions = new HashSet<>();
     private Set<DayOfWeek> preferredWorkoutDays = new HashSet<>();
     private int preferredWorkoutDurationMinutes = DEFAULT_DURATION;
-    private Set<PrivacySetting> privacySettings = new HashSet<>();
+    private Set<PrivacySettingOption> privacySettings = new HashSet<>();
 
     private String profileError;
     private String saveConfirmation;
@@ -64,19 +65,19 @@ public class ProfileState {
         this.weightText = weightText;
     }
 
-    public ActivityLevel getActivityLevel() {
+    public ActivityLevelOption getActivityLevel() {
         return this.activityLevel;
     }
 
-    public void setActivityLevel(final ActivityLevel activityLevel) {
+    public void setActivityLevel(final ActivityLevelOption activityLevel) {
         this.activityLevel = activityLevel;
     }
 
-    public FitnessGoal getGoal() {
+    public FitnessGoalOption getGoal() {
         return this.goal;
     }
 
-    public void setGoal(final FitnessGoal goal) {
+    public void setGoal(final FitnessGoalOption goal) {
         this.goal = goal;
     }
 
@@ -96,11 +97,11 @@ public class ProfileState {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public Gender getGender() {
+    public GenderOption getGender() {
         return this.gender;
     }
 
-    public void setGender(final Gender gender) {
+    public void setGender(final GenderOption gender) {
         this.gender = gender;
     }
 
@@ -112,27 +113,27 @@ public class ProfileState {
         this.bio = bio;
     }
 
-    public UnitSystem getPreferredUnitSystem() {
+    public UnitSystemOption getPreferredUnitSystem() {
         return this.preferredUnitSystem;
     }
 
-    public void setPreferredUnitSystem(final UnitSystem preferredUnitSystem) {
+    public void setPreferredUnitSystem(final UnitSystemOption preferredUnitSystem) {
         this.preferredUnitSystem = preferredUnitSystem;
     }
 
-    public Set<Equipment> getEquipment() {
+    public Set<EquipmentOption> getEquipment() {
         return this.equipment;
     }
 
-    public void setEquipment(final Set<Equipment> equipment) {
+    public void setEquipment(final Set<EquipmentOption> equipment) {
         this.equipment = equipment;
     }
 
-    public Set<DietaryRestriction> getDietaryRestrictions() {
+    public Set<DietaryRestrictionOption> getDietaryRestrictions() {
         return this.dietaryRestrictions;
     }
 
-    public void setDietaryRestrictions(final Set<DietaryRestriction> dietaryRestrictions) {
+    public void setDietaryRestrictions(final Set<DietaryRestrictionOption> dietaryRestrictions) {
         this.dietaryRestrictions = dietaryRestrictions;
     }
 
@@ -152,11 +153,11 @@ public class ProfileState {
         this.preferredWorkoutDurationMinutes = preferredWorkoutDurationMinutes;
     }
 
-    public Set<PrivacySetting> getPrivacySettings() {
+    public Set<PrivacySettingOption> getPrivacySettings() {
         return this.privacySettings;
     }
 
-    public void setPrivacySettings(final Set<PrivacySetting> privacySettings) {
+    public void setPrivacySettings(final Set<PrivacySettingOption> privacySettings) {
         this.privacySettings = privacySettings;
     }
 
@@ -176,3 +177,4 @@ public class ProfileState {
         this.saveConfirmation = saveConfirmation;
     }
 }
+
