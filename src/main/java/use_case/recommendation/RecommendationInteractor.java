@@ -71,12 +71,13 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
         final String username = this.userDataAccessObject.getCurrentUsername();
         if (username == null) {
             this.recommendationPresenter.prepareFailView("No user is currently logged in.");
-            return;
         }
-        final User user = this.userDataAccessObject.get(username);
-        if (user != null) {
-            ensureProfileDefaults(user);
-            presentRecommendationFor(user, false);
+        else {
+            final User user = this.userDataAccessObject.get(username);
+            if (user != null) {
+                ensureProfileDefaults(user);
+                presentRecommendationFor(user, false);
+            }
         }
     }
 
@@ -92,13 +93,8 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
             plans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user, WEEK_DAYS);
         }
 
-        final String focusSummary = user.getGoal() != null
-                ? user.getGoal().getWorkoutFocus()
-                : FitnessGoal.MAINTAIN_GENERAL_FITNESS.getWorkoutFocus();
-
-        final String activitySummary = user.getActivityLevel() != null
-                ? user.getActivityLevel().getDescription()
-                : ActivityLevel.MODERATELY_ACTIVE.getDescription();
+        final String focusSummary = user.getGoal().getWorkoutFocus();
+        final String activitySummary = user.getActivityLevel().getDescription();
 
         List<MealRecommendation> meals = new ArrayList<>();
         if (this.foodRecommendationDataAccessObject != null) {
