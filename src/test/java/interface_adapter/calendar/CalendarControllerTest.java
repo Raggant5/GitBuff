@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import entity.CalendarEvent;
 import entity.Exercise;
 import entity.Meal;
 import entity.WorkoutPlan;
@@ -66,7 +65,7 @@ class CalendarControllerTest {
         final Meal meal = new Meal("amir", LocalDate.now(), "Dinner");
         meal.setId(4);
         calendarViewModel.getState().setCalendarEvents(List.of(
-                new CalendarEvent(
+                new CalendarEventDisplayData(
                         "google-event-4",
                         "amir",
                         "Meal: Dinner",
@@ -112,7 +111,7 @@ class CalendarControllerTest {
         missingMeal.setId(13);
 
         calendarViewModel.getState().setCalendarEvents(List.of(
-                new CalendarEvent(
+                new CalendarEventDisplayData(
                         "google-event-12",
                         "amir",
                         "Meal: Lunch",
@@ -126,3 +125,4 @@ class CalendarControllerTest {
         assertEquals(0, removedEvents.size());
     }
 }
+

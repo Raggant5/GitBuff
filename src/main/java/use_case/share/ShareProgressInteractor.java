@@ -1,16 +1,30 @@
 package use_case.share;
 
 import java.util.List;
+import java.util.Set;
 
-import entity.ExercisePerformed;
 import entity.LoggedWorkout;
 import entity.PrivacySetting;
 import entity.User;
+import use_case.share.report.CompositeReportSection;
+import use_case.share.report.PersonalRecordsReportSection;
+import use_case.share.report.ProfileReportSection;
+import use_case.share.report.WorkoutLogReportSection;
 
 /**
  * Interactor for aggregating and sharing user progress according to active privacy settings.
+ *
+ * <p>The report itself is assembled with the Composite design pattern: each enabled
+ * {@link PrivacySetting} adds one {@code use_case.share.report.ReportSection} leaf to a
+ * {@link CompositeReportSection}, which is then rendered as a whole. Adding a new shareable
+ * section in the future means writing one more {@code ReportSection} implementation and adding
+ * it here - this interactor no longer needs a growing if-chain of string concatenation
+ * (Open/Closed Principle).
  */
 public class ShareProgressInteractor implements ShareProgressInputBoundary {
+
+    private static final String NO_SHAREABLE_CONTENT_MESSAGE =
+            "No shareable privacy settings enabled in your profile!";
 
     private final ShareProgressUserDataAccessInterface userDataAccessObject;
     private final ShareEmailDataAccessInterface emailDataAccessObject;
@@ -41,7 +55,7 @@ public class ShareProgressInteractor implements ShareProgressInputBoundary {
 
         final String formattedReport = buildShareReport(user);
         if (formattedReport == null) {
-            this.presenter.prepareFailView("No shareable privacy settings enabled in your profile!");
+            this.presenter.prepareFailView(NO_SHAREABLE_CONTENT_MESSAGE);
             return;
         }
 
@@ -63,7 +77,7 @@ public class ShareProgressInteractor implements ShareProgressInputBoundary {
 
         final String formattedReport = buildShareReport(user);
         if (formattedReport == null) {
-            this.presenter.prepareFailView("No shareable privacy settings enabled in your profile!");
+            this.presenter.prepareFailView(NO_SHAREABLE_CONTENT_MESSAGE);
             return;
         }
 
@@ -82,53 +96,33 @@ public class ShareProgressInteractor implements ShareProgressInputBoundary {
         }
     }
 
+    /**
+     * Builds the shareable report by composing one {@code ReportSection} leaf per privacy
+     * setting the user has enabled.
+     *
+     * @param user the currently logged-in user
+     * @return the rendered report text, or {@code null} if no privacy setting is enabled
+     */
     private String buildShareReport(final User user) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("Fitness Progress Report for ").append(user.getName()).append("\n\n");
+        final CompositeReportSection report =
+                new CompositeReportSection("Fitness Progress Report for " + user.getName());
 
-        boolean contentAdded = false;
-
-        if (user.getPrivacySettings() != null) {
-            if (user.getPrivacySettings().contains(PrivacySetting.SHARE_PROFILE)) {
-                contentAdded = true;
-                sb.append("--- PROFILE DETAILS ---\n");
-                sb.append("Bio: ").append(user.getBio() != null && !user.getBio().isBlank() ? user.getBio() : "None").append("\n");
-                sb.append("Goal: ").append(user.getGoal() != null ? user.getGoal().toString() : "Not set").append("\n");
-                sb.append("Height: ").append(String.format("%.2f m", user.getHeight())).append("\n");
-                sb.append("Weight: ").append(String.format("%.1f kg", user.getWeight())).append("\n\n");
+        final Set<PrivacySetting> privacySettings = user.getPrivacySettings();
+        if (privacySettings != null) {
+            if (privacySettings.contains(PrivacySetting.SHARE_PROFILE)) {
+                report.add(new ProfileReportSection(user));
             }
-
-            if (user.getPrivacySettings().contains(PrivacySetting.SHARE_WORKOUT_LOGS)) {
-                contentAdded = true;
+            if (privacySettings.contains(PrivacySetting.SHARE_WORKOUT_LOGS)) {
                 final List<LoggedWorkout> workouts = this.userDataAccessObject.getWorkoutsForUser(user.getName());
-                final int totalWorkouts = workouts != null ? workouts.size() : 0;
-
-                sb.append("--- COMPLETED WORKOUTS ---\n");
-                sb.append("Total Workouts Completed: ").append(totalWorkouts).append("\n");
-
-                if (workouts != null && !workouts.isEmpty()) {
-                    sb.append("Recent Activities:\n");
-                    for (final LoggedWorkout workout : workouts) {
-                        sb.append(" • Date: ").append(workout.getDate()).append("\n");
-                        if (workout.getExercises() != null) {
-                            for (final ExercisePerformed exercise : workout.getExercises()) {
-                                sb.append("   - ").append(exercise.getExerciseName())
-                                        .append(" (").append((int) exercise.getDurationMins()).append(" mins)\n");
-                            }
-                        }
-                    }
-                }
-                sb.append("\n");
+                report.add(new WorkoutLogReportSection(workouts));
             }
-
-            if (user.getPrivacySettings().contains(PrivacySetting.SHARE_PERSONAL_RECORDS)) {
-                contentAdded = true;
+            if (privacySettings.contains(PrivacySetting.SHARE_PERSONAL_RECORDS)) {
                 final double totalMinutes = this.userDataAccessObject.getTotalMinutesWorkedOut(user.getName());
-                sb.append("--- PERSONAL RECORDS (PRs) ---\n");
-                sb.append("Total Time Worked Out (All-Time): ").append((int) Math.round(totalMinutes)).append(" minutes\n\n");
+                report.add(new PersonalRecordsReportSection(totalMinutes));
             }
         }
 
-        return contentAdded ? sb.toString() : null;
+        return report.hasContent() ? report.render() : null;
     }
 }
+

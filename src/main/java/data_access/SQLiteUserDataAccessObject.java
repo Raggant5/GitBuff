@@ -19,6 +19,7 @@ import entity.Gender;
 import entity.PrivacySetting;
 import entity.UnitSystem;
 import entity.User;
+import use_case.DataAccessException;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.logout.LogoutUserDataAccessInterface;
 import use_case.profile.ProfileUserDataAccessInterface;
@@ -27,6 +28,13 @@ import use_case.signup.SignupUserDataAccessInterface;
 
 /**
  * SQLite implementation for storing and loading user information and workout stats.
+ *
+ * <p>This is an Adapter in the sense of the Adapter design pattern: it adapts the SQLite/JDBC
+ * persistence API to the five use-case-layer interfaces it implements below, so interactors
+ * depend only on those interfaces (Dependency Inversion Principle) and never on JDBC directly.
+ * Persistence failures are reported as {@link DataAccessException}, the project's own
+ * unchecked exception type, so interactors can catch exactly that type rather than the generic
+ * {@link RuntimeException}.
  */
 public class SQLiteUserDataAccessObject
         implements SignupUserDataAccessInterface,
@@ -53,7 +61,7 @@ public class SQLiteUserDataAccessObject
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException("Could not check whether user exists.", exception);
+            throw new DataAccessException("Could not check whether user exists.", exception);
         }
     }
 
@@ -159,7 +167,7 @@ public class SQLiteUserDataAccessObject
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Could not save user.",
                     exception
             );
@@ -281,18 +289,11 @@ public class SQLiteUserDataAccessObject
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Could not load user.",
                     exception
             );
         }
-    }
-
-    public User getCurrentUser() {
-        if (this.currentUsername == null) {
-            return null;
-        }
-        return get(this.currentUsername);
     }
 
     @Override
