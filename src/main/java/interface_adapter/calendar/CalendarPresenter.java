@@ -12,17 +12,16 @@ import use_case.calendar.remove_event.RemoveCalendarEventOutputData;
 
 /**
  * Presenter for the calendar add, remove, and load use cases.
+ *
+ * <p>Converts the {@code entity.CalendarEvent} entities returned by the use case layer into
+ * {@link CalendarEventDisplayData} before they reach {@link CalendarState} - the use case layer
+ * is allowed to depend on entities, but this interface_adapter layer is not.
  */
 public class CalendarPresenter implements AddCalendarEventOutputBoundary, RemoveCalendarEventOutputBoundary,
         LoadCalendarEventsOutputBoundary {
 
     private final CalendarViewModel calendarViewModel;
 
-    /**
-     * Constructs a CalendarPresenter instance.
-     *
-     * @param calendarViewModel view model managing calendar display state.
-     */
     public CalendarPresenter(final CalendarViewModel calendarViewModel) {
         this.calendarViewModel = calendarViewModel;
     }
@@ -44,20 +43,20 @@ public class CalendarPresenter implements AddCalendarEventOutputBoundary, Remove
 
     @Override
     public void prepareFailureView(final String errorMessage) {
-        final CalendarState state = this.calendarViewModel.getState();
+        final CalendarState state = calendarViewModel.getState();
         state.setErrorMessage(errorMessage);
-        this.calendarViewModel.firePropertyChanged();
+        calendarViewModel.firePropertyChanged();
     }
 
     private void updateCalendar(final List<CalendarEvent> calendarEvents) {
-        final CalendarState state = this.calendarViewModel.getState();
+        final CalendarState state = calendarViewModel.getState();
 
         state.setCalendarEvents(calendarEvents.stream()
                 .map(this::toDisplayData)
                 .toList());
         state.setErrorMessage(null);
 
-        this.calendarViewModel.firePropertyChanged();
+        calendarViewModel.firePropertyChanged();
     }
 
     private CalendarEventDisplayData toDisplayData(final CalendarEvent event) {
@@ -66,4 +65,5 @@ public class CalendarPresenter implements AddCalendarEventOutputBoundary, Remove
                 event.getDescription(), event.getActivityDate());
     }
 }
+
 

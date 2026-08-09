@@ -14,8 +14,8 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
     /**
      * Constructs an EditProfileInteractor instance.
      *
-     * @param userDataAccessObject profile data access object.
-     * @param profileOutputBoundary profile output boundary presenter.
+     * @param userDataAccessObject profile data access object
+     * @param profileOutputBoundary profile output boundary presenter
      */
     public EditProfileInteractor(final ProfileUserDataAccessInterface userDataAccessObject,
                                  final EditProfileOutputBoundary profileOutputBoundary) {
@@ -65,4 +65,5 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
         this.profilePresenter.prepareSuccessView(outputData);
     }
 }
+
 

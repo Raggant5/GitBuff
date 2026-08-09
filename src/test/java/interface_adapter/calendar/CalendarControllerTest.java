@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import entity.Exercise;
-import entity.Meal;
-import entity.WorkoutPlan;
 import interface_adapter.login.LoginViewModel;
+import interface_adapter.nutrition.meal.MealDisplayData;
+import interface_adapter.workouts.RecommendedExerciseDisplayData;
+import interface_adapter.workouts.WorkoutPlanDisplayData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import use_case.calendar.add_event.AddCalendarEventInputBoundary;
@@ -48,9 +48,8 @@ class CalendarControllerTest {
 
     @Test
     void savedMealCreatesCalendarEventWithStableReference() {
-        final Meal meal = new Meal(
-                "amir", LocalDate.of(2026, 8, 6), "Lunch");
-        meal.setId(12);
+        final MealDisplayData meal = new MealDisplayData(
+                12, LocalDate.of(2026, 8, 6), "Lunch", List.of());
 
         controller.addMeal(meal.getId(), meal.getName(), meal.getDate());
 
@@ -62,8 +61,7 @@ class CalendarControllerTest {
 
     @Test
     void deletingMealRemovesMatchingGoogleEvent() {
-        final Meal meal = new Meal("amir", LocalDate.now(), "Dinner");
-        meal.setId(4);
+        final int mealId = 4;
         calendarViewModel.getState().setCalendarEvents(List.of(
                 new CalendarEventDisplayData(
                         "google-event-4",
@@ -72,7 +70,7 @@ class CalendarControllerTest {
                         "GitBuff meal ID: 4",
                         LocalDate.now())));
 
-        controller.removeMeal(meal.getId());
+        controller.removeMeal(mealId);
 
         assertEquals(1, removedEvents.size());
         assertEquals("google-event-4", removedEvents.get(0).getEventID());
@@ -82,17 +80,14 @@ class CalendarControllerTest {
     void activeWorkoutIsAddedAndRestDayIsSkipped() {
         final String today = LocalDate.now().format(
                 DateTimeFormatter.ofPattern("EEEE, MMM d", Locale.ENGLISH));
-        final Exercise exercise = new Exercise(
-                "Squat", 3, 10, 5, "Legs", "Barbell", "Lower with control", "",
-                "STRENGTH", "LOWER_BODY", "MEDIUM", "BARBELL");
-        final WorkoutPlan workout = new WorkoutPlan(
+        final RecommendedExerciseDisplayData exercise = new RecommendedExerciseDisplayData(
+                "Squat", 3, 10, 5, "Legs", "Barbell", "Lower with control", "");
+        final WorkoutPlanDisplayData workout = new WorkoutPlanDisplayData(
                 today, "Strength", "Leg session",
-                "STRENGTH", "LOWER_BODY", "MEDIUM", "Legs", "BARBELL",
                 30, 300, 10, 30, List.of(exercise));
-        final WorkoutPlan rest = new WorkoutPlan(
+        final WorkoutPlanDisplayData rest = new WorkoutPlanDisplayData(
                 today, "Rest & Recovery", "Rest",
-                "REST", "REST", "LOW", "", "",
-                0, 0, 0, 0, List.<Exercise>of());
+                0, 0, 0, 0, List.of());
 
         controller.replaceWorkoutPlans(List.of(workout, rest));
 
@@ -103,12 +98,10 @@ class CalendarControllerTest {
 
     @Test
     void savedMealsAreBackfilledWithoutDuplicatingExistingEvents() {
-        final Meal existingMeal = new Meal(
-                "amir", LocalDate.of(2026, 8, 6), "Lunch");
-        existingMeal.setId(12);
-        final Meal missingMeal = new Meal(
-                "amir", LocalDate.of(2026, 8, 7), "Dinner");
-        missingMeal.setId(13);
+        final MealDisplayData existingMeal = new MealDisplayData(
+                12, LocalDate.of(2026, 8, 6), "Lunch", List.of());
+        final MealDisplayData missingMeal = new MealDisplayData(
+                13, LocalDate.of(2026, 8, 7), "Dinner", List.of());
 
         calendarViewModel.getState().setCalendarEvents(List.of(
                 new CalendarEventDisplayData(

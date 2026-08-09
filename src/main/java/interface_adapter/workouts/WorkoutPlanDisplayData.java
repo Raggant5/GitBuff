@@ -3,7 +3,15 @@ package interface_adapter.workouts;
 import java.util.List;
 
 /**
- * Display-only view of a single day's AI-recommended workout plan.
+ * Display-only view of a single day's AI-recommended workout plan, so
+ * {@link WorkoutsState} and {@code view.WorkoutsView} don't need to depend on the
+ * {@code entity.WorkoutPlan} entity directly.
+ *
+ * <p>Mirrors the DTO convention already used elsewhere in the codebase (for example
+ * {@code interface_adapter.log_workout.workout.LoggedWorkoutDisplayData}):
+ * {@code interface_adapter.recommendation.RecommendationPresenter} converts
+ * {@code use_case.recommendation.RecommendationOutputData}'s entities into this type before
+ * they reach the state or the view.
  */
 public class WorkoutPlanDisplayData {
 
@@ -19,14 +27,14 @@ public class WorkoutPlanDisplayData {
     /**
      * Constructs a WorkoutPlanDisplayData instance.
      *
-     * @param date scheduled date, as free text (e.g. "Monday, Aug 3").
-     * @param title workout name.
-     * @param description brief summary of the workout.
-     * @param estimatedDurationMinutes estimated total duration in minutes.
-     * @param estimatedCaloriesBurned estimated total calories burned.
-     * @param estimatedFatBurnedGrams estimated fat burned, in grams.
-     * @param estimatedCarbsBurnedGrams estimated carbohydrates burned, in grams.
-     * @param exercises the exercises that make up this workout, empty for a rest day.
+     * @param date scheduled date, as free text (e.g. "Monday, Aug 3")
+     * @param title workout name
+     * @param description brief summary of the workout
+     * @param estimatedDurationMinutes estimated total duration in minutes
+     * @param estimatedCaloriesBurned estimated total calories burned
+     * @param estimatedFatBurnedGrams estimated fat burned, in grams
+     * @param estimatedCarbsBurnedGrams estimated carbohydrates burned, in grams
+     * @param exercises the exercises that make up this workout, empty for a rest day
      */
     public WorkoutPlanDisplayData(final String date, final String title, final String description,
                                   final int estimatedDurationMinutes, final int estimatedCaloriesBurned,
@@ -42,76 +50,37 @@ public class WorkoutPlanDisplayData {
         this.exercises = exercises;
     }
 
-    /**
-     * Gets workout scheduled date.
-     *
-     * @return date string.
-     */
     public String getDate() {
         return this.date;
     }
 
-    /**
-     * Gets workout title.
-     *
-     * @return title string.
-     */
     public String getTitle() {
         return this.title;
     }
 
-    /**
-     * Gets workout description.
-     *
-     * @return description string.
-     */
     public String getDescription() {
         return this.description;
     }
 
-    /**
-     * Gets estimated duration in minutes.
-     *
-     * @return duration in minutes.
-     */
     public int getEstimatedDurationMinutes() {
         return this.estimatedDurationMinutes;
     }
 
-    /**
-     * Gets estimated calories burned.
-     *
-     * @return calories integer.
-     */
     public int getEstimatedCaloriesBurned() {
         return this.estimatedCaloriesBurned;
     }
 
-    /**
-     * Gets estimated fat burned in grams.
-     *
-     * @return fat burned in grams.
-     */
     public int getEstimatedFatBurnedGrams() {
         return this.estimatedFatBurnedGrams;
     }
 
-    /**
-     * Gets estimated carbohydrates burned in grams.
-     *
-     * @return carbs burned in grams.
-     */
     public int getEstimatedCarbsBurnedGrams() {
         return this.estimatedCarbsBurnedGrams;
     }
 
-    /**
-     * Gets recommended exercises list.
-     *
-     * @return list of recommended exercises.
-     */
     public List<RecommendedExerciseDisplayData> getExercises() {
         return this.exercises;
     }
 }
+
 

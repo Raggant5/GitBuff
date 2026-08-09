@@ -27,3 +27,4 @@ public class StandardCalorieCalculationStrategy implements CalorieCalculationStr
     }
 }
 
+

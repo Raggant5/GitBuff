@@ -60,3 +60,4 @@ public class WorkoutLogReportSection implements ReportSection {
     }
 }
 
+

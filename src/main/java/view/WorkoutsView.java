@@ -381,3 +381,4 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     }
 }
 
+
