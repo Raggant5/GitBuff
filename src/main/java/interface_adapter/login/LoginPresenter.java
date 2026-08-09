@@ -1,10 +1,23 @@
 package interface_adapter.login;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.SwingWorker;
 
+import entity.ExercisePerformed;
+import entity.FoodEntry;
+import entity.LoggedWorkout;
+import entity.Meal;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.calendar.CalendarController;
+import interface_adapter.log_workout.exercise.ExercisePerformedDisplayData;
+import interface_adapter.log_workout.exercise.StrengthDetailsDisplayData;
+import interface_adapter.log_workout.workout.LoggedWorkoutDisplayData;
 import interface_adapter.log_workout.workout.ViewWorkoutsViewModel;
+import interface_adapter.nutrition.food.FoodEntryDisplayData;
+import interface_adapter.nutrition.food.FoodNutritionDisplayData;
+import interface_adapter.nutrition.meal.MealDisplayData;
 import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
@@ -154,8 +167,21 @@ public class LoginPresenter implements LoginOutputBoundary {
         /*
          * Reload saved meals from SQLite into the meals view.
          */
+        final List<MealDisplayData> meals = new ArrayList<>();
+        for (Meal meal : response.getMeals()) {
+            final List<FoodEntryDisplayData> foodEntries = new ArrayList<>();
+            for (FoodEntry food : meal.getFoodEntries()) {
+                final FoodNutritionDisplayData nutrition = new FoodNutritionDisplayData(
+                        food.getNutrition().getCalories(), food.getNutrition().getProtein(),
+                        food.getNutrition().getCarbs(), food.getNutrition().getFat());
+                foodEntries.add(new FoodEntryDisplayData(food.getId(), food.getFoodName(), nutrition,
+                        food.getQuantity(), food.getUnit(), food.getGrams()));
+            }
+            meals.add(new MealDisplayData(meal.getId(), meal.getDate(), meal.getName(), foodEntries));
+        }
+
         this.mealsViewModel.getState().setMeals(
-                response.getMeals()
+                meals
         );
 
         this.mealsViewModel.firePropertyChanged();
@@ -164,8 +190,21 @@ public class LoginPresenter implements LoginOutputBoundary {
          * Reload saved workouts from SQLite into
          * the workout-history view.
          */
+        final List<LoggedWorkoutDisplayData> workouts = new ArrayList<>();
+        for (LoggedWorkout workout : response.getWorkouts()) {
+            final List<ExercisePerformedDisplayData> exercises = new ArrayList<>();
+            for (ExercisePerformed exercise : workout.getExercises()) {
+                final StrengthDetailsDisplayData strengthDetailsDisplayData = new StrengthDetailsDisplayData(
+                        exercise.getSets(), exercise.getReps(), exercise.getWeight());
+                exercises.add(new ExercisePerformedDisplayData(exercise.getId(), exercise.getExerciseName(),
+                        strengthDetailsDisplayData, exercise.getDurationMins(), exercise.getDistanceKm(),
+                        exercise.getIsCardio()));
+            }
+            workouts.add(new LoggedWorkoutDisplayData(workout.getId(), workout.getDate(), exercises));
+        }
+
         this.viewWorkoutsViewModel.getState().setWorkouts(
-                response.getWorkouts()
+                workouts
         );
 
         this.viewWorkoutsViewModel.firePropertyChanged();

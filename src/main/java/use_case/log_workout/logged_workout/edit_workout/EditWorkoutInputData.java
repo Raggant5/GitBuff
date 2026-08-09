@@ -2,31 +2,30 @@ package use_case.log_workout.logged_workout.edit_workout;
 
 import java.util.List;
 
-import entity.ExercisePerformed;
-import entity.LoggedWorkout;
+import use_case.log_workout.exercise_performed.ExercisePerformedInputData;
 
 public class EditWorkoutInputData {
 
-    private final LoggedWorkout workout;
-    private final List<ExercisePerformed> exercises;
-    private final List<ExercisePerformed> exercisesToDelete;
+    private final int workoutId;
+    private final List<ExercisePerformedInputData> exercises;
+    private final List<Integer> exerciseIdsToDelete;
 
-    public EditWorkoutInputData(LoggedWorkout workout, List<ExercisePerformed> exercises,
-                                List<ExercisePerformed> exercisesToDelete) {
-        this.workout = workout;
+    public EditWorkoutInputData(int workoutId, List<ExercisePerformedInputData> exercises,
+                                List<Integer> exerciseIdsToDelete) {
+        this.workoutId = workoutId;
         this.exercises = exercises;
-        this.exercisesToDelete = exercisesToDelete;
+        this.exerciseIdsToDelete = exerciseIdsToDelete;
     }
 
-    public LoggedWorkout getWorkout() {
-        return workout;
+    public int getWorkoutId() {
+        return workoutId;
     }
 
-    public List<ExercisePerformed> getExercises() {
+    public List<ExercisePerformedInputData> getExercises() {
         return exercises;
     }
 
-    public List<ExercisePerformed> getExercisesToDelete() {
-        return exercisesToDelete;
+    public List<Integer> getExerciseIdsToDelete() {
+        return exerciseIdsToDelete;
     }
 }

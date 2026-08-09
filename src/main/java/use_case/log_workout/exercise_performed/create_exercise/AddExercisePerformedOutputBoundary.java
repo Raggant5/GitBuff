@@ -1,5 +1,7 @@
 package use_case.log_workout.exercise_performed.create_exercise;
 
+import use_case.log_workout.exercise_performed.ExerciseValidationErrors;
+
 /**
  * The output boundary for the Add Exercise Performed Use Case.
  */
@@ -12,7 +14,7 @@ public interface AddExercisePerformedOutputBoundary {
 
     /**
      * Prepares the failure view for the Add Exercise Performed Use Case.
-     * @param errorMessage the explanation of the failure
+     * @param errors the per-field explanation of the failure
      */
-    void prepareFailView(String errorMessage);
+    void prepareFailView(ExerciseValidationErrors errors);
 }

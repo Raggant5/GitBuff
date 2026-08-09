@@ -3,15 +3,16 @@ package use_case.log_workout.logged_workout.add_workout;
 import java.time.LocalDate;
 import java.util.List;
 
-import entity.ExercisePerformed;
+import use_case.log_workout.exercise_performed.ExercisePerformedInputData;
 
 public class AddWorkoutInputData {
 
     private final String userId;
     private final LocalDate date;
-    private final List<ExercisePerformed> exercisesForWorkout;
+    private final List<ExercisePerformedInputData> exercisesForWorkout;
 
-    public AddWorkoutInputData(String userId, LocalDate date, List<ExercisePerformed> exercisesForWorkout) {
+    public AddWorkoutInputData(String userId, LocalDate date,
+                               List<ExercisePerformedInputData> exercisesForWorkout) {
         this.userId = userId;
         this.date = date;
         this.exercisesForWorkout = exercisesForWorkout;
@@ -25,7 +26,7 @@ public class AddWorkoutInputData {
         return userId;
     }
 
-    public List<ExercisePerformed> getExercises() {
+    public List<ExercisePerformedInputData> getExercises() {
         return exercisesForWorkout;
     }
 

@@ -1,6 +1,5 @@
 package interface_adapter.log_workout.exercise;
 
-import entity.ExercisePerformed;
 import use_case.log_workout.exercise_performed.delete_exercise.DeleteExerciseInputBoundary;
 import use_case.log_workout.exercise_performed.delete_exercise.DeleteExerciseInputData;
 
@@ -13,10 +12,10 @@ public class DeleteExerciseController {
 
     /**
      * Executes the Delete Exercise Use Case.
-     * @param exercisePerformed exercise to delete
+     * @param id id of the exercise performed to delete
      */
-    public void execute(ExercisePerformed exercisePerformed) {
-        deleteExerciseInputInteractor.execute(new DeleteExerciseInputData(exercisePerformed));
+    public void execute(Integer id) {
+        deleteExerciseInputInteractor.execute(new DeleteExerciseInputData(id));
     }
 
 }

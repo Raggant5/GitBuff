@@ -1,38 +1,40 @@
 package interface_adapter.nutrition.meal;
 
 import java.time.LocalDate;
+import java.util.List;
 
-import entity.Meal;
+import interface_adapter.nutrition.food.FoodEntryDisplayData;
 
 /**
- * Display-only view of a Meal, for rendering in panels/lists without the panel depending on the entity
- * directly.
+ * Meal DTO, for use in State/View. Never holds an Entity.
  */
 public class MealDisplayData {
 
-    private final Meal meal;
+    private final int id;
+    private final LocalDate date;
+    private final String name;
+    private final List<FoodEntryDisplayData> foodEntries;
 
-    public MealDisplayData(Meal meal) {
-        this.meal = meal;
-    }
-
-    public String getName() {
-        return meal.getName();
-    }
-
-    public LocalDate getDate() {
-        return meal.getDate();
+    public MealDisplayData(int id, LocalDate date, String name, List<FoodEntryDisplayData> foodEntries) {
+        this.id = id;
+        this.date = date;
+        this.name = name;
+        this.foodEntries = foodEntries;
     }
 
     public int getId() {
-        return meal.getId();
+        return id;
     }
 
-    /**
-     * Gets the underlying entity for the Edit controller.
-     * @return the wrapped meal
-     */
-    public Meal getEntity() {
-        return meal;
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<FoodEntryDisplayData> getFoodEntries() {
+        return foodEntries;
     }
 }

@@ -1,21 +1,19 @@
 package use_case.log_workout.exercise_performed.create_exercise;
 
+import use_case.log_workout.StrengthDetailsInput;
+
 public class AddExercisePerformedInputData {
 
     private final String name;
-    private final String sets;
-    private final String weight;
-    private final String reps;
+    private final StrengthDetailsInput strengthDetailsInput;
     private final boolean isCardio;
     private final String distance;
     private final String duration;
 
-    public AddExercisePerformedInputData(String name, String sets, String weight, String reps,
+    public AddExercisePerformedInputData(String name, StrengthDetailsInput strengthDetailsInput,
                                          boolean isCardio, String distance, String duration) {
         this.name = name;
-        this.sets = sets;
-        this.weight = weight;
-        this.reps = reps;
+        this.strengthDetailsInput = strengthDetailsInput;
         this.isCardio = isCardio;
         this.distance = distance;
         this.duration = duration;
@@ -26,15 +24,15 @@ public class AddExercisePerformedInputData {
     }
 
     public String getSets() {
-        return sets;
+        return strengthDetailsInput.getSets();
     }
 
     public String getWeight() {
-        return weight;
+        return strengthDetailsInput.getWeight();
     }
 
     public String getReps() {
-        return reps;
+        return strengthDetailsInput.getReps();
     }
 
     public boolean isCardio() {

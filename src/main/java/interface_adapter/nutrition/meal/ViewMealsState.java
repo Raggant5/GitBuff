@@ -2,20 +2,40 @@ package interface_adapter.nutrition.meal;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import entity.Meal;
+import java.util.Objects;
 
 public class ViewMealsState {
 
-    private List<Meal> meals = new ArrayList<>();
+    private List<MealDisplayData> meals = new ArrayList<>();
     private String error = "";
 
-    public List<Meal> getMeals() {
+    public List<MealDisplayData> getMeals() {
         return meals;
     }
 
-    public void setMeals(List<Meal> meals) {
+    public void setMeals(List<MealDisplayData> meals) {
         this.meals = meals;
+    }
+
+    /**
+     * Adds a meal to display to the existing list.
+     * @param meal the meal display data to add
+     */
+    public void addMeal(MealDisplayData meal) {
+        this.meals.add(meal);
+    }
+
+    /**
+     * Replace existing meal in the list.
+     * @param meal the meal display data to replace existing list with matching id with
+     */
+    public void replaceMeal(MealDisplayData meal) {
+        for (int i = 0; i < meals.size(); i++) {
+            if (Objects.equals(meals.get(i).getId(), meal.getId())) {
+                meals.set(i, meal);
+                break;
+            }
+        }
     }
 
     /**

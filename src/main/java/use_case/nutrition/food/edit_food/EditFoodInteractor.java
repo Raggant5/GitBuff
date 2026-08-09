@@ -1,61 +1,90 @@
 package use_case.nutrition.food.edit_food;
 
 import entity.FoodEntry;
+import entity.FoodEntryFactory;
 import entity.FoodNutrition;
-import use_case.nutrition.food.FoodNutritionInputData;
+import use_case.nutrition.food.FoodNutritionData;
+import use_case.nutrition.food.FoodNutritionInput;
+import use_case.nutrition.food.FoodValidationErrors;
 
 public class EditFoodInteractor implements EditFoodInputBoundary {
 
     private final EditFoodOutputBoundary presenter;
-    private final EditFoodDataAccessInterface dataAccess;
+    private final FoodEntryFactory foodEntryFactory;
 
-    public EditFoodInteractor(EditFoodOutputBoundary presenter, EditFoodDataAccessInterface dataAccess) {
+    public EditFoodInteractor(EditFoodOutputBoundary presenter, FoodEntryFactory foodEntryFactory) {
         this.presenter = presenter;
-        this.dataAccess = dataAccess;
+        this.foodEntryFactory = foodEntryFactory;
     }
 
     @Override
     public void execute(EditFoodInputData inputData) {
+        final FoodValidationErrors errors = new FoodValidationErrors();
         if (inputData.getFoodName() == null || inputData.getFoodName().isBlank()) {
-            presenter.prepareFailView("Food name is required.");
+            errors.setGeneralError("Food name is required.");
+        }
+
+        final FoodNutritionInput nutritionInput = inputData.getNutrition();
+        final Double calories = parseNonNegativeDouble(nutritionInput.getCalories());
+        final Double protein = parseNonNegativeDouble(nutritionInput.getProtein());
+        final Double carbs = parseNonNegativeDouble(nutritionInput.getCarbs());
+        final Double fat = parseNonNegativeDouble(nutritionInput.getFat());
+        final Double quantity = parseNonNegativeDouble(inputData.getQuantity());
+        final Double grams = parseNonNegativeDouble(inputData.getGrams());
+        checkFieldErrors(errors, calories, protein, carbs, fat, quantity, grams);
+
+        if (errors.hasErrors()) {
+            presenter.prepareFailView(errors);
         }
         else {
-            try {
-                final FoodEntry food = inputData.getFoodEntry();
-                final FoodNutritionInputData nutritionInput = inputData.getNutrition();
-                final FoodNutrition nutrition = new FoodNutrition(
-                        parseNonNegativeDouble(nutritionInput.getCalories(), "Calories"),
-                        parseNonNegativeDouble(nutritionInput.getProtein(), "Protein"),
-                        parseNonNegativeDouble(nutritionInput.getCarbs(), "Carbs"),
-                        parseNonNegativeDouble(nutritionInput.getFat(), "Fat"));
-                food.setFoodName(inputData.getFoodName());
-                food.setNutrition(nutrition);
-                food.setQuantity(parseNonNegativeDouble(inputData.getQuantity(), "Quantity"));
-                food.setUnit(inputData.getUnit());
-                food.setGrams(parseNonNegativeDouble(inputData.getGrams(), "Grams"));
-                if (food.getId() != null) {
-                    dataAccess.editFoodEntry(food);
-                }
+            final FoodNutrition nutrition = new FoodNutrition(calories, protein, carbs, fat);
+            final FoodEntry food = foodEntryFactory.create(inputData.getFoodName(), nutrition, quantity,
+                    inputData.getUnit(), grams);
+            final Integer id = inputData.getId();
+            if (id != null && id > 0) {
+                food.setId(id);
+            }
 
-                presenter.prepareSuccessView(new EditFoodOutputData(food));
-            }
-            catch (NumberFormatException exc) {
-                presenter.prepareFailView("Please ensure all fields are valid.");
-            }
-            catch (IllegalArgumentException exc) {
-                presenter.prepareFailView("Please ensure all fields are valid.");
-            }
-            catch (RuntimeException exc) {
-                presenter.prepareFailView("Unable to save food entry. Please try again.");
-            }
+            final FoodNutritionData savedNutrition = new FoodNutritionData(food.getNutrition().getCalories(),
+                    food.getNutrition().getProtein(), food.getNutrition().getCarbs(), food.getNutrition().getFat());
+            presenter.prepareSuccessView(new EditFoodOutputData(id, food.getFoodName(), savedNutrition,
+                    food.getQuantity(), food.getUnit(), food.getGrams()));
         }
     }
 
-    private double parseNonNegativeDouble(String value, String fieldName) {
-        final double parsed = Double.parseDouble(value);
-        if (parsed < 0) {
-            throw new IllegalArgumentException(fieldName + " cannot be negative.");
+    private void checkFieldErrors(FoodValidationErrors errors, Double calories, Double protein, Double carbs,
+                                  Double fat, Double quantity, Double grams) {
+        if (calories == null) {
+            errors.setCaloriesError("Calories must be a non-negative number");
         }
-        return parsed;
+        if (protein == null) {
+            errors.setProteinError("Protein must be a non-negative number");
+        }
+        if (carbs == null) {
+            errors.setCarbsError("Carbs must be a non-negative number");
+        }
+        if (fat == null) {
+            errors.setFatError("Fat must be a non-negative number");
+        }
+        if (quantity == null) {
+            errors.setQuantityError("Quantity must be a non-negative number");
+        }
+        if (grams == null) {
+            errors.setGramsError("Grams must be a non-negative number");
+        }
+    }
+
+    private Double parseNonNegativeDouble(String value) {
+        Double result = null;
+        try {
+            final double parsed = Double.parseDouble(value);
+            if (parsed >= 0) {
+                result = parsed;
+            }
+        }
+        catch (NumberFormatException exc) {
+            result = null;
+        }
+        return result;
     }
 }

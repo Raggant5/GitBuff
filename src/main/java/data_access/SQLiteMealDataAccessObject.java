@@ -1,5 +1,6 @@
 package data_access;
 import use_case.dashboard.MacroData;
+import use_case.DataAccessException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,8 +16,6 @@ import entity.FoodEntry;
 import entity.FoodNutrition;
 import entity.FoodUnit;
 import entity.Meal;
-import use_case.nutrition.food.delete_food.DeleteFoodDataAccessInterface;
-import use_case.nutrition.food.edit_food.EditFoodDataAccessInterface;
 import use_case.nutrition.meal.add_meal.AddMealDataAccessInterface;
 import use_case.nutrition.meal.delete_meal.DeleteMealDataAccessInterface;
 import use_case.nutrition.meal.edit_meal.EditMealDataAccessInterface;
@@ -29,9 +28,7 @@ public final class SQLiteMealDataAccessObject implements
         AddMealDataAccessInterface,
         ViewMealDataAccessInterface,
         EditMealDataAccessInterface,
-        EditFoodDataAccessInterface,
         DeleteMealDataAccessInterface,
-        DeleteFoodDataAccessInterface,
         DashboardDataAccessInterface {
 
     private static final int PARAMETER_ONE = 1;
@@ -89,7 +86,7 @@ public final class SQLiteMealDataAccessObject implements
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to save meal.",
                     exception
             );
@@ -102,6 +99,30 @@ public final class SQLiteMealDataAccessObject implements
 
     @Override
     public int saveFoodEntry(final FoodEntry foodEntry) {
+        try (Connection connection = Database.connect()) {
+            return insertFoodEntryRow(connection, foodEntry);
+        }
+        catch (final SQLException exception) {
+            throw new DataAccessException(
+                    "Failed to save food entry.",
+                    exception
+            );
+        }
+    }
+
+    /**
+     * Inserts a food-entry row using the given connection.
+     *
+     * @param connection shared database connection
+     * @param foodEntry food entry to insert
+     * @return generated food-entry ID
+     * @throws SQLException if the insert fails
+     */
+    private static int insertFoodEntryRow(
+            final Connection connection,
+            final FoodEntry foodEntry
+    ) throws SQLException {
+
         final String sql = """
                 INSERT INTO food_entries (
                     meal_id,
@@ -117,8 +138,7 @@ public final class SQLiteMealDataAccessObject implements
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection connection = Database.connect();
-             PreparedStatement statement =
+        try (PreparedStatement statement =
                      connection.prepareStatement(
                              sql,
                              Statement.RETURN_GENERATED_KEYS
@@ -176,12 +196,6 @@ public final class SQLiteMealDataAccessObject implements
                     return foodEntryId;
                 }
             }
-        }
-        catch (final SQLException exception) {
-            throw new RuntimeException(
-                    "Failed to save food entry.",
-                    exception
-            );
         }
 
         throw new IllegalStateException(
@@ -270,7 +284,7 @@ public final class SQLiteMealDataAccessObject implements
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to load food entries.",
                     exception
             );
@@ -338,7 +352,7 @@ public final class SQLiteMealDataAccessObject implements
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to load meals.",
                     exception
             );
@@ -348,11 +362,14 @@ public final class SQLiteMealDataAccessObject implements
     }
 
     @Override
-    public void editMeal(final Meal meal) {
+    public Meal getMealById(final int mealId) {
         final String sql = """
-                UPDATE meals
-                SET meal_name = ?,
-                    meal_date = ?
+                SELECT
+                    id,
+                    user_id,
+                    meal_name,
+                    meal_date
+                FROM meals
                 WHERE id = ?
                 """;
 
@@ -360,33 +377,147 @@ public final class SQLiteMealDataAccessObject implements
              PreparedStatement statement =
                      connection.prepareStatement(sql)) {
 
-            statement.setString(
-                    PARAMETER_ONE,
-                    meal.getName()
-            );
-            statement.setString(
-                    PARAMETER_TWO,
-                    meal.getDate().toString()
-            );
-            statement.setInt(
-                    PARAMETER_THREE,
-                    meal.getId()
-            );
+            statement.setInt(PARAMETER_ONE, mealId);
 
-            statement.executeUpdate();
+            try (ResultSet results =
+                         statement.executeQuery()) {
+                if (results.next()) {
+                    final LocalDate mealDate =
+                            LocalDate.parse(
+                                    results.getString(
+                                            "meal_date"
+                                    )
+                            );
+
+                    final Meal meal =
+                            new Meal(
+                                    results.getString(
+                                            "user_id"
+                                    ),
+                                    mealDate,
+                                    results.getString(
+                                            "meal_name"
+                                    )
+                            );
+
+                    meal.setId(
+                            results.getInt("id")
+                    );
+                    meal.setFoodEntries(
+                            getFoodEntriesForMeal(
+                                    meal.getId()
+                            )
+                    );
+
+                    return meal;
+                }
+            }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
+                    "Failed to load meal.",
+                    exception
+            );
+        }
+
+        throw new DataAccessException(
+                "Meal not found: " + mealId
+        );
+    }
+
+    /**
+     * Updates an existing meal: applies the new name/date, deletes any removed food
+     * entries, and inserts/updates the remaining food entries, all as a single atomic
+     * transaction on one connection.
+     *
+     * @param meal the updated meal
+     * @param foodEntryIdsToDelete ids of food entries to remove from the meal
+     * @return the persisted meal, with generated ids populated on any newly-inserted food entries
+     */
+    @Override
+    public Meal editMeal(final Meal meal, final List<Integer> foodEntryIdsToDelete) {
+        final String sql = """
+                UPDATE meals
+                SET meal_name = ?,
+                    meal_date = ?
+                WHERE id = ?
+                """;
+
+        try (Connection connection = Database.connect()) {
+
+            connection.setAutoCommit(false);
+
+            try {
+                for (Integer foodEntryId : foodEntryIdsToDelete) {
+                    if (foodEntryId != null && foodEntryId > 0) {
+                        deleteFoodEntryRow(connection, foodEntryId);
+                    }
+                }
+
+                try (PreparedStatement statement =
+                             connection.prepareStatement(sql)) {
+
+                    statement.setString(
+                            PARAMETER_ONE,
+                            meal.getName()
+                    );
+                    statement.setString(
+                            PARAMETER_TWO,
+                            meal.getDate().toString()
+                    );
+                    statement.setInt(
+                            PARAMETER_THREE,
+                            meal.getId()
+                    );
+
+                    statement.executeUpdate();
+                }
+
+                for (FoodEntry food : meal.getFoodEntries()) {
+                    if (food.getMealId() == null) {
+                        food.setMealId(meal.getId());
+                    }
+
+                    if (food.getId() == null) {
+                        insertFoodEntryRow(connection, food);
+                    }
+                    else {
+                        updateFoodEntryRow(connection, food);
+                    }
+                }
+
+                connection.commit();
+            }
+            catch (final SQLException exception) {
+                connection.rollback();
+                throw exception;
+            }
+            finally {
+                connection.setAutoCommit(true);
+            }
+        }
+        catch (final SQLException exception) {
+            throw new DataAccessException(
                     "Failed to edit meal.",
                     exception
             );
         }
+
+        return meal;
     }
 
-    @Override
-    public void editFoodEntry(
+    /**
+     * Updates a food-entry row using the given connection, without committing.
+     *
+     * @param connection shared database connection
+     * @param foodEntry food entry to update
+     * @throws SQLException if the update fails
+     */
+    private static void updateFoodEntryRow(
+            final Connection connection,
             final FoodEntry foodEntry
-    ) {
+    ) throws SQLException {
+
         final String sql = """
                 UPDATE food_entries
                 SET food_name = ?,
@@ -400,8 +531,7 @@ public final class SQLiteMealDataAccessObject implements
                 WHERE id = ?
                 """;
 
-        try (Connection connection = Database.connect();
-             PreparedStatement statement =
+        try (PreparedStatement statement =
                      connection.prepareStatement(sql)) {
 
             final FoodNutrition nutrition =
@@ -445,12 +575,6 @@ public final class SQLiteMealDataAccessObject implements
             );
 
             statement.executeUpdate();
-        }
-        catch (final SQLException exception) {
-            throw new RuntimeException(
-                    "Failed to edit food entry.",
-                    exception
-            );
         }
     }
 
@@ -501,24 +625,31 @@ public final class SQLiteMealDataAccessObject implements
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to delete meal.",
                     exception
             );
         }
     }
 
-    @Override
-    public void deleteFoodEntry(
+    /**
+     * Deletes a food-entry row using the given connection, without committing.
+     *
+     * @param connection shared database connection
+     * @param foodEntryId food entry ID
+     * @throws SQLException if the delete fails
+     */
+    private static void deleteFoodEntryRow(
+            final Connection connection,
             final int foodEntryId
-    ) {
+    ) throws SQLException {
+
         final String sql = """
                 DELETE FROM food_entries
                 WHERE id = ?
                 """;
 
-        try (Connection connection = Database.connect();
-             PreparedStatement statement =
+        try (PreparedStatement statement =
                      connection.prepareStatement(sql)) {
 
             statement.setInt(
@@ -526,12 +657,6 @@ public final class SQLiteMealDataAccessObject implements
                     foodEntryId
             );
             statement.executeUpdate();
-        }
-        catch (final SQLException exception) {
-            throw new RuntimeException(
-                    "Failed to delete food entry.",
-                    exception
-            );
         }
     }
 
@@ -575,7 +700,7 @@ public final class SQLiteMealDataAccessObject implements
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to load calories by date.",
                     exception
             );
@@ -619,7 +744,7 @@ public final class SQLiteMealDataAccessObject implements
             }
         }
         catch (final SQLException exception) {
-            throw new RuntimeException(
+            throw new DataAccessException(
                     "Failed to load today's macronutrients.",
                     exception
             );

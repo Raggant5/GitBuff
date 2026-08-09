@@ -1,47 +1,35 @@
 package interface_adapter.log_workout.workout;
 
 import java.time.LocalDate;
+import java.util.List;
 
-import entity.ExercisePerformed;
-import entity.LoggedWorkout;
+import interface_adapter.log_workout.exercise.ExercisePerformedDisplayData;
 
 /**
- * Display-only view of a LoggedWorkout, for rendering in panels/lists without the panel depending on the
- * entity directly.
+ * Display-only view of a logged workout, so panels/state in this layer don't need
+ * to depend on the use case DTO directly.
  */
 public class LoggedWorkoutDisplayData {
 
-    private final LoggedWorkout workout;
+    private final int id;
+    private final LocalDate date;
+    private final List<ExercisePerformedDisplayData> exercises;
 
-    public LoggedWorkoutDisplayData(LoggedWorkout workout) {
-        this.workout = workout;
-    }
-
-    public LocalDate getDate() {
-        return workout.getDate();
+    public LoggedWorkoutDisplayData(int id, LocalDate date, List<ExercisePerformedDisplayData> exercises) {
+        this.id = id;
+        this.date = date;
+        this.exercises = exercises;
     }
 
     public int getId() {
-        return workout.getId();
+        return id;
     }
 
-    public int getExerciseCount() {
-        return workout.getExercises().size();
+    public LocalDate getDate() {
+        return date;
     }
 
-    public double getTotalDurationMins() {
-        double total = 0;
-        for (ExercisePerformed exercise : workout.getExercises()) {
-            total += exercise.getDurationMins();
-        }
-        return total;
-    }
-
-    /**
-     * Gets the underlying entity for the Edit controller.
-     * @return the wrapped workout
-     */
-    public LoggedWorkout getEntity() {
-        return workout;
+    public List<ExercisePerformedDisplayData> getExercises() {
+        return exercises;
     }
 }

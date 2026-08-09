@@ -7,6 +7,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import interface_adapter.log_workout.exercise.ExercisePerformedDisplayData;
 import interface_adapter.log_workout.workout.DeleteWorkoutController;
 import interface_adapter.log_workout.workout.LoggedWorkoutDisplayData;
 import interface_adapter.log_workout.workout.PrepareEditWorkoutController;
@@ -18,8 +19,8 @@ public class WorkoutPanel extends JPanel {
 
         this.setLayout(new BorderLayout());
         final JLabel dateLabel = new JLabel("Date: " + workout.getDate());
-        final JLabel exerciseCountLabel = new JLabel("Exercises: " + workout.getExerciseCount());
-        final JLabel durationLabel = new JLabel("Duration: " + formatDuration(workout.getTotalDurationMins()));
+        final JLabel exerciseCountLabel = new JLabel("Exercises: " + workout.getExercises().size());
+        final JLabel durationLabel = new JLabel("Duration: " + formatDuration(totalDurationMins(workout)));
 
         final JPanel workoutInfoPanel = new JPanel();
         workoutInfoPanel.setLayout(new FlowLayout());
@@ -33,7 +34,7 @@ public class WorkoutPanel extends JPanel {
         final JButton deleteButton = new JButton("Delete Workout");
 
         editButton.addActionListener(evt -> {
-            prepareEditWorkoutController.execute(workout.getEntity());
+            prepareEditWorkoutController.execute(workout.getId());
         });
 
         deleteButton.addActionListener(evt -> {
@@ -44,6 +45,14 @@ public class WorkoutPanel extends JPanel {
         buttonPanel.add(deleteButton);
 
         add(buttonPanel, BorderLayout.CENTER);
+    }
+
+    private static double totalDurationMins(LoggedWorkoutDisplayData workout) {
+        double total = 0;
+        for (ExercisePerformedDisplayData exercise : workout.getExercises()) {
+            total += exercise.getDurationMins();
+        }
+        return total;
     }
 
     private static String formatDuration(double totalMinutes) {

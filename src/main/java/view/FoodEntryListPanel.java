@@ -5,7 +5,6 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
-import entity.FoodEntry;
 import interface_adapter.nutrition.food.DeleteFoodController;
 import interface_adapter.nutrition.food.FoodEntryDisplayData;
 import interface_adapter.nutrition.food.PrepareEditFoodController;
@@ -23,13 +22,13 @@ public class FoodEntryListPanel extends JPanel {
      * @param prepareEditFoodController executes the Prepare Switch to Edit Food View Use Case
      * @param deleteFoodController executes the Delete Food Use Case
      */
-    public void setFoodEntries(List<FoodEntry> foodsList, PrepareEditFoodController prepareEditFoodController,
+    public void setFoodEntries(List<FoodEntryDisplayData> foodsList,
+                               PrepareEditFoodController prepareEditFoodController,
                                DeleteFoodController deleteFoodController) {
         removeAll();
         if (foodsList != null) {
-            for (FoodEntry food : foodsList) {
-                this.add(new FoodEntryPanel(new FoodEntryDisplayData(food), prepareEditFoodController,
-                        deleteFoodController));
+            for (FoodEntryDisplayData food : foodsList) {
+                this.add(new FoodEntryPanel(food, prepareEditFoodController, deleteFoodController));
             }
         }
         revalidate();

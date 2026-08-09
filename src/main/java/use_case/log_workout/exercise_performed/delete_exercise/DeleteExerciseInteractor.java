@@ -1,7 +1,5 @@
 package use_case.log_workout.exercise_performed.delete_exercise;
 
-import entity.ExercisePerformed;
-
 public class DeleteExerciseInteractor implements DeleteExerciseInputBoundary {
 
     private final DeleteExerciseOutputBoundary deleteExercisePresenter;
@@ -12,7 +10,6 @@ public class DeleteExerciseInteractor implements DeleteExerciseInputBoundary {
 
     @Override
     public void execute(DeleteExerciseInputData deleteExerciseInputData) {
-        final ExercisePerformed exercise = deleteExerciseInputData.getExercisePerformed();
-        deleteExercisePresenter.prepareSuccessView(new DeleteExerciseOutputData(exercise));
+        deleteExercisePresenter.prepareSuccessView(new DeleteExerciseOutputData(deleteExerciseInputData.getId()));
     }
 }

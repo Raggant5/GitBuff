@@ -1,17 +1,17 @@
 package use_case.nutrition.food.create_food;
 
 import entity.FoodUnit;
-import use_case.nutrition.food.FoodNutritionInputData;
+import use_case.nutrition.food.FoodNutritionInput;
 
 public class AddFoodEntryInputData {
 
     private final String foodName;
-    private final FoodNutritionInputData foodNutrition;
+    private final FoodNutritionInput foodNutrition;
     private final String quantity;
     private final FoodUnit unit;
     private final String grams;
 
-    public AddFoodEntryInputData(String foodName, FoodNutritionInputData foodNutrition, String quantity,
+    public AddFoodEntryInputData(String foodName, FoodNutritionInput foodNutrition, String quantity,
                                  FoodUnit unit, String grams) {
         this.foodName = foodName;
         this.foodNutrition = foodNutrition;
@@ -24,7 +24,7 @@ public class AddFoodEntryInputData {
         return foodName;
     }
 
-    public FoodNutritionInputData getFoodNutrition() {
+    public FoodNutritionInput getFoodNutrition() {
         return foodNutrition;
     }
 

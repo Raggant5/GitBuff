@@ -8,4 +8,10 @@ public interface PrepareEditMealOutputBoundary {
      */
     void prepareSuccessView(PrepareEditMealOutputData outputData);
 
+    /**
+     * Prepares the failure view for the Prepare Edit Meal Case.
+     * @param errorMessage the explanation of the failure
+     */
+    void prepareFailView(String errorMessage);
+
 }

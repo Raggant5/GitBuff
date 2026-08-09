@@ -23,4 +23,11 @@ public interface ViewMealDataAccessInterface {
      * @return the food entries
      */
     List<FoodEntry> getFoodEntriesForMeal(int mealId);
+
+    /**
+     * Gets a single meal, including its food entries, by id.
+     * @param mealId the meal id
+     * @return the meal
+     */
+    Meal getMealById(int mealId);
 }

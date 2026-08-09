@@ -8,4 +8,10 @@ public interface PrepareEditWorkoutOutputBoundary {
      */
     void prepareSuccessView(PrepareEditWorkoutOutputData outputData);
 
+    /**
+     * Prepares the failure view for the Prepare Edit Workout Case.
+     * @param errorMessage the explanation of the failure
+     */
+    void prepareFailView(String errorMessage);
+
 }

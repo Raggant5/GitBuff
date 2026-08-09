@@ -9,7 +9,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import entity.LoggedWorkout;
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.log_workout.workout.DeleteWorkoutController;
 import interface_adapter.log_workout.workout.LoggedWorkoutDisplayData;
@@ -72,9 +71,9 @@ public class ViewWorkoutsView extends JPanel implements PropertyChangeListener {
 
         workoutListContainer.removeAll();
         errorLabel.setText(state.getError());
-        for (LoggedWorkout workout : state.getWorkouts()) {
-            workoutListContainer.add(new WorkoutPanel(new LoggedWorkoutDisplayData(workout),
-                    prepareEditWorkoutController, deleteWorkoutController));
+        for (LoggedWorkoutDisplayData workout : state.getWorkouts()) {
+            workoutListContainer.add(new WorkoutPanel(workout, prepareEditWorkoutController,
+                    deleteWorkoutController));
         }
 
         workoutListContainer.revalidate();

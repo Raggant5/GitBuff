@@ -1,10 +1,8 @@
 package interface_adapter.log_workout.exercise;
 
-import entity.ExercisePerformed;
-
 public class ExerciseEditorState {
 
-    private ExercisePerformed editingExercise;
+    private Integer editingExercisePerformedId;
 
     private String exerciseName = "";
     private String sets = "";
@@ -25,7 +23,7 @@ public class ExerciseEditorState {
      * Resets the values when the exercise editor is no longer needed for reuse later.
      */
     public void reset() {
-        editingExercise = null;
+        editingExercisePerformedId = null;
 
         exerciseName = "";
         sets = "";
@@ -43,12 +41,12 @@ public class ExerciseEditorState {
         submitError = "";
     }
 
-    public ExercisePerformed getEditingExercise() {
-        return editingExercise;
+    public Integer getEditingExercisePerformedId() {
+        return editingExercisePerformedId;
     }
 
-    public void setEditingExercise(ExercisePerformed editingExercise) {
-        this.editingExercise = editingExercise;
+    public void setEditingExercisePerformedId(Integer editingExercisePerformedId) {
+        this.editingExercisePerformedId = editingExercisePerformedId;
     }
 
     public String getExerciseName() {

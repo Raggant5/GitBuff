@@ -1,34 +1,46 @@
 package use_case.nutrition.meal.add_meal;
 
 import java.time.LocalDate;
+import java.util.List;
 
-import entity.Meal;
+import use_case.nutrition.food.FoodEntryData;
 
 /**
  * Output Data for the Add Meal Use Case.
  */
 public class AddMealOutputData {
 
-    private final Meal meal;
+    private final int id;
+    private final String userId;
+    private final LocalDate date;
+    private final String name;
+    private final List<FoodEntryData> foodEntries;
 
-    public AddMealOutputData(Meal meal) {
-        this.meal = meal;
+    public AddMealOutputData(int id, String userId, LocalDate date, String name, List<FoodEntryData> foodEntries) {
+        this.id = id;
+        this.userId = userId;
+        this.date = date;
+        this.name = name;
+        this.foodEntries = foodEntries;
     }
 
-    public Meal getMeal() {
-        return meal;
+    public int getId() {
+        return id;
     }
 
-    public int getMealId() {
-        return meal.getId();
-    }
-
-    public String getName() {
-        return meal.getName();
+    public String getUserId() {
+        return userId;
     }
 
     public LocalDate getDate() {
-        return meal.getDate();
+        return date;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public List<FoodEntryData> getFoodEntries() {
+        return foodEntries;
+    }
 }
