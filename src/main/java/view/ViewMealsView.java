@@ -3,6 +3,8 @@ package view;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -56,7 +58,11 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
 
         mealListContainer.removeAll();
         errorLabel.setText(state.getError());
-        for (MealDisplayData meal : state.getMeals()) {
+
+        final List<MealDisplayData> sortedMeals = new ArrayList<>(state.getMeals());
+        sortedMeals.sort((mealA, mealB) -> mealB.getId() - mealA.getId());
+
+        for (MealDisplayData meal : sortedMeals) {
             mealListContainer.add(new MealPanel(meal, prepareEditMealController, deleteMealController));
         }
 
