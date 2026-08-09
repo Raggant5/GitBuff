@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import entity.Equipment;
 import entity.Exercise;
 import entity.FitnessGoal;
 import entity.User;
@@ -205,7 +204,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 new String[]{"upper", "lower", "strength", "upper", "lower", "strength", "hiit"});
         GOAL_WORKOUT_TITLES.put(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, new String[]{
                 "Upper Body Hypertrophy", "Lower Body Power & Strength", "Full Body Heavy Compound",
-                "Upper Body Push/Pull Split", "Lower Body Quad & Hamstring Focus", "Full Body Progressive Strength", "Conditioning & Core"
+                "Upper Body Push/Pull Split", "Lower Body Quad & Hamstring Focus",
+                "Full Body Progressive Strength", "Conditioning & Core"
         });
         GOAL_WORKOUT_DESCS.put(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, new String[]{
                 "Targeted upper body volume session focusing on chest, back, and arm muscle development.",
@@ -221,7 +221,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 new String[]{"running", "biking", "hiit", "running", "biking", "hiit", "running"});
         GOAL_WORKOUT_TITLES.put(FitnessGoal.INCREASE_ENDURANCE, new String[]{
                 "Long Distance Aerobic Run", "Cardio Endurance Cycling", "High Intensity Interval Cardio",
-                "Lactate Threshold Run", "Hill Climb Cycle Focus", "Speed & Stamina Circuit", "Aerobic Capacity Distance Run"
+                "Lactate Threshold Run", "Hill Climb Cycle Focus", "Speed & Stamina Circuit",
+                "Aerobic Capacity Distance Run"
         });
         GOAL_WORKOUT_DESCS.put(FitnessGoal.INCREASE_ENDURANCE, new String[]{
                 "Sustained pace distance run aimed at improving aerobic capacity and stamina.",
@@ -237,7 +238,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 new String[]{"yoga", "flexibility", "yoga", "flexibility", "yoga", "flexibility", "yoga"});
         GOAL_WORKOUT_TITLES.put(FitnessGoal.FLEXIBILITY_AND_MOBILITY, new String[]{
                 "Full Body Yoga Flow", "Deep Muscle Stretching & Mobility", "Core & Balance Yoga Flow",
-                "Joint Mobility & Spine Lengthening", "Restorative Yoga & Recovery", "Dynamic Range of Motion Stretch", "Mindful Mobility Flow"
+                "Joint Mobility & Spine Lengthening", "Restorative Yoga & Recovery",
+                "Dynamic Range of Motion Stretch", "Mindful Mobility Flow"
         });
         GOAL_WORKOUT_DESCS.put(FitnessGoal.FLEXIBILITY_AND_MOBILITY, new String[]{
                 "Fluid full body yoga sequence targeting tight joints and core stability.",
@@ -253,7 +255,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 new String[]{"strength", "running", "upper", "biking", "hiit", "lower", "strength"});
         GOAL_WORKOUT_TITLES.put(FitnessGoal.MAINTAIN_GENERAL_FITNESS, new String[]{
                 "Full Body Functional Strength", "Cardio Health Run", "Upper Body Conditioning",
-                "Steady Cycling Session", "Full Body HIIT Refresh", "Lower Body Stability & Tone", "Total Fitness Compound Split"
+                "Steady Cycling Session", "Full Body HIIT Refresh", "Lower Body Stability & Tone",
+                "Total Fitness Compound Split"
         });
         GOAL_WORKOUT_DESCS.put(FitnessGoal.MAINTAIN_GENERAL_FITNESS, new String[]{
                 "Balanced full body functional resistance workout for overall fitness and health.",
@@ -285,7 +288,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
     /**
      * Constructs an instance with a provided API key.
      *
-     * @param apiKey API key for Gemini
+     * @param apiKey API key for Gemini.
      */
     public AiWorkoutDataAccessObject(final String apiKey) {
         this.apiKey = apiKey;
@@ -309,8 +312,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 }
             }
         }
-        catch (final Exception ex) {
-            LOGGER.log(Level.WARNING, "Error reading .env file: {0}", ex.getMessage());
+        catch (final Exception exception) {
+            LOGGER.log(Level.WARNING, "Error reading .env file: {0}", exception.getMessage());
         }
         return null;
     }
@@ -340,8 +343,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                     return plans;
                 }
             }
-            catch (final Exception ex) {
-                LOGGER.log(Level.WARNING, "API call failed or timed out: {0}", ex.getMessage());
+            catch (final Exception exception) {
+                LOGGER.log(Level.WARNING, "API call failed or timed out: {0}", exception.getMessage());
             }
         }
 
@@ -349,6 +352,14 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return getFallbackPlans(user, numberOfDays);
     }
 
+    /**
+     * Executes the HTTP connection and sends a prompt to the Gemini API.
+     *
+     * @param user user profile details.
+     * @param numberOfDays number of days to schedule.
+     * @return list of generated workout plans, or {@code null} if request failed.
+     * @throws Exception if an I/O or connection error occurs.
+     */
     private List<WorkoutPlan> callApiWithTimeout(final User user, final int numberOfDays) throws Exception {
         final String endpoint = "https://generativelanguage.googleapis.com/" + API_VERSION + "/models/"
                 + GEMINI_MODEL + ":generateContent?key=" + this.apiKey;
@@ -411,6 +422,13 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return null;
     }
 
+    /**
+     * Builds the prompt payload sent to the AI service.
+     *
+     * @param user user profile instance.
+     * @param numberOfDays number of days to schedule.
+     * @return constructed prompt string.
+     */
     private String buildPrompt(final User user, final int numberOfDays) {
         final Set<DayOfWeek> preferredDays = user.getPreferredWorkoutDays() != null
                 && !user.getPreferredWorkoutDays().isEmpty()
@@ -450,9 +468,9 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 + "- STRICT EQUIPMENT ACCESSIBILITY: " + equipmentListStr + "\n\n"
                 + "STRICT TITLE & DESCRIPTION RULES:\n"
                 + "1. NEVER output generic titles like 'Workout 1', 'Workout 2', or 'Workout N'. Every workout MUST have "
-                + "an expressive, descriptive title (e.g., 'Upper Body Power & Hypertrophy', 'Lower Body Strength Split', 'HIIT Fat Oxidation').\n"
-                + "2. Every workout MUST have a thorough 2-3 sentence description explaining the workout's focus, muscle targets, and strategy.\n"
-                + "3. DO NOT leave title or description blank or generic for any day, including later days in the schedule.\n\n"
+                + "an expressive, descriptive title (e.g., 'Upper Body Power & Hypertrophy', 'Lower Body Split').\n"
+                + "2. Every workout MUST have a thorough 2-3 sentence description explaining the workout's focus.\n"
+                + "3. DO NOT leave title or description blank or generic for any day.\n\n"
                 + "FORMAT REQUIREMENTS:\n"
                 + "1. DO NOT suggest exercises requiring equipment missing from STRICT EQUIPMENT ACCESSIBILITY.\n"
                 + "2. Match exercises to category, subCategory, and target muscle groups relevant to " + goalName + ".\n"
@@ -464,6 +482,12 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 + "category, subCategory, intensityLevel, equipmentType).";
     }
 
+    /**
+     * Sanitizes special characters in raw text for valid JSON embed.
+     *
+     * @param text input text.
+     * @return quoted and sanitized string.
+     */
     private String sanitizeJsonString(final String text) {
         if (text == null) {
             return "\"\"";
@@ -502,6 +526,14 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return sb.toString();
     }
 
+    /**
+     * Parses the JSON response received from the Gemini API into a list of workout plans.
+     *
+     * @param response JSON response string.
+     * @param user user profile instance.
+     * @param numberOfDays total requested days.
+     * @return parsed list of workout plans.
+     */
     private List<WorkoutPlan> parseGeminiJsonResponse(final String response, final User user,
                                                       final int numberOfDays) {
         final List<WorkoutPlan> plans = new ArrayList<>();
@@ -676,8 +708,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
             LOGGER.log(Level.INFO, "Parsed {0} workout plans from API", plans.size());
         }
-        catch (final Exception ex) {
-            LOGGER.log(Level.SEVERE, "Error parsing JSON: {0}", ex.getMessage());
+        catch (final Exception exception) {
+            LOGGER.log(Level.SEVERE, "Error parsing JSON: {0}", exception.getMessage());
         }
 
         if (plans.size() < numberOfDays) {
@@ -688,6 +720,12 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return plans;
     }
 
+    /**
+     * Extracts top-level JSON objects from a JSON array string.
+     *
+     * @param jsonArray JSON array string.
+     * @return list of extracted object strings.
+     */
     private List<String> extractJsonObjects(final String jsonArray) {
         final List<String> objects = new ArrayList<>();
         int depth = 0;
@@ -718,6 +756,13 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return objects;
     }
 
+    /**
+     * Retrieves default exercise catalog list based on workout title.
+     *
+     * @param title workout title.
+     * @param user user profile instance.
+     * @return list of exercises.
+     */
     private List<Exercise> getExercisesForWorkoutTitle(final String title, final User user) {
         final List<Exercise> exercises = new ArrayList<>();
         final String titleLower = title.toLowerCase();
@@ -768,6 +813,13 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return exercises;
     }
 
+    /**
+     * Checks if the user possesses the required equipment.
+     *
+     * @param user user profile instance.
+     * @param equipmentType target equipment label.
+     * @return true if user has equipment or if bodyweight, false otherwise.
+     */
     private boolean userHasEquipment(final User user, final String equipmentType) {
         if (equipmentType == null || "BODYWEIGHT".equalsIgnoreCase(equipmentType)
                 || "BODYWEIGHT_ONLY".equalsIgnoreCase(equipmentType)) {
@@ -788,6 +840,12 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return false;
     }
 
+    /**
+     * Determines workout focus type key from workout title.
+     *
+     * @param title workout title.
+     * @return category key string.
+     */
     private String determineWorkoutType(final String title) {
         final String result;
         if (title.contains("yoga") || title.contains("stretch") || title.contains("flex")) {
@@ -817,6 +875,12 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return result;
     }
 
+    /**
+     * Determines category classification string for exercise name.
+     *
+     * @param exerciseName exercise name.
+     * @return category string.
+     */
     private String determineCategory(final String exerciseName) {
         final String lower = exerciseName.toLowerCase();
         final String result;
@@ -844,6 +908,12 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return result;
     }
 
+    /**
+     * Determines sub-category classification string for exercise name.
+     *
+     * @param exerciseName exercise name.
+     * @return sub-category string.
+     */
     private String determineSubCategory(final String exerciseName) {
         final String lower = exerciseName.toLowerCase();
         final String result;
@@ -876,6 +946,12 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return result;
     }
 
+    /**
+     * Determines exercise intensity level classification string.
+     *
+     * @param exerciseName exercise name.
+     * @return intensity string.
+     */
     private String determineIntensity(final String exerciseName) {
         final String lower = exerciseName.toLowerCase();
         final String result;
@@ -891,6 +967,12 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return result;
     }
 
+    /**
+     * Determines equipment required string for exercise name.
+     *
+     * @param exerciseName exercise name.
+     * @return equipment required string.
+     */
     private String determineEquipment(final String exerciseName) {
         final String lower = exerciseName.toLowerCase();
         final String result;
@@ -912,6 +994,12 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return result;
     }
 
+    /**
+     * Retrieves instruction string for exercise name.
+     *
+     * @param name exercise name.
+     * @return instruction string.
+     */
     private String getInstructionForExercise(final String name) {
         final String lower = name.toLowerCase();
         final String result;
@@ -945,6 +1033,13 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return result;
     }
 
+    /**
+     * Helper factory method for creating an Exercise instance.
+     *
+     * @param name exercise name.
+     * @param title workout title context.
+     * @return new Exercise entity.
+     */
     private Exercise createExercise(final String name, final String title) {
         final String category = determineCategory(name);
         final String subCategory = determineSubCategory(name);
@@ -959,6 +1054,13 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 instruction, videoUrl, category, subCategory, intensity, equipment);
     }
 
+    /**
+     * Extracts a String value from a raw JSON object string for a key.
+     *
+     * @param src JSON object string.
+     * @param key key to search for.
+     * @return extracted value, or empty string if key not found.
+     */
     private String extractVal(final String src, final String key) {
         if (src == null || key == null) {
             return "";
@@ -995,6 +1097,14 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return src.substring(startVal, endVal);
     }
 
+    /**
+     * Extracts an integer value from a raw JSON object string for a key.
+     *
+     * @param src JSON object string.
+     * @param key key to search for.
+     * @param defaultVal fallback value if key missing or invalid.
+     * @return extracted integer value, or defaultVal if invalid.
+     */
     private int extractInt(final String src, final String key, final int defaultVal) {
         if (src == null || key == null) {
             return defaultVal;
@@ -1024,11 +1134,18 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         try {
             return Integer.parseInt(numStr.toString());
         }
-        catch (final Exception ex) {
+        catch (final Exception exception) {
             return defaultVal;
         }
     }
 
+    /**
+     * Generates fallback static workout plans locally.
+     *
+     * @param user user profile instance.
+     * @param numberOfDays number of days to generate.
+     * @return list of fallback workout plans.
+     */
     private List<WorkoutPlan> getFallbackPlans(final User user, final int numberOfDays) {
         LOGGER.info("Generating fallback plans");
         final List<WorkoutPlan> plans = new ArrayList<>();
@@ -1051,7 +1168,8 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                 new String[]{"strength", "running", "strength", "biking", "hiit", "running", "strength"});
         final String[] workoutTitles = GOAL_WORKOUT_TITLES.getOrDefault(goal,
                 new String[]{"Full Body Functional Strength", "Cardio Health Run", "Upper Body Conditioning",
-                        "Steady Cycling Session", "Full Body HIIT Refresh", "Lower Body Stability & Tone", "Total Fitness Compound Split"});
+                        "Steady Cycling Session", "Full Body HIIT Refresh", "Lower Body Stability & Tone",
+                        "Total Fitness Compound Split"});
         final String[] workoutDescs = GOAL_WORKOUT_DESCS.getOrDefault(goal,
                 new String[]{"Balanced full body functional resistance workout for overall fitness.",
                         "Steady state cardio run for heart health.",
@@ -1099,6 +1217,13 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return plans;
     }
 
+    /**
+     * Gets default fallback exercises for a specific workout category type.
+     *
+     * @param type category key.
+     * @param user user profile instance.
+     * @return list of exercises.
+     */
     private List<Exercise> getExercisesForWorkoutType(final String type, final User user) {
         final List<Exercise> exercises = new ArrayList<>();
 
