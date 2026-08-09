@@ -32,7 +32,7 @@ public enum FitnessGoal {
     /**
      * Gets the daily calorie adjustment value relative to TDEE.
      *
-     * @return daily calorie adjustment
+     * @return daily calorie adjustment.
      */
     public int getDailyCalorieAdjustment() {
         return this.dailyCalorieAdjustment;
@@ -41,7 +41,7 @@ public enum FitnessGoal {
     /**
      * Gets the protein recommendation in grams per kilogram of body weight.
      *
-     * @return protein ratio per kg
+     * @return protein ratio per kg.
      */
     public double getProteinGramsPerKg() {
         return this.proteinGramsPerKg;
@@ -50,7 +50,7 @@ public enum FitnessGoal {
     /**
      * Gets the description of the workout focus strategy.
      *
-     * @return workout focus description
+     * @return workout focus description.
      */
     public String getWorkoutFocus() {
         return this.workoutFocus;

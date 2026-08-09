@@ -123,7 +123,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     /**
      * Constructs a ProfileView instance.
      *
-     * @param profileViewModel view model managing profile state
+     * @param profileViewModel view model managing profile state.
      */
     public ProfileView(final ProfileViewModel profileViewModel) {
         this.profileViewModel = profileViewModel;
@@ -260,7 +260,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     /**
      * Binds to workouts view model to reflect schedule loading state on profile screen.
      *
-     * @param workoutsViewModel view model for workout schedule state
+     * @param workoutsViewModel view model for workout schedule state.
      */
     public void setWorkoutsViewModel(final WorkoutsViewModel workoutsViewModel) {
         if (workoutsViewModel != null) {
@@ -268,10 +268,10 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
                 if (evt.getNewValue() instanceof WorkoutsState) {
                     final WorkoutsState state = (WorkoutsState) evt.getNewValue();
                     if (state.isLoading()) {
-                        this.statusLabel.setText("Loading workout schedule...");
+                        ProfileView.this.statusLabel.setText("Loading workout schedule...");
                     }
-                    else if ("Loading workout schedule...".equals(this.statusLabel.getText())) {
-                        this.statusLabel.setText("Profile saved.");
+                    else if ("Loading workout schedule...".equals(ProfileView.this.statusLabel.getText())) {
+                        ProfileView.this.statusLabel.setText("Profile saved.");
                     }
                 }
             });
@@ -679,7 +679,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     /**
      * Gets the view name.
      *
-     * @return view name string
+     * @return view name string.
      */
     public String getViewName() {
         return this.viewName;
@@ -688,7 +688,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     /**
      * Sets the profile controller.
      *
-     * @param profileController controller instance
+     * @param profileController controller instance.
      */
     public void setProfileController(final ProfileController profileController) {
         this.profileController = profileController;
@@ -697,7 +697,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     /**
      * Sets the active username in profile view state.
      *
-     * @param username username string
+     * @param username username string.
      */
     public void setUsername(final String username) {
         final ProfileState state = this.profileViewModel.getState();

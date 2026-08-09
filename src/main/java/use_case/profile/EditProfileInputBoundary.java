@@ -8,7 +8,7 @@ public interface EditProfileInputBoundary {
     /**
      * Executes the edit profile use case.
      *
-     * @param editProfileInputData input data containing updated profile details
+     * @param editProfileInputData input data containing updated profile details.
      */
     void execute(EditProfileInputData editProfileInputData);
 }

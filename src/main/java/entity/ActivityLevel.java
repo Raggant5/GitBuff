@@ -22,12 +22,17 @@ public enum ActivityLevel {
     /**
      * Returns the multiplier applied to a user's resting energy expenditure.
      *
-     * @return the calorie multiplier
+     * @return the calorie multiplier.
      */
     public double getCalorieMultiplier() {
         return this.calorieMultiplier;
     }
 
+    /**
+     * Returns the description of activity level.
+     *
+     * @return description string.
+     */
     public String getDescription() {
         return this.description;
     }

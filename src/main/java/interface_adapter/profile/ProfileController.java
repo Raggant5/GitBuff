@@ -31,7 +31,7 @@ public class ProfileController {
     /**
      * Constructs a ProfileController instance.
      *
-     * @param editProfileUseCaseInteractor interactor boundary for profile modifications
+     * @param editProfileUseCaseInteractor interactor boundary for profile modifications.
      */
     public ProfileController(final EditProfileInputBoundary editProfileUseCaseInteractor) {
         this.editProfileUseCaseInteractor = editProfileUseCaseInteractor;
@@ -40,8 +40,8 @@ public class ProfileController {
     /**
      * Sets recommendation dependencies for triggering schedule updates.
      *
-     * @param recommendationController controller to execute recommendations
-     * @param workoutsViewModel view model for workout state
+     * @param recommendationController controller to execute recommendations.
+     * @param workoutsViewModel view model for workout state.
      */
     public void setRecommendationDependencies(final RecommendationController recommendationController,
                                               final WorkoutsViewModel workoutsViewModel) {
@@ -52,20 +52,20 @@ public class ProfileController {
     /**
      * Executes the Edit Profile Use Case using primitive profile parameters.
      *
-     * @param height height in meters
-     * @param weight weight in kg
-     * @param activityLevel activity level selection
-     * @param goal fitness goal selection
-     * @param profilePicturePath profile image file path
-     * @param dateOfBirth date of birth
-     * @param gender gender selection
-     * @param bio user bio description
-     * @param preferredUnitSystem preferred measurement units
-     * @param equipment set of available equipment
-     * @param dietaryRestrictions set of dietary restrictions
-     * @param preferredWorkoutDays set of preferred workout days
-     * @param preferredWorkoutDurationMinutes target workout duration in minutes
-     * @param privacySettings set of enabled privacy settings
+     * @param height height in meters.
+     * @param weight weight in kg.
+     * @param activityLevel activity level selection.
+     * @param goal fitness goal selection.
+     * @param profilePicturePath profile image file path.
+     * @param dateOfBirth date of birth.
+     * @param gender gender selection.
+     * @param bio user bio description.
+     * @param preferredUnitSystem preferred measurement units.
+     * @param equipment set of available equipment.
+     * @param dietaryRestrictions set of dietary restrictions.
+     * @param preferredWorkoutDays set of preferred workout days.
+     * @param preferredWorkoutDurationMinutes target workout duration in minutes.
+     * @param privacySettings set of enabled privacy settings.
      */
     public void execute(final float height, final float weight, final ActivityLevel activityLevel,
                         final FitnessGoal goal, final String profilePicturePath,
@@ -101,9 +101,9 @@ public class ProfileController {
         final SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
-                editProfileUseCaseInteractor.execute(inputData);
-                if (recommendationController != null) {
-                    recommendationController.execute();
+                ProfileController.this.editProfileUseCaseInteractor.execute(inputData);
+                if (ProfileController.this.recommendationController != null) {
+                    ProfileController.this.recommendationController.execute();
                 }
                 return null;
             }
@@ -114,7 +114,7 @@ public class ProfileController {
     /**
      * Executes the Edit Profile Use Case using pre-constructed input data.
      *
-     * @param inputData input data object
+     * @param inputData input data object.
      */
     public void execute(final EditProfileInputData inputData) {
         this.editProfileUseCaseInteractor.execute(inputData);

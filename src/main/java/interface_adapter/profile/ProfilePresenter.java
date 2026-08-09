@@ -13,7 +13,7 @@ public class ProfilePresenter implements EditProfileOutputBoundary {
     /**
      * Constructs a ProfilePresenter instance.
      *
-     * @param profileViewModel view model for managing profile state
+     * @param profileViewModel view model for managing profile state.
      */
     public ProfilePresenter(final ProfileViewModel profileViewModel) {
         this.profileViewModel = profileViewModel;

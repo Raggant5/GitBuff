@@ -27,7 +27,7 @@ public enum Equipment {
     /**
      * Gets the display name of the equipment.
      *
-     * @return display name string
+     * @return display name string.
      */
     public String getDisplayName() {
         return this.displayName;
