@@ -1,8 +1,5 @@
 # GitBuff
 
-> A fitness management app that gives/teaches users workouts and meal plans tailored to their specific needs, analyzes users' progress on fitness goals over time, 
-and allows users to share that progress with others.
-
 ## Authors
 
 - Sam Koehler
@@ -22,20 +19,16 @@ and allows users to share that progress with others.
 - [Contributing](#contributing)
 
 ---
-
-## About the Project
-
 ### Purpose
+
+A fitness management app that gives/teaches users workouts and meal plans tailored to their specific needs, analyzes users' progress on fitness goals over time, 
+and allows users to share that progress with others. The application is intended for individuals who want a centralized way to manage their fitness routines, nutrition, and progress.
 
 Explain:
 - What the project does
 - Why the project was created
 - What problem it solves
 - Who the project is intended for
-
-### Overview
-
-Give a brief overview of how the application works and what the user can do with it.
 
 ---
 
