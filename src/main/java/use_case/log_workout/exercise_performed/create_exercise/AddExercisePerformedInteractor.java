@@ -116,20 +116,4 @@ public class AddExercisePerformedInteractor implements AddExercisePerformedInput
         }
         return result;
     }
-
-    private String displayInt(Integer value) {
-        String result = "";
-        if (value != null) {
-            result = String.valueOf(value);
-        }
-        return result;
-    }
-
-    private String displayDouble(Double value) {
-        String result = "";
-        if (value != null) {
-            result = String.valueOf(value);
-        }
-        return result;
-    }
 }

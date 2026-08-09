@@ -29,10 +29,6 @@ public class ExercisePerformedData {
         return exerciseName;
     }
 
-    public StrengthDetailsData getStrengthDetailsData() {
-        return strengthDetailsData;
-    }
-
     public Integer getSets() {
         return strengthDetailsData.getSets();
     }

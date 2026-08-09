@@ -23,10 +23,6 @@ public class AddExercisePerformedInputData {
         return name;
     }
 
-    public StrengthDetailsInput getStrengthDetailsInput() {
-        return strengthDetailsInput;
-    }
-
     public String getSets() {
         return strengthDetailsInput.getSets();
     }

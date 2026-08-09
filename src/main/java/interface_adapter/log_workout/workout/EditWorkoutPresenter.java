@@ -2,7 +2,6 @@ package interface_adapter.log_workout.workout;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.log_workout.exercise.ExercisePerformedDisplayData;

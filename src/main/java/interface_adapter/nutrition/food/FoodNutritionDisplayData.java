@@ -20,6 +20,10 @@ public class FoodNutritionDisplayData {
 
     /**
      * Formats validated numeric output data for display.
+     * @param calories the calories in the food
+     * @param protein the protein in the food
+     * @param carbs the carbs in the food
+     * @param fat the fat in the food
      */
     public FoodNutritionDisplayData(double calories, double protein, double carbs, double fat) {
         this(String.valueOf(calories), String.valueOf(protein), String.valueOf(carbs), String.valueOf(fat));

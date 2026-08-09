@@ -92,15 +92,13 @@ public class FoodServingDetails {
      */
     public void recalculateTotals() {
         final Double quantityValue = parseDoubleOrNull(quantity);
-        if (quantityValue == null) {
-            return;
+        if (quantityValue != null) {
+            totalGramsDisplay = formatTotal(servingGrams * quantityValue);
+            totalCaloriesDisplay = formatTotal(servingCalories * quantityValue);
+            totalProteinDisplay = formatTotal(servingProtein * quantityValue);
+            totalCarbsDisplay = formatTotal(servingCarbs * quantityValue);
+            totalFatDisplay = formatTotal(servingFat * quantityValue);
         }
-
-        totalGramsDisplay = formatTotal(servingGrams * quantityValue);
-        totalCaloriesDisplay = formatTotal(servingCalories * quantityValue);
-        totalProteinDisplay = formatTotal(servingProtein * quantityValue);
-        totalCarbsDisplay = formatTotal(servingCarbs * quantityValue);
-        totalFatDisplay = formatTotal(servingFat * quantityValue);
     }
 
     private void updateServingSize() {
@@ -126,6 +124,10 @@ public class FoodServingDetails {
         servingGrams = newServingGrams;
     }
 
+    /**
+     * Sets the total calories to be displayed and adjusts the serving calories based on quantity and total.
+     * @param value the new value to be set for total calories
+     */
     public void setTotalCaloriesDisplay(String value) {
         totalCaloriesDisplay = value;
         final double quantityValue = getQuantityValue();
@@ -138,6 +140,10 @@ public class FoodServingDetails {
         return totalGramsDisplay;
     }
 
+    /**
+     * Sets the total grams to be displayed and adjusts the serving amounts based on the the ratio of new vs old.
+     * @param value the new value to be set for total grams
+     */
     public void setTotalGramsDisplay(String value) {
         final double oldServingGrams = servingGrams;
         totalGramsDisplay = value;
@@ -159,6 +165,10 @@ public class FoodServingDetails {
         return totalProteinDisplay;
     }
 
+    /**
+     * Sets the total protein to be displayed and adjusts the serving protein based on quantity and total.
+     * @param value the new value to be set for total protein
+     */
     public void setTotalProteinDisplay(String value) {
         totalProteinDisplay = value;
         final double quantityValue = getQuantityValue();
@@ -171,6 +181,10 @@ public class FoodServingDetails {
         return totalCarbsDisplay;
     }
 
+    /**
+     * Sets the total carbs to be displayed and adjusts the serving carbsbased on quantity and total.
+     * @param value the new value to be set for total carbs
+     */
     public void setTotalCarbsDisplay(String value) {
         totalCarbsDisplay = value;
         final double quantityValue = getQuantityValue();
@@ -183,6 +197,10 @@ public class FoodServingDetails {
         return totalFatDisplay;
     }
 
+    /**
+     * Sets the total fat to be displayed and adjusts the serving fat based on quantity and total.
+     * @param value the new value to be set for total fat
+     */
     public void setTotalFatDisplay(String value) {
         totalFatDisplay = value;
         final double quantityValue = getQuantityValue();
@@ -195,6 +213,10 @@ public class FoodServingDetails {
         return quantity;
     }
 
+    /**
+     * Sets the total quantity to be displayed and adjusts the total amounts per nutritional category.
+     * @param quantity the new value for the amount
+     */
     public void setQuantity(String quantity) {
         this.quantity = quantity;
         recalculateTotals();
@@ -204,6 +226,10 @@ public class FoodServingDetails {
         return unit;
     }
 
+    /**
+     * Sets the unit to be displayed and adjusts the serving calories based on the unit.
+     * @param unit the new unit for the food to be measured in
+     */
     public void setUnit(FoodUnit unit) {
         this.unit = unit;
         updateServingSize();
@@ -215,9 +241,15 @@ public class FoodServingDetails {
     }
 
     private double parseDouble(String value) {
-        final Double result = parseDoubleOrNull(value);
-        final double fallback = 0;
-        return result == null ? fallback : result;
+        double result = 0;
+        final Double parseDoubleOrNull = parseDoubleOrNull(value);
+        if (parseDoubleOrNull == null) {
+            result = 0;
+        }
+        else {
+            result = parseDoubleOrNull;
+        }
+        return result;
     }
 
     private Double parseDoubleOrNull(String value) {
@@ -240,6 +272,16 @@ public class FoodServingDetails {
         return String.valueOf(Math.round(value * DISPLAY_ROUNDING_FACTOR) / DISPLAY_ROUNDING_FACTOR);
     }
 
+    /**
+     *  Sets the data relating to serving all at once.
+     * @param newServingLabel the label / name for each serving
+     * @param newOriginalServingGrams the initial serving grams, only if selected via search
+     * @param newServingGrams the new serving grams to set
+     * @param newServingCalories the new serving calories to be set
+     * @param newServingProtein the new serving protein to be set
+     * @param newServingCarbs the new serving carbs to be set
+     * @param newServingFat the new serving fat to be set
+     */
     public void setServingData(
             final String newServingLabel,
             final double newOriginalServingGrams,

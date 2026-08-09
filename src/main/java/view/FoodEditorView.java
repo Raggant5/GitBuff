@@ -18,7 +18,13 @@ import javax.swing.event.DocumentListener;
 
 import entity.FoodSearchResult;
 import entity.FoodUnit;
-import interface_adapter.nutrition.food.*;
+import interface_adapter.nutrition.food.AddFoodController;
+import interface_adapter.nutrition.food.EditFoodController;
+import interface_adapter.nutrition.food.FoodEditorState;
+import interface_adapter.nutrition.food.FoodEditorViewModel;
+import interface_adapter.nutrition.food.FoodNutritionDisplayData;
+import interface_adapter.nutrition.food.FoodServingDetails;
+import interface_adapter.nutrition.food.SearchFoodController;
 
 public class FoodEditorView extends JPanel implements PropertyChangeListener {
 
@@ -347,8 +353,7 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
             state.setFoodName(food.getFoodName());
             final FoodServingDetails servingDetails = state.getServingDetails();
             servingDetails.setServingData(food.getServingLabel(), food.getServingGrams(), food.getServingGrams(),
-                    food.getServingCalories(), food.getServingProtein(), food.getServingCarbs(),
-                    food.getServingFat());
+                    food.getServingCalories(), food.getServingProtein(), food.getServingCarbs(), food.getServingFat());
             servingDetails.setQuantity("1");
             servingDetails.setUnit(FoodUnit.DEFAULT_SERVING);
             servingDetails.recalculateTotals();

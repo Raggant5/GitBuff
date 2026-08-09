@@ -19,6 +19,9 @@ public class StrengthDetailsDisplayData {
     /**
      * Formats validated numeric output data for display. Blank string for null (e.g. a
      * cardio exercise has no sets/reps/weight).
+     * @param sets the number of sets if weightlifting exercise
+     * @param reps the number of reps if weightlifting exercise
+     * @param weight amount of weight per rep if weightlifting
      */
     public StrengthDetailsDisplayData(Integer sets, Integer reps, Double weight) {
         this(display(sets), display(reps), display(weight));

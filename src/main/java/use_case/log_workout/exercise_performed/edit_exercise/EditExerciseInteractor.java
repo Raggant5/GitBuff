@@ -4,7 +4,6 @@ import entity.ExercisePerformed;
 import entity.ExercisePerformedFactory;
 import entity.StrengthDetails;
 import use_case.log_workout.StrengthDetailsData;
-import use_case.log_workout.StrengthDetailsInput;
 import use_case.log_workout.exercise_performed.ExerciseValidationErrors;
 
 public class EditExerciseInteractor implements EditExerciseInputBoundary {

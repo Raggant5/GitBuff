@@ -1,7 +1,5 @@
 package interface_adapter.nutrition.meal;
 
-import interface_adapter.nutrition.food.FoodEntryDisplayData;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
