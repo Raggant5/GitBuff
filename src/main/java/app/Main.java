@@ -41,6 +41,7 @@ public final class Main {
                 .addAddFoodUseCase()
                 .addAddMealUseCase()
                 .addEditFoodUseCase()
+                .addChangeServingSizeUseCase()
                 .addEditMealUseCase()
                 .addDeleteMealUseCase()
                 .addDeleteFoodUseCase()

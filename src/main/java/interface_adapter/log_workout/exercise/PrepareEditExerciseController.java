@@ -22,11 +22,4 @@ public class PrepareEditExerciseController {
                 exercisePerformed.getExerciseName(), strengthDetailsInput, exercisePerformed.getDurationMins(),
                 exercisePerformed.getDistanceKm(), exercisePerformed.getIsCardio()));
     }
-
-    /**
-     * Switches the exercise editor view to adding exercises.
-     */
-    public void switchToAddExerciseEditor() {
-        prepareEditExerciseInteractor.switchToAddExerciseEditor();
-    }
 }

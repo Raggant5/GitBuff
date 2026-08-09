@@ -20,11 +20,6 @@ public class PrepareEditFoodInteractor implements PrepareEditFoodInputBoundary {
                 nutrition, inputData.getQuantity(), inputData.getUnit(), inputData.getGrams()));
     }
 
-    @Override
-    public void switchToAddFoodEditor() {
-        presenter.switchToAddFoodEditor();
-    }
-
     private double parseDouble(String value) {
         double result = 0;
         try {

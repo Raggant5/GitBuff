@@ -3,14 +3,14 @@ package interface_adapter.nutrition.food;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.FoodSearchResult;
+import entity.FoodUnit;
 
 public class FoodEditorState {
 
     private Integer editingFoodEntryId;
 
     private String searchQuery = "";
-    private List<FoodSearchResult> searchResults = new ArrayList<>();
+    private List<FoodSearchResultDisplayData> searchResults = new ArrayList<>();
 
     private String foodName = "";
 
@@ -53,11 +53,11 @@ public class FoodEditorState {
         this.searchQuery = searchQuery;
     }
 
-    public List<FoodSearchResult> getSearchResults() {
+    public List<FoodSearchResultDisplayData> getSearchResults() {
         return searchResults;
     }
 
-    public void setSearchResults(List<FoodSearchResult> searchResults) {
+    public void setSearchResults(List<FoodSearchResultDisplayData> searchResults) {
         this.searchResults = searchResults;
     }
 
@@ -66,6 +66,32 @@ public class FoodEditorState {
      */
     public void clearSearchResults() {
         this.searchResults.clear();
+    }
+
+    /**
+     * Populates the food name and serving details from a selected search result.
+     * @param newFoodName the selected food's name
+     * @param servingLabel the selected food's serving label
+     * @param servingGrams the selected food's serving size in grams
+     * @param nutrition the selected food's per-serving calories/protein/carbs/fat
+     * @param unit the unit to display the serving in
+     * @param quantity the quantity of the unit
+     */
+    public void selectSearchResult(
+            final String newFoodName,
+            final String servingLabel,
+            final double servingGrams,
+            final FoodMacroAmounts nutrition,
+            final FoodUnit unit,
+            final double quantity
+    ) {
+        this.foodName = newFoodName;
+        servingDetails.setServingData(servingLabel, servingGrams, servingGrams, nutrition.getCalories(),
+                nutrition.getProtein(), nutrition.getCarbs(), nutrition.getFat());
+        servingDetails.setQuantity(String.valueOf(quantity));
+        servingDetails.setUnit(unit);
+        servingDetails.recalculateTotals();
+        clearSearchResults();
     }
 
     public Integer getEditingFoodEntryId() {

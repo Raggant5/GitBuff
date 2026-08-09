@@ -7,9 +7,4 @@ public interface PrepareEditExerciseInputBoundary {
      * @param inputData the data to be edited upon
      */
     void execute(PrepareEditExerciseInputData inputData);
-
-    /**
-     * Executes the "Switch to Add Exercise" Use Case.
-     */
-    void switchToAddExerciseEditor();
 }

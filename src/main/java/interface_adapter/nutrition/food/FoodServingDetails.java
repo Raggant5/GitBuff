@@ -3,7 +3,7 @@ package interface_adapter.nutrition.food;
 import entity.FoodUnit;
 
 /**
- * Owns the serving-size/quantity/unit math for the food editor: given per-serving macros,
+ * Contains serving-size/quantity/unit math for the food editor: given per-serving macros,
  * a quantity, and a unit, derives the displayed totals and keeps them in sync as any of
  * those inputs change.
  */
@@ -57,24 +57,48 @@ public class FoodServingDetails {
         return servingLabel;
     }
 
+    public double getOriginalServingGrams() {
+        return originalServingGrams;
+    }
+
     public void setOriginalServingGrams(double originalServingGrams) {
         this.originalServingGrams = originalServingGrams;
+    }
+
+    public double getServingGrams() {
+        return servingGrams;
     }
 
     public void setServingGrams(double servingGrams) {
         this.servingGrams = servingGrams;
     }
 
+    public double getServingCalories() {
+        return servingCalories;
+    }
+
     public void setServingCalories(double servingCalories) {
         this.servingCalories = servingCalories;
+    }
+
+    public double getServingProtein() {
+        return servingProtein;
     }
 
     public void setServingProtein(double servingProtein) {
         this.servingProtein = servingProtein;
     }
 
+    public double getServingCarbs() {
+        return servingCarbs;
+    }
+
     public void setServingCarbs(double servingCarbs) {
         this.servingCarbs = servingCarbs;
+    }
+
+    public double getServingFat() {
+        return servingFat;
     }
 
     public void setServingFat(double servingFat) {
@@ -101,29 +125,6 @@ public class FoodServingDetails {
         }
     }
 
-    private void updateServingSize() {
-        final double newServingGrams;
-        if (unit == FoodUnit.DEFAULT_SERVING) {
-            if (originalServingGrams != 0) {
-                newServingGrams = originalServingGrams;
-            }
-            else {
-                newServingGrams = servingGrams;
-            }
-        }
-        else {
-            newServingGrams = unit.getGramsPerUnit();
-        }
-        if (servingGrams != 0) {
-            final double ratio = newServingGrams / servingGrams;
-            servingCalories *= ratio;
-            servingProtein *= ratio;
-            servingCarbs *= ratio;
-            servingFat *= ratio;
-        }
-        servingGrams = newServingGrams;
-    }
-
     /**
      * Sets the total calories to be displayed and adjusts the serving calories based on quantity and total.
      * @param value the new value to be set for total calories
@@ -141,7 +142,7 @@ public class FoodServingDetails {
     }
 
     /**
-     * Sets the total grams to be displayed and adjusts the serving amounts based on the the ratio of new vs old.
+     * Sets the total grams to be displayed and adjusts the serving amounts based on the ratio of new vs old.
      * @param value the new value to be set for total grams
      */
     public void setTotalGramsDisplay(String value) {
@@ -182,7 +183,7 @@ public class FoodServingDetails {
     }
 
     /**
-     * Sets the total carbs to be displayed and adjusts the serving carbsbased on quantity and total.
+     * Sets the total carbs to be displayed and adjusts the serving carbs based on quantity and total.
      * @param value the new value to be set for total carbs
      */
     public void setTotalCarbsDisplay(String value) {
@@ -227,13 +228,11 @@ public class FoodServingDetails {
     }
 
     /**
-     * Sets the unit to be displayed and adjusts the serving calories based on the unit.
+     * Sets the unit to be displayed.
      * @param unit the new unit for the food to be measured in
      */
     public void setUnit(FoodUnit unit) {
         this.unit = unit;
-        updateServingSize();
-        recalculateTotals();
     }
 
     private double getQuantityValue() {
