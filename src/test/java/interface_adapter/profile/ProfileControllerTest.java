@@ -50,9 +50,9 @@ public class ProfileControllerTest {
         final FakeEditProfileInteractor interactor = new FakeEditProfileInteractor(latch);
         final ProfileController controller = new ProfileController(interactor);
 
-        controller.execute(TEST_HEIGHT, TEST_WEIGHT, ActivityLevel.VERY_ACTIVE,
-                FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, "/tmp/pic.png", LocalDate.of(2000, 1, 1),
-                Gender.MALE, "Hello world", UnitSystem.METRIC, new HashSet<>(), new HashSet<>(),
+        controller.execute(TEST_HEIGHT, TEST_WEIGHT, ActivityLevelOption.VERY_ACTIVE,
+                FitnessGoalOption.MUSCLE_AND_STRENGTH_GAIN, "/tmp/pic.png", LocalDate.of(2000, 1, 1),
+                GenderOption.MALE, "Hello world", UnitSystemOption.METRIC, new HashSet<>(), new HashSet<>(),
                 new HashSet<>(), TEST_DURATION, new HashSet<>());
 
         if (!latch.await(AWAIT_SECONDS, TimeUnit.SECONDS)) {
@@ -71,9 +71,9 @@ public class ProfileControllerTest {
         controller.setRecommendationDependencies(
                 new RecommendationController(new FakeRecommendationInteractor()), workoutsViewModel);
 
-        controller.execute(TEST_HEIGHT, TEST_WEIGHT, ActivityLevel.VERY_ACTIVE,
-                FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, "/tmp/pic.png", LocalDate.of(2000, 1, 1),
-                Gender.MALE, "Hello world", UnitSystem.METRIC, new HashSet<>(), new HashSet<>(),
+        controller.execute(TEST_HEIGHT, TEST_WEIGHT, ActivityLevelOption.VERY_ACTIVE,
+                FitnessGoalOption.MUSCLE_AND_STRENGTH_GAIN, "/tmp/pic.png", LocalDate.of(2000, 1, 1),
+                GenderOption.MALE, "Hello world", UnitSystemOption.METRIC, new HashSet<>(), new HashSet<>(),
                 new HashSet<>(), TEST_DURATION, new HashSet<>());
 
         assertTrue(workoutsViewModel.getState().isLoading());
@@ -90,9 +90,9 @@ public class ProfileControllerTest {
         controller.setRecommendationDependencies(
                 new RecommendationController(recommendationInteractor), new WorkoutsViewModel());
 
-        controller.execute(TEST_HEIGHT, TEST_WEIGHT, ActivityLevel.VERY_ACTIVE,
-                FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, "/tmp/pic.png", LocalDate.of(2000, 1, 1),
-                Gender.MALE, "Hello world", UnitSystem.METRIC, new HashSet<>(), new HashSet<>(),
+        controller.execute(TEST_HEIGHT, TEST_WEIGHT, ActivityLevelOption.VERY_ACTIVE,
+                FitnessGoalOption.MUSCLE_AND_STRENGTH_GAIN, "/tmp/pic.png", LocalDate.of(2000, 1, 1),
+                GenderOption.MALE, "Hello world", UnitSystemOption.METRIC, new HashSet<>(), new HashSet<>(),
                 new HashSet<>(), TEST_DURATION, new HashSet<>());
 
         if (!recommendationLatch.await(AWAIT_SECONDS, TimeUnit.SECONDS)) {
