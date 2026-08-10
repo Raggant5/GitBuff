@@ -1,7 +1,12 @@
 package data_access;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
@@ -11,12 +16,6 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
 import com.google.api.services.calendar.model.Events;
 
 import entity.CalendarEvent;
@@ -26,6 +25,7 @@ import use_case.calendar.CalendarEventDataAccessInterface;
  * Accesses calendar information through the Google Calendar API.
  */
 public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessInterface {
+
     private static final String TIME_ZONE = "America/Toronto";
     private static final String NOTIFICATION_EMAIL = "gitbuff686@gmail.com";
     private static final int ONE_DAY_IN_MINUTES = 24 * 60;
@@ -33,7 +33,12 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
     private Calendar calendarService;
     private final Supplier<Calendar> calendarServiceSupplier;
 
-    public GoogleCalendarDataAccessObject(Calendar calendarService) {
+    /**
+     * Constructs a GoogleCalendarDataAccessObject with an initialized calendar service.
+     *
+     * @param calendarService Google Calendar service instance.
+     */
+    public GoogleCalendarDataAccessObject(final Calendar calendarService) {
         this.calendarService = calendarService;
         this.calendarServiceSupplier = () -> calendarService;
     }
@@ -42,30 +47,29 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
      * Creates a data access object whose Google authorization is deferred until
      * the calendar is first used.
      *
-     * @param calendarServiceSupplier factory for an authorized Calendar service
+     * @param calendarServiceSupplier factory for an authorized Calendar service.
      */
-    public GoogleCalendarDataAccessObject(Supplier<Calendar> calendarServiceSupplier) {
+    public GoogleCalendarDataAccessObject(final Supplier<Calendar> calendarServiceSupplier) {
         this.calendarServiceSupplier = calendarServiceSupplier;
     }
 
     @Override
     public void addCalendarEvent(
-            String userId,
-            String title,
-            String description,
-            LocalDate activityDate) {
+            final String userId,
+            final String title,
+            final String description,
+            final LocalDate activityDate) {
 
         try {
-            String calendarId = getOrCreateUserCalendar(userId);
+            final String calendarId = getOrCreateUserCalendar(userId);
 
-            EventDateTime start = new EventDateTime()
+            final EventDateTime start = new EventDateTime()
                     .setDate(new DateTime(activityDate.toString()));
 
-            EventDateTime end = new EventDateTime()
-                    .setDate(new DateTime(
-                            activityDate.plusDays(1).toString()));
+            final EventDateTime end = new EventDateTime()
+                    .setDate(new DateTime(activityDate.plusDays(1).toString()));
 
-            Event googleEvent = new Event()
+            final Event googleEvent = new Event()
                     .setSummary(title)
                     .setDescription(description)
                     .setStart(start)
@@ -85,27 +89,23 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
                     .execute();
 
         }
-        catch (IOException exception) {
-            throw new IllegalStateException(
-                    "Unable to add the calendar event.", exception);
+        catch (final IOException exception) {
+            throw new IllegalStateException("Unable to add the calendar event.", exception);
         }
     }
 
-    private String getOrCreateUserCalendar(String userId)
-            throws IOException {
+    private String getOrCreateUserCalendar(final String userId) throws IOException {
+        final String calendarDescription = "GitBuff user: " + userId;
 
-        String calendarDescription = "GitBuff user: " + userId;
+        final CalendarList calendarList = getCalendarService().calendarList().list().execute();
 
-        CalendarList calendarList =
-                getCalendarService().calendarList().list().execute();
-
-        for (CalendarListEntry calendar : calendarList.getItems()) {
+        for (final CalendarListEntry calendar : calendarList.getItems()) {
             if (calendarDescription.equals(calendar.getDescription())) {
                 return calendar.getId();
             }
         }
 
-        com.google.api.services.calendar.model.Calendar newCalendar =
+        final com.google.api.services.calendar.model.Calendar newCalendar =
                 new com.google.api.services.calendar.model.Calendar()
                         .setSummary("GitBuff - " + userId)
                         .setDescription(calendarDescription)
@@ -118,50 +118,45 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
     }
 
     @Override
-    public void removeCalendarEvent(String userId, String eventId) {
+    public void removeCalendarEvent(final String userId, final String eventId) {
         try {
-            String calendarId = getOrCreateUserCalendar(userId);
+            final String calendarId = getOrCreateUserCalendar(userId);
 
             getCalendarService().events()
                     .delete(calendarId, eventId)
                     .execute();
         }
-        catch (IOException exception) {
-            throw new IllegalStateException(
-                    "Unable to remove the calendar event.", exception);
+        catch (final IOException exception) {
+            throw new IllegalStateException("Unable to remove the calendar event.", exception);
         }
     }
 
     @Override
-    public List<CalendarEvent> getUserEvents(String userId) {
+    public List<CalendarEvent> getUserEvents(final String userId) {
         try {
-            String calendarId = getOrCreateUserCalendar(userId);
-            List<CalendarEvent> userEvents = new ArrayList<>();
+            final String calendarId = getOrCreateUserCalendar(userId);
+            final List<CalendarEvent> userEvents = new ArrayList<>();
 
             String pageToken = null;
 
             do {
-                Events googleEvents = getCalendarService().events()
+                final Events googleEvents = getCalendarService().events()
                         .list(calendarId)
                         .setSingleEvents(true)
                         .setOrderBy("startTime")
                         .setPageToken(pageToken)
                         .execute();
 
-                for (Event googleEvent : googleEvents.getItems()) {
-                    if (!"cancelled".equals(googleEvent.getStatus())
-                            && googleEvent.getStart() != null) {
+                for (final Event googleEvent : googleEvents.getItems()) {
+                    if (!"cancelled".equals(googleEvent.getStatus()) && googleEvent.getStart() != null) {
+                        final LocalDate activityDate = getActivityDate(googleEvent);
 
-                        LocalDate activityDate =
-                                getActivityDate(googleEvent);
-
-                        CalendarEvent calendarEvent =
-                                new CalendarEvent(
-                                        googleEvent.getId(),
-                                        userId,
-                                        googleEvent.getSummary(),
-                                        googleEvent.getDescription(),
-                                        activityDate);
+                        final CalendarEvent calendarEvent = new CalendarEvent(
+                                googleEvent.getId(),
+                                userId,
+                                googleEvent.getSummary(),
+                                googleEvent.getDescription(),
+                                activityDate);
 
                         userEvents.add(calendarEvent);
                     }
@@ -173,21 +168,19 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
 
             return userEvents;
         }
-        catch (IOException exception) {
-            throw new IllegalStateException(
-                    "Unable to load the user's calendar events.",
-                    exception);
+        catch (final IOException exception) {
+            throw new IllegalStateException("Unable to load the user's calendar events.", exception);
         }
     }
 
-    private LocalDate getActivityDate(Event googleEvent) {
-        DateTime allDayDate = googleEvent.getStart().getDate();
+    private LocalDate getActivityDate(final Event googleEvent) {
+        final DateTime allDayDate = googleEvent.getStart().getDate();
 
         if (allDayDate != null) {
             return LocalDate.parse(allDayDate.toStringRfc3339());
         }
 
-        DateTime dateTime = googleEvent.getStart().getDateTime();
+        final DateTime dateTime = googleEvent.getStart().getDateTime();
 
         return Instant.ofEpochMilli(dateTime.getValue())
                 .atZone(ZoneId.of(TIME_ZONE))
@@ -195,9 +188,9 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
     }
 
     private Calendar getCalendarService() {
-        if (calendarService == null) {
-            calendarService = calendarServiceSupplier.get();
+        if (this.calendarService == null) {
+            this.calendarService = this.calendarServiceSupplier.get();
         }
-        return calendarService;
+        return this.calendarService;
     }
 }

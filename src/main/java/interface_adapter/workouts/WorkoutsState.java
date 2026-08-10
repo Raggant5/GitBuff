@@ -3,16 +3,19 @@ package interface_adapter.workouts;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.WorkoutPlan;
-
 /**
  * The state for Workouts View Model.
+ *
+ * <p>Holds {@link WorkoutPlanDisplayData} rather than the {@code entity.WorkoutPlan} entity, so
+ * this interface_adapter-layer class does not depend on the entity layer - consistent with the
+ * Dependency Rule and with how the nutrition and workout-logging features already expose
+ * display data.
  */
 public class WorkoutsState {
 
     private String workoutFocus = "";
     private String activityLevelDescription = "";
-    private List<WorkoutPlan> workoutPlans = new ArrayList<>();
+    private List<WorkoutPlanDisplayData> workoutPlans = new ArrayList<>();
     private String message = "";
     private boolean isLoading;
 
@@ -32,11 +35,11 @@ public class WorkoutsState {
         this.activityLevelDescription = activityLevelDescription;
     }
 
-    public List<WorkoutPlan> getWorkoutPlans() {
+    public List<WorkoutPlanDisplayData> getWorkoutPlans() {
         return this.workoutPlans;
     }
 
-    public void setWorkoutPlans(final List<WorkoutPlan> workoutPlans) {
+    public void setWorkoutPlans(final List<WorkoutPlanDisplayData> workoutPlans) {
         this.workoutPlans = workoutPlans;
     }
 
@@ -56,3 +59,6 @@ public class WorkoutsState {
         this.isLoading = isLoading;
     }
 }
+
+
+

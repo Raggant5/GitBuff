@@ -29,7 +29,7 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
     private final OkHttpClient client = new OkHttpClient();
 
     @Override
-    public List<FoodSearchResult> searchFood(String searchQuery) {
+    public List<FoodSearchResult> searchFood(final String searchQuery) {
         final String token = loadKeyFromDotEnv("NUTRITION_API_KEY");
         List<FoodSearchResult> results;
         if (token == null || token.isBlank()) {
@@ -39,15 +39,14 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
             try {
                 results = fetchFromApi(searchQuery, token);
             }
-            catch (IOException exc) {
+            catch (final IOException exc) {
                 results = new MockSearchFoodDataAccessObject().searchFood(searchQuery);
             }
         }
         return results;
     }
 
-    private List<FoodSearchResult> fetchFromApi(String searchQuery, String token) throws IOException {
-
+    private List<FoodSearchResult> fetchFromApi(final String searchQuery, final String token) throws IOException {
         final Request request = new Request.Builder()
                 .url(String.format(
                         "%s/api/v1/public/search/foods?q=%s&limit=%d&skip=%d&match_mode=any&verified_only=true",
@@ -58,18 +57,14 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
                 .addHeader("Authorization", token)
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = this.client.newCall(request).execute()) {
 
             if (!response.isSuccessful()) {
-                throw new IOException(
-                        "Search food result failed: " + response);
+                throw new IOException("Search food result failed: " + response);
             }
 
-            final JSONObject responseBody =
-                    new JSONObject(response.body().string());
-
+            final JSONObject responseBody = new JSONObject(response.body().string());
             final JSONArray foods = responseBody.getJSONArray("data");
-
             final List<FoodSearchResult> results = new ArrayList<>();
 
             for (int i = 0; i < foods.length(); i++) {
@@ -96,23 +91,21 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
         }
     }
 
-    private String loadKeyFromDotEnv(String apiKeyName) {
+    private String loadKeyFromDotEnv(final String apiKeyName) {
         final File envFile = new File(".env");
         String result = null;
-        if (!envFile.exists()) {
-            result = null;
-        }
-        try (Scanner scanner = new Scanner(envFile, StandardCharsets.UTF_8)) {
-            while (scanner.hasNextLine()) {
-                final String line = scanner.nextLine().trim();
-                if (line.startsWith(apiKeyName + "=")) {
-                    result = line.substring(
-                            (apiKeyName + "=").length()).trim();
+        if (envFile.exists()) {
+            try (Scanner scanner = new Scanner(envFile, StandardCharsets.UTF_8)) {
+                while (scanner.hasNextLine()) {
+                    final String line = scanner.nextLine().trim();
+                    if (line.startsWith(apiKeyName + "=")) {
+                        result = line.substring((apiKeyName + "=").length()).trim();
+                    }
                 }
             }
-        }
-        catch (IOException ignored) {
-            result = null;
+            catch (final IOException ignored) {
+                result = null;
+            }
         }
         return result;
     }

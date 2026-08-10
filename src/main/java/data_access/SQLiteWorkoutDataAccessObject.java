@@ -20,8 +20,7 @@ import use_case.log_workout.logged_workout.edit_workout.EditWorkoutDataAccessInt
 import use_case.log_workout.logged_workout.get_workouts.ViewWorkoutDataAccessInterface;
 
 /**
- * SQLite data access object for logged workouts
- * and exercises performed.
+ * SQLite data access object for logged workouts and exercises performed.
  */
 public final class SQLiteWorkoutDataAccessObject
         implements AddWorkoutDataAccessInterface,
@@ -97,12 +96,6 @@ public final class SQLiteWorkoutDataAccessObject
         );
     }
 
-    /**
-     * Saves an exercise performed.
-     *
-     * @param exercisePerformed exercise to save
-     * @return generated exercise ID
-     */
     @Override
     public int saveExercisePerformed(
             final ExercisePerformed exercisePerformed
@@ -248,12 +241,6 @@ public final class SQLiteWorkoutDataAccessObject
         );
     }
 
-    /**
-     * Gets every exercise belonging to a workout.
-     *
-     * @param workoutId workout ID
-     * @return exercises for the workout
-     */
     @Override
     public List<ExercisePerformed> getExercisesForWorkout(
             final int workoutId
@@ -352,12 +339,6 @@ public final class SQLiteWorkoutDataAccessObject
         return exercises;
     }
 
-    /**
-     * Gets logged workouts belonging to a user.
-     *
-     * @param userId user ID
-     * @return user's logged workouts
-     */
     @Override
     public List<LoggedWorkout> getWorkoutsForUser(
             final String userId
@@ -436,12 +417,6 @@ public final class SQLiteWorkoutDataAccessObject
         return workouts;
     }
 
-    /**
-     * Gets a single workout, including its exercises, by id.
-     *
-     * @param workoutId workout ID
-     * @return the workout
-     */
     @Override
     public LoggedWorkout getWorkoutById(
             final int workoutId
@@ -503,15 +478,6 @@ public final class SQLiteWorkoutDataAccessObject
         );
     }
 
-    /**
-     * Updates an existing workout: applies the new workout date, deletes any removed
-     * exercises, and inserts/updates the remaining exercises, all as a single atomic
-     * transaction on one connection.
-     *
-     * @param workout the updated workout
-     * @param exerciseIdsToDelete ids of exercises to remove from the workout
-     * @return the persisted workout, with generated ids populated on any newly-inserted exercises
-     */
     @Override
     public LoggedWorkout editWorkout(
             final LoggedWorkout workout,
@@ -608,13 +574,6 @@ public final class SQLiteWorkoutDataAccessObject
         }
     }
 
-    /**
-     * Updates an existing performed exercise row using the given connection, without committing.
-     *
-     * @param connection shared database connection
-     * @param exercisePerformed exercise to update
-     * @throws SQLException if the update fails
-     */
     private static void updateExercisePerformedRow(
             final Connection connection,
             final ExercisePerformed exercisePerformed
@@ -690,13 +649,6 @@ public final class SQLiteWorkoutDataAccessObject
         }
     }
 
-    /**
-     * Deletes a performed exercise row using the given connection, without committing.
-     *
-     * @param connection shared database connection
-     * @param exercisePerformedId exercise ID
-     * @throws SQLException if the delete fails
-     */
     private static void deleteExercisePerformedRow(
             final Connection connection,
             final int exercisePerformedId
@@ -719,12 +671,6 @@ public final class SQLiteWorkoutDataAccessObject
         }
     }
 
-    /**
-     * Deletes a workout and all exercises belonging
-     * to that workout.
-     *
-     * @param workoutId workout ID
-     */
     @Override
     public void deleteWorkout(
             final int workoutId
@@ -791,14 +737,6 @@ public final class SQLiteWorkoutDataAccessObject
         }
     }
 
-    /**
-     * Finds the user that owns a workout.
-     *
-     * @param connection database connection
-     * @param workoutId workout ID
-     * @return username belonging to the workout
-     * @throws SQLException if the user cannot be loaded
-     */
     private static String getUserIdForWorkout(
             final Connection connection,
             final int workoutId
@@ -834,14 +772,6 @@ public final class SQLiteWorkoutDataAccessObject
         );
     }
 
-    /**
-     * Recalculates and stores a user's total workout
-     * minutes.
-     *
-     * @param connection database connection
-     * @param userId username
-     * @throws SQLException if the update fails
-     */
     private static void updateTotalWorkoutMinutes(
             final Connection connection,
             final String userId
@@ -925,8 +855,7 @@ public final class SQLiteWorkoutDataAccessObject
             final String column
     ) throws SQLException {
 
-        final int value =
-                resultSet.getInt(column);
+        final int value = resultSet.getInt(column);
 
         Integer result = value;
         if (resultSet.wasNull()) {
@@ -941,8 +870,7 @@ public final class SQLiteWorkoutDataAccessObject
             final String column
     ) throws SQLException {
 
-        final double value =
-                resultSet.getDouble(column);
+        final double value = resultSet.getDouble(column);
 
         Double result = value;
         if (resultSet.wasNull()) {
@@ -962,3 +890,4 @@ public final class SQLiteWorkoutDataAccessObject
         return cardioValue;
     }
 }
+

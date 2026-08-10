@@ -20,7 +20,7 @@ public enum PrivacySetting {
     /**
      * Gets the display string for privacy setting.
      *
-     * @return display string
+     * @return display string.
      */
     public String getDisplayName() {
         return this.displayName;

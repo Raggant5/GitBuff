@@ -628,13 +628,6 @@ public final class SQLiteMealDataAccessObject implements
         }
     }
 
-    /**
-     * Updates a food-entry row using the given connection, without committing.
-     *
-     * @param connection shared database connection
-     * @param foodEntry food entry to update
-     * @throws SQLException if the update fails
-     */
     private static void updateFoodEntryRow(
             final Connection connection,
             final FoodEntry foodEntry
@@ -948,3 +941,4 @@ public final class SQLiteMealDataAccessObject implements
         return macroData;
     }
 }
+

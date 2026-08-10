@@ -1,21 +1,36 @@
 package view;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.time.LocalDate;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.*;
 
-import entity.CalendarEvent;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+import interface_adapter.calendar.CalendarEventDisplayData;
 import interface_adapter.calendar.CalendarState;
 import interface_adapter.calendar.CalendarViewModel;
 
+/**
+ * Swing panel rendering the current month's calendar with each day's scheduled events.
+ *
+ * <p>Reads {@link CalendarEventDisplayData} from {@link CalendarState}, rather than the
+ * {@code entity.CalendarEvent} entity, so this view-layer class does not depend on the entity
+ * layer.
+ */
 public class CalendarPanel extends JPanel implements PropertyChangeListener {
     private final CalendarViewModel calendarViewModel;
 
@@ -30,10 +45,10 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     private void displayState(CalendarState state) {
         removeAll();
 
-        List<CalendarEvent> eventsList = state.getCalendarEvents();
-        Map<LocalDate, List<CalendarEvent>> eventsMap = new HashMap<>();
+        List<CalendarEventDisplayData> eventsList = state.getCalendarEvents();
+        Map<LocalDate, List<CalendarEventDisplayData>> eventsMap = new HashMap<>();
 
-        for (CalendarEvent event : eventsList) {
+        for (CalendarEventDisplayData event : eventsList) {
             if (event.getActivityDate() == null) {
                 continue;
             }
@@ -89,7 +104,7 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     private JPanel weekDayBox() {
         final JPanel weekDaysBox = new JPanel(new GridLayout(1, 7));
         final String[] weekDays = {
-            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+                "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
         };
 
         for (String weekDay : weekDays) {
@@ -120,7 +135,7 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         return firstWeekday.getValue() % 7;
     }
 
-    private JPanel monthBox(Map<LocalDate, List<CalendarEvent>> calendarEvents) {
+    private JPanel monthBox(Map<LocalDate, List<CalendarEventDisplayData>> calendarEvents) {
         JPanel monthBox = new JPanel(new GridLayout(0, 7));
 
         int dayMonthBegins = whichDayMonthBegins();
@@ -136,7 +151,7 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
             List<String> toDos = new ArrayList<>();
 
             if (calendarEvents.containsKey(date)) {
-                for (CalendarEvent event : calendarEvents.get(date))
+                for (CalendarEventDisplayData event : calendarEvents.get(date))
                     toDos.add(event.getTitle());
             }
 
@@ -145,7 +160,7 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         return monthBox;
     }
 
-    private JPanel mainBox(Map<LocalDate, List<CalendarEvent>> calendarEvents) {
+    private JPanel mainBox(Map<LocalDate, List<CalendarEventDisplayData>> calendarEvents) {
         final JPanel mainBox = new JPanel(new BorderLayout());
         final JPanel calendarBody = new JPanel(new BorderLayout());
 
@@ -166,3 +181,6 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         displayState(state);
     }
 }
+
+
+

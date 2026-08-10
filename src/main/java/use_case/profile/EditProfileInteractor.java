@@ -1,6 +1,7 @@
 package use_case.profile;
 
 import entity.User;
+import use_case.DataAccessException;
 
 /**
  * The Edit Profile Interactor. Saves profile details.
@@ -24,15 +25,20 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
 
     @Override
     public void execute(final EditProfileInputData editProfileInputData) {
-        final String username = this.userDataAccessObject.getCurrentUsername();
-        if (username == null) {
-            this.profilePresenter.prepareFailView("No user is currently logged in.");
+        try {
+            final String username = this.userDataAccessObject.getCurrentUsername();
+            if (username == null) {
+                this.profilePresenter.prepareFailView("No user is currently logged in.");
+            }
+            else if (editProfileInputData.getHeight() <= 0.0f || editProfileInputData.getWeight() <= 0.0f) {
+                this.profilePresenter.prepareFailView("Height and weight must both be greater than zero.");
+            }
+            else {
+                saveProfileAndNotify(username, editProfileInputData);
+            }
         }
-        else if (editProfileInputData.getHeight() <= 0.0f || editProfileInputData.getWeight() <= 0.0f) {
-            this.profilePresenter.prepareFailView("Height and weight must both be greater than zero.");
-        }
-        else {
-            saveProfileAndNotify(username, editProfileInputData);
+        catch (final DataAccessException exception) {
+            this.profilePresenter.prepareFailView("Unable to save your profile right now. Please try again.");
         }
     }
 

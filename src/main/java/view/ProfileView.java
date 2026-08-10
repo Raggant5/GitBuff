@@ -37,21 +37,29 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import entity.ActivityLevel;
-import entity.DietaryRestriction;
-import entity.Equipment;
-import entity.FitnessGoal;
-import entity.Gender;
-import entity.PrivacySetting;
-import entity.UnitSystem;
+import interface_adapter.profile.ActivityLevelOption;
+import interface_adapter.profile.DietaryRestrictionOption;
+import interface_adapter.profile.EquipmentOption;
+import interface_adapter.profile.FitnessGoalOption;
+import interface_adapter.profile.GenderOption;
+import interface_adapter.profile.PrivacySettingOption;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
+import interface_adapter.profile.UnitSystemOption;
 import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
 
 /**
  * The View for editing the current user's profile with matching modern styling and horizontal grids.
+ *
+ * <p>Renders the interface_adapter-layer {@code *Option} enums ({@link ActivityLevelOption},
+ * {@link FitnessGoalOption}, {@link GenderOption}, {@link UnitSystemOption},
+ * {@link EquipmentOption}, {@link DietaryRestrictionOption}, {@link PrivacySettingOption}) -
+ * each a display-only mirror of the corresponding {@code entity} enum, with the same constant
+ * names so the "combine into one bike checkbox" and "special-case one privacy setting's label"
+ * logic below (which compares against constant names) behaves identically - rather than the
+ * entity enums directly, so this view-layer class does not depend on the entity layer.
  */
 public class ProfileView extends JPanel implements PropertyChangeListener {
 
@@ -94,20 +102,20 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     private final JTextField weightField = new JTextField(8);
     private final JLabel weightLabel = new JLabel("Weight (kg)");
 
-    private final JComboBox<ActivityLevel> activityLevelBox = new JComboBox<>(ActivityLevel.values());
-    private final JComboBox<FitnessGoal> goalBox = new JComboBox<>(FitnessGoal.values());
-    private final JComboBox<Gender> genderBox = new JComboBox<>(Gender.values());
-    private final JComboBox<UnitSystem> unitSystemBox = new JComboBox<>(UnitSystem.values());
+    private final JComboBox<ActivityLevelOption> activityLevelBox = new JComboBox<>(ActivityLevelOption.values());
+    private final JComboBox<FitnessGoalOption> goalBox = new JComboBox<>(FitnessGoalOption.values());
+    private final JComboBox<GenderOption> genderBox = new JComboBox<>(GenderOption.values());
+    private final JComboBox<UnitSystemOption> unitSystemBox = new JComboBox<>(UnitSystemOption.values());
 
     private final JTextField dobField = new JTextField(10);
     private final JTextArea bioArea = new JTextArea(3, 20);
 
-    private final Map<Equipment, JCheckBox> equipmentCheckBoxes = new HashMap<>();
+    private final Map<EquipmentOption, JCheckBox> equipmentCheckBoxes = new HashMap<>();
     private final JCheckBox eqCombinedBikeCheckBox = new JCheckBox("Bike (stationary or outdoor)");
 
-    private final Map<DietaryRestriction, JCheckBox> dietaryCheckBoxes = new HashMap<>();
+    private final Map<DietaryRestrictionOption, JCheckBox> dietaryCheckBoxes = new HashMap<>();
     private final Map<DayOfWeek, JCheckBox> dayCheckBoxes = new HashMap<>();
-    private final Map<PrivacySetting, JCheckBox> privacyCheckBoxes = new HashMap<>();
+    private final Map<PrivacySettingOption, JCheckBox> privacyCheckBoxes = new HashMap<>();
 
     private final JTextField preferredWorkoutDurationField = new JTextField(8);
     private final JLabel pictureLabel = new JLabel("No picture selected");
@@ -229,7 +237,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     private void addPreferencesSections(final JPanel formContainer) {
         formContainer.add(createCheckBoxGridPanel(
                 "Dietary Restrictions",
-                DietaryRestriction.values(),
+                DietaryRestrictionOption.values(),
                 this.dietaryCheckBoxes,
                 CHECKBOX_GRID_COLUMNS
         ));
@@ -329,7 +337,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         final JPanel grid = new JPanel(new GridLayout(3, 2, 10, 8));
         grid.setBackground(Color.WHITE);
 
-        grid.add(new JLabel("Gender:"));
+        grid.add(new JLabel("GenderOption:"));
         grid.add(this.genderBox);
 
         grid.add(new JLabel("Activity Level:"));
@@ -343,11 +351,11 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     }
 
     private JPanel createEquipmentPanel() {
-        final JPanel card = createCardPanel("Available Equipment");
+        final JPanel card = createCardPanel("Available EquipmentOption");
         final JPanel grid = new JPanel(new GridLayout(0, 3, 8, 4));
         grid.setBackground(Color.WHITE);
 
-        for (final Equipment equipment : Equipment.values()) {
+        for (final EquipmentOption equipment : EquipmentOption.values()) {
             if (equipment.name().equalsIgnoreCase("STATIONARY_BIKE")
                     || equipment.toString().equalsIgnoreCase("Stationary Bike")) {
                 continue;
@@ -402,7 +410,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     private JPanel createPrivacyPanel() {
         final JPanel card = createCardPanel("Privacy Settings");
 
-        for (final PrivacySetting setting : PrivacySetting.values()) {
+        for (final PrivacySettingOption setting : PrivacySettingOption.values()) {
             String labelText = setting.toString();
 
             if (setting.name().equalsIgnoreCase("SHARE_WORKOUT_ACTIVITY")
@@ -435,8 +443,8 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     }
 
     private void updateUnitLabels() {
-        final UnitSystem selectedUnit = (UnitSystem) this.unitSystemBox.getSelectedItem();
-        if (selectedUnit == UnitSystem.IMPERIAL) {
+        final UnitSystemOption selectedUnit = (UnitSystemOption) this.unitSystemBox.getSelectedItem();
+        if (selectedUnit == UnitSystemOption.IMPERIAL) {
             this.heightLabel.setText("Height (in)");
             this.weightLabel.setText("Weight (lbs)");
         }
@@ -483,12 +491,12 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
 
     private void trySaveProfile() {
         try {
-            final UnitSystem selectedUnit = (UnitSystem) this.unitSystemBox.getSelectedItem();
+            final UnitSystemOption selectedUnit = (UnitSystemOption) this.unitSystemBox.getSelectedItem();
             final float rawHeight = Float.parseFloat(this.heightField.getText().trim());
             final float rawWeight = Float.parseFloat(this.weightField.getText().trim());
 
             final float heightMetres;
-            if (selectedUnit == UnitSystem.IMPERIAL) {
+            if (selectedUnit == UnitSystemOption.IMPERIAL) {
                 heightMetres = rawHeight / INCHES_PER_METRE;
             }
             else {
@@ -496,7 +504,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
             }
 
             final float weightKg;
-            if (selectedUnit == UnitSystem.IMPERIAL) {
+            if (selectedUnit == UnitSystemOption.IMPERIAL) {
                 weightKg = rawWeight / LBS_PER_KG;
             }
             else {
@@ -509,10 +517,10 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
             }
 
             final int durationMinutes = getPreferredWorkoutDurationMinutes();
-            final Set<Equipment> selectedEquipment = getSelectedItems(this.equipmentCheckBoxes);
+            final Set<EquipmentOption> selectedEquipment = getSelectedItems(this.equipmentCheckBoxes);
 
             if (this.eqCombinedBikeCheckBox.isSelected()) {
-                for (final Equipment equipment : Equipment.values()) {
+                for (final EquipmentOption equipment : EquipmentOption.values()) {
                     if (equipment.name().equalsIgnoreCase("STATIONARY_BIKE")
                             || equipment.toString().equalsIgnoreCase("Stationary Bike")) {
                         selectedEquipment.add(equipment);
@@ -523,11 +531,11 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
             this.profileController.execute(
                     heightMetres,
                     weightKg,
-                    (ActivityLevel) this.activityLevelBox.getSelectedItem(),
-                    (FitnessGoal) this.goalBox.getSelectedItem(),
+                    (ActivityLevelOption) this.activityLevelBox.getSelectedItem(),
+                    (FitnessGoalOption) this.goalBox.getSelectedItem(),
                     this.selectedProfilePicturePath,
                     dob,
-                    (Gender) this.genderBox.getSelectedItem(),
+                    (GenderOption) this.genderBox.getSelectedItem(),
                     this.bioArea.getText().trim(),
                     selectedUnit,
                     selectedEquipment,
@@ -611,7 +619,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
             final float heightMetres = Float.parseFloat(state.getHeightText());
             final float weightKg = Float.parseFloat(state.getWeightText());
 
-            if (state.getPreferredUnitSystem() == UnitSystem.IMPERIAL) {
+            if (state.getPreferredUnitSystem() == UnitSystemOption.IMPERIAL) {
                 this.heightField.setText(String.valueOf(Math.round(heightMetres * INCHES_PER_METRE)));
                 this.weightField.setText(String.valueOf(Math.round(weightKg * LBS_PER_KG)));
             }
@@ -648,7 +656,7 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     private void displayCombinedBikeCheckbox(final ProfileState state) {
         if (state.getEquipment() != null) {
             boolean hasBike = false;
-            for (final Equipment equipment : state.getEquipment()) {
+            for (final EquipmentOption equipment : state.getEquipment()) {
                 if (equipment.name().contains("BIKE")
                         || equipment.toString().toLowerCase().contains("bike")) {
                     hasBike = true;
@@ -705,3 +713,4 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         displayState(state);
     }
 }
+

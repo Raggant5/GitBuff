@@ -16,7 +16,7 @@ public final class Datainitializer {
     /**
      * Creates every required database table if it does not already exist.
      *
-     * @throws SQLException if database initialization fails
+     * @throws SQLException if database initialization fails.
      */
     public static void initialize() throws SQLException {
         try (Connection connection = Database.connect();

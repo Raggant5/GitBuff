@@ -24,7 +24,7 @@ public enum DietaryRestriction {
     /**
      * Gets the display name of the dietary restriction.
      *
-     * @return display name string
+     * @return display name string.
      */
     public String getDisplayName() {
         return this.displayName;

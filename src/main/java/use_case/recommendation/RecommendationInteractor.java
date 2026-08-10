@@ -13,7 +13,14 @@ import entity.User;
 import entity.WorkoutPlan;
 
 /**
- * Interactor that computes target macros and generates structured AI workout routines and meal suggestions.
+ * Interactor that computes target macros and generates structured AI workout routines and meal
+ * suggestions.
+ *
+ * <p>The calorie/protein calculation itself is delegated to an injected
+ * {@link CalorieCalculationStrategy} (Strategy design pattern): this interactor no longer needs
+ * to know the formula, only that it can ask a strategy for a target. This keeps
+ * {@code RecommendationInteractor} open for new calculation methods without modifying it, and
+ * makes the formula independently unit-testable.
  */
 public class RecommendationInteractor implements RecommendationInputBoundary {
 
@@ -24,9 +31,33 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
     private final RecommendationOutputBoundary recommendationPresenter;
     private final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject;
     private final FoodRecommendationDataAccessInterface foodRecommendationDataAccessObject;
+    private final CalorieCalculationStrategy calorieCalculationStrategy;
 
     /**
-     * Constructs a RecommendationInteractor instance.
+     * Constructs a RecommendationInteractor instance with a specific calorie calculation
+     * strategy.
+     *
+     * @param userDataAccessObject data access object for user profile lookup
+     * @param recommendationOutputBoundary presenter output boundary
+     * @param aiWorkoutDataAccessObject AI workout data access object
+     * @param foodRecommendationDataAccessObject meal suggestion data access interface
+     * @param calorieCalculationStrategy strategy used to compute calorie/protein targets
+     */
+    public RecommendationInteractor(final RecommendationUserDataAccessInterface userDataAccessObject,
+                                    final RecommendationOutputBoundary recommendationOutputBoundary,
+                                    final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject,
+                                    final FoodRecommendationDataAccessInterface foodRecommendationDataAccessObject,
+                                    final CalorieCalculationStrategy calorieCalculationStrategy) {
+        this.userDataAccessObject = userDataAccessObject;
+        this.recommendationPresenter = recommendationOutputBoundary;
+        this.aiWorkoutDataAccessObject = aiWorkoutDataAccessObject;
+        this.foodRecommendationDataAccessObject = foodRecommendationDataAccessObject;
+        this.calorieCalculationStrategy = calorieCalculationStrategy;
+    }
+
+    /**
+     * Constructs a RecommendationInteractor instance using the default
+     * {@link StandardCalorieCalculationStrategy}.
      *
      * @param userDataAccessObject data access object for user profile lookup
      * @param recommendationOutputBoundary presenter output boundary
@@ -37,10 +68,8 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
                                     final RecommendationOutputBoundary recommendationOutputBoundary,
                                     final AiWorkoutDataAccessInterface aiWorkoutDataAccessObject,
                                     final FoodRecommendationDataAccessInterface foodRecommendationDataAccessObject) {
-        this.userDataAccessObject = userDataAccessObject;
-        this.recommendationPresenter = recommendationOutputBoundary;
-        this.aiWorkoutDataAccessObject = aiWorkoutDataAccessObject;
-        this.foodRecommendationDataAccessObject = foodRecommendationDataAccessObject;
+        this(userDataAccessObject, recommendationOutputBoundary, aiWorkoutDataAccessObject,
+                foodRecommendationDataAccessObject, new StandardCalorieCalculationStrategy());
     }
 
     @Override
@@ -60,22 +89,40 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
             }
             else {
                 ensureProfileDefaults(user);
-                presentRecommendationFor(user);
+                presentRecommendationFor(user, true);
             }
         }
     }
 
-    private void presentRecommendationFor(final User user) {
-        final int dailyCalorieTarget = DailyMacroCalculator.calculateDailyCalorieTarget(user);
-        final int dailyProteinGrams = DailyMacroCalculator.calculateDailyProteinGrams(user);
+    public void executeMealRecommendationsOnly() {
+        final String username = this.userDataAccessObject.getCurrentUsername();
+        if (username == null) {
+            this.recommendationPresenter.prepareFailView("No user is currently logged in.");
+            return;
+        }
+        final User user = this.userDataAccessObject.get(username);
+        if (user != null) {
+            ensureProfileDefaults(user);
+            presentRecommendationFor(user, false);
+        }
+    }
+
+    private void presentRecommendationFor(final User user, final boolean includeWorkouts) {
+        final int dailyCalorieTarget = this.calorieCalculationStrategy.calculateDailyCalorieTarget(user);
+        final int dailyProteinGrams = this.calorieCalculationStrategy.calculateDailyProteinGrams(user);
 
         List<WorkoutPlan> plans = new ArrayList<>();
-        if (this.aiWorkoutDataAccessObject != null) {
+        if (includeWorkouts && this.aiWorkoutDataAccessObject != null) {
             plans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user, WEEK_DAYS);
         }
 
-        final String focusSummary = user.getGoal().getWorkoutFocus();
-        final String activitySummary = user.getActivityLevel().getDescription();
+        final String focusSummary = user.getGoal() != null
+                ? user.getGoal().getWorkoutFocus()
+                : FitnessGoal.MAINTAIN_GENERAL_FITNESS.getWorkoutFocus();
+
+        final String activitySummary = user.getActivityLevel() != null
+                ? user.getActivityLevel().getDescription()
+                : ActivityLevel.MODERATELY_ACTIVE.getDescription();
 
         List<MealRecommendation> meals = new ArrayList<>();
         if (this.foodRecommendationDataAccessObject != null) {
@@ -114,3 +161,6 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
         }
     }
 }
+
+
+

@@ -23,11 +23,11 @@ public class SignupPresenter implements SignupOutputBoundary {
     /**
      * Constructs a SignupPresenter instance.
      *
-     * @param viewManagerModel manager model for top-level view navigation
-     * @param signupViewModel view model for signup state
-     * @param loginViewModel view model for login state
-     * @param profileViewModel view model for user profile state
-     * @param mainViewManagerModel manager model for main tab navigation
+     * @param viewManagerModel manager model for top-level view navigation.
+     * @param signupViewModel view model for signup state.
+     * @param loginViewModel view model for login state.
+     * @param profileViewModel view model for user profile state.
+     * @param mainViewManagerModel manager model for main tab navigation.
      */
     public SignupPresenter(final ViewManagerModel viewManagerModel,
                            final SignupViewModel signupViewModel,
