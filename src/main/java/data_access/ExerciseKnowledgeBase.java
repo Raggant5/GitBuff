@@ -40,7 +40,7 @@ public final class ExerciseKnowledgeBase {
         WORKOUT_INSTRUCTIONS_MAP.put("running", new String[]{
                 "Jog or run at a steady pace with proper form. Keep your back straight and arms pumping.",
                 "Sprint at maximum effort for 30 seconds, then walk back to recover. Repeat 8-10 times.",
-                "Jump with arms and legs out, then back together. Keep a steady rhythm."
+                "Jump with arms and legs out, then back together. Keep a steady rhythm.",
         });
         WORKOUT_SEARCH_MAP.put("running", new String[]{"running+form", "sprint+workout", "jumping+jacks"});
         WORKOUT_SUBCATEGORY_MAP.put("running", new String[]{"RUNNING", "RUNNING", "RUNNING"});
@@ -52,10 +52,10 @@ public final class ExerciseKnowledgeBase {
         WORKOUT_INSTRUCTIONS_MAP.put("biking", new String[]{
                 "Pedal at moderate to high intensity. Maintain a steady cadence of 80-100 RPM.",
                 "Increase resistance and pedal standing up. Simulate climbing a steep hill.",
-                "Sprint at max effort for 30 seconds, then pedal easy for 60 seconds. Repeat 10 times."
+                "Sprint at max effort for 30 seconds, then pedal easy for 60 seconds. Repeat 10 times.",
         });
         WORKOUT_SEARCH_MAP.put("biking", new String[]{
-                "stationary+bike+workout", "hill+climbs+bike", "bike+sprint+intervals"
+                "stationary+bike+workout", "hill+climbs+bike", "bike+sprint+intervals",
         });
         WORKOUT_SUBCATEGORY_MAP.put("biking", new String[]{"BIKING", "BIKING", "BIKING"});
         WORKOUT_INTENSITY_MAP.put("biking", new String[]{"MEDIUM", "HIGH", "HIGH"});
@@ -66,7 +66,7 @@ public final class ExerciseKnowledgeBase {
         WORKOUT_INSTRUCTIONS_MAP.put("upper", new String[]{
                 "Lower your chest to the floor, push up explosively. Keep your body in a straight line.",
                 "Press dumbbells vertically over your chest with controlled cadence.",
-                "Pull your chin above the bar, lower with control. Use a band if you can't do full pull-ups."
+                "Pull your chin above the bar, lower with control. Use a band if you can't do full pull-ups.",
         });
         WORKOUT_SEARCH_MAP.put("upper", new String[]{"pushups", "dumbbell+press", "pull+ups"});
         WORKOUT_SUBCATEGORY_MAP.put("upper", new String[]{"UPPER_BODY", "UPPER_BODY", "UPPER_BODY"});
@@ -78,7 +78,7 @@ public final class ExerciseKnowledgeBase {
         WORKOUT_INSTRUCTIONS_MAP.put("lower", new String[]{
                 "Keep your chest up, lower your hips back and down. Go to at least parallel.",
                 "Step forward, lower your hips until both knees are bent at 90 degrees. Alternate legs.",
-                "Hold weight at chest height, squat deeply while keeping back flat."
+                "Hold weight at chest height, squat deeply while keeping back flat.",
         });
         WORKOUT_SEARCH_MAP.put("lower", new String[]{"squats", "lunges", "goblet+squat"});
         WORKOUT_SUBCATEGORY_MAP.put("lower", new String[]{"LOWER_BODY", "LOWER_BODY", "LOWER_BODY"});
@@ -90,7 +90,7 @@ public final class ExerciseKnowledgeBase {
         WORKOUT_INSTRUCTIONS_MAP.put("leg", new String[]{
                 "Keep your chest up, lower your hips back and down. Go to at least parallel.",
                 "Step forward, lower your hips until both knees are bent at 90 degrees. Alternate legs.",
-                "Rise up on your toes, hold for 2 seconds, lower slowly. Repeat 20-25 times."
+                "Rise up on your toes, hold for 2 seconds, lower slowly. Repeat 20-25 times.",
         });
         WORKOUT_SEARCH_MAP.put("leg", new String[]{"squats", "lunges", "calf+raises"});
         WORKOUT_SUBCATEGORY_MAP.put("leg", new String[]{"LOWER_BODY", "LOWER_BODY", "LOWER_BODY"});
@@ -102,7 +102,7 @@ public final class ExerciseKnowledgeBase {
         WORKOUT_INSTRUCTIONS_MAP.put("hiit", new String[]{
                 "Drop to a squat, kick your feet back, do a push-up, jump up. That's one rep.",
                 "In plank position, alternate driving your knees to your chest. Keep your hips low.",
-                "Squat down, then explode up into a jump. Land softly and go right into the next rep."
+                "Squat down, then explode up into a jump. Land softly and go right into the next rep.",
         });
         WORKOUT_SEARCH_MAP.put("hiit", new String[]{"burpees", "mountain+climbers", "jump+squats"});
         WORKOUT_SUBCATEGORY_MAP.put("hiit", new String[]{"FULL_BODY", "FULL_BODY", "FULL_BODY"});
@@ -114,7 +114,7 @@ public final class ExerciseKnowledgeBase {
         WORKOUT_INSTRUCTIONS_MAP.put("core", new String[]{
                 "Hold a straight body line on your forearms. Keep your core tight and don't let your hips sag.",
                 "Alternate bringing opposite elbow to knee. Move slowly and control the movement.",
-                "Lie flat on your back, raise your legs to 90 degrees, lower with control."
+                "Lie flat on your back, raise your legs to 90 degrees, lower with control.",
         });
         WORKOUT_SEARCH_MAP.put("core", new String[]{"plank", "bicycle+crunches", "leg+raises"});
         WORKOUT_SUBCATEGORY_MAP.put("core", new String[]{"CORE", "CORE", "CORE"});
@@ -126,7 +126,7 @@ public final class ExerciseKnowledgeBase {
         WORKOUT_INSTRUCTIONS_MAP.put("strength", new String[]{
                 "Lower your chest to the floor, push up explosively. Keep your body in a straight line.",
                 "Keep your chest up, lower your hips back and down. Go to at least parallel.",
-                "Hold a straight body line on your forearms. Keep your core tight and don't let your hips sag."
+                "Hold a straight body line on your forearms. Keep your core tight and don't let your hips sag.",
         });
         WORKOUT_SEARCH_MAP.put("strength", new String[]{"pushups", "squats", "plank"});
         WORKOUT_SUBCATEGORY_MAP.put("strength", new String[]{"FULL_BODY", "FULL_BODY", "FULL_BODY"});
@@ -138,7 +138,7 @@ public final class ExerciseKnowledgeBase {
         WORKOUT_INSTRUCTIONS_MAP.put("yoga", new String[]{
                 "Start on all fours, lift your hips up into an inverted V. Stretch your back and legs.",
                 "Step into a lunge position, extend your arms. Keep your front knee at 90 degrees.",
-                "Balance on one foot, place the other foot on your inner thigh."
+                "Balance on one foot, place the other foot on your inner thigh.",
         });
         WORKOUT_SEARCH_MAP.put("yoga", new String[]{"downward+dog", "warrior+pose", "tree+pose"});
         WORKOUT_SUBCATEGORY_MAP.put("yoga", new String[]{"YOGA", "YOGA", "YOGA"});
@@ -150,7 +150,7 @@ public final class ExerciseKnowledgeBase {
         WORKOUT_INSTRUCTIONS_MAP.put("flexibility", new String[]{
                 "Start on all fours, lift your hips up into an inverted V. Stretch your back and legs.",
                 "Step into a lunge position, extend your arms. Keep your front knee at 90 degrees.",
-                "Balance on one foot, place the other foot on your inner thigh."
+                "Balance on one foot, place the other foot on your inner thigh.",
         });
         WORKOUT_SEARCH_MAP.put("flexibility", new String[]{"downward+dog", "warrior+pose", "tree+pose"});
         WORKOUT_SUBCATEGORY_MAP.put("flexibility", new String[]{"YOGA", "YOGA", "YOGA"});
@@ -162,7 +162,7 @@ public final class ExerciseKnowledgeBase {
                 new String[]{"hiit", "running", "hiit", "biking", "hiit", "running", "strength"});
         GOAL_WORKOUT_TITLES.put(FitnessGoal.LOSE_WEIGHT, new String[]{
                 "HIIT Cardio Burn", "Cardio Running Interval", "Full Body Calorie Burner",
-                "Biking Fat Burner", "High Intensity Circuit", "Endurance Run Session", "Full Body Sculpt"
+                "Biking Fat Burner", "High Intensity Circuit", "Endurance Run Session", "Full Body Sculpt",
         });
         GOAL_WORKOUT_DESCS.put(FitnessGoal.LOSE_WEIGHT, new String[]{
                 "High intensity interval training designed to maximize calorie burn and elevate metabolism.",
@@ -171,7 +171,7 @@ public final class ExerciseKnowledgeBase {
                 "Stationary biking interval session targeting lower body power and aerobic capacity.",
                 "Circuit-style high intensity exercise block designed for minimal rest and max effort.",
                 "Interval running session alternating sprints with active recovery periods.",
-                "Full body resistance session aimed at lean muscle activation and metabolic rate support."
+                "Full body resistance session aimed at lean muscle activation and metabolic rate support.",
         });
 
         GOAL_WORKOUT_TYPES.put(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN,
@@ -179,7 +179,7 @@ public final class ExerciseKnowledgeBase {
         GOAL_WORKOUT_TITLES.put(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, new String[]{
                 "Upper Body Hypertrophy", "Lower Body Power & Strength", "Full Body Heavy Compound",
                 "Upper Body Push/Pull Split", "Lower Body Quad & Hamstring Focus",
-                "Full Body Progressive Strength", "Conditioning & Core"
+                "Full Body Progressive Strength", "Conditioning & Core",
         });
         GOAL_WORKOUT_DESCS.put(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, new String[]{
                 "Targeted upper body volume session focusing on chest, back, and arm muscle development.",
@@ -188,7 +188,7 @@ public final class ExerciseKnowledgeBase {
                 "Upper body push and pull split maximizing muscular endurance and strength gains.",
                 "Lower body focus targeting quads, hamstrings, and calves through targeted sets.",
                 "Full body strength routine prioritizing resistance overload and form excellence.",
-                "High effort metabolic conditioning routine supporting cardiovascular health and lean tissue."
+                "High effort metabolic conditioning routine supporting cardiovascular health and lean tissue.",
         });
 
         GOAL_WORKOUT_TYPES.put(FitnessGoal.INCREASE_ENDURANCE,
@@ -196,7 +196,7 @@ public final class ExerciseKnowledgeBase {
         GOAL_WORKOUT_TITLES.put(FitnessGoal.INCREASE_ENDURANCE, new String[]{
                 "Long Distance Aerobic Run", "Cardio Endurance Cycling", "High Intensity Interval Cardio",
                 "Lactate Threshold Run", "Hill Climb Cycle Focus", "Speed & Stamina Circuit",
-                "Aerobic Capacity Distance Run"
+                "Aerobic Capacity Distance Run",
         });
         GOAL_WORKOUT_DESCS.put(FitnessGoal.INCREASE_ENDURANCE, new String[]{
                 "Sustained pace distance run aimed at improving aerobic capacity and stamina.",
@@ -205,7 +205,7 @@ public final class ExerciseKnowledgeBase {
                 "Tempo run structured to push lactate threshold and overall running efficiency.",
                 "High-resistance cycling hill climbs strengthening leg stamina and lung output.",
                 "Fast-paced interval circuit structured to build mental and physical endurance.",
-                "Paced distance aerobic run focused on form control and breathing stamina."
+                "Paced distance aerobic run focused on form control and breathing stamina.",
         });
 
         GOAL_WORKOUT_TYPES.put(FitnessGoal.FLEXIBILITY_AND_MOBILITY,
@@ -213,7 +213,7 @@ public final class ExerciseKnowledgeBase {
         GOAL_WORKOUT_TITLES.put(FitnessGoal.FLEXIBILITY_AND_MOBILITY, new String[]{
                 "Full Body Yoga Flow", "Deep Muscle Stretching & Mobility", "Core & Balance Yoga Flow",
                 "Joint Mobility & Spine Lengthening", "Restorative Yoga & Recovery",
-                "Dynamic Range of Motion Stretch", "Mindful Mobility Flow"
+                "Dynamic Range of Motion Stretch", "Mindful Mobility Flow",
         });
         GOAL_WORKOUT_DESCS.put(FitnessGoal.FLEXIBILITY_AND_MOBILITY, new String[]{
                 "Fluid full body yoga sequence targeting tight joints and core stability.",
@@ -222,7 +222,7 @@ public final class ExerciseKnowledgeBase {
                 "Joint mobility routine working on hips, shoulders, and spinal decompression.",
                 "Gentle restorative yoga focusing on deep breathing, relaxation, and hamstrings.",
                 "Active dynamic stretching session preparing tendons and joint tissues for movement.",
-                "Decompressing mobility flow designed to relieve tightness and posture strain."
+                "Decompressing mobility flow designed to relieve tightness and posture strain.",
         });
 
         GOAL_WORKOUT_TYPES.put(FitnessGoal.MAINTAIN_GENERAL_FITNESS,
@@ -230,7 +230,7 @@ public final class ExerciseKnowledgeBase {
         GOAL_WORKOUT_TITLES.put(FitnessGoal.MAINTAIN_GENERAL_FITNESS, new String[]{
                 "Full Body Functional Strength", "Cardio Health Run", "Upper Body Conditioning",
                 "Steady Cycling Session", "Full Body HIIT Refresh", "Lower Body Stability & Tone",
-                "Total Fitness Compound Split"
+                "Total Fitness Compound Split",
         });
         GOAL_WORKOUT_DESCS.put(FitnessGoal.MAINTAIN_GENERAL_FITNESS, new String[]{
                 "Balanced full body functional resistance workout for overall fitness and health.",
@@ -239,7 +239,7 @@ public final class ExerciseKnowledgeBase {
                 "Steady cadence cycling session preserving cardiovascular stamina and leg endurance.",
                 "Energizing high intensity interval routine supporting metabolism and movement quality.",
                 "Lower body stability workout maintaining hip, knee, and ankle joint strength.",
-                "Complete body strength session keeping foundational muscle groups active."
+                "Complete body strength session keeping foundational muscle groups active.",
         });
     }
 
@@ -593,5 +593,6 @@ public final class ExerciseKnowledgeBase {
         return result;
     }
 }
+
 
 

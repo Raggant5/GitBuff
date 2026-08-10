@@ -360,7 +360,7 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addCalendarUseCase() {
-        this.calendarDataAccessObject = new GoogleCalendarDataAccessObject(() -> GoogleCalendarServiceFactory.create());
+        this.calendarDataAccessObject = new GoogleCalendarDataAccessObject(GoogleCalendarServiceFactory::create);
         this.calendarPresenter = new CalendarPresenter(this.calendarViewModel);
 
         final LoadCalendarEventsInputBoundary loadInteractor =
@@ -459,47 +459,47 @@ public class AppBuilder {
         }
 
         final PrepareEditFoodPresenter prepareEditFoodPresenter = new PrepareEditFoodPresenter(
-                foodEditorViewModel, mealEditorViewModel);
+                this.foodEditorViewModel, this.mealEditorViewModel);
         final PrepareEditFoodInputBoundary prepareEditFoodInteractor = new PrepareEditFoodInteractor(
                 prepareEditFoodPresenter);
         final PrepareEditFoodController prepareEditFoodController = new PrepareEditFoodController(
                 prepareEditFoodInteractor);
-        mealEditorView = new MealEditorView(mealEditorViewModel, foodEditorView, prepareEditFoodController,
-                mainViewManagerModel);
+        this.mealEditorView = new MealEditorView(this.mealEditorViewModel, this.foodEditorView,
+                prepareEditFoodController, this.mainViewManagerModel);
         this.nutritionViewModel = new NutritionViewModel();
         this.viewMealsViewModel = new ViewMealsViewModel();
         final PrepareEditMealPresenter prepareEditMealPresenter = new PrepareEditMealPresenter(
-                mealEditorViewModel, this.viewMealsViewModel, this.mainViewManagerModel);
+                this.mealEditorViewModel, this.viewMealsViewModel, this.mainViewManagerModel);
         final PrepareEditMealInputBoundary prepareEditMealInteractor = new PrepareEditMealInteractor(
-                prepareEditMealPresenter, viewMealsDataAccessObject);
+                prepareEditMealPresenter, this.viewMealsDataAccessObject);
         final PrepareEditMealController prepareEditMealController = new PrepareEditMealController(
                 prepareEditMealInteractor);
-        this.viewMealsView = new ViewMealsView(viewMealsViewModel, prepareEditMealController);
-        this.nutritionView = new NutritionView(nutritionViewModel, mainViewManagerModel,
-                mealEditorViewModel, viewMealsView);
+        this.viewMealsView = new ViewMealsView(this.viewMealsViewModel, prepareEditMealController);
+        this.nutritionView = new NutritionView(this.nutritionViewModel, this.mainViewManagerModel,
+                this.mealEditorViewModel, this.viewMealsView);
 
         this.workoutEditorViewModel = new WorkoutEditorViewModel();
         this.exerciseEditorViewModel = new ExerciseEditorViewModel();
         this.exerciseEditorView = new ExerciseEditorView(this.exerciseEditorViewModel);
 
         final PrepareEditExercisePresenter prepareEditExercisePresenter = new PrepareEditExercisePresenter(
-                exerciseEditorViewModel, workoutEditorViewModel);
+                this.exerciseEditorViewModel, this.workoutEditorViewModel);
         final PrepareEditExerciseInputBoundary prepareEditExerciseInteractor = new PrepareEditExerciseInteractor(
                 prepareEditExercisePresenter);
         final PrepareEditExerciseController prepareEditExerciseController = new PrepareEditExerciseController(
                 prepareEditExerciseInteractor);
-        this.workoutEditorView = new WorkoutEditorView(workoutEditorViewModel, exerciseEditorView,
-                prepareEditExerciseController, mainViewManagerModel);
+        this.workoutEditorView = new WorkoutEditorView(this.workoutEditorViewModel, this.exerciseEditorView,
+                prepareEditExerciseController, this.mainViewManagerModel);
 
         this.viewWorkoutsViewModel = new ViewWorkoutsViewModel();
         final PrepareEditWorkoutPresenter prepareEditWorkoutPresenter = new PrepareEditWorkoutPresenter(
-                workoutEditorViewModel, this.viewWorkoutsViewModel, this.mainViewManagerModel);
+                this.workoutEditorViewModel, this.viewWorkoutsViewModel, this.mainViewManagerModel);
         final PrepareEditWorkoutInputBoundary prepareEditWorkoutInteractor = new PrepareEditWorkoutInteractor(
-                prepareEditWorkoutPresenter, viewWorkoutsDataAccessObject);
+                prepareEditWorkoutPresenter, this.viewWorkoutsDataAccessObject);
         final PrepareEditWorkoutController prepareEditWorkoutController = new PrepareEditWorkoutController(
                 prepareEditWorkoutInteractor);
-        this.viewWorkoutsView = new ViewWorkoutsView(viewWorkoutsViewModel, prepareEditWorkoutController,
-                workoutEditorViewModel, mainViewManagerModel);
+        this.viewWorkoutsView = new ViewWorkoutsView(this.viewWorkoutsViewModel, prepareEditWorkoutController,
+                this.workoutEditorViewModel, this.mainViewManagerModel);
 
         final GetMealsInputBoundary getMealsInteractor = new GetMealsInteractor(
                 new GetMealsPresenter(this.viewMealsViewModel), this.viewMealsDataAccessObject);
@@ -513,9 +513,9 @@ public class AppBuilder {
         this.mainPanel.add(this.workoutsView, this.workoutsView.getViewName());
         this.mainPanel.add(this.nutritionView, this.nutritionView.getViewName());
         this.mainPanel.add(this.profileView, this.profileView.getViewName());
-        this.mainPanel.add(mealEditorView, mealEditorView.getViewName());
+        this.mainPanel.add(this.mealEditorView, this.mealEditorView.getViewName());
         this.mainPanel.add(this.viewWorkoutsView, this.viewWorkoutsView.getViewName());
-        this.mainPanel.add(workoutEditorView, workoutEditorView.getViewName());
+        this.mainPanel.add(this.workoutEditorView, this.workoutEditorView.getViewName());
         return this;
     }
 
@@ -617,7 +617,8 @@ public class AppBuilder {
         this.recommendWorkoutPlanInteractor = new RecommendWorkoutPlanInteractor(
                 this.userDataAccessObject, recommendWorkoutPlanOutputBoundary, this.aiWorkoutDao,
                 workoutPlanEventBus);
-        this.recommendWorkoutPlanController = new RecommendWorkoutPlanController(this.recommendWorkoutPlanInteractor);
+        this.recommendWorkoutPlanController = new RecommendWorkoutPlanController(
+                this.recommendWorkoutPlanInteractor);
         this.workoutsView.setRecommendWorkoutPlanController(this.recommendWorkoutPlanController);
 
         final RefreshMealRecommendationsOutputBoundary refreshMealRecommendationsOutputBoundary =
@@ -676,12 +677,12 @@ public class AppBuilder {
      */
     public AppBuilder addAddFoodUseCase() {
         final AddFoodEntryOutputBoundary addFoodPresenter = new AddFoodPresenter(
-                mealEditorViewModel, foodEditorViewModel);
+                this.mealEditorViewModel, this.foodEditorViewModel);
         final AddFoodEntryInputBoundary addFoodEntryInteractor = new AddFoodEntryInteractor(
-                addFoodPresenter, foodEntryFactory);
+                addFoodPresenter, this.foodEntryFactory);
         final AddFoodController addFoodController = new AddFoodController(addFoodEntryInteractor);
 
-        foodEditorView.setAddFoodController(addFoodController);
+        this.foodEditorView.setAddFoodController(addFoodController);
         return this;
     }
 
@@ -720,13 +721,14 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addEditMealUseCase() {
-        final EditMealOutputBoundary editMealPresenter = new EditMealPresenter(viewMealsViewModel, mealEditorViewModel,
-                mainViewManagerModel);
+        final EditMealOutputBoundary editMealPresenter = new EditMealPresenter(
+                this.viewMealsViewModel, this.mealEditorViewModel, this.mainViewManagerModel);
         final EditMealInputBoundary editMealInteractor = new EditMealInteractor(editMealPresenter,
-                editMealDataAccessObject, viewMealsDataAccessObject, foodEntryFactory, this.mealEventBus);
+                this.editMealDataAccessObject, this.viewMealsDataAccessObject, this.foodEntryFactory,
+                this.mealEventBus);
         final EditMealController editMealController = new EditMealController(editMealInteractor);
 
-        mealEditorView.setEditMealController(editMealController);
+        this.mealEditorView.setEditMealController(editMealController);
         return this;
     }
 
@@ -737,12 +739,12 @@ public class AppBuilder {
      */
     public AppBuilder addEditFoodUseCase() {
         final EditFoodOutputBoundary editFoodPresenter = new EditFoodPresenter(
-                mealEditorViewModel, foodEditorViewModel);
+                this.mealEditorViewModel, this.foodEditorViewModel);
         final EditFoodInputBoundary editFoodInteractor = new EditFoodInteractor(
-                editFoodPresenter, foodEntryFactory);
+                editFoodPresenter, this.foodEntryFactory);
         final EditFoodController editFoodController = new EditFoodController(editFoodInteractor);
 
-        foodEditorView.setEditFoodController(editFoodController);
+        this.foodEditorView.setEditFoodController(editFoodController);
         return this;
     }
 
@@ -753,13 +755,13 @@ public class AppBuilder {
      */
     public AppBuilder addChangeServingSizeUseCase() {
         final ChangeServingSizeOutputBoundary changeServingSizePresenter = new ChangeServingSizePresenter(
-                foodEditorViewModel);
+                this.foodEditorViewModel);
         final ChangeServingSizeInputBoundary changeServingSizeInteractor = new ChangeServingSizeInteractor(
                 changeServingSizePresenter);
         final ChangeServingSizeController changeServingSizeController = new ChangeServingSizeController(
                 changeServingSizeInteractor);
 
-        foodEditorView.setChangeServingSizeController(changeServingSizeController);
+        this.foodEditorView.setChangeServingSizeController(changeServingSizeController);
         return this;
     }
 
@@ -769,12 +771,13 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addDeleteMealUseCase() {
-        final DeleteMealOutputBoundary deleteMealPresenter = new DeleteMealPresenter(viewMealsViewModel);
+        final DeleteMealOutputBoundary deleteMealPresenter = new DeleteMealPresenter(this.viewMealsViewModel);
         final DeleteMealInputBoundary deleteMealInteractor = new DeleteMealInteractor(
-                deleteMealPresenter, deleteMealDataAccessObject, viewMealsDataAccessObject, this.mealEventBus);
+                deleteMealPresenter, this.deleteMealDataAccessObject, this.viewMealsDataAccessObject,
+                this.mealEventBus);
         final DeleteMealController deleteMealController = new DeleteMealController(deleteMealInteractor);
 
-        viewMealsView.setDeleteMealController(deleteMealController);
+        this.viewMealsView.setDeleteMealController(deleteMealController);
         return this;
     }
 
@@ -784,11 +787,11 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addDeleteFoodUseCase() {
-        final DeleteFoodOutputBoundary deleteFoodPresenter = new DeleteFoodPresenter(mealEditorViewModel);
+        final DeleteFoodOutputBoundary deleteFoodPresenter = new DeleteFoodPresenter(this.mealEditorViewModel);
         final DeleteFoodInputBoundary deleteFoodInteractor = new DeleteFoodInteractor(deleteFoodPresenter);
         final DeleteFoodController deleteFoodController = new DeleteFoodController(deleteFoodInteractor);
 
-        mealEditorView.setDeleteFoodController(deleteFoodController);
+        this.mealEditorView.setDeleteFoodController(deleteFoodController);
         return this;
     }
 
@@ -798,12 +801,12 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addSearchFoodUseCase() {
-        final SearchFoodOutputBoundary searchFoodPresenter = new SearchFoodPresenter(foodEditorViewModel);
-        final SearchFoodInputBoundary searchFoodInteractor = new SearchFoodInteractor(searchFoodDataAccessObject,
+        final SearchFoodOutputBoundary searchFoodPresenter = new SearchFoodPresenter(this.foodEditorViewModel);
+        final SearchFoodInputBoundary searchFoodInteractor = new SearchFoodInteractor(this.searchFoodDataAccessObject,
                 searchFoodPresenter);
         final SearchFoodController searchFoodController = new SearchFoodController(searchFoodInteractor);
 
-        foodEditorView.setSearchFoodController(searchFoodController);
+        this.foodEditorView.setSearchFoodController(searchFoodController);
         return this;
     }
 
@@ -814,11 +817,11 @@ public class AppBuilder {
      */
     public AppBuilder addAddExerciseUseCase() {
         final AddExercisePerformedOutputBoundary addExercisePresenter = new AddExercisePresenter(
-                workoutEditorViewModel, exerciseEditorViewModel);
+                this.workoutEditorViewModel, this.exerciseEditorViewModel);
         final AddExercisePerformedInputBoundary addExerciseInteractor = new AddExercisePerformedInteractor(
-                addExercisePresenter, exercisePerformedFactory);
+                addExercisePresenter, this.exercisePerformedFactory);
         final AddExerciseController addExerciseController = new AddExerciseController(addExerciseInteractor);
-        exerciseEditorView.setAddExerciseController(addExerciseController);
+        this.exerciseEditorView.setAddExerciseController(addExerciseController);
         return this;
     }
 
@@ -828,13 +831,13 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addAddWorkoutUseCase() {
-        final AddWorkoutOutputBoundary addWorkoutPresenter = new AddWorkoutPresenter(workoutEditorViewModel,
-                viewWorkoutsViewModel, mainViewManagerModel);
+        final AddWorkoutOutputBoundary addWorkoutPresenter = new AddWorkoutPresenter(this.workoutEditorViewModel,
+                this.viewWorkoutsViewModel, this.mainViewManagerModel);
         final AddWorkoutInputBoundary addWorkoutInteractor = new AddWorkoutInteractor(addWorkoutPresenter,
-                addWorkoutDataAccessObject, loggedWorkoutFactory, exercisePerformedFactory);
+                this.addWorkoutDataAccessObject, this.loggedWorkoutFactory, this.exercisePerformedFactory);
         final AddWorkoutController addWorkoutController = new AddWorkoutController(addWorkoutInteractor,
-                loginViewModel);
-        workoutEditorView.setAddWorkoutController(addWorkoutController);
+                this.loginViewModel);
+        this.workoutEditorView.setAddWorkoutController(addWorkoutController);
         return this;
     }
 
@@ -844,12 +847,12 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addEditWorkoutUseCase() {
-        final EditWorkoutOutputBoundary editWorkoutPresenter = new EditWorkoutPresenter(viewWorkoutsViewModel,
-                workoutEditorViewModel, mainViewManagerModel);
+        final EditWorkoutOutputBoundary editWorkoutPresenter = new EditWorkoutPresenter(this.viewWorkoutsViewModel,
+                this.workoutEditorViewModel, this.mainViewManagerModel);
         final EditWorkoutInputBoundary editWorkoutInteractor = new EditWorkoutInteractor(editWorkoutPresenter,
-                editWorkoutDataAccessObject, viewWorkoutsDataAccessObject, exercisePerformedFactory);
+                this.editWorkoutDataAccessObject, this.viewWorkoutsDataAccessObject, this.exercisePerformedFactory);
         final EditWorkoutController editWorkoutController = new EditWorkoutController(editWorkoutInteractor);
-        workoutEditorView.setEditWorkoutController(editWorkoutController);
+        this.workoutEditorView.setEditWorkoutController(editWorkoutController);
         return this;
     }
 
@@ -859,12 +862,12 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addEditExerciseUseCase() {
-        final EditExerciseOutputBoundary editExercisePresenter = new EditExercisePresenter(workoutEditorViewModel,
-                exerciseEditorViewModel);
+        final EditExerciseOutputBoundary editExercisePresenter = new EditExercisePresenter(
+                this.workoutEditorViewModel, this.exerciseEditorViewModel);
         final EditExerciseInputBoundary editExerciseInteractor = new EditExerciseInteractor(editExercisePresenter,
-                exercisePerformedFactory);
+                this.exercisePerformedFactory);
         final EditExerciseController editExerciseController = new EditExerciseController(editExerciseInteractor);
-        exerciseEditorView.setEditExerciseController(editExerciseController);
+        this.exerciseEditorView.setEditExerciseController(editExerciseController);
         return this;
     }
 
@@ -874,11 +877,12 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addDeleteWorkoutUseCase() {
-        final DeleteWorkoutOutputBoundary deleteWorkoutPresenter = new DeleteWorkoutPresenter(viewWorkoutsViewModel);
+        final DeleteWorkoutOutputBoundary deleteWorkoutPresenter = new DeleteWorkoutPresenter(
+                this.viewWorkoutsViewModel);
         final DeleteWorkoutInputBoundary deleteWorkoutInteractor = new DeleteWorkoutInteractor(
-                deleteWorkoutPresenter, deleteWorkoutDataAccessObject);
+                deleteWorkoutPresenter, this.deleteWorkoutDataAccessObject);
         final DeleteWorkoutController deleteWorkoutController = new DeleteWorkoutController(deleteWorkoutInteractor);
-        viewWorkoutsView.setDeleteWorkoutController(deleteWorkoutController);
+        this.viewWorkoutsView.setDeleteWorkoutController(deleteWorkoutController);
         return this;
     }
 
@@ -889,12 +893,12 @@ public class AppBuilder {
      */
     public AppBuilder addDeleteExerciseUseCase() {
         final DeleteExerciseOutputBoundary deleteExercisePresenter = new DeleteExercisePresenter(
-                workoutEditorViewModel);
+                this.workoutEditorViewModel);
         final DeleteExerciseInputBoundary deleteExerciseInteractor = new DeleteExerciseInteractor(
                 deleteExercisePresenter);
         final DeleteExerciseController deleteExerciseController = new DeleteExerciseController(
                 deleteExerciseInteractor);
-        workoutEditorView.setDeleteExerciseController(deleteExerciseController);
+        this.workoutEditorView.setDeleteExerciseController(deleteExerciseController);
         return this;
     }
 

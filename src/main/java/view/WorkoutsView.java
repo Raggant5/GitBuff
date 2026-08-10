@@ -46,6 +46,10 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private static final Color CARD_BORDER = new Color(220, 224, 230);
     private static final Color BURN_BG = new Color(245, 247, 250);
     private static final Color DURATION_BG = new Color(230, 240, 250);
+    private static final Color SUBTITLE_TEXT_COLOR = new Color(236, 240, 241);
+    private static final Color DESCRIPTION_TEXT_COLOR = new Color(100, 110, 120);
+    private static final Color DURATION_TEXT_COLOR = new Color(41, 98, 150);
+    private static final Color EXERCISE_BUTTON_BG = new Color(235, 243, 250);
 
     private static final int TITLE_FONT_SIZE = 20;
     private static final int HEADER_FONT_SIZE = 16;
@@ -60,6 +64,24 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private static final int REFRESH_BTN_HEIGHT = 40;
     private static final int REFRESH_BTN_WIDTH = 800;
     private static final int DEFAULT_PREFERRED_DURATION = 45;
+
+    private static final int RIGID_SPACE_TINY = 3;
+    private static final int RIGID_SPACE_SMALL = 4;
+    private static final int RIGID_SPACE_MEDIUM = 5;
+    private static final int RIGID_SPACE_LARGE = 8;
+
+    private static final int TOP_PANEL_VERTICAL_PADDING = 15;
+    private static final int TOP_PANEL_HORIZONTAL_PADDING = 20;
+    private static final int CONTAINER_VERTICAL_PADDING = 10;
+    private static final int CONTAINER_HORIZONTAL_PADDING = 15;
+    private static final int CARD_ACCENT_STRIPE_WIDTH = 5;
+    private static final int CARD_HORIZONTAL_PADDING = 12;
+    private static final int BADGE_VERTICAL_PADDING = 3;
+    private static final int BADGE_HORIZONTAL_PADDING = 6;
+    private static final int EXERCISE_BUTTONS_HGAP = 6;
+    private static final int EXERCISE_BUTTONS_VGAP = 4;
+    private static final int MODAL_CONTENT_GAP = 10;
+    private static final int MODAL_PADDING = 15;
 
     private final String viewName = "workouts";
     private final WorkoutsViewModel workoutsViewModel;
@@ -86,22 +108,26 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         final JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setBackground(PRIMARY_COLOR);
-        topPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(
+                TOP_PANEL_VERTICAL_PADDING, TOP_PANEL_HORIZONTAL_PADDING,
+                TOP_PANEL_VERTICAL_PADDING, TOP_PANEL_HORIZONTAL_PADDING));
 
         final JLabel title = new JLabel("Personal Workout Schedule");
         title.setFont(new Font("SansSerif", Font.BOLD, TITLE_FONT_SIZE));
         title.setForeground(Color.WHITE);
 
         this.focusLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE + 1));
-        this.focusLabel.setForeground(new Color(236, 240, 241));
+        this.focusLabel.setForeground(SUBTITLE_TEXT_COLOR);
 
         topPanel.add(title);
-        topPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        topPanel.add(Box.createRigidArea(new Dimension(0, RIGID_SPACE_MEDIUM)));
         topPanel.add(this.focusLabel);
 
         this.scheduleContainer.setLayout(new BoxLayout(this.scheduleContainer, BoxLayout.Y_AXIS));
         this.scheduleContainer.setBackground(BG_DARK);
-        this.scheduleContainer.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        this.scheduleContainer.setBorder(BorderFactory.createEmptyBorder(
+                CONTAINER_VERTICAL_PADDING, CONTAINER_HORIZONTAL_PADDING,
+                CONTAINER_VERTICAL_PADDING, CONTAINER_HORIZONTAL_PADDING));
 
         final JScrollPane scrollPane = new JScrollPane(this.scheduleContainer);
         scrollPane.getVerticalScrollBar().setUnitIncrement(SCROLL_UNIT_INCREMENT);
@@ -124,7 +150,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                 final SwingWorker<Void, Void> worker = new SwingWorker<>() {
                     @Override
                     protected Void doInBackground() {
-                        recommendWorkoutPlanController.execute();
+                        WorkoutsView.this.recommendWorkoutPlanController.execute();
                         return null;
                     }
                 };
@@ -171,7 +197,8 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                 weekHeader.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
                 weekHeader.setForeground(PRIMARY_COLOR);
                 weekHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
-                weekHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+                weekHeader.setBorder(BorderFactory.createEmptyBorder(
+                        CONTAINER_VERTICAL_PADDING, 0, CONTAINER_VERTICAL_PADDING, 0));
                 this.scheduleContainer.add(weekHeader);
 
                 final int totalDays = Math.min(plans.size(), DAYS_PER_WEEK);
@@ -179,7 +206,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                     final WorkoutPlanDisplayData plan = plans.get(i);
                     final JPanel planCard = createPlanCard(plan, i + 1);
                     this.scheduleContainer.add(planCard);
-                    this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, 8)));
+                    this.scheduleContainer.add(Box.createRigidArea(new Dimension(0, RIGID_SPACE_LARGE)));
                 }
             }
         }
@@ -206,10 +233,11 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         }
 
         planCard.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 5, 0, 0, headerColor),
+                BorderFactory.createMatteBorder(0, CARD_ACCENT_STRIPE_WIDTH, 0, 0, headerColor),
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(CARD_BORDER, 1),
-                        BorderFactory.createEmptyBorder(10, 12, 10, 12)
+                        BorderFactory.createEmptyBorder(CONTAINER_VERTICAL_PADDING, CARD_HORIZONTAL_PADDING,
+                                CONTAINER_VERTICAL_PADDING, CARD_HORIZONTAL_PADDING)
                 )
         ));
 
@@ -233,20 +261,21 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
         final JLabel descLabel = new JLabel(plan.getDescription());
         descLabel.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
-        descLabel.setForeground(new Color(100, 110, 120));
+        descLabel.setForeground(DESCRIPTION_TEXT_COLOR);
         descLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         planCard.add(dateTitleLabel);
-        planCard.add(Box.createRigidArea(new Dimension(0, 3)));
+        planCard.add(Box.createRigidArea(new Dimension(0, RIGID_SPACE_TINY)));
         planCard.add(descLabel);
 
         if (!isRestDay) {
             final JLabel durationLabel = new JLabel(String.format("Duration: %d minutes", duration));
             durationLabel.setFont(new Font("SansSerif", Font.BOLD, SMALL_FONT_SIZE));
-            durationLabel.setForeground(new Color(41, 98, 150));
+            durationLabel.setForeground(DURATION_TEXT_COLOR);
             durationLabel.setOpaque(true);
             durationLabel.setBackground(DURATION_BG);
-            durationLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+            durationLabel.setBorder(BorderFactory.createEmptyBorder(BADGE_VERTICAL_PADDING, BADGE_HORIZONTAL_PADDING,
+                    BADGE_VERTICAL_PADDING, BADGE_HORIZONTAL_PADDING));
             durationLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             final JLabel burnLabel = new JLabel(String.format("Est. Burn: %d Cal | %dg Fat | %dg Carbs",
@@ -257,16 +286,18 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
             burnLabel.setForeground(PRIMARY_COLOR);
             burnLabel.setOpaque(true);
             burnLabel.setBackground(BURN_BG);
-            burnLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+            burnLabel.setBorder(BorderFactory.createEmptyBorder(BADGE_VERTICAL_PADDING, BADGE_HORIZONTAL_PADDING,
+                    BADGE_VERTICAL_PADDING, BADGE_HORIZONTAL_PADDING));
             burnLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            planCard.add(Box.createRigidArea(new Dimension(0, 5)));
+            planCard.add(Box.createRigidArea(new Dimension(0, RIGID_SPACE_MEDIUM)));
             planCard.add(durationLabel);
-            planCard.add(Box.createRigidArea(new Dimension(0, 3)));
+            planCard.add(Box.createRigidArea(new Dimension(0, RIGID_SPACE_TINY)));
             planCard.add(burnLabel);
 
-            planCard.add(Box.createRigidArea(new Dimension(0, 8)));
-            final JPanel exercisesPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+            planCard.add(Box.createRigidArea(new Dimension(0, RIGID_SPACE_LARGE)));
+            final JPanel exercisesPanel = new JPanel(
+                    new FlowLayout(FlowLayout.LEFT, EXERCISE_BUTTONS_HGAP, EXERCISE_BUTTONS_VGAP));
             exercisesPanel.setBackground(Color.WHITE);
             exercisesPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -275,7 +306,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                         exercise.getName(), exercise.getSets(), exercise.getReps());
                 final JButton exButton = new JButton(btnText);
                 exButton.setFont(new Font("SansSerif", Font.PLAIN, BODY_FONT_SIZE));
-                exButton.setBackground(new Color(235, 243, 250));
+                exButton.setBackground(EXERCISE_BUTTON_BG);
                 exButton.setForeground(PRIMARY_COLOR);
                 exButton.setBorder(BorderFactory.createLineBorder(ACCENT_COLOR, 1));
                 exButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -297,8 +328,9 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         dialog.setSize(MODAL_WIDTH, MODAL_HEIGHT);
         dialog.setLocationRelativeTo(this);
 
-        final JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        final JPanel contentPanel = new JPanel(new BorderLayout(MODAL_CONTENT_GAP, MODAL_CONTENT_GAP));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(
+                MODAL_PADDING, MODAL_PADDING, MODAL_PADDING, MODAL_PADDING));
         contentPanel.setBackground(Color.WHITE);
 
         final JLabel nameLabel = new JLabel(exercise.getName(), SwingConstants.CENTER);
@@ -332,7 +364,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         topBox.setLayout(new BoxLayout(topBox, BoxLayout.Y_AXIS));
         topBox.setBackground(Color.WHITE);
         topBox.add(nameLabel);
-        topBox.add(Box.createRigidArea(new Dimension(0, 4)));
+        topBox.add(Box.createRigidArea(new Dimension(0, RIGID_SPACE_SMALL)));
         topBox.add(setsLabel);
 
         final String instructions;
@@ -392,10 +424,20 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         displayState((WorkoutsState) evt.getNewValue());
     }
 
+    /**
+     * Returns the name of the view.
+     *
+     * @return the view name string
+     */
     public String getViewName() {
-        return viewName;
+        return this.viewName;
     }
 
+    /**
+     * Sets the controller used to execute workout plan recommendations.
+     *
+     * @param recommendWorkoutPlanController the controller instance
+     */
     public void setRecommendWorkoutPlanController(
             final RecommendWorkoutPlanController recommendWorkoutPlanController) {
         this.recommendWorkoutPlanController = recommendWorkoutPlanController;
@@ -415,3 +457,4 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         }
     }
 }
+
