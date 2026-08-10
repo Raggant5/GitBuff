@@ -24,11 +24,9 @@
 A fitness management app that gives/teaches users workouts and meal plans tailored to their specific needs, analyzes users' progress on fitness goals over time, 
 and allows users to share that progress with others. The application is intended for individuals who want a centralized way to manage their fitness routines, nutrition, and progress.
 
-Explain:
-- What the project does
-- Why the project was created
-- What problem it solves
-- Who the project is intended for
+GitBuff helps solve the difficulties individuals may face when managing multiple aspects of their fitness journey at once. Tracking progress, managing nutrition, and recording workouts can all be done on one platform. GitBuff also includes a calendar feature that allows users to organize and schedule their workouts in advance, helping them stay consistent with their fitness routine. In addition, progress visualizations allow users to view their fitness and nutrition data over time and better understand how they are progressing toward their goals.
+
+Because of this, GitBuff is especially intended for individuals who want a convenient and structured way to improve their fitness. It is very useful for users who want direction and guidance with workouts and nutrition while also being able to track their progress toward their fitness goals.
 
 ---
 
