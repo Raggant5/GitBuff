@@ -92,8 +92,7 @@ public class ProfileControllerTest {
                 .bio("Hello world")
                 .preferredUnitSystem(UnitSystem.METRIC)
                 .equipment(new HashSet<>())
-                .dietaryRestrictions(new HashSet<>())
-               he  .preferredWorkoutDays(new HashSet<>())
+                .dietaryRestrictions(new HashSet<>()).preferredWorkoutDays(new HashSet<>())
                 .preferredWorkoutDurationMinutes(TEST_DURATION)
                 .privacySettings(new HashSet<>())
                 .build();
