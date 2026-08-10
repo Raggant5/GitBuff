@@ -1,6 +1,5 @@
 package interface_adapter.nutrition.meal;
 
-import interface_adapter.login.LoginViewModel;
 import use_case.nutrition.meal.get_meals.GetMealsInputBoundary;
 import use_case.nutrition.meal.get_meals.GetMealsInputData;
 
@@ -11,18 +10,17 @@ import use_case.nutrition.meal.get_meals.GetMealsInputData;
 public class GetMealsController {
 
     private final GetMealsInputBoundary getMealsInteractor;
-    private final LoginViewModel loginViewModel;
 
-    public GetMealsController(final GetMealsInputBoundary getMealsInteractor, final LoginViewModel loginViewModel) {
+    public GetMealsController(final GetMealsInputBoundary getMealsInteractor) {
         this.getMealsInteractor = getMealsInteractor;
-        this.loginViewModel = loginViewModel;
     }
 
     /**
      * Executes the Get Meals Use Case for the currently logged-in user.
+     *
+     * @param userId the currently logged-in user's id
      */
-    public void execute() {
-        final String userId = this.loginViewModel.getState().getUsername();
+    public void execute(final String userId) {
         if (userId != null && !userId.isBlank()) {
             this.getMealsInteractor.execute(new GetMealsInputData(userId));
         }

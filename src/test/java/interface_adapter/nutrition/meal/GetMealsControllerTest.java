@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import interface_adapter.login.LoginViewModel;
 import use_case.nutrition.meal.get_meals.GetMealsInputBoundary;
 import use_case.nutrition.meal.get_meals.GetMealsInputData;
 
@@ -17,12 +16,10 @@ class GetMealsControllerTest {
 
     @Test
     void executeCallsInteractorWhenUsernamePresent() {
-        final LoginViewModel loginViewModel = new LoginViewModel();
-        loginViewModel.getState().setUsername("aahir");
         final FakeGetMealsInputBoundary interactor = new FakeGetMealsInputBoundary();
-        final GetMealsController controller = new GetMealsController(interactor, loginViewModel);
+        final GetMealsController controller = new GetMealsController(interactor);
 
-        controller.execute();
+        controller.execute("aahir");
 
         assertTrue(interactor.executeCalled);
         assertEquals("aahir", interactor.receivedInputData.getUserId());
@@ -30,24 +27,20 @@ class GetMealsControllerTest {
 
     @Test
     void executeDoesNothingWhenUsernameIsNull() {
-        final LoginViewModel loginViewModel = new LoginViewModel();
-        loginViewModel.getState().setUsername(null);
         final FakeGetMealsInputBoundary interactor = new FakeGetMealsInputBoundary();
-        final GetMealsController controller = new GetMealsController(interactor, loginViewModel);
+        final GetMealsController controller = new GetMealsController(interactor);
 
-        controller.execute();
+        controller.execute(null);
 
         assertFalse(interactor.executeCalled);
     }
 
     @Test
     void executeDoesNothingWhenUsernameIsBlank() {
-        final LoginViewModel loginViewModel = new LoginViewModel();
-        loginViewModel.getState().setUsername("   ");
         final FakeGetMealsInputBoundary interactor = new FakeGetMealsInputBoundary();
-        final GetMealsController controller = new GetMealsController(interactor, loginViewModel);
+        final GetMealsController controller = new GetMealsController(interactor);
 
-        controller.execute();
+        controller.execute("   ");
 
         assertFalse(interactor.executeCalled);
     }

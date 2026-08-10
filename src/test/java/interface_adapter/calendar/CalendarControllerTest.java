@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import interface_adapter.login.LoginViewModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import use_case.calendar.load_events.LoadCalendarEventsInputBoundary;
@@ -23,21 +22,17 @@ import use_case.calendar.load_events.LoadCalendarEventsInputData;
 class CalendarControllerTest {
 
     private final List<LoadCalendarEventsInputData> loadCalls = new ArrayList<>();
-    private LoginViewModel loginViewModel;
     private CalendarController controller;
 
     @BeforeEach
     void setUp() {
-        loginViewModel = new LoginViewModel();
         final LoadCalendarEventsInputBoundary loadBoundary = loadCalls::add;
-        controller = new CalendarController(loadBoundary, loginViewModel);
+        controller = new CalendarController(loadBoundary);
     }
 
     @Test
     void loadCalendarEventsDelegatesToInteractorWithCurrentUser() {
-        loginViewModel.getState().setUsername("amir");
-
-        controller.loadCalendarEvents();
+        controller.execute("amir");
 
         assertEquals(1, loadCalls.size());
         assertEquals("amir", loadCalls.get(0).getUserID());
@@ -45,7 +40,7 @@ class CalendarControllerTest {
 
     @Test
     void loadCalendarEventsDoesNothingWithoutLoggedInUser() {
-        controller.loadCalendarEvents();
+        controller.execute(null);
 
         assertTrue(loadCalls.isEmpty());
     }
