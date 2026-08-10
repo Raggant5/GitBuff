@@ -6,8 +6,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.CalendarEvent;
 import org.junit.jupiter.api.Test;
+
+import entity.CalendarEvent;
 import use_case.calendar.CalendarEventDataAccessInterface;
 import use_case.nutrition.meal.MealChangeType;
 
@@ -81,12 +82,26 @@ class UpdateMealCalendarEventInteractorTest {
         assertEquals("Meal: Lunch", calendarDao.addedTitles.get(0));
     }
 
+    @Test
+    void calendarFailureIsSentToFailureView() {
+        final FakeCalendarEventDataAccessObject calendarDao = new FakeCalendarEventDataAccessObject();
+        calendarDao.failureMessage = "Calendar unavailable";
+        final CapturingPresenter presenter = new CapturingPresenter();
+
+        new UpdateMealCalendarEventInteractor(calendarDao, presenter).execute(
+                new UpdateMealCalendarEventInputData(
+                        "amir", 12, "Lunch", LocalDate.of(2026, 8, 6), MealChangeType.ADDED));
+
+        assertEquals("Calendar unavailable", presenter.failureMessage);
+    }
+
     private static final class FakeCalendarEventDataAccessObject implements CalendarEventDataAccessInterface {
         private final List<CalendarEvent> events = new ArrayList<>();
         private final List<String> addedTitles = new ArrayList<>();
         private final List<String> addedDescriptions = new ArrayList<>();
         private final List<String> removedEventIds = new ArrayList<>();
         private int nextId = 1;
+        private String failureMessage;
 
         @Override
         public void addCalendarEvent(final String userId, final String title, final String description,
@@ -104,11 +119,16 @@ class UpdateMealCalendarEventInteractorTest {
 
         @Override
         public List<CalendarEvent> getUserEvents(final String userID) {
+            if (failureMessage != null) {
+                throw new IllegalStateException(failureMessage);
+            }
             return new ArrayList<>(events);
         }
     }
 
     private static final class CapturingPresenter implements UpdateMealCalendarEventOutputBoundary {
+        private String failureMessage;
+
         @Override
         public void prepareSuccessView(final UpdateMealCalendarEventOutputData outputData) {
             // tests assert on the DAO's captured calls instead
@@ -116,7 +136,7 @@ class UpdateMealCalendarEventInteractorTest {
 
         @Override
         public void prepareFailureView(final String errorMessage) {
-            throw new AssertionError("Expected success view, got failure: " + errorMessage);
+            this.failureMessage = errorMessage;
         }
     }
 }

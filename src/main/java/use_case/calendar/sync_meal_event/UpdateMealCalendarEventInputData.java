@@ -15,6 +15,15 @@ public class UpdateMealCalendarEventInputData {
     private final LocalDate date;
     private final MealChangeType changeType;
 
+    /**
+     * Creates input data describing a meal change.
+     *
+     * @param userId the GitBuff user identifier
+     * @param mealId the stored meal identifier
+     * @param name the meal name
+     * @param date the scheduled meal date
+     * @param changeType the kind of change made to the meal
+     */
     public UpdateMealCalendarEventInputData(final String userId, final int mealId, final String name,
                                             final LocalDate date, final MealChangeType changeType) {
         this.userId = userId;
@@ -24,22 +33,47 @@ public class UpdateMealCalendarEventInputData {
         this.changeType = changeType;
     }
 
+    /**
+     * Returns the GitBuff user identifier.
+     *
+     * @return the user identifier
+     */
     public String getUserId() {
         return this.userId;
     }
 
+    /**
+     * Returns the stored meal identifier.
+     *
+     * @return the meal identifier
+     */
     public int getMealId() {
         return this.mealId;
     }
 
+    /**
+     * Returns the meal name.
+     *
+     * @return the meal name
+     */
     public String getName() {
         return this.name;
     }
 
+    /**
+     * Returns the scheduled meal date.
+     *
+     * @return the meal date
+     */
     public LocalDate getDate() {
         return this.date;
     }
 
+    /**
+     * Returns the type of meal change.
+     *
+     * @return the meal change type
+     */
     public MealChangeType getChangeType() {
         return this.changeType;
     }

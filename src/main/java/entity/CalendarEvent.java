@@ -22,11 +22,11 @@ public class CalendarEvent {
      * @param activityDate the date on which the activity is scheduled
      */
     public CalendarEvent(
-            String eventId,
-            String userId,
-            String title,
-            String description,
-            LocalDate activityDate) {
+            final String eventId,
+            final String userId,
+            final String title,
+            final String description,
+            final LocalDate activityDate) {
         this.eventId = eventId;
         this.userId = userId;
         this.title = title;

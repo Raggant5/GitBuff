@@ -5,6 +5,9 @@ import java.util.List;
 
 import entity.CalendarEvent;
 
+/**
+ * Gateway used by calendar use cases to store and retrieve calendar events.
+ */
 public interface CalendarEventDataAccessInterface {
 
     /**

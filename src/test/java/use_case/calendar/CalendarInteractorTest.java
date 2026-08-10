@@ -1,18 +1,18 @@
 package use_case.calendar;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.CalendarEvent;
 import org.junit.jupiter.api.Test;
+
+import entity.CalendarEvent;
 import use_case.calendar.load_events.LoadCalendarEventsInputData;
 import use_case.calendar.load_events.LoadCalendarEventsInteractor;
 import use_case.calendar.load_events.LoadCalendarEventsOutputBoundary;
 import use_case.calendar.load_events.LoadCalendarEventsOutputData;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class CalendarInteractorTest {
 
@@ -63,19 +63,23 @@ class CalendarInteractorTest {
 
         @Override
         public void removeCalendarEvent(String userId, String eventId) {
-            events.removeIf(event -> event.getUserId().equals(userId)
-                    && event.getEventId().equals(eventId));
+            events.removeIf(event -> {
+                return event.getUserId().equals(userId)
+                        && event.getEventId().equals(eventId);
+            });
         }
 
         @Override
         public List<CalendarEvent> getUserEvents(String userId) {
             return events.stream()
-                    .filter(event -> event.getUserId().equals(userId))
+                    .filter(event -> {
+                        return event.getUserId().equals(userId);
+                    })
                     .toList();
         }
     }
 
-    private static class LoadOutputPresenter
+    private static final class LoadOutputPresenter
             implements LoadCalendarEventsOutputBoundary {
         private String error;
         private LoadCalendarEventsOutputData outputData;
