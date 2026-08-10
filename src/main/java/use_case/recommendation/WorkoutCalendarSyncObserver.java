@@ -12,14 +12,14 @@ public class WorkoutCalendarSyncObserver implements WorkoutPlanObserver {
 
     private final SyncWorkoutCalendarEventsInputBoundary syncWorkoutCalendarEventsInteractor;
 
-    public WorkoutCalendarSyncObserver(
-            final SyncWorkoutCalendarEventsInputBoundary syncWorkoutCalendarEventsInteractor) {
+    public WorkoutCalendarSyncObserver(final SyncWorkoutCalendarEventsInputBoundary
+                                               syncWorkoutCalendarEventsInteractor) {
         this.syncWorkoutCalendarEventsInteractor = syncWorkoutCalendarEventsInteractor;
     }
 
     @Override
     public void onWorkoutPlanGenerated(final WorkoutPlanGeneratedEvent event) {
-        this.syncWorkoutCalendarEventsInteractor.execute(
-                new SyncWorkoutCalendarEventsInputData(event.getUserId(), event.getWorkoutPlans()));
+        this.syncWorkoutCalendarEventsInteractor.execute(new SyncWorkoutCalendarEventsInputData(event.getUserId(),
+                event.getWorkoutPlans()));
     }
 }

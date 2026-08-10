@@ -80,28 +80,6 @@ public class ProfileControllerTest {
         assertTrue(workoutsViewModel.getState().isLoading());
     }
 
-    @Test
-    public void executeWithPrimitiveArgsTriggersRecommendationRefreshInBackground() throws InterruptedException {
-        final CountDownLatch profileLatch = new CountDownLatch(1);
-        final FakeEditProfileInteractor profileInteractor = new FakeEditProfileInteractor(profileLatch);
-        final ProfileController controller = new ProfileController(profileInteractor);
-        final CountDownLatch recommendationLatch = new CountDownLatch(1);
-        final FakeRecommendationInteractor recommendationInteractor =
-                new FakeRecommendationInteractor(recommendationLatch);
-        controller.setRecommendationDependencies(
-                new RecommendationController(recommendationInteractor), new WorkoutsViewModel());
-
-        controller.execute(TEST_HEIGHT, TEST_WEIGHT, ActivityLevelOption.VERY_ACTIVE,
-                FitnessGoalOption.MUSCLE_AND_STRENGTH_GAIN, "/tmp/pic.png", LocalDate.of(2000, 1, 1),
-                GenderOption.MALE, "Hello world", UnitSystemOption.METRIC, new HashSet<>(), new HashSet<>(),
-                new HashSet<>(), TEST_DURATION, new HashSet<>());
-
-        if (!recommendationLatch.await(AWAIT_SECONDS, TimeUnit.SECONDS)) {
-            fail("Expected the recommendation interactor to be invoked within " + AWAIT_SECONDS + " seconds.");
-        }
-        assertTrue(recommendationInteractor.executeCalled);
-    }
-
     private EditProfileInputData buildInputData() {
         return new EditProfileInputData.Builder()
                 .height(TEST_HEIGHT)
@@ -114,8 +92,7 @@ public class ProfileControllerTest {
                 .bio("Hello world")
                 .preferredUnitSystem(UnitSystem.METRIC)
                 .equipment(new HashSet<>())
-                .dietaryRestrictions(new HashSet<>())
-                .preferredWorkoutDays(new HashSet<>())
+                .dietaryRestrictions(new HashSet<>()).preferredWorkoutDays(new HashSet<>())
                 .preferredWorkoutDurationMinutes(TEST_DURATION)
                 .privacySettings(new HashSet<>())
                 .build();

@@ -23,4 +23,28 @@ class ProfileOptionEnumsTest {
         assertEquals("Share Workout Streak", PrivacySettingOption.SHARE_STREAK.getDisplayName());
         assertEquals("Share Workout Streak", PrivacySettingOption.SHARE_STREAK.toString());
     }
+
+    @Test
+    void unitSystemOptionExposesDisplayName() {
+        assertEquals("Metric (kg, cm)", UnitSystemOption.METRIC.getDisplayName());
+        assertEquals("Metric (kg, cm)", UnitSystemOption.METRIC.toString());
+    }
+
+    @Test
+    void genderOptionExposesDisplayName() {
+        assertEquals("Male", GenderOption.MALE.getDisplayName());
+        assertEquals("Male", GenderOption.MALE.toString());
+    }
+
+    @Test
+    void fitnessGoalOptionExposesDisplayName() {
+        assertEquals("Lose Weight", FitnessGoalOption.LOSE_WEIGHT.getDisplayName());
+        assertEquals("Lose Weight", FitnessGoalOption.LOSE_WEIGHT.toString());
+    }
+
+    @Test
+    void activityLevelOptionExposesDescription() {
+        assertEquals("Not active (little or no exercise)", ActivityLevelOption.NOT_ACTIVE.getDescription());
+        assertEquals("Not active (little or no exercise)", ActivityLevelOption.NOT_ACTIVE.toString());
+    }
 }
