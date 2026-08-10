@@ -82,5 +82,3 @@ public class WorkoutPlanDisplayData {
         return this.exercises;
     }
 }
-
-

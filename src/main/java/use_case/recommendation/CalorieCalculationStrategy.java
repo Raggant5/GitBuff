@@ -30,5 +30,3 @@ public interface CalorieCalculationStrategy {
      */
     int calculateDailyProteinGrams(User user);
 }
-
-

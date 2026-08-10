@@ -713,3 +713,4 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
         displayState(state);
     }
 }
+

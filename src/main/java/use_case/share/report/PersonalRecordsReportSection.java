@@ -34,4 +34,3 @@ public class PersonalRecordsReportSection implements ReportSection {
         return builder.toString();
     }
 }
-

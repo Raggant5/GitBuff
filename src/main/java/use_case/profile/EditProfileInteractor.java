@@ -65,5 +65,3 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
         this.profilePresenter.prepareSuccessView(outputData);
     }
 }
-
-

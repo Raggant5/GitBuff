@@ -29,3 +29,4 @@ public interface WorkoutPlanGenerationStrategy {
     List<WorkoutPlan> generatePlans(User user, int numberOfDays);
 }
 
+

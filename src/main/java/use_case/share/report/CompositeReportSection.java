@@ -57,5 +57,3 @@ public class CompositeReportSection implements ReportSection {
         return builder.toString();
     }
 }
-
-

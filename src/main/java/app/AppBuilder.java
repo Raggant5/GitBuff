@@ -28,8 +28,10 @@ import interface_adapter.ViewManagerModel;
 import interface_adapter.calendar.CalendarController;
 import interface_adapter.calendar.CalendarPresenter;
 import interface_adapter.calendar.CalendarState;
+import interface_adapter.calendar.CalendarSyncObserver;
 import interface_adapter.calendar.CalendarViewModel;
 import interface_adapter.dashboard.DashboardPresenter;
+import interface_adapter.dashboard.DashboardRefreshObserver;
 import interface_adapter.dashboard.DashboardViewModel;
 import interface_adapter.log_workout.exercise.AddExerciseController;
 import interface_adapter.log_workout.exercise.AddExercisePresenter;
@@ -79,15 +81,21 @@ import interface_adapter.nutrition.meal.PrepareEditMealPresenter;
 import interface_adapter.nutrition.meal.ViewMealsViewModel;
 import interface_adapter.profile.ProfileController;
 import interface_adapter.profile.ProfilePresenter;
+import interface_adapter.profile.ProfileSessionObserver;
 import interface_adapter.profile.ProfileViewModel;
 import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.recommendation.RecommendationPresenter;
+import interface_adapter.recommendation.RecommendationRefreshObserver;
+import interface_adapter.session.MealsSessionObserver;
+import interface_adapter.session.UserSessionEventBus;
+import interface_adapter.session.WorkoutHistorySessionObserver;
 import interface_adapter.share.ShareProgressController;
 import interface_adapter.share.ShareProgressPresenter;
 import interface_adapter.share.ShareProgressViewModel;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupPresenter;
 import interface_adapter.signup.SignupViewModel;
+import interface_adapter.workouts.WorkoutScheduleLoadingObserver;
 import interface_adapter.workouts.WorkoutsViewModel;
 import use_case.calendar.CalendarEventDataAccessInterface;
 import use_case.calendar.add_event.AddCalendarEventInputBoundary;
@@ -516,14 +524,27 @@ public class AppBuilder {
     /**
      * Adds the Login Use Case to the application.
      *
+     * <p>Wires a {@link UserSessionEventBus} (Observer design pattern) with one observer per
+     * feature that needs to react to a successful login, instead of passing every one of those
+     * features' controllers/view models into {@link LoginPresenter} directly. Every observer
+     * built here depends only on a field that an earlier {@code add*UseCase()}/
+     * {@code addMainViews()} call already populated - see {@code Main}'s builder chain for the
+     * call order this relies on.
+     *
      * @return this builder
      */
     public AppBuilder addLoginUseCase() {
+        final UserSessionEventBus userSessionEventBus = new UserSessionEventBus();
+        userSessionEventBus.subscribe(new ProfileSessionObserver(this.profileViewModel));
+        userSessionEventBus.subscribe(new MealsSessionObserver(this.viewMealsViewModel));
+        userSessionEventBus.subscribe(new WorkoutHistorySessionObserver(this.viewWorkoutsViewModel));
+        userSessionEventBus.subscribe(new WorkoutScheduleLoadingObserver(this.workoutViewModel));
+        userSessionEventBus.subscribe(new CalendarSyncObserver(this.calendarController));
+        userSessionEventBus.subscribe(new RecommendationRefreshObserver(this.recommendationController));
+        userSessionEventBus.subscribe(new DashboardRefreshObserver(this.dashboardInteractor));
+
         final LoginOutputBoundary loginOutputBoundary = new LoginPresenter(
-                this.viewManagerModel, this.loginViewModel, this.signupViewModel,
-                this.profileViewModel, this.viewMealsViewModel, this.workoutViewModel,
-                this.recommendationController, this.dashboardInteractor, this.viewWorkoutsViewModel,
-                this.calendarController);
+                this.viewManagerModel, this.loginViewModel, this.signupViewModel, userSessionEventBus);
         final LoginInputBoundary loginInteractor = new LoginInteractor(
                 this.userDataAccessObject, loginOutputBoundary, viewMealsDataAccessObject,
                 viewWorkoutsDataAccessObject);
@@ -821,5 +842,3 @@ public class AppBuilder {
         return application;
     }
 }
-
-
