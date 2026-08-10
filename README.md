@@ -69,19 +69,19 @@ Receive meal recommendations based on the user's profile data, including dietary
 
 Manage profile information, track activity level and fitness goals (e.g. cut, bulk, maintain), and share fitness progress with other users.
 
-![Feature 5 Screenshot](path/to/image.png)
+<img width="2996" height="1504" alt="image" src="https://github.com/user-attachments/assets/f4da5d19-273f-47f9-8ddd-24c2c661ff8e" />
 
 ### Feature 6 —  
 
 View recommended workout plans and logged meals in an in-app calendar and sync them with Google Calendar.
 
-![Feature 6 Screenshot](path/to/image.png)
+<img width="3420" height="2162" alt="image" src="https://github.com/user-attachments/assets/db7da91a-1b18-4b8e-b247-025550c06a34" />
 
 ### Feature 7 — Dashboard Visualization
 
 View a visual summary of workout and nutrition progress through charts and other progress metrics
 
-![Feature 7 Screenshot](path/to/image.png)
+<img width="1232" height="896" alt="image" src="https://github.com/user-attachments/assets/3f7d632c-af68-4b1a-ac5a-1d2c14b8c7c4" />
 
 ---
 
