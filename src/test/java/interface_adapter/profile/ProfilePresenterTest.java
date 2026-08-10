@@ -57,13 +57,13 @@ public class ProfilePresenterTest {
         assertEquals("aahir", state.getUsername());
         assertEquals(String.valueOf(TEST_HEIGHT), state.getHeightText());
         assertEquals(String.valueOf(TEST_WEIGHT), state.getWeightText());
-        assertEquals(ActivityLevel.VERY_ACTIVE, state.getActivityLevel());
-        assertEquals(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN, state.getGoal());
+        assertEquals(ActivityLevelOption.VERY_ACTIVE, state.getActivityLevel());
+        assertEquals(FitnessGoalOption.MUSCLE_AND_STRENGTH_GAIN, state.getGoal());
         assertEquals("/tmp/pic.png", state.getProfilePicturePath());
         assertEquals(LocalDate.of(2000, 1, 1), state.getDateOfBirth());
-        assertEquals(Gender.MALE, state.getGender());
+        assertEquals(GenderOption.MALE, state.getGender());
         assertEquals("Hello world", state.getBio());
-        assertEquals(UnitSystem.METRIC, state.getPreferredUnitSystem());
+        assertEquals(UnitSystemOption.METRIC, state.getPreferredUnitSystem());
         assertEquals(TEST_DURATION, state.getPreferredWorkoutDurationMinutes());
         assertEquals("Profile saved.", state.getSaveConfirmation());
         assertNull(state.getProfileError());
