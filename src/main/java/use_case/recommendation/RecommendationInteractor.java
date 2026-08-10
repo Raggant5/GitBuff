@@ -17,7 +17,6 @@ import entity.WorkoutPlan;
  */
 public class RecommendationInteractor implements RecommendationInputBoundary {
 
-    private static final double RESTING_KCAL_PER_KG = 22.0;
     private static final int DEFAULT_DURATION_MINUTES = 45;
     private static final int WEEK_DAYS = 7;
 
@@ -61,35 +60,17 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
             }
             else {
                 ensureProfileDefaults(user);
-                presentRecommendationFor(user, true);
+                presentRecommendationFor(user);
             }
         }
     }
 
-    @Override
-    public void executeMealRecommendationsOnly() {
-        final String username = this.userDataAccessObject.getCurrentUsername();
-        if (username == null) {
-            this.recommendationPresenter.prepareFailView("No user is currently logged in.");
-        }
-        else {
-            final User user = this.userDataAccessObject.get(username);
-            if (user != null) {
-                ensureProfileDefaults(user);
-                presentRecommendationFor(user, false);
-            }
-        }
-    }
-
-    private void presentRecommendationFor(final User user, final boolean includeWorkouts) {
-        final double restingCalories = RESTING_KCAL_PER_KG * user.getWeight();
-        final double maintenanceCalories = restingCalories * user.getActivityLevel().getCalorieMultiplier();
-        final int dailyCalorieTarget =
-                (int) Math.round(maintenanceCalories + user.getGoal().getDailyCalorieAdjustment());
-        final int dailyProteinGrams = (int) Math.round(user.getWeight() * user.getGoal().getProteinGramsPerKg());
+    private void presentRecommendationFor(final User user) {
+        final int dailyCalorieTarget = DailyMacroCalculator.calculateDailyCalorieTarget(user);
+        final int dailyProteinGrams = DailyMacroCalculator.calculateDailyProteinGrams(user);
 
         List<WorkoutPlan> plans = new ArrayList<>();
-        if (includeWorkouts && this.aiWorkoutDataAccessObject != null) {
+        if (this.aiWorkoutDataAccessObject != null) {
             plans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user, WEEK_DAYS);
         }
 

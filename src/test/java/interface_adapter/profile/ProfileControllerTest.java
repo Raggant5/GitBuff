@@ -158,10 +158,5 @@ public class ProfileControllerTest {
                 this.latch.countDown();
             }
         }
-
-        @Override
-        public void executeMealRecommendationsOnly() {
-            // Not exercised by these tests.
-        }
     }
 }
