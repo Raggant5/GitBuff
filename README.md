@@ -10,8 +10,8 @@
 
 ## Table of Contents
 
-- [About the Project](#about-the-project)
 - [Purpose](#purpose)
+- [Usage](#Usage)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
