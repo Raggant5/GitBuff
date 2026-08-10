@@ -28,13 +28,6 @@ import use_case.signup.SignupUserDataAccessInterface;
 
 /**
  * SQLite implementation for storing and loading user information and workout stats.
- *
- * <p>This is an Adapter in the sense of the Adapter design pattern: it adapts the SQLite/JDBC
- * persistence API to the five use-case-layer interfaces it implements below, so interactors
- * depend only on those interfaces (Dependency Inversion Principle) and never on JDBC directly.
- * Persistence failures are reported as {@link DataAccessException}, the project's own
- * unchecked exception type, so interactors can catch exactly that type rather than the generic
- * {@link RuntimeException}.
  */
 public class SQLiteUserDataAccessObject
         implements SignupUserDataAccessInterface,

@@ -52,14 +52,6 @@ import interface_adapter.workouts.WorkoutsViewModel;
 
 /**
  * The View for editing the current user's profile with matching modern styling and horizontal grids.
- *
- * <p>Renders the interface_adapter-layer {@code *Option} enums ({@link ActivityLevelOption},
- * {@link FitnessGoalOption}, {@link GenderOption}, {@link UnitSystemOption},
- * {@link EquipmentOption}, {@link DietaryRestrictionOption}, {@link PrivacySettingOption}) -
- * each a display-only mirror of the corresponding {@code entity} enum, with the same constant
- * names so the "combine into one bike checkbox" and "special-case one privacy setting's label"
- * logic below (which compares against constant names) behaves identically - rather than the
- * entity enums directly, so this view-layer class does not depend on the entity layer.
  */
 public class ProfileView extends JPanel implements PropertyChangeListener {
 
@@ -182,8 +174,8 @@ public class ProfileView extends JPanel implements PropertyChangeListener {
     }
 
     private void wireControlListeners() {
-        this.choosePictureButton.addActionListener(this::onChoosePicture);
-        this.saveButton.addActionListener(this::onSave);
+        this.choosePictureButton.addActionListener(event -> onChoosePicture(event));
+        this.saveButton.addActionListener(event -> onSave(event));
         this.unitSystemBox.addActionListener(event -> updateUnitLabels());
 
         styleButton(this.choosePictureButton, PRIMARY_COLOR);

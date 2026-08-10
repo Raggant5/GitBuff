@@ -7,16 +7,16 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import entity.MealRecommendation;
 import interface_adapter.nutrition.NutritionState;
 import interface_adapter.nutrition.NutritionViewModel;
+import use_case.recommendation.MealRecommendationData;
 import use_case.recommendation.RefreshMealRecommendationsOutputData;
 
 /**
  * Unit tests for the Refresh Meal Recommendations Presenter. The key thing this presenter must
- * get right: it only ever touches NutritionState. Unlike RecommendationPresenter, it has no
- * WorkoutsViewModel or CalendarController dependency at all, so a meals-only refresh can never
- * wipe out the user's current workout plans or synced calendar events.
+ * get right: it only ever touches NutritionState. Unlike the workout-plan presenter, it has no
+ * WorkoutsViewModel dependency at all, so a meals-only refresh can never wipe out the user's
+ * current workout plans.
  */
 public class RefreshMealRecommendationsPresenterTest {
 
@@ -31,8 +31,8 @@ public class RefreshMealRecommendationsPresenterTest {
         final RefreshMealRecommendationsPresenter presenter =
                 new RefreshMealRecommendationsPresenter(nutritionViewModel);
 
-        final List<MealRecommendation> meals = new ArrayList<>();
-        meals.add(new MealRecommendation("Chicken and Rice", MEAL_READY_MINUTES, "http://example.com/recipe"));
+        final List<MealRecommendationData> meals = new ArrayList<>();
+        meals.add(new MealRecommendationData("Chicken and Rice", MEAL_READY_MINUTES, "http://example.com/recipe"));
 
         final RefreshMealRecommendationsOutputData outputData =
                 new RefreshMealRecommendationsOutputData(TEST_BMI, TEST_CALORIES, TEST_PROTEIN, meals);

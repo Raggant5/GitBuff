@@ -27,17 +27,6 @@ import use_case.recommendation.WorkoutPlanGenerationStrategy;
 
 /**
  * Data access object for retrieving AI generated workout plans.
- *
- * <p>This is an Adapter (Adapter design pattern): it adapts the Gemini generative-language HTTP
- * API to the {@link AiWorkoutDataAccessInterface} the use case layer depends on. It previously
- * also owned ~250 lines of static exercise reference data and every piece of "which exercises
- * make up a workout" categorization logic - five responsibilities in one 1,100+ line class.
- * That data and logic has moved to {@link ExerciseKnowledgeBase} (pure reference data and
- * lookups, no I/O), and the deterministic no-API fallback has moved to
- * {@link FallbackWorkoutPlanStrategy}, a {@link WorkoutPlanGenerationStrategy} this class
- * delegates to (Strategy design pattern) whenever the Gemini API is unconfigured, unreachable,
- * or returns an unusable response. What remains here is exactly one responsibility: call
- * Gemini, and parse what it returns.
  */
 public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 

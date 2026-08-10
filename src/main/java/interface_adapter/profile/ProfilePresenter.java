@@ -5,11 +5,6 @@ import use_case.profile.EditProfileOutputData;
 
 /**
  * The Presenter for the Edit Profile Use Case.
- *
- * <p>Converts the entity-layer enums carried by {@link EditProfileOutputData} into the
- * interface_adapter-layer {@code *Option} enums, via {@link ProfileEnumMapper}, before storing
- * them in {@link ProfileState} - the use case layer is allowed to depend on entities, but this
- * interface_adapter layer is not.
  */
 public class ProfilePresenter implements EditProfileOutputBoundary {
 

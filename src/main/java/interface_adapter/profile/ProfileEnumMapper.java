@@ -2,7 +2,6 @@ package interface_adapter.profile;
 
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import entity.ActivityLevel;
 import entity.DietaryRestriction;
@@ -14,20 +13,7 @@ import entity.UnitSystem;
 
 /**
  * Translates between the entity-layer profile enums and their interface_adapter-layer
- * {@code *Option} mirrors.
- *
- * <p>This is where the Dependency Rule is actually enforced for the profile feature: it is the
- * <em>only</em> class in the interface_adapter layer that imports {@code entity.*} profile
- * enums. {@link ProfileState}, {@code view.ProfileView}, and
- * {@code interface_adapter.profile.ProfileController} work exclusively with the
- * {@code *Option} enums; {@link ProfileController} and {@code interface_adapter.profile.ProfilePresenter}
- * call into this mapper only at the boundary where they hand data to, or receive data from, the
- * use case layer (which is allowed to hold entities).
- *
- * <p>Because every {@code *Option} enum is declared with the same constant names, in the same
- * order, as its entity counterpart (see {@link ActivityLevelOption}), every mapping here is a
- * simple, unambiguous lookup - there is no room for a constant to silently map to the wrong
- * value.
+ * *Option mirrors.
  */
 public final class ProfileEnumMapper {
 
@@ -145,7 +131,11 @@ public final class ProfileEnumMapper {
         if (equipment == null) {
             return EnumSet.noneOf(EquipmentOption.class);
         }
-        return equipment.stream().map(ProfileEnumMapper::toOption).collect(Collectors.toSet());
+        final Set<EquipmentOption> result = EnumSet.noneOf(EquipmentOption.class);
+        for (final Equipment item : equipment) {
+            result.add(toOption(item));
+        }
+        return result;
     }
 
     /**
@@ -158,7 +148,11 @@ public final class ProfileEnumMapper {
         if (options == null) {
             return EnumSet.noneOf(Equipment.class);
         }
-        return options.stream().map(ProfileEnumMapper::toEntity).collect(Collectors.toSet());
+        final Set<Equipment> result = EnumSet.noneOf(Equipment.class);
+        for (final EquipmentOption option : options) {
+            result.add(toEntity(option));
+        }
+        return result;
     }
 
     /**
@@ -171,9 +165,11 @@ public final class ProfileEnumMapper {
         if (restrictions == null) {
             return EnumSet.noneOf(DietaryRestrictionOption.class);
         }
-        return restrictions.stream()
-                .map(restriction -> DietaryRestrictionOption.valueOf(restriction.name()))
-                .collect(Collectors.toSet());
+        final Set<DietaryRestrictionOption> result = EnumSet.noneOf(DietaryRestrictionOption.class);
+        for (final DietaryRestriction restriction : restrictions) {
+            result.add(DietaryRestrictionOption.valueOf(restriction.name()));
+        }
+        return result;
     }
 
     /**
@@ -186,9 +182,11 @@ public final class ProfileEnumMapper {
         if (options == null) {
             return EnumSet.noneOf(DietaryRestriction.class);
         }
-        return options.stream()
-                .map(option -> DietaryRestriction.valueOf(option.name()))
-                .collect(Collectors.toSet());
+        final Set<DietaryRestriction> result = EnumSet.noneOf(DietaryRestriction.class);
+        for (final DietaryRestrictionOption option : options) {
+            result.add(DietaryRestriction.valueOf(option.name()));
+        }
+        return result;
     }
 
     /**
@@ -201,9 +199,11 @@ public final class ProfileEnumMapper {
         if (settings == null) {
             return EnumSet.noneOf(PrivacySettingOption.class);
         }
-        return settings.stream()
-                .map(setting -> PrivacySettingOption.valueOf(setting.name()))
-                .collect(Collectors.toSet());
+        final Set<PrivacySettingOption> result = EnumSet.noneOf(PrivacySettingOption.class);
+        for (final PrivacySetting setting : settings) {
+            result.add(PrivacySettingOption.valueOf(setting.name()));
+        }
+        return result;
     }
 
     /**
@@ -216,9 +216,11 @@ public final class ProfileEnumMapper {
         if (options == null) {
             return EnumSet.noneOf(PrivacySetting.class);
         }
-        return options.stream()
-                .map(option -> PrivacySetting.valueOf(option.name()))
-                .collect(Collectors.toSet());
+        final Set<PrivacySetting> result = EnumSet.noneOf(PrivacySetting.class);
+        for (final PrivacySettingOption option : options) {
+            result.add(PrivacySetting.valueOf(option.name()));
+        }
+        return result;
     }
 }
 

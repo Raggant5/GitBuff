@@ -26,10 +26,6 @@ import interface_adapter.calendar.CalendarViewModel;
 
 /**
  * Swing panel rendering the current month's calendar with each day's scheduled events.
- *
- * <p>Reads {@link CalendarEventDisplayData} from {@link CalendarState}, rather than the
- * {@code entity.CalendarEvent} entity, so this view-layer class does not depend on the entity
- * layer.
  */
 public class CalendarPanel extends JPanel implements PropertyChangeListener {
     private final CalendarViewModel calendarViewModel;

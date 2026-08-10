@@ -13,13 +13,8 @@ import use_case.share.report.WorkoutLogReportSection;
 
 /**
  * Interactor for aggregating and sharing user progress according to active privacy settings.
- *
- * <p>The report itself is assembled with the Composite design pattern: each enabled
- * {@link PrivacySetting} adds one {@code use_case.share.report.ReportSection} leaf to a
- * {@link CompositeReportSection}, which is then rendered as a whole. Adding a new shareable
- * section in the future means writing one more {@code ReportSection} implementation and adding
- * it here - this interactor no longer needs a growing if-chain of string concatenation
- * (Open/Closed Principle).
+ * The report is assembled with the Composite design pattern: each enabled PrivacySetting adds
+ * one ReportSection leaf to a CompositeReportSection, which is then rendered as a whole.
  */
 public class ShareProgressInteractor implements ShareProgressInputBoundary {
 

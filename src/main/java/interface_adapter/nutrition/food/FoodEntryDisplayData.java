@@ -1,7 +1,5 @@
 package interface_adapter.nutrition.food;
 
-import entity.FoodUnit;
-
 /**
  * DTO for FoodEntry, so the View/Interface Adapter never holds entities.
  */
@@ -11,11 +9,11 @@ public class FoodEntryDisplayData {
     private final String foodName;
     private final FoodNutritionDisplayData nutrition;
     private final double quantity;
-    private final FoodUnit unit;
+    private final FoodUnitOption unit;
     private final double grams;
 
     public FoodEntryDisplayData(Integer id, String foodName, FoodNutritionDisplayData nutrition, double quantity,
-                                FoodUnit unit, double grams) {
+                                FoodUnitOption unit, double grams) {
         this.id = id;
         this.foodName = foodName;
         this.nutrition = nutrition;
@@ -40,7 +38,7 @@ public class FoodEntryDisplayData {
         return quantity;
     }
 
-    public FoodUnit getUnit() {
+    public FoodUnitOption getUnit() {
         return unit;
     }
 

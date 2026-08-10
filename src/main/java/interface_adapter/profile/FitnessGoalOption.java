@@ -1,13 +1,7 @@
 package interface_adapter.profile;
 
 /**
- * Display option mirroring {@code entity.FitnessGoal}, for use by {@link ProfileState} and
- * {@code view.ProfileView}.
- *
- * <p>The entity version carries business rules (calorie adjustment, protein ratio, workout
- * focus text, all used by {@code use_case.recommendation}); this interface_adapter layer only
- * needs the display name, so that's all that's mirrored here. See {@link ActivityLevelOption}
- * for why the constant names and order are kept identical to the entity enum.
+ * Display option mirroring entity.FitnessGoal, for use by ProfileState and view.ProfileView.
  */
 public enum FitnessGoalOption {
 

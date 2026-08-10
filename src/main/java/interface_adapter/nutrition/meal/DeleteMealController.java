@@ -1,17 +1,16 @@
 package interface_adapter.nutrition.meal;
 
-import interface_adapter.calendar.CalendarController;
 import use_case.nutrition.meal.delete_meal.DeleteMealInputBoundary;
 import use_case.nutrition.meal.delete_meal.DeleteMealInputData;
 
+/**
+ * Controller for deleting a meal.
+ */
 public class DeleteMealController {
     private final DeleteMealInputBoundary deleteMealInputInteractor;
-    private final CalendarController calendarController;
 
-    public DeleteMealController(DeleteMealInputBoundary deleteMealInputInteractor,
-                                CalendarController calendarController) {
+    public DeleteMealController(DeleteMealInputBoundary deleteMealInputInteractor) {
         this.deleteMealInputInteractor = deleteMealInputInteractor;
-        this.calendarController = calendarController;
     }
 
     /**
@@ -19,9 +18,6 @@ public class DeleteMealController {
      * @param mealId id of the meal to delete
      */
     public void execute(int mealId) {
-        if (calendarController != null) {
-            calendarController.removeMeal(mealId);
-        }
         deleteMealInputInteractor.execute(new DeleteMealInputData(mealId));
     }
 

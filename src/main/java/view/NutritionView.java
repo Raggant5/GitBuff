@@ -9,8 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import entity.MealRecommendation;
 import interface_adapter.MainViewManagerModel;
+import interface_adapter.nutrition.MealRecommendationDisplayData;
 import interface_adapter.nutrition.NutritionState;
 import interface_adapter.nutrition.NutritionViewModel;
 import interface_adapter.nutrition.meal.MealEditorViewModel;
@@ -96,7 +96,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         messageLabel.setText(state.getMessage());
 
         final StringBuilder mealsText = new StringBuilder();
-        for (final MealRecommendation meal : state.getMealRecommendations()) {
+        for (final MealRecommendationDisplayData meal : state.getMealRecommendations()) {
             mealsText.append(meal.getTitle())
                     .append(" (").append(meal.getReadyInMinutes()).append(" min)\n");
         }

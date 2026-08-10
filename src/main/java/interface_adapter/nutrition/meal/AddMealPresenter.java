@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import interface_adapter.MainViewManagerModel;
-import interface_adapter.calendar.CalendarController;
+import interface_adapter.nutrition.food.FoodEnumMapper;
 import interface_adapter.nutrition.food.FoodEntryDisplayData;
 import interface_adapter.nutrition.food.FoodNutritionDisplayData;
-import use_case.dashboard.DashboardInputBoundary;
 import use_case.nutrition.food.FoodEntryData;
 import use_case.nutrition.meal.add_meal.AddMealOutputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealOutputData;
@@ -20,8 +19,6 @@ public class AddMealPresenter implements AddMealOutputBoundary {
     private final MealEditorViewModel mealEditorViewModel;
     private final ViewMealsViewModel viewMealsViewModel;
     private final MainViewManagerModel mainViewManagerModel;
-    private final DashboardInputBoundary dashboardInteractor;
-    private final CalendarController calendarController;
 
     /**
      * Constructs an AddMealPresenter.
@@ -29,21 +26,15 @@ public class AddMealPresenter implements AddMealOutputBoundary {
      * @param mealEditorViewModel meal editor view model
      * @param viewMealsViewModel saved meals view model
      * @param mainViewManagerModel main view manager model
-     * @param dashboardInteractor dashboard refresh interactor
-     * @param calendarController executes update calendar use case
      */
     public AddMealPresenter(
             final MealEditorViewModel mealEditorViewModel,
             final ViewMealsViewModel viewMealsViewModel,
-            final MainViewManagerModel mainViewManagerModel,
-            final DashboardInputBoundary dashboardInteractor,
-            final CalendarController calendarController
+            final MainViewManagerModel mainViewManagerModel
     ) {
         this.mealEditorViewModel = mealEditorViewModel;
         this.viewMealsViewModel = viewMealsViewModel;
         this.mainViewManagerModel = mainViewManagerModel;
-        this.dashboardInteractor = dashboardInteractor;
-        this.calendarController = calendarController;
     }
 
     @Override
@@ -55,7 +46,7 @@ public class AddMealPresenter implements AddMealOutputBoundary {
             final FoodNutritionDisplayData nutrition = new FoodNutritionDisplayData(food.getNutrition().getCalories(),
                     food.getNutrition().getProtein(), food.getNutrition().getCarbs(), food.getNutrition().getFat());
             foodEntries.add(new FoodEntryDisplayData(food.getId(), food.getFoodName(), nutrition,
-                    food.getQuantity(), food.getUnit(), food.getGrams()));
+                    food.getQuantity(), FoodEnumMapper.toOption(food.getUnit()), food.getGrams()));
         }
         final MealDisplayData savedMeal = new MealDisplayData(outputData.getId(), outputData.getDate(),
                 outputData.getName(), foodEntries);
@@ -72,14 +63,6 @@ public class AddMealPresenter implements AddMealOutputBoundary {
         mealsState.addMeal(savedMeal);
         this.viewMealsViewModel.setState(mealsState);
         this.viewMealsViewModel.firePropertyChanged();
-
-        if (this.calendarController != null) {
-            this.calendarController.addMeal(savedMeal.getId(), savedMeal.getName(), savedMeal.getDate());
-        }
-
-        if (this.dashboardInteractor != null) {
-            this.dashboardInteractor.execute(outputData.getUserId());
-        }
 
         this.mainViewManagerModel.setState("nutrition");
         this.mainViewManagerModel.firePropertyChanged();

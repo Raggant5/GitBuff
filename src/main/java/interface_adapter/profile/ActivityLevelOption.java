@@ -1,16 +1,7 @@
 package interface_adapter.profile;
 
 /**
- * Display option mirroring {@code entity.ActivityLevel}, for use by {@link ProfileState} and
- * {@code view.ProfileView}.
- *
- * <p>The entity version carries a business rule (its calorie multiplier, used by
- * {@code use_case.recommendation.StandardCalorieCalculationStrategy}); this interface_adapter
- * layer has no business reason to know that value, so it isn't duplicated here. Only the
- * enum constant names and the display text are mirrored - kept in the same declaration order
- * and with the same constant names as {@code entity.ActivityLevel} so
- * {@link ProfileEnumMapper} is a trivial 1:1 lookup and existing name-based comparisons
- * elsewhere in the view layer continue to behave identically.
+ * Display option mirroring entity.ActivityLevel, for use by ProfileState and view.ProfileView.
  */
 public enum ActivityLevelOption {
 

@@ -5,11 +5,6 @@ import java.util.List;
 
 /**
  * The state for Workouts View Model.
- *
- * <p>Holds {@link WorkoutPlanDisplayData} rather than the {@code entity.WorkoutPlan} entity, so
- * this interface_adapter-layer class does not depend on the entity layer - consistent with the
- * Dependency Rule and with how the nutrition and workout-logging features already expose
- * display data.
  */
 public class WorkoutsState {
 

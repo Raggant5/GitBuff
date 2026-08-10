@@ -6,10 +6,7 @@ import entity.ExercisePerformed;
 import entity.LoggedWorkout;
 
 /**
- * Leaf {@link ReportSection} presenting the user's completed workouts.
- *
- * <p>Included in the report only when the user has enabled
- * {@code PrivacySetting.SHARE_WORKOUT_LOGS}; see {@code use_case.share.ShareProgressInteractor}.
+ * Leaf ReportSection presenting the user's completed workouts.
  */
 public class WorkoutLogReportSection implements ReportSection {
 

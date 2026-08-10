@@ -1,6 +1,5 @@
 package interface_adapter.nutrition.food;
 
-import entity.FoodUnit;
 import use_case.nutrition.food.FoodNutritionInput;
 import use_case.nutrition.food.edit_food.EditFoodInputBoundary;
 import use_case.nutrition.food.edit_food.EditFoodInputData;
@@ -23,9 +22,10 @@ public class EditFoodController {
      * @param grams the new amount in grams
      */
     public void execute(Integer id, String foodName, FoodNutritionDisplayData nutritionDisplayData, String quantity,
-                        FoodUnit unit, String grams) {
+                        FoodUnitOption unit, String grams) {
         final FoodNutritionInput nutrition = new FoodNutritionInput(nutritionDisplayData.getCalories(),
                 nutritionDisplayData.getProtein(), nutritionDisplayData.getCarbs(), nutritionDisplayData.getFat());
-        editFoodInteractor.execute(new EditFoodInputData(id, foodName, nutrition, quantity, unit, grams));
+        editFoodInteractor.execute(new EditFoodInputData(id, foodName, nutrition, quantity,
+                FoodEnumMapper.toEntity(unit), grams));
     }
 }

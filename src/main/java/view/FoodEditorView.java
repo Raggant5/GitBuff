@@ -16,7 +16,6 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import entity.FoodUnit;
 import interface_adapter.nutrition.food.AddFoodController;
 import interface_adapter.nutrition.food.ChangeServingSizeController;
 import interface_adapter.nutrition.food.EditFoodController;
@@ -25,6 +24,7 @@ import interface_adapter.nutrition.food.FoodEditorViewModel;
 import interface_adapter.nutrition.food.FoodNutritionDisplayData;
 import interface_adapter.nutrition.food.FoodSearchResultDisplayData;
 import interface_adapter.nutrition.food.FoodServingDetails;
+import interface_adapter.nutrition.food.FoodUnitOption;
 import interface_adapter.nutrition.food.SearchFoodController;
 
 public class FoodEditorView extends JPanel implements PropertyChangeListener {
@@ -46,7 +46,7 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
     private JTextField fatField;
     private JTextField quantityField;
     private JTextField gramsField;
-    private JComboBox<FoodUnit> unitBox;
+    private JComboBox<FoodUnitOption> unitBox;
     private JLabel quantityLabel;
     private JLabel unitLabel;
     private JLabel servingLabelValue;
@@ -201,7 +201,7 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
         fatField = new JTextField(DEFAULT_VALUE_INPUT);
         quantityField = new JTextField("1");
         gramsField = new JTextField(DEFAULT_VALUE_INPUT);
-        unitBox = new JComboBox<>(FoodUnit.values());
+        unitBox = new JComboBox<>(FoodUnitOption.values());
         quantityLabel = new JLabel("Quantity");
         unitLabel = new JLabel("Unit");
     }
@@ -286,7 +286,7 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
         unitBox.addActionListener(evt -> {
             if (!isUpdatingFromState) {
                 final FoodServingDetails servingDetails = foodEditorViewModel.getState().getServingDetails();
-                final FoodUnit selectedUnit = (FoodUnit) unitBox.getSelectedItem();
+                final FoodUnitOption selectedUnit = (FoodUnitOption) unitBox.getSelectedItem();
                 changeServingSizeController.execute(selectedUnit, servingDetails.getOriginalServingGrams(),
                         servingDetails.getServingGrams(), servingDetails.getServingCalories(),
                         servingDetails.getServingProtein(), servingDetails.getServingCarbs(),

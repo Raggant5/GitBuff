@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import interface_adapter.recommendation.RecommendationController;
+import interface_adapter.recommendation.RecommendWorkoutPlanController;
 import interface_adapter.workouts.RecommendedExerciseDisplayData;
 import interface_adapter.workouts.WorkoutPlanDisplayData;
 import interface_adapter.workouts.WorkoutsState;
@@ -36,11 +36,6 @@ import interface_adapter.workouts.WorkoutsViewModel;
 
 /**
  * View presenting personal workout plans and exercise guides in Swing UI.
- *
- * <p>Renders {@link WorkoutPlanDisplayData} and {@link RecommendedExerciseDisplayData} - the
- * display DTOs produced by {@code interface_adapter.recommendation.RecommendationPresenter} -
- * rather than the {@code entity.WorkoutPlan}/{@code entity.Exercise} entities, so this
- * view-layer class does not depend on the entity layer.
  */
 public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
@@ -73,7 +68,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private final JPanel scheduleContainer = new JPanel();
     private final JButton refreshButton = new JButton("Refresh 1-Week Schedule");
 
-    private RecommendationController recommendationController;
+    private RecommendWorkoutPlanController recommendWorkoutPlanController;
     private int userPreferredDuration = DEFAULT_PREFERRED_DURATION;
 
     /**
@@ -121,7 +116,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         this.refreshButton.setPreferredSize(new Dimension(REFRESH_BTN_WIDTH, REFRESH_BTN_HEIGHT));
 
         this.refreshButton.addActionListener(evt -> {
-            if (this.recommendationController != null) {
+            if (this.recommendWorkoutPlanController != null) {
                 final WorkoutsState currentState = this.workoutsViewModel.getState();
                 currentState.setLoading(true);
                 this.workoutsViewModel.firePropertyChanged();
@@ -129,7 +124,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                 final SwingWorker<Void, Void> worker = new SwingWorker<>() {
                     @Override
                     protected Void doInBackground() {
-                        recommendationController.execute();
+                        recommendWorkoutPlanController.execute();
                         return null;
                     }
                 };
@@ -372,8 +367,9 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         return viewName;
     }
 
-    public void setRecommendationController(final RecommendationController recommendationController) {
-        this.recommendationController = recommendationController;
+    public void setRecommendWorkoutPlanController(
+            final RecommendWorkoutPlanController recommendWorkoutPlanController) {
+        this.recommendWorkoutPlanController = recommendWorkoutPlanController;
     }
 
     public void setUserPreferredDuration(final int minutes) {

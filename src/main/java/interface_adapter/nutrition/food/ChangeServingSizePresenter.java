@@ -14,7 +14,7 @@ public class ChangeServingSizePresenter implements ChangeServingSizeOutputBounda
     @Override
     public void prepareSuccessView(ChangeServingSizeOutputData outputData) {
         final FoodServingDetails servingDetails = foodEditorViewModel.getState().getServingDetails();
-        servingDetails.setUnit(outputData.getUnit());
+        servingDetails.setUnit(FoodEnumMapper.toOption(outputData.getUnit()));
         servingDetails.setServingGrams(outputData.getServingGrams());
         servingDetails.setServingCalories(outputData.getServingCalories());
         servingDetails.setServingProtein(outputData.getServingProtein());

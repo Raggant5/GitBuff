@@ -23,7 +23,7 @@ public class SearchFoodPresenter implements SearchFoodOutputBoundary {
             final FoodMacroAmounts nutrition = new FoodMacroAmounts(food.getNutrition().getCalories(),
                     food.getNutrition().getProtein(), food.getNutrition().getCarbs(), food.getNutrition().getFat());
             results.add(new FoodSearchResultDisplayData(food.getFoodName(), food.getServingLabel(),
-                    food.getServingGrams(), nutrition, food.getUnit(), food.getQuantity()));
+                    food.getServingGrams(), nutrition, FoodEnumMapper.toOption(food.getUnit()), food.getQuantity()));
         }
 
         final FoodEditorState state = foodEditorViewModel.getState();

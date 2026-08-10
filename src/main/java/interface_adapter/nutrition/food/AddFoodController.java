@@ -1,6 +1,5 @@
 package interface_adapter.nutrition.food;
 
-import entity.FoodUnit;
 import use_case.nutrition.food.FoodNutritionInput;
 import use_case.nutrition.food.create_food.AddFoodEntryInputBoundary;
 import use_case.nutrition.food.create_food.AddFoodEntryInputData;
@@ -22,11 +21,11 @@ public class AddFoodController {
      * @param grams total amount in grams
      */
     public void execute(String foodName, FoodNutritionDisplayData nutritionDisplayData,
-                        String quantity, FoodUnit unit, String grams) {
+                        String quantity, FoodUnitOption unit, String grams) {
         final FoodNutritionInput nutrition = new FoodNutritionInput(nutritionDisplayData.getCalories(),
                 nutritionDisplayData.getProtein(), nutritionDisplayData.getCarbs(), nutritionDisplayData.getFat());
         addFoodInteractor.execute(new AddFoodEntryInputData(foodName, nutrition,
-                quantity, unit, grams));
+                quantity, FoodEnumMapper.toEntity(unit), grams));
     }
 
 }

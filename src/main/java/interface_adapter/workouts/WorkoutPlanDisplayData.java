@@ -3,15 +3,7 @@ package interface_adapter.workouts;
 import java.util.List;
 
 /**
- * Display-only view of a single day's AI-recommended workout plan, so
- * {@link WorkoutsState} and {@code view.WorkoutsView} don't need to depend on the
- * {@code entity.WorkoutPlan} entity directly.
- *
- * <p>Mirrors the DTO convention already used elsewhere in the codebase (for example
- * {@code interface_adapter.log_workout.workout.LoggedWorkoutDisplayData}):
- * {@code interface_adapter.recommendation.RecommendationPresenter} converts
- * {@code use_case.recommendation.RecommendationOutputData}'s entities into this type before
- * they reach the state or the view.
+ * Display-only view of a single day's AI-recommended workout plan.
  */
 public class WorkoutPlanDisplayData {
 

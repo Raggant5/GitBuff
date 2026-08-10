@@ -8,9 +8,12 @@ import entity.FoodEntryFactory;
 import entity.FoodNutrition;
 import entity.Meal;
 import use_case.DataAccessException;
+import use_case.EventPublisher;
 import use_case.nutrition.food.FoodEntryData;
 import use_case.nutrition.food.FoodEntryInputData;
 import use_case.nutrition.food.FoodNutritionData;
+import use_case.nutrition.meal.MealChangeType;
+import use_case.nutrition.meal.MealChangedEvent;
 import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 
 public class EditMealInteractor implements EditMealInputBoundary {
@@ -19,14 +22,17 @@ public class EditMealInteractor implements EditMealInputBoundary {
     private final EditMealDataAccessInterface dataAccess;
     private final ViewMealDataAccessInterface viewDataAccess;
     private final FoodEntryFactory foodEntryFactory;
+    private final EventPublisher<MealChangedEvent> mealEventPublisher;
 
     public EditMealInteractor(EditMealOutputBoundary presenter, EditMealDataAccessInterface dataAccess,
                               ViewMealDataAccessInterface viewDataAccess,
-                              FoodEntryFactory foodEntryFactory) {
+                              FoodEntryFactory foodEntryFactory,
+                              EventPublisher<MealChangedEvent> mealEventPublisher) {
         this.presenter = presenter;
         this.dataAccess = dataAccess;
         this.viewDataAccess = viewDataAccess;
         this.foodEntryFactory = foodEntryFactory;
+        this.mealEventPublisher = mealEventPublisher;
     }
 
     @Override
@@ -68,6 +74,8 @@ public class EditMealInteractor implements EditMealInputBoundary {
 
                 presenter.prepareSuccessView(new EditMealOutputData(savedMeal.getId(), savedMeal.getDate(),
                         savedMeal.getName(), savedFoodEntries));
+                this.mealEventPublisher.publish(new MealChangedEvent(savedMeal.getUserId(), savedMeal.getId(),
+                        savedMeal.getName(), savedMeal.getDate(), MealChangeType.EDITED));
             }
             catch (DataAccessException exc) {
                 presenter.prepareFailView("Unable to save meal. Please try again.");

@@ -2,7 +2,6 @@ package use_case.login;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 import entity.ActivityLevel;
@@ -10,8 +9,6 @@ import entity.DietaryRestriction;
 import entity.Equipment;
 import entity.FitnessGoal;
 import entity.Gender;
-import entity.LoggedWorkout;
-import entity.Meal;
 import entity.PrivacySetting;
 import entity.UnitSystem;
 
@@ -37,8 +34,6 @@ public class LoginOutputData {
     private final int preferredWorkoutDurationMinutes;
     private final Set<PrivacySetting> privacySettings;
 
-    private final List<Meal> meals;
-    private final List<LoggedWorkout> workouts;
     private final boolean useCaseFailed;
 
     public LoginOutputData(
@@ -57,8 +52,6 @@ public class LoginOutputData {
             Set<DayOfWeek> preferredWorkoutDays,
             int preferredWorkoutDurationMinutes,
             Set<PrivacySetting> privacySettings,
-            List<Meal> meals,
-            List<LoggedWorkout> workouts,
             boolean useCaseFailed) {
 
         this.username = username;
@@ -79,8 +72,6 @@ public class LoginOutputData {
                 preferredWorkoutDurationMinutes;
         this.privacySettings = privacySettings;
 
-        this.meals = meals;
-        this.workouts = workouts;
         this.useCaseFailed = useCaseFailed;
     }
 
@@ -142,14 +133,6 @@ public class LoginOutputData {
 
     public Set<PrivacySetting> getPrivacySettings() {
         return privacySettings;
-    }
-
-    public List<Meal> getMeals() {
-        return this.meals;
-    }
-
-    public List<LoggedWorkout> getWorkouts() {
-        return this.workouts;
     }
 
     public boolean isUseCaseFailed() {

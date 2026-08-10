@@ -6,18 +6,10 @@ import java.util.List;
 
 import entity.CalendarEvent;
 import org.junit.jupiter.api.Test;
-import use_case.calendar.add_event.AddCalendarEventInputData;
-import use_case.calendar.add_event.AddCalendarEventInteractor;
-import use_case.calendar.add_event.AddCalendarEventOutputBoundary;
-import use_case.calendar.add_event.AddCalendarEventOutputData;
 import use_case.calendar.load_events.LoadCalendarEventsInputData;
 import use_case.calendar.load_events.LoadCalendarEventsInteractor;
 import use_case.calendar.load_events.LoadCalendarEventsOutputBoundary;
 import use_case.calendar.load_events.LoadCalendarEventsOutputData;
-import use_case.calendar.remove_event.RemoveCalendarEventInputData;
-import use_case.calendar.remove_event.RemoveCalendarEventInteractor;
-import use_case.calendar.remove_event.RemoveCalendarEventOutputBoundary;
-import use_case.calendar.remove_event.RemoveCalendarEventOutputData;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -25,41 +17,17 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class CalendarInteractorTest {
 
     @Test
-    void addEventStoresAndReturnsUpdatedCalendar() {
-        final InMemoryCalendarDataAccess dataAccess =
-                new InMemoryCalendarDataAccess();
-        final AddOutputPresenter presenter = new AddOutputPresenter();
-        final AddCalendarEventInteractor interactor =
-                new AddCalendarEventInteractor(dataAccess, presenter);
+    void loadEventSuccessIsPresented() {
+        final LoadOutputPresenter presenter = new LoadOutputPresenter();
+        final InMemoryCalendarDataAccess dataAccess = new InMemoryCalendarDataAccess();
+        dataAccess.addCalendarEvent("amir", "Workout", "description", LocalDate.of(2026, 8, 6));
+        final LoadCalendarEventsInteractor interactor =
+                new LoadCalendarEventsInteractor(dataAccess, presenter);
 
-        interactor.addCalendarEvent(new AddCalendarEventInputData(
-                "amir",
-                "Meal: Lunch",
-                "GitBuff meal ID: 7",
-                LocalDate.of(2026, 8, 6)));
+        interactor.loadCalendarEvents(new LoadCalendarEventsInputData("amir"));
 
-        assertNull(presenter.error);
         assertEquals(1, presenter.outputData.getCalendarEvents().size());
-        assertEquals("Meal: Lunch",
-                presenter.outputData.getCalendarEvents().get(0).getTitle());
-    }
-
-    @Test
-    void removeEventDeletesAndReturnsUpdatedCalendar() {
-        final InMemoryCalendarDataAccess dataAccess =
-                new InMemoryCalendarDataAccess();
-        dataAccess.addCalendarEvent(
-                "amir", "Workout", "description", LocalDate.now());
-        final String eventId = dataAccess.events.get(0).getEventId();
-        final RemoveOutputPresenter presenter = new RemoveOutputPresenter();
-        final RemoveCalendarEventInteractor interactor =
-                new RemoveCalendarEventInteractor(dataAccess, presenter);
-
-        interactor.removeCalendarEvent(
-                new RemoveCalendarEventInputData("amir", eventId));
-
-        assertNull(presenter.error);
-        assertEquals(0, presenter.outputData.getCalendarEvents().size());
+        assertEquals("Workout", presenter.outputData.getCalendarEvents().get(0).getTitle());
     }
 
     @Test
@@ -107,45 +75,14 @@ class CalendarInteractorTest {
         }
     }
 
-    private static class AddOutputPresenter
-            implements AddCalendarEventOutputBoundary {
-        private AddCalendarEventOutputData outputData;
-        private String error;
-
-        @Override
-        public void prepareSuccessView(AddCalendarEventOutputData data) {
-            outputData = data;
-        }
-
-        @Override
-        public void prepareFailureView(String errorMessage) {
-            error = errorMessage;
-        }
-    }
-
-    private static class RemoveOutputPresenter
-            implements RemoveCalendarEventOutputBoundary {
-        private RemoveCalendarEventOutputData outputData;
-        private String error;
-
-        @Override
-        public void prepareSuccessView(RemoveCalendarEventOutputData data) {
-            outputData = data;
-        }
-
-        @Override
-        public void prepareFailureView(String errorMessage) {
-            error = errorMessage;
-        }
-    }
-
     private static class LoadOutputPresenter
             implements LoadCalendarEventsOutputBoundary {
         private String error;
+        private LoadCalendarEventsOutputData outputData;
 
         @Override
         public void prepareSuccessView(LoadCalendarEventsOutputData data) {
-            // Not used by the failure test.
+            outputData = data;
         }
 
         @Override

@@ -3,10 +3,7 @@ package use_case.share.report;
 import entity.User;
 
 /**
- * Leaf {@link ReportSection} presenting the user's bio, fitness goal, height, and weight.
- *
- * <p>Included in the report only when the user has enabled
- * {@code PrivacySetting.SHARE_PROFILE}; see {@code use_case.share.ShareProgressInteractor}.
+ * Leaf ReportSection presenting the user's bio, fitness goal, height, and weight.
  */
 public class ProfileReportSection implements ReportSection {
 

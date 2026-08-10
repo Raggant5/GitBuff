@@ -14,17 +14,7 @@ import entity.User;
  * Static reference data and pure lookup logic for generating workout/exercise content: which
  * exercises belong to which workout "type" (running, biking, upper, lower, hiit, ...), how a
  * workout title or exercise name maps onto a type/category/intensity/equipment, and which
- * workout types/titles/descriptions suit each {@link FitnessGoal}.
- *
- * <p>This was previously ~250 lines of static maps plus a dozen categorization methods embedded
- * directly in {@code AiWorkoutDataAccessObject}, which also had to make two live HTTP calls, do
- * manual JSON parsing, and choose between the AI-generated plan and a deterministic fallback -
- * five responsibilities in one 1,100+ line class. Extracting the reference data and pure lookup
- * functions here (no I/O, no mutable state) means both
- * {@code AiWorkoutDataAccessObject} (parsing the Gemini response) and
- * {@link FallbackWorkoutPlanStrategy} (generating a plan with no API call at all) share exactly
- * one implementation of "what exercises make up a 'lower body' day", instead of the two
- * near-identical copies that existed before.
+ * workout types/titles/descriptions suit each FitnessGoal.
  */
 public final class ExerciseKnowledgeBase {
 

@@ -1,17 +1,17 @@
 package use_case.calendar.load_events;
 
-import entity.CalendarEvent;
-
 import java.util.List;
 
-public class LoadCalendarEventsOutputData {
-    private final List<CalendarEvent> calendarEvents;
+import use_case.calendar.CalendarEventData;
 
-    public LoadCalendarEventsOutputData(List<CalendarEvent> calendarEvents) {
+public class LoadCalendarEventsOutputData {
+    private final List<CalendarEventData> calendarEvents;
+
+    public LoadCalendarEventsOutputData(List<CalendarEventData> calendarEvents) {
         this.calendarEvents = List.copyOf(calendarEvents);
     }
 
-    public List<CalendarEvent> getCalendarEvents() {
+    public List<CalendarEventData> getCalendarEvents() {
         return this.calendarEvents;
     }
 }

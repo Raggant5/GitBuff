@@ -3,8 +3,6 @@ package interface_adapter.nutrition;
 import java.util.Collections;
 import java.util.List;
 
-import entity.MealRecommendation;
-
 /**
  * The state for the Nutrition View Model.
  */
@@ -12,7 +10,7 @@ public class NutritionState {
     private int dailyCalorieTarget;
     private int dailyProteinGrams;
     private double bmi;
-    private List<MealRecommendation> mealRecommendations = Collections.emptyList();
+    private List<MealRecommendationDisplayData> mealRecommendations = Collections.emptyList();
     private String message = "Visit your profile and save your details to see personalized "
             + "nutrition recommendations.";
 
@@ -40,11 +38,11 @@ public class NutritionState {
         this.bmi = bmi;
     }
 
-    public List<MealRecommendation> getMealRecommendations() {
+    public List<MealRecommendationDisplayData> getMealRecommendations() {
         return mealRecommendations;
     }
 
-    public void setMealRecommendations(List<MealRecommendation> mealRecommendations) {
+    public void setMealRecommendations(List<MealRecommendationDisplayData> mealRecommendations) {
         this.mealRecommendations = mealRecommendations;
     }
 

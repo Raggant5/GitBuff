@@ -1,18 +1,11 @@
 package interface_adapter.profile;
 
-import interface_adapter.session.UserLoggedInEvent;
-import interface_adapter.session.UserSessionObserver;
 import use_case.login.LoginOutputData;
+import use_case.session.UserLoggedInEvent;
+import use_case.session.UserSessionObserver;
 
 /**
- * Populates {@link ProfileState} from the login use case's output data.
- *
- * <p>Extracted from {@code interface_adapter.login.LoginPresenter}, which previously did this
- * inline as one of several unrelated responsibilities crammed into one method. Translates the
- * entity-layer enums carried by {@link LoginOutputData} to the interface_adapter-layer
- * {@code *Option} enums via {@link ProfileEnumMapper}, exactly as
- * {@link ProfilePresenter} does after a profile edit - login and edit-profile now share the
- * same translation boundary logic instead of each re-implementing it.
+ * Populates ProfileState from the login use case's output data.
  */
 public class ProfileSessionObserver implements UserSessionObserver {
 
@@ -29,7 +22,7 @@ public class ProfileSessionObserver implements UserSessionObserver {
 
     @Override
     public void onUserLoggedIn(final UserLoggedInEvent event) {
-        final LoginOutputData response = event.data();
+        final LoginOutputData response = event.getData();
         final ProfileState profileState = this.profileViewModel.getState();
 
         profileState.setUsername(response.getUsername());

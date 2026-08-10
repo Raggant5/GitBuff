@@ -58,8 +58,13 @@ public class RefreshMealRecommendationsInteractor implements RefreshMealRecommen
             meals = this.foodRecommendationDataAccessObject.generateMealRecommendations(user, dailyCalorieTarget);
         }
 
+        final List<MealRecommendationData> mealsData = new ArrayList<>();
+        for (final MealRecommendation meal : meals) {
+            mealsData.add(MealRecommendationData.from(meal));
+        }
+
         final RefreshMealRecommendationsOutputData outputData = new RefreshMealRecommendationsOutputData(
-                user.getBmi(), dailyCalorieTarget, dailyProteinGrams, meals);
+                user.getBmi(), dailyCalorieTarget, dailyProteinGrams, mealsData);
 
         this.presenter.prepareSuccessView(outputData);
     }
