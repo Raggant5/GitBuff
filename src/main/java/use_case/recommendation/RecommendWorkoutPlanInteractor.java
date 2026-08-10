@@ -62,20 +62,8 @@ public class RecommendWorkoutPlanInteractor implements RecommendWorkoutPlanInput
                     plans.add(WorkoutPlanData.from(plan));
                 }
 
-                final String focusSummary;
-                if (user.getGoal() != null) {
-                    focusSummary = user.getGoal().getWorkoutFocus();
-                }
-                else {
-                    focusSummary = FitnessGoal.MAINTAIN_GENERAL_FITNESS.getWorkoutFocus();
-                }
-                final String activitySummary;
-                if (user.getActivityLevel() != null) {
-                    activitySummary = user.getActivityLevel().getDescription();
-                }
-                else {
-                    activitySummary = ActivityLevel.MODERATELY_ACTIVE.getDescription();
-                }
+                final String focusSummary = user.getGoal().getWorkoutFocus();
+                final String activitySummary = user.getActivityLevel().getDescription();
 
                 this.presenter.prepareSuccessView(
                         new RecommendWorkoutPlanOutputData(focusSummary, activitySummary, plans));
