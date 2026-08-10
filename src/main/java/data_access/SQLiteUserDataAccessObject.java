@@ -41,6 +41,17 @@ public class SQLiteUserDataAccessObject
             WHERE username = ?
             """;
 
+    private static final int HEIGHT_PARAMETER_INDEX = 3;
+    private static final int WEIGHT_PARAMETER_INDEX = 4;
+    private static final int ACTIVITY_LEVEL_PARAMETER_INDEX = 5;
+    private static final int FITNESS_GOAL_PARAMETER_INDEX = 6;
+    private static final int PROFILE_PICTURE_PARAMETER_INDEX = 7;
+    private static final int DATE_OF_BIRTH_PARAMETER_INDEX = 8;
+    private static final int GENDER_PARAMETER_INDEX = 9;
+    private static final int BIO_PARAMETER_INDEX = 10;
+    private static final int UNIT_SYSTEM_PARAMETER_INDEX = 11;
+    private static final int WORKOUT_DURATION_PARAMETER_INDEX = 12;
+
     private String currentUsername;
 
     @Override
@@ -93,76 +104,118 @@ public class SQLiteUserDataAccessObject
                 """;
 
         try (Connection connection = Database.connect()) {
-            connection.setAutoCommit(false);
-
-            try {
-                try (PreparedStatement statement =
-                             connection.prepareStatement(sql)) {
-
-                    statement.setString(1, user.getName());
-                    statement.setString(2, user.getPassword());
-                    statement.setFloat(3, user.getHeight());
-                    statement.setFloat(4, user.getWeight());
-                    statement.setString(
-                            5,
-                            user.getActivityLevel().name()
-                    );
-                    statement.setString(
-                            6,
-                            user.getGoal().name()
-                    );
-                    statement.setString(
-                            7,
-                            user.getProfilePicturePath()
-                    );
-
-                    if (user.getDateOfBirth() == null) {
-                        statement.setNull(8, Types.VARCHAR);
-                    }
-                    else {
-                        statement.setString(
-                                8,
-                                user.getDateOfBirth().toString()
-                        );
-                    }
-
-                    statement.setString(
-                            9,
-                            user.getGender().name()
-                    );
-                    statement.setString(10, user.getBio());
-                    statement.setString(
-                            11,
-                            user.getPreferredUnitSystem().name()
-                    );
-                    statement.setInt(
-                            12,
-                            user.getPreferredWorkoutDurationMinutes()
-                    );
-
-                    statement.executeUpdate();
-                }
-
-                saveEquipment(connection, user);
-                saveDietaryRestrictions(connection, user);
-                saveWorkoutDays(connection, user);
-                savePrivacySettings(connection, user);
-
-                connection.commit();
-            }
-            catch (final SQLException exception) {
-                connection.rollback();
-                throw exception;
-            }
-            finally {
-                connection.setAutoCommit(true);
-            }
+            saveUserTransaction(connection, sql, user);
         }
         catch (final SQLException exception) {
             throw new RuntimeException(
                     "Could not save user.",
                     exception
             );
+        }
+    }
+
+    /**
+     * Saves all user information in a single transaction.
+     *
+     * @param connection database connection
+     * @param sql user insert/update statement
+     * @param user user to save
+     * @throws SQLException if the transaction fails
+     */
+    private void saveUserTransaction(
+            final Connection connection,
+            final String sql,
+            final User user
+    ) throws SQLException {
+        connection.setAutoCommit(false);
+
+        try {
+            saveUserRow(connection, sql, user);
+            saveEquipment(connection, user);
+            saveDietaryRestrictions(connection, user);
+            saveWorkoutDays(connection, user);
+            savePrivacySettings(connection, user);
+            connection.commit();
+        }
+        catch (final SQLException exception) {
+            connection.rollback();
+            throw exception;
+        }
+        finally {
+            connection.setAutoCommit(true);
+        }
+    }
+
+    /**
+     * Saves the main user row using the provided connection.
+     *
+     * @param connection database connection
+     * @param sql insert/update statement
+     * @param user user to save
+     * @throws SQLException if the database operation fails
+     */
+    private static void saveUserRow(
+            final Connection connection,
+            final String sql,
+            final User user
+    ) throws SQLException {
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(1, user.getName());
+            statement.setString(2, user.getPassword());
+            statement.setFloat(
+                    HEIGHT_PARAMETER_INDEX,
+                    user.getHeight()
+            );
+            statement.setFloat(
+                    WEIGHT_PARAMETER_INDEX,
+                    user.getWeight()
+            );
+            statement.setString(
+                    ACTIVITY_LEVEL_PARAMETER_INDEX,
+                    user.getActivityLevel().name()
+            );
+            statement.setString(
+                    FITNESS_GOAL_PARAMETER_INDEX,
+                    user.getGoal().name()
+            );
+            statement.setString(
+                    PROFILE_PICTURE_PARAMETER_INDEX,
+                    user.getProfilePicturePath()
+            );
+
+            if (user.getDateOfBirth() == null) {
+                statement.setNull(
+                        DATE_OF_BIRTH_PARAMETER_INDEX,
+                        Types.VARCHAR
+                );
+            }
+            else {
+                statement.setString(
+                        DATE_OF_BIRTH_PARAMETER_INDEX,
+                        user.getDateOfBirth().toString()
+                );
+            }
+
+            statement.setString(
+                    GENDER_PARAMETER_INDEX,
+                    user.getGender().name()
+            );
+            statement.setString(
+                    BIO_PARAMETER_INDEX,
+                    user.getBio()
+            );
+            statement.setString(
+                    UNIT_SYSTEM_PARAMETER_INDEX,
+                    user.getPreferredUnitSystem().name()
+            );
+            statement.setInt(
+                    WORKOUT_DURATION_PARAMETER_INDEX,
+                    user.getPreferredWorkoutDurationMinutes()
+            );
+
+            statement.executeUpdate();
         }
     }
 
@@ -192,92 +245,94 @@ public class SQLiteUserDataAccessObject
 
             statement.setString(1, username);
             try (ResultSet resultSet = statement.executeQuery()) {
-                if (!resultSet.next()) {
-                    return null;
-                }
+                User loadedUser = null;
 
-                final CommonUser user = new CommonUser(
-                        resultSet.getString("username"),
-                        resultSet.getString("password")
-                );
-
-                user.setHeight(
-                        resultSet.getFloat("height")
-                );
-                user.setWeight(
-                        resultSet.getFloat("weight")
-                );
-                user.setActivityLevel(
-                        ActivityLevel.valueOf(
-                                resultSet.getString(
-                                        "activity_level"
-                                )
-                        )
-                );
-                user.setGoal(
-                        FitnessGoal.valueOf(
-                                resultSet.getString(
-                                        "fitness_goal"
-                                )
-                        )
-                );
-                user.setProfilePicturePath(
-                        resultSet.getString(
-                                "profile_picture_path"
-                        )
-                );
-
-                final String dateOfBirth =
-                        resultSet.getString("date_of_birth");
-
-                if (dateOfBirth != null
-                        && !dateOfBirth.isBlank()) {
-                    user.setDateOfBirth(
-                            LocalDate.parse(dateOfBirth)
+                if (resultSet.next()) {
+                    final CommonUser user = new CommonUser(
+                            resultSet.getString("username"),
+                            resultSet.getString("password")
                     );
+
+                    user.setHeight(
+                            resultSet.getFloat("height")
+                    );
+                    user.setWeight(
+                            resultSet.getFloat("weight")
+                    );
+                    user.setActivityLevel(
+                            ActivityLevel.valueOf(
+                                    resultSet.getString(
+                                            "activity_level"
+                                    )
+                            )
+                    );
+                    user.setGoal(
+                            FitnessGoal.valueOf(
+                                    resultSet.getString(
+                                            "fitness_goal"
+                                    )
+                            )
+                    );
+                    user.setProfilePicturePath(
+                            resultSet.getString(
+                                    "profile_picture_path"
+                            )
+                    );
+
+                    final String dateOfBirth =
+                            resultSet.getString("date_of_birth");
+
+                    if (dateOfBirth != null
+                            && !dateOfBirth.isBlank()) {
+                        user.setDateOfBirth(
+                                LocalDate.parse(dateOfBirth)
+                        );
+                    }
+
+                    user.setGender(
+                            Gender.valueOf(
+                                    resultSet.getString("gender")
+                            )
+                    );
+                    user.setBio(
+                            resultSet.getString("bio")
+                    );
+                    user.setPreferredUnitSystem(
+                            UnitSystem.valueOf(
+                                    resultSet.getString(
+                                            "preferred_unit_system"
+                                    )
+                            )
+                    );
+                    user.setPreferredWorkoutDurationMinutes(
+                            resultSet.getInt(
+                                    "preferred_workout_duration_minutes"
+                            )
+                    );
+
+                    user.setEquipment(
+                            loadEquipment(connection, username)
+                    );
+                    user.setDietaryRestrictions(
+                            loadDietaryRestrictions(
+                                    connection,
+                                    username
+                            )
+                    );
+                    user.setPreferredWorkoutDays(
+                            loadWorkoutDays(connection, username)
+                    );
+                    user.setPrivacySettings(
+                            loadPrivacySettings(
+                                    connection,
+                                    username
+                            )
+                    );
+
+                    loadedUser = user;
                 }
 
-                user.setGender(
-                        Gender.valueOf(
-                                resultSet.getString("gender")
-                        )
-                );
-                user.setBio(
-                        resultSet.getString("bio")
-                );
-                user.setPreferredUnitSystem(
-                        UnitSystem.valueOf(
-                                resultSet.getString(
-                                        "preferred_unit_system"
-                                )
-                        )
-                );
-                user.setPreferredWorkoutDurationMinutes(
-                        resultSet.getInt(
-                                "preferred_workout_duration_minutes"
-                        )
-                );
-
-                user.setEquipment(
-                        loadEquipment(connection, username)
-                );
-                user.setDietaryRestrictions(
-                        loadDietaryRestrictions(
-                                connection,
-                                username
-                        )
-                );
-                user.setPreferredWorkoutDays(
-                        loadWorkoutDays(connection, username)
-                );
-                user.setPrivacySettings(
-                        loadPrivacySettings(
-                                connection,
-                                username
-                        )
-                );
-
-                return user;
+                return loadedUser;
             }
         }
         catch (final SQLException exception) {
@@ -287,12 +342,20 @@ public class SQLiteUserDataAccessObject
             );
         }
     }
+    /**
+     * Gets the currently logged-in user.
+     *
+     * @return the current user, or null if no user is logged in
+     */
 
     public User getCurrentUser() {
-        if (this.currentUsername == null) {
-            return null;
+        User currentUser = null;
+
+        if (this.currentUsername != null) {
+            currentUser = get(this.currentUsername);
         }
-        return get(this.currentUsername);
+
+        return currentUser;
     }
 
     @Override
@@ -500,7 +563,7 @@ public class SQLiteUserDataAccessObject
     }
 
     private Set<DietaryRestriction>
-    loadDietaryRestrictions(
+        loadDietaryRestrictions(
             final Connection connection,
             final String username
     ) throws SQLException {

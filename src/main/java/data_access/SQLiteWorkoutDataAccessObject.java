@@ -1,6 +1,5 @@
 package data_access;
 
-import use_case.DataAccessException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,6 +13,7 @@ import java.util.List;
 import entity.ExercisePerformed;
 import entity.LoggedWorkout;
 import entity.StrengthDetails;
+import use_case.DataAccessException;
 import use_case.log_workout.logged_workout.add_workout.AddWorkoutDataAccessInterface;
 import use_case.log_workout.logged_workout.delete_workout.DeleteWorkoutDataAccessInterface;
 import use_case.log_workout.logged_workout.edit_workout.EditWorkoutDataAccessInterface;
@@ -28,6 +28,16 @@ public final class SQLiteWorkoutDataAccessObject
         ViewWorkoutDataAccessInterface,
         EditWorkoutDataAccessInterface,
         DeleteWorkoutDataAccessInterface {
+
+    private static final int SETS_PARAMETER_INDEX = 3;
+    private static final int REPS_PARAMETER_INDEX = 4;
+    private static final int WEIGHT_PARAMETER_INDEX = 5;
+    private static final int DURATION_PARAMETER_INDEX = 6;
+    private static final int DISTANCE_PARAMETER_INDEX = 7;
+    private static final int CARDIO_PARAMETER_INDEX = 8;
+    private static final int ID_PARAMETER_INDEX = 9;
+    private static final int RECENT_WORKOUT_DAYS = 6;
+    private static final String USER_ID_COLUMN = "user_id";
 
     /**
      * Saves a logged workout.
@@ -99,44 +109,42 @@ public final class SQLiteWorkoutDataAccessObject
     ) {
 
         try (Connection connection = Database.connect()) {
-
-            connection.setAutoCommit(false);
-
-            try {
-                final int exerciseId =
-                        insertExercisePerformedRow(
-                                connection,
-                                exercisePerformed
-                        );
-
-                final String userId =
-                        getUserIdForWorkout(
-                                connection,
-                                exercisePerformed.getWorkoutId()
-                        );
-
-                updateTotalWorkoutMinutes(
-                        connection,
-                        userId
-                );
-
-                connection.commit();
-
-                return exerciseId;
-            }
-            catch (final SQLException exception) {
-                connection.rollback();
-                throw exception;
-            }
-            finally {
-                connection.setAutoCommit(true);
-            }
+            return saveExerciseInTransaction(
+                    connection,
+                    exercisePerformed
+            );
         }
         catch (final SQLException exception) {
             throw new DataAccessException(
                     "Failed to save exercise.",
                     exception
             );
+        }
+    }
+
+    private static int saveExerciseInTransaction(
+            final Connection connection,
+            final ExercisePerformed exercisePerformed
+    ) throws SQLException {
+        connection.setAutoCommit(false);
+        try {
+            final int exerciseId =
+                    insertExercisePerformedRow(connection, exercisePerformed);
+            final String userId =
+                    getUserIdForWorkout(
+                            connection,
+                            exercisePerformed.getWorkoutId()
+                    );
+            updateTotalWorkoutMinutes(connection, userId);
+            connection.commit();
+            return exerciseId;
+        }
+        catch (final SQLException exception) {
+            connection.rollback();
+            throw exception;
+        }
+        finally {
+            connection.setAutoCommit(true);
         }
     }
 
@@ -147,6 +155,7 @@ public final class SQLiteWorkoutDataAccessObject
      * @param exercisePerformed exercise to insert
      * @return generated exercise ID
      * @throws SQLException if the insert fails
+     * @throws IllegalStateException if no exercise ID is generated
      */
     private static int insertExercisePerformedRow(
             final Connection connection,
@@ -185,37 +194,36 @@ public final class SQLiteWorkoutDataAccessObject
 
             setNullableInteger(
                     statement,
-                    3,
+                    SETS_PARAMETER_INDEX,
                     exercisePerformed.getSets()
             );
 
             setNullableInteger(
                     statement,
-                    4,
+                    REPS_PARAMETER_INDEX,
                     exercisePerformed.getReps()
             );
 
             setNullableDouble(
                     statement,
-                    5,
+                    WEIGHT_PARAMETER_INDEX,
                     exercisePerformed.getWeight()
             );
 
             statement.setDouble(
-                    6,
+                    DURATION_PARAMETER_INDEX,
                     exercisePerformed.getDurationMins()
             );
 
             setNullableDouble(
                     statement,
-                    7,
+                    DISTANCE_PARAMETER_INDEX,
                     exercisePerformed.getDistanceKm()
             );
 
             statement.setInt(
-                    8,
-                    exercisePerformed.getIsCardio()
-                            ? 1 : 0
+                    CARDIO_PARAMETER_INDEX,
+                    getCardioValue(exercisePerformed)
             );
 
             statement.executeUpdate();
@@ -359,7 +367,7 @@ public final class SQLiteWorkoutDataAccessObject
                 new ArrayList<>();
 
         final LocalDate cutoff =
-                LocalDate.now().minusDays(6);
+                LocalDate.now().minusDays(RECENT_WORKOUT_DAYS);
 
         final String sql = """
                 SELECT
@@ -394,7 +402,7 @@ public final class SQLiteWorkoutDataAccessObject
                     final LoggedWorkout workout =
                             new LoggedWorkout(
                                     resultSet.getString(
-                                            "user_id"
+                                            USER_ID_COLUMN
                                     ),
                                     LocalDate.parse(
                                             resultSet.getString(
@@ -462,7 +470,7 @@ public final class SQLiteWorkoutDataAccessObject
                     final LoggedWorkout workout =
                             new LoggedWorkout(
                                     resultSet.getString(
-                                            "user_id"
+                                            USER_ID_COLUMN
                                     ),
                                     LocalDate.parse(
                                             resultSet.getString(
@@ -510,82 +518,12 @@ public final class SQLiteWorkoutDataAccessObject
             final List<Integer> exerciseIdsToDelete
     ) {
 
-        final String sql = """
-                UPDATE logged_workouts
-                SET workout_date = ?
-                WHERE id = ?
-                """;
-
         try (Connection connection = Database.connect()) {
-
-            connection.setAutoCommit(false);
-
-            try {
-                for (Integer exerciseId : exerciseIdsToDelete) {
-                    if (exerciseId != null && exerciseId > 0) {
-                        deleteExercisePerformedRow(
-                                connection,
-                                exerciseId
-                        );
-                    }
-                }
-
-                try (PreparedStatement statement =
-                             connection.prepareStatement(sql)) {
-
-                    statement.setString(
-                            1,
-                            workout.getDate().toString()
-                    );
-
-                    statement.setInt(
-                            2,
-                            workout.getId()
-                    );
-
-                    statement.executeUpdate();
-                }
-
-                for (ExercisePerformed exercise
-                        : workout.getExercises()) {
-
-                    if (exercise.getWorkoutId() == null) {
-                        exercise.setWorkoutId(
-                                workout.getId()
-                        );
-                    }
-
-                    if (exercise.getId() == null) {
-                        insertExercisePerformedRow(
-                                connection,
-                                exercise
-                        );
-                    }
-                    else {
-                        updateExercisePerformedRow(
-                                connection,
-                                exercise
-                        );
-                    }
-                }
-
-                final String userId = workout.getUserId();
-                if (userId != null && !userId.isBlank()) {
-                    updateTotalWorkoutMinutes(
-                            connection,
-                            userId
-                    );
-                }
-
-                connection.commit();
-            }
-            catch (final SQLException exception) {
-                connection.rollback();
-                throw exception;
-            }
-            finally {
-                connection.setAutoCommit(true);
-            }
+            editWorkoutInTransaction(
+                    connection,
+                    workout,
+                    exerciseIdsToDelete
+            );
         }
         catch (final SQLException exception) {
             throw new DataAccessException(
@@ -595,6 +533,79 @@ public final class SQLiteWorkoutDataAccessObject
         }
 
         return workout;
+    }
+
+    private static void editWorkoutInTransaction(
+            final Connection connection,
+            final LoggedWorkout workout,
+            final List<Integer> exerciseIdsToDelete
+    ) throws SQLException {
+        connection.setAutoCommit(false);
+        try {
+            deleteExercises(connection, exerciseIdsToDelete);
+            updateWorkoutDate(connection, workout);
+            saveExercises(connection, workout);
+
+            final String userId = workout.getUserId();
+            if (userId != null && !userId.isBlank()) {
+                updateTotalWorkoutMinutes(connection, userId);
+            }
+
+            connection.commit();
+        }
+        catch (final SQLException exception) {
+            connection.rollback();
+            throw exception;
+        }
+        finally {
+            connection.setAutoCommit(true);
+        }
+    }
+
+    private static void deleteExercises(
+            final Connection connection,
+            final List<Integer> exerciseIdsToDelete
+    ) throws SQLException {
+        for (Integer exerciseId : exerciseIdsToDelete) {
+            if (exerciseId != null && exerciseId > 0) {
+                deleteExercisePerformedRow(connection, exerciseId);
+            }
+        }
+    }
+
+    private static void updateWorkoutDate(
+            final Connection connection,
+            final LoggedWorkout workout
+    ) throws SQLException {
+        final String sql = """
+                UPDATE logged_workouts
+                SET workout_date = ?
+                WHERE id = ?
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, workout.getDate().toString());
+            statement.setInt(2, workout.getId());
+            statement.executeUpdate();
+        }
+    }
+
+    private static void saveExercises(
+            final Connection connection,
+            final LoggedWorkout workout
+    ) throws SQLException {
+        for (ExercisePerformed exercise : workout.getExercises()) {
+            if (exercise.getWorkoutId() == null) {
+                exercise.setWorkoutId(workout.getId());
+            }
+
+            if (exercise.getId() == null) {
+                insertExercisePerformedRow(connection, exercise);
+            }
+            else {
+                updateExercisePerformedRow(connection, exercise);
+            }
+        }
     }
 
     /**
@@ -638,41 +649,40 @@ public final class SQLiteWorkoutDataAccessObject
 
             setNullableInteger(
                     statement,
-                    3,
+                    SETS_PARAMETER_INDEX,
                     exercisePerformed.getSets()
             );
 
             setNullableInteger(
                     statement,
-                    4,
+                    REPS_PARAMETER_INDEX,
                     exercisePerformed.getReps()
             );
 
             setNullableDouble(
                     statement,
-                    5,
+                    WEIGHT_PARAMETER_INDEX,
                     exercisePerformed.getWeight()
             );
 
             statement.setDouble(
-                    6,
+                    DURATION_PARAMETER_INDEX,
                     exercisePerformed.getDurationMins()
             );
 
             setNullableDouble(
                     statement,
-                    7,
+                    DISTANCE_PARAMETER_INDEX,
                     exercisePerformed.getDistanceKm()
             );
 
             statement.setInt(
-                    8,
-                    exercisePerformed.getIsCardio()
-                            ? 1 : 0
+                    CARDIO_PARAMETER_INDEX,
+                    getCardioValue(exercisePerformed)
             );
 
             statement.setInt(
-                    9,
+                    ID_PARAMETER_INDEX,
                     exercisePerformed.getId()
             );
 
@@ -719,74 +729,65 @@ public final class SQLiteWorkoutDataAccessObject
     public void deleteWorkout(
             final int workoutId
     ) {
-
-        final String deleteExercisesSql = """
-                DELETE FROM exercises_performed
-                WHERE workout_id = ?
-                """;
-
-        final String deleteWorkoutSql = """
-                DELETE FROM logged_workouts
-                WHERE id = ?
-                """;
-
         try (Connection connection = Database.connect()) {
-
-            connection.setAutoCommit(false);
-
-            try {
-                final String userId =
-                        getUserIdForWorkout(
-                                connection,
-                                workoutId
-                        );
-
-                try (PreparedStatement exerciseStatement =
-                             connection.prepareStatement(
-                                     deleteExercisesSql
-                             )) {
-
-                    exerciseStatement.setInt(
-                            1,
-                            workoutId
-                    );
-
-                    exerciseStatement.executeUpdate();
-                }
-
-                try (PreparedStatement workoutStatement =
-                             connection.prepareStatement(
-                                     deleteWorkoutSql
-                             )) {
-
-                    workoutStatement.setInt(
-                            1,
-                            workoutId
-                    );
-
-                    workoutStatement.executeUpdate();
-                }
-
-                updateTotalWorkoutMinutes(
-                        connection,
-                        userId
-                );
-
-                connection.commit();
-            }
-            catch (final SQLException exception) {
-                connection.rollback();
-                throw exception;
-            }
-            finally {
-                connection.setAutoCommit(true);
-            }
+            deleteWorkoutInTransaction(connection, workoutId);
         }
         catch (final SQLException exception) {
             throw new DataAccessException(
                     "Failed to delete workout.",
                     exception
             );
+        }
+    }
+
+    private static void deleteWorkoutInTransaction(
+            final Connection connection,
+            final int workoutId
+    ) throws SQLException {
+        connection.setAutoCommit(false);
+        try {
+            final String userId = getUserIdForWorkout(connection, workoutId);
+            deleteExercisesForWorkout(connection, workoutId);
+            deleteWorkoutRow(connection, workoutId);
+            updateTotalWorkoutMinutes(connection, userId);
+            connection.commit();
+        }
+        catch (final SQLException exception) {
+            connection.rollback();
+            throw exception;
+        }
+        finally {
+            connection.setAutoCommit(true);
+        }
+    }
+
+    private static void deleteExercisesForWorkout(
+            final Connection connection,
+            final int workoutId
+    ) throws SQLException {
+        final String sql = """
+                DELETE FROM exercises_performed
+                WHERE workout_id = ?
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, workoutId);
+            statement.executeUpdate();
+        }
+    }
+
+    private static void deleteWorkoutRow(
+            final Connection connection,
+            final int workoutId
+    ) throws SQLException {
+        final String sql = """
+                DELETE FROM logged_workouts
+                WHERE id = ?
+                """;
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, workoutId);
+            statement.executeUpdate();
         }
     }
 
@@ -822,7 +823,7 @@ public final class SQLiteWorkoutDataAccessObject
 
                 if (resultSet.next()) {
                     return resultSet.getString(
-                            "user_id"
+                            USER_ID_COLUMN
                     );
                 }
             }
@@ -927,11 +928,12 @@ public final class SQLiteWorkoutDataAccessObject
         final int value =
                 resultSet.getInt(column);
 
+        Integer result = value;
         if (resultSet.wasNull()) {
-            return null;
+            result = null;
         }
 
-        return value;
+        return result;
     }
 
     private static Double getNullableDouble(
@@ -942,10 +944,21 @@ public final class SQLiteWorkoutDataAccessObject
         final double value =
                 resultSet.getDouble(column);
 
+        Double result = value;
         if (resultSet.wasNull()) {
-            return null;
+            result = null;
         }
 
-        return value;
+        return result;
+    }
+
+    private static int getCardioValue(
+            final ExercisePerformed exercisePerformed
+    ) {
+        int cardioValue = 0;
+        if (exercisePerformed.getIsCardio()) {
+            cardioValue = 1;
+        }
+        return cardioValue;
     }
 }
