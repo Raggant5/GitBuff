@@ -89,6 +89,113 @@ View a visual summary of workout and nutrition progress through charts and other
 
 ## Installation
 
+### Prerequisites
+
+* **Java 17+ JDK**
+* **Maven** (or use IntelliJ's bundled Maven — no separate installation required)
+* **Git**
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Raggant5/GitBuff.git
+cd GitBuff
+```
+
+### 2. Download Dependencies
+
+Ensure the project directory is pointed at the repository root.
+
+Import the project as a **Maven project** using the `pom.xml`. IDEs such as IntelliJ IDEA will automatically detect the `pom.xml` and configure the project.
+
+This downloads and configures dependencies such as:
+
+* OkHttp
+* JFreeChart
+* Google Calendar Client
+
+### 3. Configure API Keys
+
+API keys are **optional**. The application will run without them by using fallback/mock data for the affected features.
+
+Create a `.env` file in the project root, at the same level as `pom.xml`:
+
+```env
+GEMINI_API_KEY=your_key_here
+SPOONACULAR_API_KEY=your_key_here
+NUTRITION_API_KEY=your_key_here
+```
+
+The `.env` file is never committed to the repository and is excluded through `.gitignore`.
+
+### 4. Configure Google Calendar Sync
+
+Google Calendar synchronization is an **optional feature**.
+
+To enable it:
+
+1. Obtain a `credentials.json` file containing your Google OAuth client credentials from Google Cloud Console.
+2. Ensure the **Google Calendar API** is enabled for the associated Google Cloud project.
+3. Place the file at:
+
+```text
+src/main/resources/credentials.json
+```
+
+User email addresses must be manually added to the Google Cloud project as test users to authorize Calendar access.
+
+If `credentials.json` exists but the user has not yet authorized the application, the first Calendar action will open a browser window for OAuth authorization.
+
+If the user declines or closes the authorization window, the application follows the same failure path as when `credentials.json` is unavailable, and the failure is displayed appropriately in the view.
+
+### 5. Run the Application
+
+Run:
+
+```text
+app.Main
+```
+
+located at:
+
+```text
+src/main/java/app/Main.java
+```
+
+## Running the JAR
+
+The application can also be run from the packaged JAR:
+
+```bash
+java -jar GitBuff-1.0-SNAPSHOT.jar
+```
+
+### API Keys
+
+The API keys in `.env` are **not bundled into the JAR**. They are read from the filesystem at runtime.
+
+Therefore, when running the JAR, place the `.env` file in the **working directory from which the JAR is executed**:
+
+```text
+.env
+GitBuff-1.0-SNAPSHOT.jar
+```
+
+For example:
+
+```bash
+java -jar GitBuff-1.0-SNAPSHOT.jar
+```
+
+If `.env` is not present, the application will still run. The Gemini, Spoonacular, and Nutrition API features will use their respective fallback/mock data instead of crashing.
+
+### Google Calendar Credentials
+
+`credentials.json` is bundled as a JAR resource during packaging. Therefore, JAR recipients **do not need to manually provide the `credentials.json` file**.
+
+However, the user's Google account must still be authorized according to the Google Cloud project's OAuth configuration before Calendar synchronization can be used.
+
+
 ## Feedback
 
 > We welcome feedback on the application, including bug reports, feature suggestions, and usability feedback.
