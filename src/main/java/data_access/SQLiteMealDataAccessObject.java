@@ -497,12 +497,6 @@ public final class SQLiteMealDataAccessObject implements
         return meal;
     }
 
-            try {
-                for (final Integer foodEntryId : foodEntryIdsToDelete) {
-                    if (foodEntryId != null && foodEntryId > 0) {
-                        deleteFoodEntryRow(connection, foodEntryId);
-                    }
-                }
     /**
      * Executes all meal-edit operations in a single transaction.
      *
@@ -568,18 +562,6 @@ public final class SQLiteMealDataAccessObject implements
         }
     }
 
-                for (final FoodEntry food : meal.getFoodEntries()) {
-                    if (food.getMealId() == null) {
-                        food.setMealId(meal.getId());
-                    }
-
-                    if (food.getId() == null) {
-                        insertFoodEntryRow(connection, food);
-                    }
-                    else {
-                        updateFoodEntryRow(connection, food);
-                    }
-                }
     /**
      * Updates the meal row.
      *
@@ -959,3 +941,4 @@ public final class SQLiteMealDataAccessObject implements
         return macroData;
     }
 }
+

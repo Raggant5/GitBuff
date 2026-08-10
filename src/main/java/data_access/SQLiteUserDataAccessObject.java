@@ -205,11 +205,6 @@ public class SQLiteUserDataAccessObject
                         user.getDateOfBirth().toString()
                 );
             }
-        }
-        catch (final SQLException exception) {
-            throw new DataAccessException(
-                    "Could not save user.",
-                    exception
 
             statement.setString(
                     GENDER_PARAMETER_INDEX,
@@ -576,7 +571,7 @@ public class SQLiteUserDataAccessObject
     }
 
     private Set<DietaryRestriction>
-        loadDietaryRestrictions(
+    loadDietaryRestrictions(
             final Connection connection,
             final String username
     ) throws SQLException {
@@ -685,3 +680,4 @@ public class SQLiteUserDataAccessObject
         return settings;
     }
 }
+

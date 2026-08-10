@@ -498,20 +498,6 @@ public final class SQLiteWorkoutDataAccessObject
             );
         }
 
-            connection.setAutoCommit(false);
-
-            try {
-                for (final Integer exerciseId : exerciseIdsToDelete) {
-                    if (exerciseId != null && exerciseId > 0) {
-                        deleteExercisePerformedRow(
-                                connection,
-                                exerciseId
-                        );
-                    }
-                }
-
-                try (PreparedStatement statement =
-                             connection.prepareStatement(sql)) {
         return workout;
     }
 
@@ -553,28 +539,6 @@ public final class SQLiteWorkoutDataAccessObject
         }
     }
 
-                for (final ExercisePerformed exercise
-                        : workout.getExercises()) {
-
-                    if (exercise.getWorkoutId() == null) {
-                        exercise.setWorkoutId(
-                                workout.getId()
-                        );
-                    }
-
-                    if (exercise.getId() == null) {
-                        insertExercisePerformedRow(
-                                connection,
-                                exercise
-                        );
-                    }
-                    else {
-                        updateExercisePerformedRow(
-                                connection,
-                                exercise
-                        );
-                    }
-                }
     private static void updateWorkoutDate(
             final Connection connection,
             final LoggedWorkout workout
@@ -926,3 +890,4 @@ public final class SQLiteWorkoutDataAccessObject
         return cardioValue;
     }
 }
+
