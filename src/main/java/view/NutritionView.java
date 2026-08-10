@@ -14,7 +14,7 @@ import interface_adapter.MainViewManagerModel;
 import interface_adapter.nutrition.NutritionState;
 import interface_adapter.nutrition.NutritionViewModel;
 import interface_adapter.nutrition.meal.MealEditorViewModel;
-import interface_adapter.recommendation.RecommendationController;
+import interface_adapter.recommendation.RefreshMealRecommendationsController;
 
 /**
  * View for displaying nutrition recommendations and meal options.
@@ -38,7 +38,7 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
     private final JTextArea mealRecommendationsArea = new JTextArea(MEAL_AREA_ROWS, MEAL_AREA_COLUMNS);
     private final JButton refreshButton = new JButton("Refresh Recommendations");
 
-    private RecommendationController recommendationController;
+    private RefreshMealRecommendationsController refreshMealRecommendationsController;
 
     /**
      * Constructs a NutritionView instance.
@@ -68,8 +68,8 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         });
 
         refreshButton.addActionListener(evt -> {
-            if (recommendationController != null) {
-                recommendationController.executeMealRecommendationsOnly();
+            if (refreshMealRecommendationsController != null) {
+                refreshMealRecommendationsController.execute();
             }
         });
         mealRecommendationsArea.setEditable(false);
@@ -112,7 +112,8 @@ public class NutritionView extends JPanel implements PropertyChangeListener {
         return viewName;
     }
 
-    public void setRecommendationController(final RecommendationController recommendationController) {
-        this.recommendationController = recommendationController;
+    public void setRefreshMealRecommendationsController(
+            final RefreshMealRecommendationsController refreshMealRecommendationsController) {
+        this.refreshMealRecommendationsController = refreshMealRecommendationsController;
     }
 }

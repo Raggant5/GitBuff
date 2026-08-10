@@ -84,6 +84,8 @@ import interface_adapter.profile.ProfilePresenter;
 import interface_adapter.profile.ProfileViewModel;
 import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.recommendation.RecommendationPresenter;
+import interface_adapter.recommendation.RefreshMealRecommendationsController;
+import interface_adapter.recommendation.RefreshMealRecommendationsPresenter;
 import interface_adapter.share.ShareProgressController;
 import interface_adapter.share.ShareProgressPresenter;
 import interface_adapter.share.ShareProgressViewModel;
@@ -175,6 +177,9 @@ import use_case.recommendation.FoodRecommendationDataAccessInterface;
 import use_case.recommendation.RecommendationInputBoundary;
 import use_case.recommendation.RecommendationInteractor;
 import use_case.recommendation.RecommendationOutputBoundary;
+import use_case.recommendation.RefreshMealRecommendationsInputBoundary;
+import use_case.recommendation.RefreshMealRecommendationsInteractor;
+import use_case.recommendation.RefreshMealRecommendationsOutputBoundary;
 import use_case.share.ShareEmailDataAccessInterface;
 import use_case.share.ShareProgressInputBoundary;
 import use_case.share.ShareProgressInteractor;
@@ -551,8 +556,17 @@ public class AppBuilder {
                 this.userDataAccessObject, recommendationOutputBoundary, this.aiWorkoutDao,
                 this.foodRecommendationDao);
         this.recommendationController = new RecommendationController(this.recommendationInteractor);
-        this.nutritionView.setRecommendationController(this.recommendationController);
         this.workoutsView.setRecommendationController(this.recommendationController);
+
+        final RefreshMealRecommendationsOutputBoundary refreshMealRecommendationsOutputBoundary =
+                new RefreshMealRecommendationsPresenter(this.nutritionViewModel);
+        final RefreshMealRecommendationsInputBoundary refreshMealRecommendationsInteractor =
+                new RefreshMealRecommendationsInteractor(
+                        this.userDataAccessObject, refreshMealRecommendationsOutputBoundary,
+                        this.foodRecommendationDao);
+        final RefreshMealRecommendationsController refreshMealRecommendationsController =
+                new RefreshMealRecommendationsController(refreshMealRecommendationsInteractor);
+        this.nutritionView.setRefreshMealRecommendationsController(refreshMealRecommendationsController);
         return this;
     }
 
