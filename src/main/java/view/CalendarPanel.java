@@ -32,6 +32,11 @@ import interface_adapter.calendar.CalendarViewModel;
  * layer.
  */
 public class CalendarPanel extends JPanel implements PropertyChangeListener {
+    private static final int DAYS_PER_WEEK = 7;
+    private static final int DAY_BOX_WIDTH = 100;
+    private static final int DAY_BOX_HEIGHT = 80;
+    private static final Color ALTERNATING_DAY_COLOR = new Color(6, 158, 208);
+
     private final CalendarViewModel calendarViewModel;
 
     public CalendarPanel(CalendarViewModel calendarViewModel) {
@@ -45,8 +50,8 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     private void displayState(CalendarState state) {
         removeAll();
 
-        List<CalendarEventDisplayData> eventsList = state.getCalendarEvents();
-        Map<LocalDate, List<CalendarEventDisplayData>> eventsMap = new HashMap<>();
+        final List<CalendarEventDisplayData> eventsList = state.getCalendarEvents();
+        final Map<LocalDate, List<CalendarEventDisplayData>> eventsMap = new HashMap<>();
 
         for (CalendarEventDisplayData event : eventsList) {
             if (event.getActivityDate() == null) {
@@ -72,29 +77,30 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
 
         revalidate();
         repaint();
-
     }
 
     private JPanel dayBox(int dayNumber, List<String> toDos) {
-        JPanel dayBox = new JPanel();
+        final JPanel dayBox = new JPanel();
 
         dayBox.setLayout(new BoxLayout(dayBox, BoxLayout.Y_AXIS));
 
-        if (dayNumber % 2 == 0)
+        if (dayNumber % 2 == 0) {
             dayBox.setBackground(Color.WHITE);
-        else
-            dayBox.setBackground(new Color(6, 158, 208));
+        }
+        else {
+            dayBox.setBackground(ALTERNATING_DAY_COLOR);
+        }
 
         dayBox.setBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
-        dayBox.setPreferredSize(new Dimension(100, 80));
+        dayBox.setPreferredSize(new Dimension(DAY_BOX_WIDTH, DAY_BOX_HEIGHT));
 
-        JLabel dayNumberLabel = new JLabel(String.valueOf(dayNumber));
+        final JLabel dayNumberLabel = new JLabel(String.valueOf(dayNumber));
         dayBox.add(dayNumberLabel);
 
         for (String toDo: toDos) {
-            JLabel toDoLabel = new JLabel(toDo);
+            final JLabel toDoLabel = new JLabel(toDo);
             dayBox.add(toDoLabel);
         }
 
@@ -102,9 +108,9 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     }
 
     private JPanel weekDayBox() {
-        final JPanel weekDaysBox = new JPanel(new GridLayout(1, 7));
+        final JPanel weekDaysBox = new JPanel(new GridLayout(1, DAYS_PER_WEEK));
         final String[] weekDays = {
-                "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
         };
 
         for (String weekDay : weekDays) {
@@ -120,7 +126,7 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         return weekDaysBox;
     }
 
-    private JPanel monthBox(String month) {
+    private JPanel monthTitleBox(String month) {
         final JPanel monthBox = new JPanel(new BorderLayout());
         final JLabel monthLabel = new JLabel(month, SwingConstants.CENTER);
         monthBox.add(monthLabel, BorderLayout.CENTER);
@@ -129,30 +135,31 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     }
 
     private int whichDayMonthBegins() {
-        YearMonth currentMonth = YearMonth.now();
-        DayOfWeek firstWeekday = currentMonth.atDay(1).getDayOfWeek();
+        final YearMonth currentMonth = YearMonth.now();
+        final DayOfWeek firstWeekday = currentMonth.atDay(1).getDayOfWeek();
 
-        return firstWeekday.getValue() % 7;
+        return firstWeekday.getValue() % DAYS_PER_WEEK;
     }
 
-    private JPanel monthBox(Map<LocalDate, List<CalendarEventDisplayData>> calendarEvents) {
-        JPanel monthBox = new JPanel(new GridLayout(0, 7));
+    private JPanel monthGrid(Map<LocalDate, List<CalendarEventDisplayData>> calendarEvents) {
+        final JPanel monthBox = new JPanel(new GridLayout(0, DAYS_PER_WEEK));
 
-        int dayMonthBegins = whichDayMonthBegins();
+        final int dayMonthBegins = whichDayMonthBegins();
 
         for (int i = 0; i < dayMonthBegins; i++) {
             monthBox.add(new JPanel());
         }
 
-        YearMonth month = YearMonth.now();
+        final YearMonth month = YearMonth.now();
 
         for (int day = 1; day <= month.lengthOfMonth(); day++) {
-            LocalDate date = month.atDay(day);
-            List<String> toDos = new ArrayList<>();
+            final LocalDate date = month.atDay(day);
+            final List<String> toDos = new ArrayList<>();
 
             if (calendarEvents.containsKey(date)) {
-                for (CalendarEventDisplayData event : calendarEvents.get(date))
+                for (CalendarEventDisplayData event : calendarEvents.get(date)) {
                     toDos.add(event.getTitle());
+                }
             }
 
             monthBox.add(dayBox(day, toDos));
@@ -165,10 +172,10 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         final JPanel calendarBody = new JPanel(new BorderLayout());
 
         calendarBody.add(weekDayBox(), BorderLayout.NORTH);
-        calendarBody.add(monthBox(calendarEvents), BorderLayout.CENTER);
+        calendarBody.add(monthGrid(calendarEvents), BorderLayout.CENTER);
 
         mainBox.add(
-                monthBox(LocalDate.now().getMonth().toString()),
+                monthTitleBox(LocalDate.now().getMonth().toString()),
                 BorderLayout.NORTH);
         mainBox.add(calendarBody, BorderLayout.CENTER);
 
@@ -177,10 +184,7 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        CalendarState state = (CalendarState) event.getNewValue();
+        final CalendarState state = (CalendarState) event.getNewValue();
         displayState(state);
     }
 }
-
-
-

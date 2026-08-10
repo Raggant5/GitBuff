@@ -1,39 +1,52 @@
 package use_case.calendar.add_event;
 
+import java.util.List;
+
 import entity.CalendarEvent;
 import use_case.calendar.CalendarEventDataAccessInterface;
 
-import java.util.List;
-
+/**
+ * Coordinates adding an event and refreshing the user's calendar events.
+ */
 public class AddCalendarEventInteractor implements AddCalendarEventInputBoundary {
-    private final CalendarEventDataAccessInterface outputDAO;
+    private final CalendarEventDataAccessInterface calendarDataAccessObject;
     private final AddCalendarEventOutputBoundary outputBoundary;
 
-    public AddCalendarEventInteractor(CalendarEventDataAccessInterface addCalendarEventAccessObject,
-                                      AddCalendarEventOutputBoundary addCalendarEventOutputBoundary){
-        this.outputDAO = addCalendarEventAccessObject;
-        this.outputBoundary = addCalendarEventOutputBoundary;
+    /**
+     * Creates an interactor for adding calendar events.
+     *
+     * @param calendarDataAccessObject the calendar event data access gateway
+     * @param outputBoundary the presenter that receives the result
+     */
+    public AddCalendarEventInteractor(
+            CalendarEventDataAccessInterface calendarDataAccessObject,
+            AddCalendarEventOutputBoundary outputBoundary) {
+        this.calendarDataAccessObject = calendarDataAccessObject;
+        this.outputBoundary = outputBoundary;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addCalendarEvent(AddCalendarEventInputData inputData) {
         try {
-            outputDAO.addCalendarEvent(
+            this.calendarDataAccessObject.addCalendarEvent(
                     inputData.getUserId(),
                     inputData.getTitle(),
                     inputData.getDescription(),
                     inputData.getActivityDate());
 
-            List<CalendarEvent> userEvents =
-                    outputDAO.getUserEvents(inputData.getUserId());
+            final List<CalendarEvent> userEvents =
+                    this.calendarDataAccessObject.getUserEvents(inputData.getUserId());
 
-            AddCalendarEventOutputData outputData =
+            final AddCalendarEventOutputData outputData =
                     new AddCalendarEventOutputData(userEvents);
 
-            outputBoundary.prepareSuccessView(outputData);
+            this.outputBoundary.prepareSuccessView(outputData);
         }
         catch (IllegalStateException exception) {
-            outputBoundary.prepareFailureView(exception.getMessage());
+            this.outputBoundary.prepareFailureView(exception.getMessage());
         }
     }
 }

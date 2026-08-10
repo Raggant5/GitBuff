@@ -1,28 +1,44 @@
 package use_case.calendar.load_events;
 
+import java.util.List;
+
 import entity.CalendarEvent;
 import use_case.calendar.CalendarEventDataAccessInterface;
 
-import java.util.List;
-
+/**
+ * Coordinates loading and presenting a user's calendar events.
+ */
 public class LoadCalendarEventsInteractor implements LoadCalendarEventsInputBoundary {
-    private final CalendarEventDataAccessInterface calendarDAO;
+    private final CalendarEventDataAccessInterface calendarDataAccessObject;
     private final LoadCalendarEventsOutputBoundary outputBoundary;
 
-    public LoadCalendarEventsInteractor(CalendarEventDataAccessInterface calendarDAO, LoadCalendarEventsOutputBoundary outputBoundary) {
-        this.calendarDAO = calendarDAO;
+    /**
+     * Creates an interactor for loading calendar events.
+     *
+     * @param calendarDataAccessObject the calendar event data access gateway
+     * @param outputBoundary the presenter that receives the result
+     */
+    public LoadCalendarEventsInteractor(
+            CalendarEventDataAccessInterface calendarDataAccessObject,
+            LoadCalendarEventsOutputBoundary outputBoundary) {
+        this.calendarDataAccessObject = calendarDataAccessObject;
         this.outputBoundary = outputBoundary;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void loadCalendarEvents(LoadCalendarEventsInputData inputData) {
         try {
-            List<CalendarEvent> calendarEvents = calendarDAO.getUserEvents(inputData.getUserID());
-            LoadCalendarEventsOutputData outputData = new LoadCalendarEventsOutputData(calendarEvents);
-            outputBoundary.prepareSuccessView(outputData);
+            final List<CalendarEvent> calendarEvents =
+                    this.calendarDataAccessObject.getUserEvents(inputData.getUserId());
+            final LoadCalendarEventsOutputData outputData =
+                    new LoadCalendarEventsOutputData(calendarEvents);
+            this.outputBoundary.prepareSuccessView(outputData);
         }
         catch (IllegalStateException exception) {
-            outputBoundary.prepareFailureView(exception.getMessage());
+            this.outputBoundary.prepareFailureView(exception.getMessage());
         }
     }
 }

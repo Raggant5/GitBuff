@@ -1,32 +1,48 @@
 package use_case.calendar.remove_event;
 
+import java.util.List;
+
 import entity.CalendarEvent;
 import use_case.calendar.CalendarEventDataAccessInterface;
 
-import java.util.List;
-
+/**
+ * Coordinates removing an event and refreshing the user's calendar events.
+ */
 public class RemoveCalendarEventInteractor implements RemoveCalendarEventInputBoundary {
-    private CalendarEventDataAccessInterface outputDAO;
-    private RemoveCalendarEventOutputBoundary outputBoundary;
+    private final CalendarEventDataAccessInterface calendarDataAccessObject;
+    private final RemoveCalendarEventOutputBoundary outputBoundary;
 
-    public RemoveCalendarEventInteractor(CalendarEventDataAccessInterface outputDAO, RemoveCalendarEventOutputBoundary outputBoundary) {
-        this.outputDAO = outputDAO;
+    /**
+     * Creates an interactor for removing calendar events.
+     *
+     * @param calendarDataAccessObject the calendar event data access gateway
+     * @param outputBoundary the presenter that receives the result
+     */
+    public RemoveCalendarEventInteractor(
+            CalendarEventDataAccessInterface calendarDataAccessObject,
+            RemoveCalendarEventOutputBoundary outputBoundary) {
+        this.calendarDataAccessObject = calendarDataAccessObject;
         this.outputBoundary = outputBoundary;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void removeCalendarEvent(RemoveCalendarEventInputData inputData) {
         try {
-            outputDAO.removeCalendarEvent(inputData.getUserId(), inputData.getEventID());
+            this.calendarDataAccessObject.removeCalendarEvent(
+                    inputData.getUserId(), inputData.getEventId());
 
-            String userID = inputData.getUserId();
-            List<CalendarEvent> calendarEvents = outputDAO.getUserEvents(userID);
-            RemoveCalendarEventOutputData outputData = new RemoveCalendarEventOutputData(calendarEvents);
-            outputBoundary.prepareSuccessView(outputData);
+            final String userId = inputData.getUserId();
+            final List<CalendarEvent> calendarEvents =
+                    this.calendarDataAccessObject.getUserEvents(userId);
+            final RemoveCalendarEventOutputData outputData =
+                    new RemoveCalendarEventOutputData(calendarEvents);
+            this.outputBoundary.prepareSuccessView(outputData);
         }
-        catch (IllegalStateException ex) {
-            outputBoundary.prepareFailureView(ex.getMessage());
+        catch (IllegalStateException exception) {
+            this.outputBoundary.prepareFailureView(exception.getMessage());
         }
-
     }
 }

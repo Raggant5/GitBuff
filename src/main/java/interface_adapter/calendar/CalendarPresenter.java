@@ -65,6 +65,3 @@ public class CalendarPresenter implements AddCalendarEventOutputBoundary, Remove
                 event.getDescription(), event.getActivityDate());
     }
 }
-
-
-
