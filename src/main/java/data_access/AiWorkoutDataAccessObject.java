@@ -48,9 +48,11 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
     private static final String API_VERSION = "v1";
     private static final String GEMINI_MODEL = "gemini-3.5-flash-lite";
+    private static final String TEXT_FIELD_MARKER = "\"text\":";
+    private static final int MIN_DESCRIPTION_LENGTH = 10;
 
-    private static final String[] DEFAULT_PARSE_TITLES = {"Full Body Functional Strength", "Cardio Health Run", "Upp" +
-            "er " + "Body Conditioning"};
+    private static final String[] DEFAULT_PARSE_TITLES = {"Full Body Functional Strength", "Cardio Health Run",
+            "Upper Body Conditioning"};
     private static final String[] DEFAULT_PARSE_DESCRIPTIONS = {"Balanced full body functional resistance workout "
             + "for overall fitness.", "Steady state cardio run for heart health.", "Upper body strength "
             + "and conditioning.",
@@ -386,9 +388,9 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
 
         try {
             String rawJson = response;
-            if (response.contains("\"text\":")) {
-                final int textIdx = response.indexOf("\"text\":");
-                final int startQuote = response.indexOf("\"", textIdx + 7);
+            if (response.contains(TEXT_FIELD_MARKER)) {
+                final int textIdx = response.indexOf(TEXT_FIELD_MARKER);
+                final int startQuote = response.indexOf("\"", textIdx + TEXT_FIELD_MARKER.length());
                 if (startQuote != -1) {
                     int endQuote = startQuote + 1;
                     while (endQuote < response.length()) {
@@ -438,7 +440,7 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
                             }
 
                             String desc = extractVal(block, "description");
-                            if (desc.isEmpty() || desc.length() < 10) {
+                            if (desc.isEmpty() || desc.length() < MIN_DESCRIPTION_LENGTH) {
                                 desc = fallbackDescs[titleIndex];
                             }
 
@@ -562,9 +564,9 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
      * @return the parsed exercises, or an empty list if the block has no exercises array
      */
     private List<Exercise> extractExercisesFromBlock(final String block, final User user,
-                                                      final String category, final String subCategory,
-                                                      final String intensity, final String equipType,
-                                                      final String targetMuscle) {
+                                                     final String category, final String subCategory,
+                                                     final String intensity, final String equipType,
+                                                     final String targetMuscle) {
         final List<Exercise> exercises = new ArrayList<>();
         final int exArrayStart = block.indexOf("\"exercises\"");
         if (exArrayStart != -1) {
@@ -749,4 +751,5 @@ public class AiWorkoutDataAccessObject implements AiWorkoutDataAccessInterface {
         return result;
     }
 }
+
 
