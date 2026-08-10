@@ -12,13 +12,13 @@ import javax.swing.UIManager;
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.ViewManagerModel;
 import interface_adapter.calendar.CalendarController;
+import interface_adapter.dashboard.DashboardController;
 import interface_adapter.log_workout.workout.GetWorkoutsController;
 import interface_adapter.login.LoginViewModel;
 import interface_adapter.logout.LogoutController;
 import interface_adapter.nutrition.meal.GetMealsController;
 import interface_adapter.profile.ProfileState;
 import interface_adapter.profile.ProfileViewModel;
-import use_case.dashboard.DashboardInputBoundary;
 
 /**
  * The View for the navigation bar, allowing switching between
@@ -47,7 +47,7 @@ public class NavbarView extends JPanel
     private final JButton logOut =
             new JButton("Log Out");
 
-    private final DashboardInputBoundary dashboardInteractor;
+    private final DashboardController dashboardController;
     private final LoginViewModel loginViewModel;
     private final CalendarController calendarController;
     private final GetMealsController getMealsController;
@@ -62,7 +62,7 @@ public class NavbarView extends JPanel
      * @param viewManagerModel manager model for top-level navigation
      * @param profileViewModel logged-in user profile view model
      * @param loginViewModel logged-in user login view model
-     * @param dashboardInteractor dashboard refresh interactor
+     * @param dashboardController controller for refreshing the dashboard on nav
      * @param calendarController controller for loading calendar events on dashboard nav
      * @param getMealsController controller that fetches saved meals when the Nutrition tab opens
      * @param getWorkoutsController controller that fetches workout history when the Workout
@@ -73,13 +73,13 @@ public class NavbarView extends JPanel
             final ViewManagerModel viewManagerModel,
             final ProfileViewModel profileViewModel,
             final LoginViewModel loginViewModel,
-            final DashboardInputBoundary dashboardInteractor,
+            final DashboardController dashboardController,
             final CalendarController calendarController,
             final GetMealsController getMealsController,
             final GetWorkoutsController getWorkoutsController
     ) {
         this.loginViewModel = loginViewModel;
-        this.dashboardInteractor = dashboardInteractor;
+        this.dashboardController = dashboardController;
         this.calendarController = calendarController;
         this.getMealsController = getMealsController;
         this.getWorkoutsController = getWorkoutsController;
@@ -88,8 +88,8 @@ public class NavbarView extends JPanel
 
         this.toDashboard.addActionListener(event -> {
             final String username = this.loginViewModel.getState().getUsername();
-            if (this.dashboardInteractor != null && username != null && !username.isBlank()) {
-                this.dashboardInteractor.execute(username);
+            if (this.dashboardController != null) {
+                this.dashboardController.execute(username);
             }
             if (this.calendarController != null) {
                 this.calendarController.execute(username);

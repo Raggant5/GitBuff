@@ -26,8 +26,8 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import interface_adapter.dashboard.DashboardState;
 import interface_adapter.dashboard.DashboardViewModel;
+import interface_adapter.dashboard.MacroDisplayData;
 import interface_adapter.share.ShareProgressController;
-import use_case.dashboard.MacroData;
 
 /**
  * The View for displaying user dashboard analytics and status.
@@ -145,7 +145,7 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
     private void updateMacroChart(final DashboardState state) {
         this.macroChartContainer.removeAll();
 
-        final MacroData macroData = state.getMacroData();
+        final MacroDisplayData macroData = state.getMacroData();
 
         if (state.getErrorMessage() != null) {
             this.macroChartContainer.add(
@@ -164,7 +164,7 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         this.macroChartContainer.repaint();
     }
 
-    private boolean hasNoMacroData(final MacroData macroData) {
+    private boolean hasNoMacroData(final MacroDisplayData macroData) {
         return macroData.getProtein() == 0 && macroData.getCarbs() == 0 && macroData.getFat() == 0;
     }
 
@@ -194,7 +194,7 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         return chartPanel;
     }
 
-    private ChartPanel createMacroChart(final MacroData macroData) {
+    private ChartPanel createMacroChart(final MacroDisplayData macroData) {
         final DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
 
         dataset.setValue("Protein", macroData.getProtein());
