@@ -30,6 +30,22 @@ Because of this, GitBuff is especially intended for individuals who want a conve
 
 ---
 
+## Usage
+
+After launching GitBuff, users can create an account or log into an existing account.
+
+From the application, users can:
+
+1. Configure their fitness profile, goals, available equipment, and dietary preferences.
+2. Generate personalized workout recommendations.
+3. Log completed workouts and exercises.
+4. Log meals manually or search for nutritional information.
+5. Receive meal recommendations based on their profile and dietary restrictions.
+6. Schedule workouts using the in-app calendar and optionally sync them with Google Calendar.
+7. View workout and nutrition progress through the dashboard visualizations.
+8. Share fitness progress with other GitBuff users.
+   
+---
 ## Features
 
 ### Feature 1 — Workout Logging
@@ -71,7 +87,7 @@ Manage profile information, track activity level and fitness goals (e.g. cut, bu
 
 <img width="2996" height="1504" alt="image" src="https://github.com/user-attachments/assets/f4da5d19-273f-47f9-8ddd-24c2c661ff8e" />
 
-### Feature 6 —  
+### Feature 6 —  Track progress
 
 View recommended workout plans and logged meals in an in-app calendar and sync them with Google Calendar.
 
