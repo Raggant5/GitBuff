@@ -6,8 +6,7 @@ import java.util.function.Consumer;
 
 /**
  * Subject in the Observer design pattern: keeps a list of subscribers and notifies every one of
- * them when an event is published. One reusable class instead of a separate hand-written bus
- * per event type.
+ * them when an event is published.
  *
  * @param <T> the event type
  */

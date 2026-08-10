@@ -29,6 +29,7 @@ import interface_adapter.calendar.CalendarController;
 import interface_adapter.calendar.CalendarPresenter;
 import interface_adapter.calendar.CalendarState;
 import interface_adapter.calendar.CalendarViewModel;
+import interface_adapter.dashboard.DashboardController;
 import interface_adapter.dashboard.DashboardPresenter;
 import interface_adapter.dashboard.DashboardViewModel;
 import interface_adapter.log_workout.exercise.AddExerciseController;
@@ -312,6 +313,7 @@ public class AppBuilder {
     private RefreshMealRecommendationsController refreshMealRecommendationsController;
     private RefreshMealRecommendationsInputBoundary refreshMealRecommendationsInteractor;
     private DashboardInputBoundary dashboardInteractor;
+    private DashboardController dashboardController;
 
     private GetMealsController getMealsController;
     private GetWorkoutsController getWorkoutsController;
@@ -528,7 +530,7 @@ public class AppBuilder {
                 this.viewManagerModel,
                 this.profileViewModel,
                 this.loginViewModel,
-                this.dashboardInteractor,
+                this.dashboardController,
                 this.calendarController,
                 this.getMealsController,
                 this.getWorkoutsController
@@ -571,6 +573,7 @@ public class AppBuilder {
     public AppBuilder addDashboardUseCase() {
         final DashboardOutputBoundary dashboardPresenter = new DashboardPresenter(this.dashboardViewModel);
         this.dashboardInteractor = new DashboardInteractor(this.mealDataAccessObject, dashboardPresenter);
+        this.dashboardController = new DashboardController(this.dashboardInteractor);
         return this;
     }
 

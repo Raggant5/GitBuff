@@ -21,8 +21,11 @@ class DashboardPresenterTest {
 
         presenter.prepareSuccessView(new DashboardOutputData(calories, macroData));
 
+        final MacroDisplayData stateMacroData = dashboardViewModel.getState().getMacroData();
         assertEquals(calories, dashboardViewModel.getState().getCaloriesByDate());
-        assertEquals(macroData, dashboardViewModel.getState().getMacroData());
+        assertEquals(macroData.getProtein(), stateMacroData.getProtein());
+        assertEquals(macroData.getCarbs(), stateMacroData.getCarbs());
+        assertEquals(macroData.getFat(), stateMacroData.getFat());
         assertNull(dashboardViewModel.getState().getErrorMessage());
     }
 
