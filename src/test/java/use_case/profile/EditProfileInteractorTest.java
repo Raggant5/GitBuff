@@ -16,10 +16,42 @@ import entity.FitnessGoal;
 import entity.Gender;
 import entity.UnitSystem;
 import entity.User;
-import org.junit.jupiter.api.Test;
-import use_case.recommendation.RecommendationInputBoundary;
 
 public class EditProfileInteractorTest {
+
+    @Test
+    public void executeWithNoLoggedInUserFails() {
+        final FakeDataAccessObject dataAccessObject = new FakeDataAccessObject();
+        final boolean[] failed = {false};
+
+        final EditProfileOutputBoundary presenter = new EditProfileOutputBoundary() {
+            @Override
+            public void prepareSuccessView(EditProfileOutputData outputData) {
+                throw new AssertionError("Expected failure view");
+            }
+
+            @Override
+            public void prepareFailView(String errorMessage) {
+                failed[0] = true;
+                assertEquals("No user is currently logged in.", errorMessage);
+            }
+        };
+
+        final EditProfileInputData inputData = new EditProfileInputData.Builder()
+                .height(1.8f)
+                .weight(80f)
+                .activityLevel(ActivityLevel.VERY_ACTIVE)
+                .goal(FitnessGoal.MUSCLE_AND_STRENGTH_GAIN)
+                .equipment(new HashSet<>())
+                .dietaryRestrictions(new HashSet<>())
+                .preferredWorkoutDays(new HashSet<>())
+                .preferredWorkoutDurationMinutes(45)
+                .privacySettings(new HashSet<>())
+                .build();
+
+        new EditProfileInteractor(dataAccessObject, presenter).execute(inputData);
+        assertTrue(failed[0]);
+    }
 
     @Test
     public void executeSavesProfile() {
