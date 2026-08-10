@@ -40,7 +40,7 @@ Log exercises performed during workouts to track workout progress and duration. 
 
 Workout entries can be edited or deleted after they have been logged.
 
-![Feature 1 Screenshot](path/to/image.png)
+<img width="988" height="720" alt="Screenshot 2026-08-10 at 12 25 48 PM" src="https://github.com/user-attachments/assets/b88bdd46-befe-4f07-a3f5-cc6fd88cfa4d" />
 
 ### Feature 2 — Profile-Based Workout Plans
 
@@ -50,20 +50,20 @@ The generated plan takes user profile into consideration:
 - Number of days available for working out
 - Fitness goal
 
-![Feature 2 Screenshot](path/to/image.png)
+<img width="3414" height="2056" alt="image" src="https://github.com/user-attachments/assets/bdd4cb6e-a424-4898-9109-4ef51c8df374" />
 
 ### Feature 3 — Meal Logging
 
 Log meals eaten each day by manually entering nutritional information or searching for foods for a baseline of their initial nutritional values. Users can adjust the quantity and nutrition of each food item as needed.
 The application displays nutritional totals for each meal, including calories, protein, carbohydrates, and fat.
 
-![Feature 3 Screenshot](path/to/image.png)
+<img width="3398" height="2148" alt="image" src="https://github.com/user-attachments/assets/7bcae7fd-204b-4c59-9f84-c99525f6d001" />
 
 ### Feature 4 — Meal Recommendations
 
 Receive meal recommendations based on the user's profile data, including dietary restrictions, height, and weight.
 
-![Feature 4 Screenshot](path/to/image.png)
+<img width="3414" height="1200" alt="image" src="https://github.com/user-attachments/assets/ca69e746-48f6-4e11-b753-24637603e164" />
 
 ### Feature 5 — Profile and Share Progress
 
