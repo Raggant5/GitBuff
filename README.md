@@ -11,6 +11,7 @@
 ## Table of Contents
 
 - [About the Project](#about-the-project)
+- [Purpose](#purpose)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
