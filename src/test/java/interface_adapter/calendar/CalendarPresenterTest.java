@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+
 import use_case.calendar.CalendarEventData;
 import use_case.calendar.load_events.LoadCalendarEventsOutputData;
 import use_case.calendar.sync_meal_event.UpdateMealCalendarEventOutputData;
@@ -28,7 +29,12 @@ class CalendarPresenterTest {
         presenter.prepareSuccessView(new LoadCalendarEventsOutputData(oneEvent()));
 
         assertEquals(1, viewModel.getState().getCalendarEvents().size());
-        assertEquals("Workout: Leg Day", viewModel.getState().getCalendarEvents().get(0).getTitle());
+        final CalendarEventDisplayData displayEvent = viewModel.getState().getCalendarEvents().get(0);
+        assertEquals("event-1", displayEvent.getEventId());
+        assertEquals("amir", displayEvent.getUserId());
+        assertEquals("Workout: Leg Day", displayEvent.getTitle());
+        assertEquals("GitBuff workout schedule", displayEvent.getDescription());
+        assertEquals(LocalDate.of(2026, 8, 10), displayEvent.getActivityDate());
         assertNull(viewModel.getState().getErrorMessage());
     }
 

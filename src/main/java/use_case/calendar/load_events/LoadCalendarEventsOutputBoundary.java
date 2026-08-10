@@ -1,5 +1,8 @@
 package use_case.calendar.load_events;
 
+/**
+ * Output boundary for presenting loaded calendar events or a loading error.
+ */
 public interface LoadCalendarEventsOutputBoundary {
 
     /**

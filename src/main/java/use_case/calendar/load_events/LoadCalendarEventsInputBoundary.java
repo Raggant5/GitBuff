@@ -1,5 +1,8 @@
 package use_case.calendar.load_events;
 
+/**
+ * Input boundary for loading a user's calendar events.
+ */
 public interface LoadCalendarEventsInputBoundary {
     /**
      * Loads Calendar Event Use Case.

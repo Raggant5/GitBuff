@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import use_case.calendar.load_events.LoadCalendarEventsInputBoundary;
 import use_case.calendar.load_events.LoadCalendarEventsInputData;
 

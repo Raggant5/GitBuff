@@ -19,14 +19,39 @@ public class UpdateMealCalendarEventInteractor implements UpdateMealCalendarEven
     private final CalendarEventDataAccessInterface calendarDataAccessObject;
     private final UpdateMealCalendarEventOutputBoundary presenter;
 
+    /**
+     * Creates an interactor for synchronizing one changed meal.
+     *
+     * @param calendarDataAccessObject gateway for calendar operations
+     * @param presenter output boundary receiving the updated calendar
+     */
     public UpdateMealCalendarEventInteractor(final CalendarEventDataAccessInterface calendarDataAccessObject,
                                              final UpdateMealCalendarEventOutputBoundary presenter) {
         this.calendarDataAccessObject = calendarDataAccessObject;
         this.presenter = presenter;
     }
 
+    /**
+     * Adds, replaces, or removes the calendar event associated with the changed meal.
+     *
+     * @param inputData information describing the meal change
+     */
     @Override
     public void execute(final UpdateMealCalendarEventInputData inputData) {
+        try {
+            synchronizeMeal(inputData);
+        }
+        catch (final IllegalStateException exception) {
+            this.presenter.prepareFailureView(exception.getMessage());
+        }
+    }
+
+    /**
+     * Performs the calendar operations required by one meal change.
+     *
+     * @param inputData information describing the meal change
+     */
+    private void synchronizeMeal(final UpdateMealCalendarEventInputData inputData) {
         final String userId = inputData.getUserId();
         final String description = MEAL_REFERENCE_PREFIX + inputData.getMealId();
 
@@ -49,6 +74,13 @@ public class UpdateMealCalendarEventInteractor implements UpdateMealCalendarEven
         this.presenter.prepareSuccessView(new UpdateMealCalendarEventOutputData(finalEventsData));
     }
 
+    /**
+     * Finds the event associated with a stored meal reference.
+     *
+     * @param events the calendar events to search
+     * @param description the stable meal-reference description
+     * @return the matching event, or {@code null} when none exists
+     */
     private CalendarEvent findEventWithDescription(final List<CalendarEvent> events, final String description) {
         CalendarEvent result = null;
         boolean found = false;

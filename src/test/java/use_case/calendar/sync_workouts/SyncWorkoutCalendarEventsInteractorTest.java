@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import entity.CalendarEvent;
 import org.junit.jupiter.api.Test;
+
+import entity.CalendarEvent;
 import use_case.calendar.CalendarEventDataAccessInterface;
 import use_case.recommendation.ExerciseData;
 import use_case.recommendation.WorkoutPlanData;
@@ -92,12 +93,25 @@ class SyncWorkoutCalendarEventsInteractorTest {
         assertEquals(pastAnchor.plusYears(1), calendarDao.addedDates.get(0));
     }
 
+    @Test
+    void calendarFailureIsSentToFailureView() {
+        final FakeCalendarEventDataAccessObject calendarDao = new FakeCalendarEventDataAccessObject();
+        calendarDao.failureMessage = "Calendar unavailable";
+        final CapturingPresenter presenter = new CapturingPresenter();
+
+        new SyncWorkoutCalendarEventsInteractor(calendarDao, presenter)
+                .execute(new SyncWorkoutCalendarEventsInputData("amir", List.of()));
+
+        assertEquals("Calendar unavailable", presenter.failureMessage);
+    }
+
     private static final class FakeCalendarEventDataAccessObject implements CalendarEventDataAccessInterface {
         private final List<CalendarEvent> events = new ArrayList<>();
         private final List<String> addedTitles = new ArrayList<>();
         private final List<LocalDate> addedDates = new ArrayList<>();
         private final List<String> removedEventIds = new ArrayList<>();
         private int nextId = 1;
+        private String failureMessage;
 
         @Override
         public void addCalendarEvent(final String userId, final String title, final String description,
@@ -115,11 +129,16 @@ class SyncWorkoutCalendarEventsInteractorTest {
 
         @Override
         public List<CalendarEvent> getUserEvents(final String userID) {
+            if (failureMessage != null) {
+                throw new IllegalStateException(failureMessage);
+            }
             return new ArrayList<>(events);
         }
     }
 
     private static final class CapturingPresenter implements SyncWorkoutCalendarEventsOutputBoundary {
+        private String failureMessage;
+
         @Override
         public void prepareSuccessView(final SyncWorkoutCalendarEventsOutputData outputData) {
             // tests assert on the DAO's captured calls instead
@@ -127,7 +146,7 @@ class SyncWorkoutCalendarEventsInteractorTest {
 
         @Override
         public void prepareFailureView(final String errorMessage) {
-            throw new AssertionError("Expected success view, got failure: " + errorMessage);
+            this.failureMessage = errorMessage;
         }
     }
 }

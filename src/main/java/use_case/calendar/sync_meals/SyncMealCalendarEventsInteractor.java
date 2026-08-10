@@ -20,6 +20,13 @@ public class SyncMealCalendarEventsInteractor implements SyncMealCalendarEventsI
     private final ViewMealDataAccessInterface mealDataAccessObject;
     private final SyncMealCalendarEventsOutputBoundary presenter;
 
+    /**
+     * Creates an interactor that reconciles saved meals with calendar events.
+     *
+     * @param calendarDataAccessObject gateway for calendar operations
+     * @param mealDataAccessObject gateway for saved meal data
+     * @param presenter output boundary receiving the synchronized calendar
+     */
     public SyncMealCalendarEventsInteractor(final CalendarEventDataAccessInterface calendarDataAccessObject,
                                             final ViewMealDataAccessInterface mealDataAccessObject,
                                             final SyncMealCalendarEventsOutputBoundary presenter) {
@@ -28,8 +35,27 @@ public class SyncMealCalendarEventsInteractor implements SyncMealCalendarEventsI
         this.presenter = presenter;
     }
 
+    /**
+     * Synchronizes all dated meals belonging to the requested user.
+     *
+     * @param inputData identifies the user whose meals should be synchronized
+     */
     @Override
     public void execute(final SyncMealCalendarEventsInputData inputData) {
+        try {
+            synchronizeMeals(inputData);
+        }
+        catch (final IllegalStateException exception) {
+            this.presenter.prepareFailureView(exception.getMessage());
+        }
+    }
+
+    /**
+     * Performs the reconciliation of saved meals and calendar events.
+     *
+     * @param inputData identifies the user whose meals should be synchronized
+     */
+    private void synchronizeMeals(final SyncMealCalendarEventsInputData inputData) {
         final String userId = inputData.getUserId();
 
         final List<Meal> desiredMeals = new ArrayList<>();
@@ -65,6 +91,13 @@ public class SyncMealCalendarEventsInteractor implements SyncMealCalendarEventsI
         this.presenter.prepareSuccessView(new SyncMealCalendarEventsOutputData(finalEventsData));
     }
 
+    /**
+     * Finds a saved meal that exactly matches an existing calendar event.
+     *
+     * @param meals candidate saved meals
+     * @param event calendar event being reconciled
+     * @return the matching meal, or {@code null} when none exists
+     */
     private Meal findMatchingMeal(final List<Meal> meals, final CalendarEvent event) {
         Meal result = null;
         boolean found = false;
