@@ -364,7 +364,7 @@ public class AppBuilder {
         final LoadCalendarEventsInputBoundary loadInteractor =
                 new LoadCalendarEventsInteractor(this.calendarDataAccessObject, this.calendarPresenter);
 
-        this.calendarController = new CalendarController(loadInteractor, this.loginViewModel);
+        this.calendarController = new CalendarController(loadInteractor);
 
         this.syncMealCalendarEventsInteractor = new SyncMealCalendarEventsInteractor(
                 this.calendarDataAccessObject, this.viewMealsDataAccessObject, this.calendarPresenter);
@@ -501,11 +501,11 @@ public class AppBuilder {
 
         final GetMealsInputBoundary getMealsInteractor = new GetMealsInteractor(
                 new GetMealsPresenter(this.viewMealsViewModel), this.viewMealsDataAccessObject);
-        this.getMealsController = new GetMealsController(getMealsInteractor, this.loginViewModel);
+        this.getMealsController = new GetMealsController(getMealsInteractor);
 
         final GetWorkoutsInputBoundary getWorkoutsInteractor = new GetWorkoutsInteractor(
                 new GetWorkoutsPresenter(this.viewWorkoutsViewModel), this.viewWorkoutsDataAccessObject);
-        this.getWorkoutsController = new GetWorkoutsController(getWorkoutsInteractor, this.loginViewModel);
+        this.getWorkoutsController = new GetWorkoutsController(getWorkoutsInteractor);
 
         this.mainPanel.add(this.dashboardView, this.dashboardView.getViewName());
         this.mainPanel.add(this.workoutsView, this.workoutsView.getViewName());

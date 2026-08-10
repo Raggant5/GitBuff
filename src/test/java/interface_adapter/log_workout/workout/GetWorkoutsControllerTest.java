@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import interface_adapter.login.LoginViewModel;
 import use_case.log_workout.logged_workout.get_workouts.GetWorkoutsInputBoundary;
 import use_case.log_workout.logged_workout.get_workouts.GetWorkoutsInputData;
 
@@ -18,11 +17,9 @@ class GetWorkoutsControllerTest {
     @Test
     void executeDelegatesToInteractorWhenUsernameIsPresent() {
         final FakeGetWorkoutsInteractor interactor = new FakeGetWorkoutsInteractor();
-        final LoginViewModel loginViewModel = new LoginViewModel();
-        loginViewModel.getState().setUsername("aahir");
-        final GetWorkoutsController controller = new GetWorkoutsController(interactor, loginViewModel);
+        final GetWorkoutsController controller = new GetWorkoutsController(interactor);
 
-        controller.execute();
+        controller.execute("aahir");
 
         assertTrue(interactor.executeCalled);
         assertEquals("aahir", interactor.receivedInputData.getUserId());
@@ -31,11 +28,9 @@ class GetWorkoutsControllerTest {
     @Test
     void executeDoesNothingWhenUsernameIsNull() {
         final FakeGetWorkoutsInteractor interactor = new FakeGetWorkoutsInteractor();
-        final LoginViewModel loginViewModel = new LoginViewModel();
-        loginViewModel.getState().setUsername(null);
-        final GetWorkoutsController controller = new GetWorkoutsController(interactor, loginViewModel);
+        final GetWorkoutsController controller = new GetWorkoutsController(interactor);
 
-        controller.execute();
+        controller.execute(null);
 
         assertFalse(interactor.executeCalled);
     }
@@ -43,11 +38,9 @@ class GetWorkoutsControllerTest {
     @Test
     void executeDoesNothingWhenUsernameIsBlank() {
         final FakeGetWorkoutsInteractor interactor = new FakeGetWorkoutsInteractor();
-        final LoginViewModel loginViewModel = new LoginViewModel();
-        loginViewModel.getState().setUsername("   ");
-        final GetWorkoutsController controller = new GetWorkoutsController(interactor, loginViewModel);
+        final GetWorkoutsController controller = new GetWorkoutsController(interactor);
 
-        controller.execute();
+        controller.execute("   ");
 
         assertFalse(interactor.executeCalled);
     }

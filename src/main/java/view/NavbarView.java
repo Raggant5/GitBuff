@@ -92,7 +92,7 @@ public class NavbarView extends JPanel
                 this.dashboardInteractor.execute(username);
             }
             if (this.calendarController != null) {
-                this.calendarController.loadCalendarEvents();
+                this.calendarController.execute(username);
             }
             mainViewManagerModel.setState("dashboard");
             mainViewManagerModel.firePropertyChanged();
@@ -105,7 +105,7 @@ public class NavbarView extends JPanel
 
         this.toLogWorkouts.addActionListener(evt -> {
             if (this.getWorkoutsController != null) {
-                this.getWorkoutsController.execute();
+                this.getWorkoutsController.execute(this.loginViewModel.getState().getUsername());
             }
             mainViewManagerModel.setState("view workouts");
             mainViewManagerModel.firePropertyChanged();
@@ -113,7 +113,7 @@ public class NavbarView extends JPanel
 
         this.toNutrition.addActionListener(event -> {
             if (this.getMealsController != null) {
-                this.getMealsController.execute();
+                this.getMealsController.execute(this.loginViewModel.getState().getUsername());
             }
             mainViewManagerModel.setState("nutrition");
             mainViewManagerModel.firePropertyChanged();
