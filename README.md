@@ -43,7 +43,7 @@ From the application, users can:
 5. Receive meal recommendations based on their profile and dietary restrictions.
 6. Schedule workouts using the in-app calendar and optionally sync them with Google Calendar.
 7. View workout and nutrition progress through the dashboard visualizations.
-8. Share fitness progress with other GitBuff users.
+8. Share fitness progress with others via email.
    
 ---
 ## Features
