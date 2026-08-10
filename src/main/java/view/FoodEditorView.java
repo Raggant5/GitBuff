@@ -16,13 +16,14 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import entity.FoodSearchResult;
 import entity.FoodUnit;
 import interface_adapter.nutrition.food.AddFoodController;
+import interface_adapter.nutrition.food.ChangeServingSizeController;
 import interface_adapter.nutrition.food.EditFoodController;
 import interface_adapter.nutrition.food.FoodEditorState;
 import interface_adapter.nutrition.food.FoodEditorViewModel;
 import interface_adapter.nutrition.food.FoodNutritionDisplayData;
+import interface_adapter.nutrition.food.FoodSearchResultDisplayData;
 import interface_adapter.nutrition.food.FoodServingDetails;
 import interface_adapter.nutrition.food.SearchFoodController;
 
@@ -35,6 +36,7 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
     private AddFoodController addFoodController;
     private EditFoodController editFoodController;
     private SearchFoodController searchFoodController;
+    private ChangeServingSizeController changeServingSizeController;
     private final FoodEditorViewModel foodEditorViewModel;
 
     private JTextField foodNameField;
@@ -283,8 +285,12 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
 
         unitBox.addActionListener(evt -> {
             if (!isUpdatingFromState) {
-                updateState(state -> {
-                    state.getServingDetails().setUnit((FoodUnit) unitBox.getSelectedItem()); });
+                final FoodServingDetails servingDetails = foodEditorViewModel.getState().getServingDetails();
+                final FoodUnit selectedUnit = (FoodUnit) unitBox.getSelectedItem();
+                changeServingSizeController.execute(selectedUnit, servingDetails.getOriginalServingGrams(),
+                        servingDetails.getServingGrams(), servingDetails.getServingCalories(),
+                        servingDetails.getServingProtein(), servingDetails.getServingCarbs(),
+                        servingDetails.getServingFat());
             }
         });
 
@@ -335,7 +341,7 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
     private void updateSearchResults(FoodEditorState state) {
 
         searchResultsPanel.removeAll();
-        for (FoodSearchResult food : state.getSearchResults()) {
+        for (FoodSearchResultDisplayData food : state.getSearchResults()) {
             final JButton button = new JButton(
                     food.getFoodName() + " - " + food.getServingLabel() + " (" + food.getServingGrams() + "g)");
             button.addActionListener(evt -> {
@@ -347,19 +353,11 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
         searchResultsPanel.repaint();
     }
 
-    private void selectFood(FoodSearchResult food) {
-
+    private void selectFood(FoodSearchResultDisplayData food) {
         updateState(state -> {
-            state.setFoodName(food.getFoodName());
-            final FoodServingDetails servingDetails = state.getServingDetails();
-            servingDetails.setServingData(food.getServingLabel(), food.getServingGrams(), food.getServingGrams(),
-                    food.getServingCalories(), food.getServingProtein(), food.getServingCarbs(), food.getServingFat());
-            servingDetails.setQuantity("1");
-            servingDetails.setUnit(FoodUnit.DEFAULT_SERVING);
-            servingDetails.recalculateTotals();
-            state.clearSearchResults();
+            state.selectSearchResult(food.getFoodName(), food.getServingLabel(), food.getServingGrams(),
+                    food.getNutrition(), food.getUnit(), food.getQuantity());
         });
-
     }
 
     public void setAddFoodController(AddFoodController addFoodController) {
@@ -372,6 +370,10 @@ public class FoodEditorView extends JPanel implements PropertyChangeListener {
 
     public void setSearchFoodController(SearchFoodController controller) {
         this.searchFoodController = controller;
+    }
+
+    public void setChangeServingSizeController(ChangeServingSizeController controller) {
+        this.changeServingSizeController = controller;
     }
 
     /**

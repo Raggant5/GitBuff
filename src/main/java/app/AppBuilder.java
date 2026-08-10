@@ -60,6 +60,8 @@ import interface_adapter.logout.LogoutPresenter;
 import interface_adapter.nutrition.NutritionViewModel;
 import interface_adapter.nutrition.food.AddFoodController;
 import interface_adapter.nutrition.food.AddFoodPresenter;
+import interface_adapter.nutrition.food.ChangeServingSizeController;
+import interface_adapter.nutrition.food.ChangeServingSizePresenter;
 import interface_adapter.nutrition.food.DeleteFoodController;
 import interface_adapter.nutrition.food.DeleteFoodPresenter;
 import interface_adapter.nutrition.food.EditFoodController;
@@ -89,6 +91,8 @@ import interface_adapter.recommendation.RecommendationRefreshObserver;
 import interface_adapter.session.MealsSessionObserver;
 import interface_adapter.session.UserSessionEventBus;
 import interface_adapter.session.WorkoutHistorySessionObserver;
+import interface_adapter.recommendation.RefreshMealRecommendationsController;
+import interface_adapter.recommendation.RefreshMealRecommendationsPresenter;
 import interface_adapter.share.ShareProgressController;
 import interface_adapter.share.ShareProgressPresenter;
 import interface_adapter.share.ShareProgressViewModel;
@@ -139,6 +143,9 @@ import use_case.login.LoginOutputBoundary;
 import use_case.logout.LogoutInputBoundary;
 import use_case.logout.LogoutInteractor;
 import use_case.logout.LogoutOutputBoundary;
+import use_case.nutrition.food.change_serving_size.ChangeServingSizeInputBoundary;
+import use_case.nutrition.food.change_serving_size.ChangeServingSizeInteractor;
+import use_case.nutrition.food.change_serving_size.ChangeServingSizeOutputBoundary;
 import use_case.nutrition.food.create_food.AddFoodEntryInputBoundary;
 import use_case.nutrition.food.create_food.AddFoodEntryInteractor;
 import use_case.nutrition.food.create_food.AddFoodEntryOutputBoundary;
@@ -153,6 +160,7 @@ import use_case.nutrition.food.prepare_edit_food.PrepareEditFoodInteractor;
 import use_case.nutrition.food.search_food.SearchFoodDataAccessInterface;
 import use_case.nutrition.food.search_food.SearchFoodInputBoundary;
 import use_case.nutrition.food.search_food.SearchFoodInteractor;
+import use_case.nutrition.food.search_food.SearchFoodOutputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealDataAccessInterface;
 import use_case.nutrition.meal.add_meal.AddMealInputBoundary;
 import use_case.nutrition.meal.add_meal.AddMealInteractor;
@@ -177,6 +185,9 @@ import use_case.recommendation.RecommendationInputBoundary;
 import use_case.recommendation.RecommendationInteractor;
 import use_case.recommendation.RecommendationOutputBoundary;
 import use_case.recommendation.StandardCalorieCalculationStrategy;
+import use_case.recommendation.RefreshMealRecommendationsInputBoundary;
+import use_case.recommendation.RefreshMealRecommendationsInteractor;
+import use_case.recommendation.RefreshMealRecommendationsOutputBoundary;
 import use_case.share.ShareEmailDataAccessInterface;
 import use_case.share.ShareProgressInputBoundary;
 import use_case.share.ShareProgressInteractor;
@@ -566,8 +577,17 @@ public class AppBuilder {
                 this.userDataAccessObject, recommendationOutputBoundary, this.aiWorkoutDao,
                 this.foodRecommendationDao, new StandardCalorieCalculationStrategy());
         this.recommendationController = new RecommendationController(this.recommendationInteractor);
-        this.nutritionView.setRecommendationController(this.recommendationController);
         this.workoutsView.setRecommendationController(this.recommendationController);
+
+        final RefreshMealRecommendationsOutputBoundary refreshMealRecommendationsOutputBoundary =
+                new RefreshMealRecommendationsPresenter(this.nutritionViewModel);
+        final RefreshMealRecommendationsInputBoundary refreshMealRecommendationsInteractor =
+                new RefreshMealRecommendationsInteractor(
+                        this.userDataAccessObject, refreshMealRecommendationsOutputBoundary,
+                        this.foodRecommendationDao);
+        final RefreshMealRecommendationsController refreshMealRecommendationsController =
+                new RefreshMealRecommendationsController(refreshMealRecommendationsInteractor);
+        this.nutritionView.setRefreshMealRecommendationsController(refreshMealRecommendationsController);
         return this;
     }
 
@@ -683,6 +703,23 @@ public class AppBuilder {
     }
 
     /**
+     * Adds the change-serving-size use case.
+     *
+     * @return this builder
+     */
+    public AppBuilder addChangeServingSizeUseCase() {
+        final ChangeServingSizeOutputBoundary changeServingSizePresenter = new ChangeServingSizePresenter(
+                foodEditorViewModel);
+        final ChangeServingSizeInputBoundary changeServingSizeInteractor = new ChangeServingSizeInteractor(
+                changeServingSizePresenter);
+        final ChangeServingSizeController changeServingSizeController = new ChangeServingSizeController(
+                changeServingSizeInteractor);
+
+        foodEditorView.setChangeServingSizeController(changeServingSizeController);
+        return this;
+    }
+
+    /**
      * Adds the delete-meal use case.
      *
      * @return this builder
@@ -718,7 +755,7 @@ public class AppBuilder {
      * @return this builder
      */
     public AppBuilder addSearchFoodUseCase() {
-        final SearchFoodPresenter searchFoodPresenter = new SearchFoodPresenter(foodEditorViewModel);
+        final SearchFoodOutputBoundary searchFoodPresenter = new SearchFoodPresenter(foodEditorViewModel);
         final SearchFoodInputBoundary searchFoodInteractor = new SearchFoodInteractor(searchFoodDataAccessObject,
                 searchFoodPresenter);
         final SearchFoodController searchFoodController = new SearchFoodController(searchFoodInteractor);

@@ -7,9 +7,4 @@ public interface PrepareEditExerciseOutputBoundary {
      * @param outputData the exercise data to be edited upon
      */
     void prepareSuccessView(PrepareEditExerciseOutputData outputData);
-
-    /**
-     * Executes the "Switch to Add Exercise" Use Case.
-     */
-    void switchToAddExerciseEditor();
 }

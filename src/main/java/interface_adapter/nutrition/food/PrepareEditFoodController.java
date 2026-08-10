@@ -22,11 +22,4 @@ public class PrepareEditFoodController {
         prepareEditFoodInteractor.execute(new PrepareEditFoodInputData(food.getId(), food.getFoodName(),
                 nutrition, food.getQuantity(), food.getUnit(), food.getGrams()));
     }
-
-    /**
-     * Executes the "Switch To Add Food" Use Case.
-     */
-    public void switchToAddFoodEditor() {
-        prepareEditFoodInteractor.switchToAddFoodEditor();
-    }
 }

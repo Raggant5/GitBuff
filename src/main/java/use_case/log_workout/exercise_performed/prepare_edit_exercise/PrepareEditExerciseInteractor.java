@@ -21,11 +21,6 @@ public class PrepareEditExerciseInteractor implements PrepareEditExerciseInputBo
                 inputData.getIsCardio()));
     }
 
-    @Override
-    public void switchToAddExerciseEditor() {
-        presenter.switchToAddExerciseEditor();
-    }
-
     private Integer parseInt(String value) {
         Integer result;
         try {

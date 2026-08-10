@@ -3,10 +3,14 @@ package view;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import interface_adapter.nutrition.meal.DeleteMealController;
 import interface_adapter.nutrition.meal.MealDisplayData;
@@ -43,7 +47,11 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
 
         mealListContainer = new JPanel();
         mealListContainer.setLayout(new BoxLayout(mealListContainer, BoxLayout.Y_AXIS));
-        add(mealListContainer, BorderLayout.CENTER);
+
+        final JScrollPane mealScrollPane = new JScrollPane(mealListContainer);
+        mealScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        mealScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        add(mealScrollPane, BorderLayout.CENTER);
     }
 
     @Override
@@ -56,7 +64,11 @@ public class ViewMealsView extends JPanel implements PropertyChangeListener {
 
         mealListContainer.removeAll();
         errorLabel.setText(state.getError());
-        for (MealDisplayData meal : state.getMeals()) {
+
+        final List<MealDisplayData> sortedMeals = new ArrayList<>(state.getMeals());
+        sortedMeals.sort((mealA, mealB) -> mealB.getId() - mealA.getId());
+
+        for (MealDisplayData meal : sortedMeals) {
             mealListContainer.add(new MealPanel(meal, prepareEditMealController, deleteMealController));
         }
 

@@ -89,7 +89,7 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
             }
             else {
                 ensureProfileDefaults(user);
-                presentRecommendationFor(user, true);
+                presentRecommendationFor(user);
             }
         }
     }
@@ -113,17 +113,12 @@ public class RecommendationInteractor implements RecommendationInputBoundary {
         final int dailyProteinGrams = this.calorieCalculationStrategy.calculateDailyProteinGrams(user);
 
         List<WorkoutPlan> plans = new ArrayList<>();
-        if (includeWorkouts && this.aiWorkoutDataAccessObject != null) {
+        if (this.aiWorkoutDataAccessObject != null) {
             plans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(user, WEEK_DAYS);
         }
 
-        final String focusSummary = user.getGoal() != null
-                ? user.getGoal().getWorkoutFocus()
-                : FitnessGoal.MAINTAIN_GENERAL_FITNESS.getWorkoutFocus();
-
-        final String activitySummary = user.getActivityLevel() != null
-                ? user.getActivityLevel().getDescription()
-                : ActivityLevel.MODERATELY_ACTIVE.getDescription();
+        final String focusSummary = user.getGoal().getWorkoutFocus();
+        final String activitySummary = user.getActivityLevel().getDescription();
 
         List<MealRecommendation> meals = new ArrayList<>();
         if (this.foodRecommendationDataAccessObject != null) {

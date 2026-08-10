@@ -7,9 +7,4 @@ public interface PrepareEditFoodOutputBoundary {
      * @param outputData the food data to be edited upon
      */
     void prepareSuccessView(PrepareEditFoodOutputData outputData);
-
-    /**
-     * Executes the "Switch to Add Food" Use Case.
-     */
-    void switchToAddFoodEditor();
 }

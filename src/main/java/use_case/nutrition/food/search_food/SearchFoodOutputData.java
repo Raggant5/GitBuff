@@ -2,16 +2,14 @@ package use_case.nutrition.food.search_food;
 
 import java.util.List;
 
-import entity.FoodSearchResult;
-
 public class SearchFoodOutputData {
-    private final List<FoodSearchResult> foodResults;
+    private final List<FoodSearchResultData> foodResults;
 
-    public SearchFoodOutputData(List<FoodSearchResult> foodResults) {
+    public SearchFoodOutputData(List<FoodSearchResultData> foodResults) {
         this.foodResults = foodResults;
     }
 
-    public List<FoodSearchResult> getFoodResults() {
+    public List<FoodSearchResultData> getFoodResults() {
         return foodResults;
     }
 }
