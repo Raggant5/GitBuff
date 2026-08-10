@@ -62,14 +62,23 @@ public class ExercisePerformed {
     }
 
     public Integer getSets() {
+        if (strengthDetails == null) {
+            return null;
+        }
         return strengthDetails.getSets();
     }
 
     public Integer getReps() {
+        if (strengthDetails == null) {
+            return null;
+        }
         return strengthDetails.getReps();
     }
 
     public Double getWeight() {
+        if (strengthDetails == null) {
+            return null;
+        }
         return strengthDetails.getWeight();
     }
 
