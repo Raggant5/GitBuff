@@ -26,7 +26,7 @@ import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 /**
  * SQLite implementation for storing meals and food entries.
  */
-public final class SQLiteMealDataAccessObject implements
+public final class SqliteMealDataAccessObject implements
         AddMealDataAccessInterface,
         ViewMealDataAccessInterface,
         EditMealDataAccessInterface,

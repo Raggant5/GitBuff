@@ -25,14 +25,14 @@ import entity.Meal;
 import use_case.DataAccessException;
 import use_case.dashboard.MacroData;
 
-class SQLiteMealDataAccessObjectTest {
+class SqliteMealDataAccessObjectTest {
 
-    private SQLiteMealDataAccessObject dao;
+    private SqliteMealDataAccessObject dao;
     private String username;
 
     @BeforeEach
     void setUp() throws SQLException {
-        dao = new SQLiteMealDataAccessObject();
+        dao = new SqliteMealDataAccessObject();
 
         username = "test_" + UUID.randomUUID();
 

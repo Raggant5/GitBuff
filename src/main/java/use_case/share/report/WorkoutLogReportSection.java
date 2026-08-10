@@ -10,14 +10,14 @@ import entity.LoggedWorkout;
  */
 public class WorkoutLogReportSection implements ReportSection {
 
-    private static final String BULLET = " \u2022 Date: ";
+    private static final String BULLET = " • Date: ";
 
     private final List<LoggedWorkout> workouts;
 
     /**
      * Constructs a workout-log section.
      *
-     * @param workouts the user's logged workouts, possibly empty or {@code null}
+     * @param workouts the user's logged workouts, possibly empty
      */
     public WorkoutLogReportSection(final List<LoggedWorkout> workouts) {
         this.workouts = workouts;

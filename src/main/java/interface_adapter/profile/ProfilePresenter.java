@@ -51,5 +51,3 @@ public class ProfilePresenter implements EditProfileOutputBoundary {
         this.profileViewModel.firePropertyChanged();
     }
 }
-
-

@@ -47,5 +47,3 @@ public class ProfileSessionObserver implements UserSessionObserver {
         this.profileViewModel.firePropertyChanged();
     }
 }
-
-

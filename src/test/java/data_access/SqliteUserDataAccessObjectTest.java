@@ -28,14 +28,14 @@ import entity.PrivacySetting;
 import entity.UnitSystem;
 import entity.User;
 
-class SQLiteUserDataAccessObjectTest {
+class SqliteUserDataAccessObjectTest {
 
-    private SQLiteUserDataAccessObject dao;
+    private SqliteUserDataAccessObject dao;
     private String username;
 
     @BeforeEach
     void setUp() {
-        dao = new SQLiteUserDataAccessObject();
+        dao = new SqliteUserDataAccessObject();
         username = "test_" + UUID.randomUUID();
     }
 

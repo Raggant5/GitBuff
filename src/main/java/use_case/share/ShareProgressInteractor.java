@@ -130,6 +130,3 @@ public class ShareProgressInteractor implements ShareProgressInputBoundary {
         return result;
     }
 }
-
-
-

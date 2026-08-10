@@ -22,7 +22,7 @@ import use_case.log_workout.logged_workout.get_workouts.ViewWorkoutDataAccessInt
 /**
  * SQLite data access object for logged workouts and exercises performed.
  */
-public final class SQLiteWorkoutDataAccessObject
+public final class SqliteWorkoutDataAccessObject
         implements AddWorkoutDataAccessInterface,
         ViewWorkoutDataAccessInterface,
         EditWorkoutDataAccessInterface,
@@ -64,7 +64,7 @@ public final class SQLiteWorkoutDataAccessObject
 
             String userId = workout.getUserId();
             if (userId == null || userId.isBlank()) {
-                final SQLiteUserDataAccessObject userDao = new SQLiteUserDataAccessObject();
+                final SqliteUserDataAccessObject userDao = new SqliteUserDataAccessObject();
                 userId = userDao.getCurrentUsername();
             }
 

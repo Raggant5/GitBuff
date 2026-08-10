@@ -24,14 +24,14 @@ import entity.LoggedWorkout;
 import entity.StrengthDetails;
 import use_case.DataAccessException;
 
-class SQLiteWorkoutDataAccessObjectTest {
+class SqliteWorkoutDataAccessObjectTest {
 
-    private SQLiteWorkoutDataAccessObject dao;
+    private SqliteWorkoutDataAccessObject dao;
     private String username;
 
     @BeforeEach
     void setUp() throws SQLException {
-        dao = new SQLiteWorkoutDataAccessObject();
+        dao = new SqliteWorkoutDataAccessObject();
 
         username = "test_" + UUID.randomUUID();
 

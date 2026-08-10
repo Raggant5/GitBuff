@@ -76,6 +76,3 @@ public class ShareProgressUserDataAccessFacade implements ShareProgressUserDataA
         return this.workoutDataAccessObject.getWorkoutsForUser(username);
     }
 }
-
-
-

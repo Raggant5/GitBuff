@@ -1,8 +1,10 @@
 package data_access;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -32,6 +34,7 @@ public final class GoogleCalendarServiceFactory {
      * Builds and authorizes a Google Calendar service instance.
      *
      * @return authorized Calendar service.
+     * @throws IllegalStateException if credentials.json is missing or the service cannot be created.
      */
     public static Calendar create() {
         try {
@@ -68,7 +71,7 @@ public final class GoogleCalendarServiceFactory {
                     .setApplicationName("GitBuff")
                     .build();
         }
-        catch (final Exception exception) {
+        catch (final GeneralSecurityException | IOException exception) {
             throw new IllegalStateException("Could not create Google Calendar service.", exception);
         }
     }

@@ -168,5 +168,3 @@ public class ProfileState {
         this.saveConfirmation = saveConfirmation;
     }
 }
-
-

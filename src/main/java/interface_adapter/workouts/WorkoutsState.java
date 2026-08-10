@@ -63,6 +63,3 @@ public class WorkoutsState {
         this.preferredDurationMinutes = preferredDurationMinutes;
     }
 }
-
-
-

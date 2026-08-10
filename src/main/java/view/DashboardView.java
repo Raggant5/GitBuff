@@ -45,7 +45,7 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
     private static final int CALENDAR_MIN_WIDTH = 400;
     private static final double CALORIE_AXIS_UPPER_MARGIN = 0.15;
 
-    private static final String caloriesName = "Calories";
+    private static final String CALORIES = "Calories";
     private final String viewName = "dashboard";
 
     private final JPanel calorieChartContainer = new JPanel(new BorderLayout());
@@ -83,7 +83,7 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         chartsSideSection.setPreferredSize(new Dimension(SIDEBAR_PREFERRED_WIDTH, 0));
         chartsSideSection.setMinimumSize(new Dimension(SIDE_BAR_MINIMUM_WIDTH, 0));
 
-        this.calorieChartContainer.setBorder(BorderFactory.createTitledBorder(caloriesName));
+        this.calorieChartContainer.setBorder(BorderFactory.createTitledBorder(CALORIES));
         this.macroChartContainer.setBorder(BorderFactory.createTitledBorder("Today's Macronutrients"));
         this.calendarContainer.setBorder(BorderFactory.createTitledBorder("Calendar Schedule"));
 
@@ -172,11 +172,11 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
         for (final Map.Entry<LocalDate, Double> entry : caloriesByDate.entrySet()) {
-            dataset.addValue(entry.getValue(), caloriesName, entry.getKey().toString());
+            dataset.addValue(entry.getValue(), CALORIES, entry.getKey().toString());
         }
 
         final JFreeChart chart = ChartFactory.createBarChart(
-                "Calories Eaten Per Day", "Date", caloriesName, dataset);
+                "Calories Eaten Per Day", "Date", CALORIES, dataset);
 
         final CategoryPlot plot = chart.getCategoryPlot();
         final NumberAxis calorieAxis = (NumberAxis) plot.getRangeAxis();

@@ -29,7 +29,7 @@ import use_case.signup.SignupUserDataAccessInterface;
 /**
  * SQLite implementation for storing and loading user information and workout stats.
  */
-public class SQLiteUserDataAccessObject
+public class SqliteUserDataAccessObject
         implements SignupUserDataAccessInterface,
         LoginUserDataAccessInterface,
         LogoutUserDataAccessInterface,

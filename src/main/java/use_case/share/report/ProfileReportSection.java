@@ -49,6 +49,3 @@ public class ProfileReportSection implements ReportSection {
         return builder.toString();
     }
 }
-
-
-

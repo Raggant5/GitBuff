@@ -11,12 +11,12 @@ import data_access.AiWorkoutDataAccessObject;
 import data_access.GoogleCalendarDataAccessObject;
 import data_access.GoogleCalendarServiceFactory;
 import data_access.JavaMailDataAccessObject;
-import data_access.SQLiteMealDataAccessObject;
-import data_access.SQLiteUserDataAccessObject;
-import data_access.SQLiteWorkoutDataAccessObject;
 import data_access.SearchFoodDataAccessObject;
 import data_access.ShareProgressUserDataAccessFacade;
 import data_access.SpoonacularMealRecommendationDataAccessObject;
+import data_access.SqliteMealDataAccessObject;
+import data_access.SqliteUserDataAccessObject;
+import data_access.SqliteWorkoutDataAccessObject;
 import entity.CommonUserFactory;
 import entity.ExercisePerformedFactory;
 import entity.FoodEntryFactory;
@@ -250,8 +250,8 @@ public class AppBuilder {
 
     private final UserFactory userFactory = new CommonUserFactory();
 
-    private final SQLiteUserDataAccessObject userDataAccessObject = new SQLiteUserDataAccessObject();
-    private final SQLiteMealDataAccessObject mealDataAccessObject = new SQLiteMealDataAccessObject();
+    private final SqliteUserDataAccessObject userDataAccessObject = new SqliteUserDataAccessObject();
+    private final SqliteMealDataAccessObject mealDataAccessObject = new SqliteMealDataAccessObject();
 
     private final AiWorkoutDataAccessInterface aiWorkoutDao = new AiWorkoutDataAccessObject();
     private final FoodRecommendationDataAccessInterface foodRecommendationDao =
@@ -293,8 +293,8 @@ public class AppBuilder {
     private final ExercisePerformedFactory exercisePerformedFactory = new ExercisePerformedFactory();
     private final LoggedWorkoutFactory loggedWorkoutFactory = new LoggedWorkoutFactory();
 
-    // Single shared instance of SQLiteWorkoutDataAccessObject
-    private final SQLiteWorkoutDataAccessObject workoutDataAccessObject = new SQLiteWorkoutDataAccessObject();
+    // Single shared instance of SqliteWorkoutDataAccessObject
+    private final SqliteWorkoutDataAccessObject workoutDataAccessObject = new SqliteWorkoutDataAccessObject();
     private final AddWorkoutDataAccessInterface addWorkoutDataAccessObject = this.workoutDataAccessObject;
     private final ViewWorkoutDataAccessInterface viewWorkoutsDataAccessObject = this.workoutDataAccessObject;
     private final EditWorkoutDataAccessInterface editWorkoutDataAccessObject = this.workoutDataAccessObject;
