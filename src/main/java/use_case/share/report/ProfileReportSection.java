@@ -25,9 +25,20 @@ public class ProfileReportSection implements ReportSection {
 
     @Override
     public String render() {
-        final String bio = this.user.getBio() != null && !this.user.getBio().isBlank()
-                ? this.user.getBio() : "None";
-        final String goal = this.user.getGoal() != null ? this.user.getGoal().toString() : "Not set";
+        final String bio;
+        if (this.user.getBio() != null && !this.user.getBio().isBlank()) {
+            bio = this.user.getBio();
+        }
+        else {
+            bio = "None";
+        }
+        final String goal;
+        if (this.user.getGoal() != null) {
+            goal = this.user.getGoal().toString();
+        }
+        else {
+            goal = "Not set";
+        }
 
         final StringBuilder builder = new StringBuilder();
         builder.append("--- PROFILE DETAILS ---\n");

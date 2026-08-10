@@ -71,6 +71,3 @@ public class CalendarPresenter implements LoadCalendarEventsOutputBoundary, Sync
                 event.getDescription(), event.getActivityDate());
     }
 }
-
-
-

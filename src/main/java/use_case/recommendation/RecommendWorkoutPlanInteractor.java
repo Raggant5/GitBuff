@@ -43,36 +43,45 @@ public class RecommendWorkoutPlanInteractor implements RecommendWorkoutPlanInput
         final String username = this.userDataAccessObject.getCurrentUsername();
         if (username == null) {
             this.presenter.prepareFailView("No user is currently logged in.");
-            return;
         }
+        else {
+            final User user = this.userDataAccessObject.get(username);
+            if (user == null || user.getWeight() <= 0.0f || user.getHeight() <= 0.0f) {
+                this.presenter.prepareSuccessView(new RecommendWorkoutPlanOutputData(
+                        "General Fitness", "Please update your profile details.", new ArrayList<>()));
+                this.workoutPlanEventPublisher.publish(
+                        new WorkoutPlanGeneratedEvent(username, Collections.emptyList()));
+            }
+            else {
+                ensureProfileDefaults(user);
 
-        final User user = this.userDataAccessObject.get(username);
-        if (user == null || user.getWeight() <= 0.0f || user.getHeight() <= 0.0f) {
-            this.presenter.prepareSuccessView(new RecommendWorkoutPlanOutputData(
-                    "General Fitness", "Please update your profile details.", new ArrayList<>()));
-            this.workoutPlanEventPublisher.publish(
-                    new WorkoutPlanGeneratedEvent(username, Collections.emptyList()));
-            return;
+                final List<WorkoutPlan> generatedPlans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(
+                        user, WEEK_DAYS);
+                final List<WorkoutPlanData> plans = new ArrayList<>();
+                for (final WorkoutPlan plan : generatedPlans) {
+                    plans.add(WorkoutPlanData.from(plan));
+                }
+
+                final String focusSummary;
+                if (user.getGoal() != null) {
+                    focusSummary = user.getGoal().getWorkoutFocus();
+                }
+                else {
+                    focusSummary = FitnessGoal.MAINTAIN_GENERAL_FITNESS.getWorkoutFocus();
+                }
+                final String activitySummary;
+                if (user.getActivityLevel() != null) {
+                    activitySummary = user.getActivityLevel().getDescription();
+                }
+                else {
+                    activitySummary = ActivityLevel.MODERATELY_ACTIVE.getDescription();
+                }
+
+                this.presenter.prepareSuccessView(
+                        new RecommendWorkoutPlanOutputData(focusSummary, activitySummary, plans));
+                this.workoutPlanEventPublisher.publish(new WorkoutPlanGeneratedEvent(username, plans));
+            }
         }
-
-        ensureProfileDefaults(user);
-
-        final List<WorkoutPlan> generatedPlans = this.aiWorkoutDataAccessObject.generateWorkoutPlans(
-                user, WEEK_DAYS);
-        final List<WorkoutPlanData> plans = new ArrayList<>();
-        for (final WorkoutPlan plan : generatedPlans) {
-            plans.add(WorkoutPlanData.from(plan));
-        }
-
-        final String focusSummary = user.getGoal() != null
-                ? user.getGoal().getWorkoutFocus()
-                : FitnessGoal.MAINTAIN_GENERAL_FITNESS.getWorkoutFocus();
-        final String activitySummary = user.getActivityLevel() != null
-                ? user.getActivityLevel().getDescription()
-                : ActivityLevel.MODERATELY_ACTIVE.getDescription();
-
-        this.presenter.prepareSuccessView(new RecommendWorkoutPlanOutputData(focusSummary, activitySummary, plans));
-        this.workoutPlanEventPublisher.publish(new WorkoutPlanGeneratedEvent(username, plans));
     }
 
     private void ensureProfileDefaults(final User user) {

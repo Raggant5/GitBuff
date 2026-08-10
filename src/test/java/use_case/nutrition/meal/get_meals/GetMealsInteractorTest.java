@@ -59,7 +59,14 @@ class GetMealsInteractorTest {
 
         @Override
         public Meal getMealById(final int mealId) {
-            return meals.isEmpty() ? null : meals.get(0);
+            final Meal result;
+            if (meals.isEmpty()) {
+                result = null;
+            }
+            else {
+                result = meals.get(0);
+            }
+            return result;
         }
     }
 

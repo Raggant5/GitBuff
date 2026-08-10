@@ -66,13 +66,16 @@ public class SyncMealCalendarEventsInteractor implements SyncMealCalendarEventsI
     }
 
     private Meal findMatchingMeal(final List<Meal> meals, final CalendarEvent event) {
+        Meal result = null;
+        boolean found = false;
         for (final Meal meal : meals) {
-            if (("Meal: " + meal.getName()).equals(event.getTitle())
+            if (!found && ("Meal: " + meal.getName()).equals(event.getTitle())
                     && (MEAL_REFERENCE_PREFIX + meal.getId()).equals(event.getDescription())
                     && meal.getDate().equals(event.getActivityDate())) {
-                return meal;
+                result = meal;
+                found = true;
             }
         }
-        return null;
+        return result;
     }
 }

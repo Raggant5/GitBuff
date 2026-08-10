@@ -26,6 +26,3 @@ public class CalendarState {
         return this.errorMessage;
     }
 }
-
-
-

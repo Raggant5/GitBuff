@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import interface_adapter.login.LoginViewModel;
-import interface_adapter.nutrition.food.FoodEnumMapper;
 import interface_adapter.nutrition.food.FoodEntryDisplayData;
+import interface_adapter.nutrition.food.FoodEnumMapper;
 import use_case.nutrition.food.FoodEntryInputData;
 import use_case.nutrition.food.FoodNutritionInput;
 import use_case.nutrition.meal.add_meal.AddMealInputBoundary;

@@ -43,7 +43,14 @@ public class ShareProgressUserDataAccessFacade implements ShareProgressUserDataA
     @Override
     public int getTotalCompletedWorkouts(final String username) {
         final List<LoggedWorkout> workouts = this.workoutDataAccessObject.getWorkoutsForUser(username);
-        return workouts != null ? workouts.size() : 0;
+        final int result;
+        if (workouts != null) {
+            result = workouts.size();
+        }
+        else {
+            result = 0;
+        }
+        return result;
     }
 
     @Override

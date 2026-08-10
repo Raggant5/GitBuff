@@ -51,6 +51,3 @@ public class CalendarEventDisplayData {
         return this.activityDate;
     }
 }
-
-
-

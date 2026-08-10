@@ -61,25 +61,49 @@ public class ExercisePerformed {
         return strengthDetails;
     }
 
+    /**
+     * Get the number of setes or null if cardio exercise.
+     * @return number of sets
+     */
     public Integer getSets() {
+        final Integer result;
         if (strengthDetails == null) {
-            return null;
+            result = null;
         }
-        return strengthDetails.getSets();
+        else {
+            result = strengthDetails.getSets();
+        }
+        return result;
     }
 
+    /**
+     * Get number of reps or null if cardio exercise.
+     * @return number of reps
+     */
     public Integer getReps() {
+        final Integer result;
         if (strengthDetails == null) {
-            return null;
+            result = null;
         }
-        return strengthDetails.getReps();
+        else {
+            result = strengthDetails.getReps();
+        }
+        return result;
     }
 
+    /**
+     * Get weights used in kg if weightlifting exercise.
+     * @return value of weights
+     */
     public Double getWeight() {
+        final Double result;
         if (strengthDetails == null) {
-            return null;
+            result = null;
         }
-        return strengthDetails.getWeight();
+        else {
+            result = strengthDetails.getWeight();
+        }
+        return result;
     }
 
     public double getDurationMins() {

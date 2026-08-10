@@ -18,7 +18,14 @@ public final class FoodEnumMapper {
      * @return the matching display option, or null if the input was null
      */
     public static FoodUnitOption toOption(final FoodUnit unit) {
-        return unit == null ? null : FoodUnitOption.valueOf(unit.name());
+        final FoodUnitOption result;
+        if (unit == null) {
+            result = null;
+        }
+        else {
+            result = FoodUnitOption.valueOf(unit.name());
+        }
+        return result;
     }
 
     /**
@@ -28,6 +35,13 @@ public final class FoodEnumMapper {
      * @return the matching entity value, or null if the input was null
      */
     public static FoodUnit toEntity(final FoodUnitOption option) {
-        return option == null ? null : FoodUnit.valueOf(option.name());
+        final FoodUnit result;
+        if (option == null) {
+            result = null;
+        }
+        else {
+            result = FoodUnit.valueOf(option.name());
+        }
+        return result;
     }
 }

@@ -1,5 +1,6 @@
 package interface_adapter.workouts;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -20,5 +21,6 @@ class WorkoutScheduleLoadingObserverTest {
         observer.onUserLoggedIn(new UserLoggedInEvent(loginOutputData));
 
         assertTrue(workoutsViewModel.getState().isLoading());
+        assertEquals(45, workoutsViewModel.getState().getPreferredDurationMinutes());
     }
 }

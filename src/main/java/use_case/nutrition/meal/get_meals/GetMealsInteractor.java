@@ -1,11 +1,11 @@
 package use_case.nutrition.meal.get_meals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import entity.Meal;
 import use_case.DataAccessException;
 import use_case.nutrition.meal.MealData;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Interactor for fetching a user's saved meals on demand.

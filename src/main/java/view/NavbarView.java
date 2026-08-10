@@ -87,22 +87,13 @@ public class NavbarView extends JPanel
         mainViewManagerModel.addPropertyChangeListener(this);
 
         this.toDashboard.addActionListener(event -> {
-            final String username =
-                    this.loginViewModel
-                            .getState()
-                            .getUsername();
-
-            if (this.dashboardInteractor != null
-                    && username != null
-                    && !username.isBlank()) {
-
+            final String username = this.loginViewModel.getState().getUsername();
+            if (this.dashboardInteractor != null && username != null && !username.isBlank()) {
                 this.dashboardInteractor.execute(username);
             }
-
             if (this.calendarController != null) {
                 this.calendarController.loadCalendarEvents();
             }
-
             mainViewManagerModel.setState("dashboard");
             mainViewManagerModel.firePropertyChanged();
         });
@@ -136,16 +127,10 @@ public class NavbarView extends JPanel
         this.logOut.addActionListener(event -> {
             mainViewManagerModel.setState("dashboard");
             mainViewManagerModel.firePropertyChanged();
-
-            final ProfileState profileState =
-                    profileViewModel.getState();
-
+            final ProfileState profileState = profileViewModel.getState();
             if (this.logoutController != null) {
-                this.logoutController.execute(
-                        profileState.getUsername()
-                );
+                this.logoutController.execute(profileState.getUsername());
             }
-
             viewManagerModel.setState("log in");
             viewManagerModel.firePropertyChanged();
         });

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import interface_adapter.MainViewManagerModel;
-import interface_adapter.nutrition.food.FoodEnumMapper;
 import interface_adapter.nutrition.food.FoodEntryDisplayData;
+import interface_adapter.nutrition.food.FoodEnumMapper;
 import interface_adapter.nutrition.food.FoodNutritionDisplayData;
 import use_case.nutrition.food.FoodEntryData;
 import use_case.nutrition.meal.prepare_edit_meal.PrepareEditMealOutputBoundary;

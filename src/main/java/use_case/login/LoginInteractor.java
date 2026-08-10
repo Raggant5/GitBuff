@@ -39,41 +39,41 @@ public class LoginInteractor implements LoginInputBoundary {
                 loginPresenter.prepareFailView(
                         username + ": Account does not exist."
                 );
-                return;
             }
+            else {
+                final User user = userDataAccessObject.get(username);
 
-            final User user = userDataAccessObject.get(username);
+                if (!password.equals(user.getPassword())) {
+                    loginPresenter.prepareFailView(
+                            "Incorrect password for \"" + username + "\"."
+                    );
+                }
+                else {
+                    userDataAccessObject.setCurrentUsername(username);
 
-            if (!password.equals(user.getPassword())) {
-                loginPresenter.prepareFailView(
-                        "Incorrect password for \"" + username + "\"."
-                );
-                return;
+                    final LoginOutputData loginOutputData = new LoginOutputData(
+                            user.getName(),
+                            user.getHeight(),
+                            user.getWeight(),
+                            user.getActivityLevel(),
+                            user.getGoal(),
+                            user.getProfilePicturePath(),
+                            user.getDateOfBirth(),
+                            user.getGender(),
+                            user.getBio(),
+                            user.getPreferredUnitSystem(),
+                            user.getEquipment(),
+                            user.getDietaryRestrictions(),
+                            user.getPreferredWorkoutDays(),
+                            user.getPreferredWorkoutDurationMinutes(),
+                            user.getPrivacySettings(),
+                            false
+                    );
+
+                    this.userSessionEventPublisher.publish(new UserLoggedInEvent(loginOutputData));
+                    loginPresenter.prepareSuccessView(loginOutputData);
+                }
             }
-
-            userDataAccessObject.setCurrentUsername(username);
-
-            final LoginOutputData loginOutputData = new LoginOutputData(
-                    user.getName(),
-                    user.getHeight(),
-                    user.getWeight(),
-                    user.getActivityLevel(),
-                    user.getGoal(),
-                    user.getProfilePicturePath(),
-                    user.getDateOfBirth(),
-                    user.getGender(),
-                    user.getBio(),
-                    user.getPreferredUnitSystem(),
-                    user.getEquipment(),
-                    user.getDietaryRestrictions(),
-                    user.getPreferredWorkoutDays(),
-                    user.getPreferredWorkoutDurationMinutes(),
-                    user.getPrivacySettings(),
-                    false
-            );
-
-            this.userSessionEventPublisher.publish(new UserLoggedInEvent(loginOutputData));
-            loginPresenter.prepareSuccessView(loginOutputData);
         }
         catch (final DataAccessException exception) {
             loginPresenter.prepareFailView("Unable to log in right now. Please try again.");

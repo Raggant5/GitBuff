@@ -20,21 +20,26 @@ public class CalendarController {
         this.loginViewModel = loginViewModel;
     }
 
+    /**
+     * Executes the Load Calendar Events From Data Use Case.
+     */
     public void loadCalendarEvents() {
         final String userId = getCurrentUserId();
-        if (userId == null) {
-            return;
+        if (userId != null) {
+            final LoadCalendarEventsInputData inputData = new LoadCalendarEventsInputData(userId);
+            loadInteractor.loadCalendarEvents(inputData);
         }
-
-        final LoadCalendarEventsInputData inputData = new LoadCalendarEventsInputData(userId);
-        loadInteractor.loadCalendarEvents(inputData);
     }
 
     private String getCurrentUserId() {
         final String userId = loginViewModel.getState().getUsername();
+        final String result;
         if (userId == null || userId.isBlank()) {
-            return null;
+            result = null;
         }
-        return userId;
+        else {
+            result = userId;
+        }
+        return result;
     }
 }

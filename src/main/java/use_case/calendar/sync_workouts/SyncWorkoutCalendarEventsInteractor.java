@@ -78,35 +78,38 @@ public class SyncWorkoutCalendarEventsInteractor implements SyncWorkoutCalendarE
     }
 
     private ScheduledWorkout findMatchingWorkout(final List<ScheduledWorkout> workouts, final CalendarEvent event) {
+        ScheduledWorkout result = null;
+        boolean found = false;
         for (final ScheduledWorkout workout : workouts) {
-            if (workout.title().equals(event.getTitle())
+            if (!found && workout.title().equals(event.getTitle())
                     && workout.description().equals(event.getDescription())
                     && workout.date().equals(event.getActivityDate())) {
-                return workout;
+                result = workout;
+                found = true;
             }
         }
-        return null;
+        return result;
     }
 
     private LocalDate parseWorkoutDate(final String dateText) {
-        if (dateText == null || dateText.isBlank()) {
-            return null;
-        }
+        LocalDate result = null;
+        if (dateText != null && !dateText.isBlank()) {
+            final LocalDate today = LocalDate.now();
+            try {
+                LocalDate parsed = LocalDate.parse(
+                        dateText + ", " + Year.now().getValue(),
+                        WORKOUT_DATE_FORMAT);
 
-        final LocalDate today = LocalDate.now();
-        try {
-            LocalDate parsed = LocalDate.parse(
-                    dateText + ", " + Year.now().getValue(),
-                    WORKOUT_DATE_FORMAT);
-
-            if (parsed.isBefore(today.minusDays(1))) {
-                parsed = parsed.plusYears(1);
+                if (parsed.isBefore(today.minusDays(1))) {
+                    parsed = parsed.plusYears(1);
+                }
+                result = parsed;
             }
-            return parsed;
+            catch (final DateTimeParseException exception) {
+                result = null;
+            }
         }
-        catch (final DateTimeParseException exception) {
-            return null;
-        }
+        return result;
     }
 
     private record ScheduledWorkout(String title, String description, LocalDate date) {

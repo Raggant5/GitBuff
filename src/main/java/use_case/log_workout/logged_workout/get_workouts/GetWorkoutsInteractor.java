@@ -1,11 +1,11 @@
 package use_case.log_workout.logged_workout.get_workouts;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import entity.LoggedWorkout;
 import use_case.DataAccessException;
 import use_case.log_workout.logged_workout.LoggedWorkoutData;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Interactor for fetching a user's logged workout history on demand.

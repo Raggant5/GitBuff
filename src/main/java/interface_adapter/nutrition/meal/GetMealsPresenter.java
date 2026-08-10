@@ -3,8 +3,8 @@ package interface_adapter.nutrition.meal;
 import java.util.ArrayList;
 import java.util.List;
 
-import interface_adapter.nutrition.food.FoodEnumMapper;
 import interface_adapter.nutrition.food.FoodEntryDisplayData;
+import interface_adapter.nutrition.food.FoodEnumMapper;
 import interface_adapter.nutrition.food.FoodNutritionDisplayData;
 import use_case.nutrition.food.FoodEntryData;
 import use_case.nutrition.meal.MealData;

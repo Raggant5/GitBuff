@@ -65,7 +65,13 @@ public class FallbackWorkoutPlanStrategy implements WorkoutPlanGenerationStrateg
             targetDuration = user.getPreferredWorkoutDurationMinutes();
         }
 
-        final FitnessGoal goal = user != null ? user.getGoal() : FitnessGoal.MAINTAIN_GENERAL_FITNESS;
+        final FitnessGoal goal;
+        if (user != null) {
+            goal = user.getGoal();
+        }
+        else {
+            goal = FitnessGoal.MAINTAIN_GENERAL_FITNESS;
+        }
         final String[] workoutTypes = ExerciseKnowledgeBase.getWorkoutTypesForGoal(goal, DEFAULT_WORKOUT_TYPES);
         final String[] workoutTitles = ExerciseKnowledgeBase.getWorkoutTitlesForGoal(goal, DEFAULT_WORKOUT_TITLES);
         final String[] workoutDescs =

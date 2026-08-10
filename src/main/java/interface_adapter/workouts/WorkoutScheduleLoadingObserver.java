@@ -23,6 +23,7 @@ public class WorkoutScheduleLoadingObserver implements UserSessionObserver {
     public void onUserLoggedIn(final UserLoggedInEvent event) {
         final WorkoutsState workoutsState = this.workoutsViewModel.getState();
         workoutsState.setLoading(true);
+        workoutsState.setPreferredDurationMinutes(event.getData().getPreferredWorkoutDurationMinutes());
         this.workoutsViewModel.firePropertyChanged();
     }
 }

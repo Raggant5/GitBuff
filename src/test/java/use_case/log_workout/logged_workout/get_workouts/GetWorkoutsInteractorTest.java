@@ -60,7 +60,14 @@ class GetWorkoutsInteractorTest {
 
         @Override
         public LoggedWorkout getWorkoutById(final int workoutId) {
-            return workouts.isEmpty() ? null : workouts.get(0);
+            final LoggedWorkout result;
+            if (workouts.isEmpty()) {
+                result = null;
+            }
+            else {
+                result = workouts.get(0);
+            }
+            return result;
         }
     }
 

@@ -15,6 +15,7 @@ public class JavaMailDataAccessObject implements ShareEmailDataAccessInterface {
     @Override
     public boolean sendEmail(final String recipientEmail, final String subject,
                              final String bodyText, final String imagePath) {
+        boolean result = false;
         try {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.MAIL)) {
                 final String encodedSubject = URLEncoder.encode(subject, StandardCharsets.UTF_8)
@@ -26,12 +27,12 @@ public class JavaMailDataAccessObject implements ShareEmailDataAccessInterface {
                         recipientEmail, encodedSubject, encodedBody);
 
                 Desktop.getDesktop().mail(new URI(uriStr));
-                return true;
+                result = true;
             }
         }
         catch (final Exception ex) {
-            return false;
+            result = false;
         }
-        return false;
+        return result;
     }
 }

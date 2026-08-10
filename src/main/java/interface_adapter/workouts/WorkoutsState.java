@@ -13,6 +13,7 @@ public class WorkoutsState {
     private List<WorkoutPlanDisplayData> workoutPlans = new ArrayList<>();
     private String message = "";
     private boolean isLoading;
+    private int preferredDurationMinutes;
 
     public String getWorkoutFocus() {
         return this.workoutFocus;
@@ -50,8 +51,16 @@ public class WorkoutsState {
         return this.isLoading;
     }
 
-    public void setLoading(final boolean isLoading) {
-        this.isLoading = isLoading;
+    public void setLoading(final boolean newIsLoading) {
+        this.isLoading = newIsLoading;
+    }
+
+    public int getPreferredDurationMinutes() {
+        return this.preferredDurationMinutes;
+    }
+
+    public void setPreferredDurationMinutes(final int preferredDurationMinutes) {
+        this.preferredDurationMinutes = preferredDurationMinutes;
     }
 }
 

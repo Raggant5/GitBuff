@@ -563,8 +563,7 @@ public class SQLiteUserDataAccessObject
         return equipmentSet;
     }
 
-    private Set<DietaryRestriction>
-    loadDietaryRestrictions(
+    private Set<DietaryRestriction> loadDietaryRestrictions(
             final Connection connection,
             final String username
     ) throws SQLException {

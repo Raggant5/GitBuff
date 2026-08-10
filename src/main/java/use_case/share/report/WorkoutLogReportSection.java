@@ -30,7 +30,13 @@ public class WorkoutLogReportSection implements ReportSection {
 
     @Override
     public String render() {
-        final int totalWorkouts = this.workouts != null ? this.workouts.size() : 0;
+        final int totalWorkouts;
+        if (this.workouts != null) {
+            totalWorkouts = this.workouts.size();
+        }
+        else {
+            totalWorkouts = 0;
+        }
 
         final StringBuilder builder = new StringBuilder();
         builder.append("--- COMPLETED WORKOUTS ---\n");

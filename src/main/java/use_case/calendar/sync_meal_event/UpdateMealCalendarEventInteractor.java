@@ -50,11 +50,14 @@ public class UpdateMealCalendarEventInteractor implements UpdateMealCalendarEven
     }
 
     private CalendarEvent findEventWithDescription(final List<CalendarEvent> events, final String description) {
+        CalendarEvent result = null;
+        boolean found = false;
         for (final CalendarEvent event : events) {
-            if (description.equals(event.getDescription())) {
-                return event;
+            if (!found && description.equals(event.getDescription())) {
+                result = event;
+                found = true;
             }
         }
-        return null;
+        return result;
     }
 }
