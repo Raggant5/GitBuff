@@ -2,29 +2,16 @@ package use_case.calendar.load_events;
 
 import java.util.List;
 
-import entity.CalendarEvent;
+import use_case.calendar.CalendarEventData;
 
-/**
- * Output data containing calendar events loaded for a user.
- */
 public class LoadCalendarEventsOutputData {
-    private final List<CalendarEvent> calendarEvents;
+    private final List<CalendarEventData> calendarEvents;
 
-    /**
-     * Creates output data containing the loaded calendar events.
-     *
-     * @param calendarEvents the loaded calendar events
-     */
-    public LoadCalendarEventsOutputData(List<CalendarEvent> calendarEvents) {
+    public LoadCalendarEventsOutputData(List<CalendarEventData> calendarEvents) {
         this.calendarEvents = List.copyOf(calendarEvents);
     }
 
-    /**
-     * Returns the loaded calendar events.
-     *
-     * @return an unmodifiable list of calendar events
-     */
-    public List<CalendarEvent> getCalendarEvents() {
+    public List<CalendarEventData> getCalendarEvents() {
         return this.calendarEvents;
     }
 }

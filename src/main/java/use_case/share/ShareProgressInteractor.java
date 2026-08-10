@@ -13,13 +13,8 @@ import use_case.share.report.WorkoutLogReportSection;
 
 /**
  * Interactor for aggregating and sharing user progress according to active privacy settings.
- *
- * <p>The report itself is assembled with the Composite design pattern: each enabled
- * {@link PrivacySetting} adds one {@code use_case.share.report.ReportSection} leaf to a
- * {@link CompositeReportSection}, which is then rendered as a whole. Adding a new shareable
- * section in the future means writing one more {@code ReportSection} implementation and adding
- * it here - this interactor no longer needs a growing if-chain of string concatenation
- * (Open/Closed Principle).
+ * The report is assembled with the Composite design pattern: each enabled PrivacySetting adds
+ * one ReportSection leaf to a CompositeReportSection, which is then rendered as a whole.
  */
 public class ShareProgressInteractor implements ShareProgressInputBoundary {
 
@@ -50,49 +45,52 @@ public class ShareProgressInteractor implements ShareProgressInputBoundary {
         final User user = this.userDataAccessObject.getCurrentUser();
         if (user == null) {
             this.presenter.prepareFailView("No user is currently logged in.");
-            return;
         }
-
-        final String formattedReport = buildShareReport(user);
-        if (formattedReport == null) {
-            this.presenter.prepareFailView(NO_SHAREABLE_CONTENT_MESSAGE);
-            return;
+        else {
+            final String formattedReport = buildShareReport(user);
+            if (formattedReport == null) {
+                this.presenter.prepareFailView(NO_SHAREABLE_CONTENT_MESSAGE);
+            }
+            else {
+                this.presenter.preparePreviewView(
+                        new ShareProgressOutputData(formattedReport, user.getProfilePicturePath()));
+            }
         }
-
-        this.presenter.preparePreviewView(new ShareProgressOutputData(formattedReport, user.getProfilePicturePath()));
     }
 
     @Override
     public void sendShareEmail(final String recipientEmail) {
         if (recipientEmail == null || !recipientEmail.contains("@") || !recipientEmail.contains(".")) {
             this.presenter.prepareFailView("Please enter a valid recipient email address.");
-            return;
-        }
-
-        final User user = this.userDataAccessObject.getCurrentUser();
-        if (user == null) {
-            this.presenter.prepareFailView("No user session found.");
-            return;
-        }
-
-        final String formattedReport = buildShareReport(user);
-        if (formattedReport == null) {
-            this.presenter.prepareFailView(NO_SHAREABLE_CONTENT_MESSAGE);
-            return;
-        }
-
-        final boolean success = this.emailDataAccessObject.sendEmail(
-                recipientEmail,
-                "GitBuff Progress Update from " + user.getName(),
-                formattedReport,
-                user.getProfilePicturePath()
-        );
-
-        if (success) {
-            this.presenter.prepareSendSuccessView("Progress shared successfully with " + recipientEmail + "!");
         }
         else {
-            this.presenter.prepareFailView("Failed to send email. Opening default mail application...");
+            final User user = this.userDataAccessObject.getCurrentUser();
+            if (user == null) {
+                this.presenter.prepareFailView("No user session found.");
+            }
+            else {
+                final String formattedReport = buildShareReport(user);
+                if (formattedReport == null) {
+                    this.presenter.prepareFailView(NO_SHAREABLE_CONTENT_MESSAGE);
+                }
+                else {
+                    final boolean success = this.emailDataAccessObject.sendEmail(
+                            recipientEmail,
+                            "GitBuff Progress Update from " + user.getName(),
+                            formattedReport,
+                            user.getProfilePicturePath()
+                    );
+
+                    if (success) {
+                        this.presenter.prepareSendSuccessView(
+                                "Progress shared successfully with " + recipientEmail + "!");
+                    }
+                    else {
+                        this.presenter.prepareFailView(
+                                "Failed to send email. Opening default mail application...");
+                    }
+                }
+            }
         }
     }
 
@@ -122,9 +120,13 @@ public class ShareProgressInteractor implements ShareProgressInputBoundary {
             }
         }
 
-        return report.hasContent() ? report.render() : null;
+        final String result;
+        if (report.hasContent()) {
+            result = report.render();
+        }
+        else {
+            result = null;
+        }
+        return result;
     }
 }
-
-
-

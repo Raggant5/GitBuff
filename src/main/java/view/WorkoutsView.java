@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import interface_adapter.recommendation.RecommendationController;
+import interface_adapter.recommendation.RecommendWorkoutPlanController;
 import interface_adapter.workouts.RecommendedExerciseDisplayData;
 import interface_adapter.workouts.WorkoutPlanDisplayData;
 import interface_adapter.workouts.WorkoutsState;
@@ -36,11 +36,6 @@ import interface_adapter.workouts.WorkoutsViewModel;
 
 /**
  * View presenting personal workout plans and exercise guides in Swing UI.
- *
- * <p>Renders {@link WorkoutPlanDisplayData} and {@link RecommendedExerciseDisplayData} - the
- * display DTOs produced by {@code interface_adapter.recommendation.RecommendationPresenter} -
- * rather than the {@code entity.WorkoutPlan}/{@code entity.Exercise} entities, so this
- * view-layer class does not depend on the entity layer.
  */
 public class WorkoutsView extends JPanel implements PropertyChangeListener {
 
@@ -73,7 +68,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private final JPanel scheduleContainer = new JPanel();
     private final JButton refreshButton = new JButton("Refresh 1-Week Schedule");
 
-    private RecommendationController recommendationController;
+    private RecommendWorkoutPlanController recommendWorkoutPlanController;
     private int userPreferredDuration = DEFAULT_PREFERRED_DURATION;
 
     /**
@@ -121,7 +116,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         this.refreshButton.setPreferredSize(new Dimension(REFRESH_BTN_WIDTH, REFRESH_BTN_HEIGHT));
 
         this.refreshButton.addActionListener(evt -> {
-            if (this.recommendationController != null) {
+            if (this.recommendWorkoutPlanController != null) {
                 final WorkoutsState currentState = this.workoutsViewModel.getState();
                 currentState.setLoading(true);
                 this.workoutsViewModel.firePropertyChanged();
@@ -129,7 +124,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                 final SwingWorker<Void, Void> worker = new SwingWorker<>() {
                     @Override
                     protected Void doInBackground() {
-                        recommendationController.execute();
+                        recommendWorkoutPlanController.execute();
                         return null;
                     }
                 };
@@ -147,6 +142,7 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
     private void displayState(final WorkoutsState state) {
         this.focusLabel.setText("Active Focus Target: " + state.getWorkoutFocus());
         this.scheduleContainer.removeAll();
+        this.setUserPreferredDuration(state.getPreferredDurationMinutes());
 
         if (state.isLoading()) {
             this.refreshButton.setEnabled(false);
@@ -201,7 +197,13 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         planCard.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         final boolean isRestDay = plan.getExercises() == null || plan.getExercises().isEmpty();
-        final Color headerColor = isRestDay ? REST_COLOR : PRIMARY_COLOR;
+        final Color headerColor;
+        if (isRestDay) {
+            headerColor = REST_COLOR;
+        }
+        else {
+            headerColor = PRIMARY_COLOR;
+        }
 
         planCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 5, 0, 0, headerColor),
@@ -211,8 +213,13 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
                 )
         ));
 
-        final String dateStr = (plan.getDate() != null && !plan.getDate().trim().isEmpty())
-                ? plan.getDate() : ("Day " + dayNumber);
+        final String dateStr;
+        if (plan.getDate() != null && !plan.getDate().trim().isEmpty()) {
+            dateStr = plan.getDate();
+        }
+        else {
+            dateStr = "Day " + dayNumber;
+        }
 
         int duration = this.userPreferredDuration;
         if (plan.getEstimatedDurationMinutes() > 0) {
@@ -298,10 +305,24 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         nameLabel.setFont(new Font("SansSerif", Font.BOLD, HEADER_FONT_SIZE));
         nameLabel.setForeground(PRIMARY_COLOR);
 
+        final String targetMuscleGroup;
+        if (exercise.getTargetMuscleGroup() != null) {
+            targetMuscleGroup = exercise.getTargetMuscleGroup();
+        }
+        else {
+            targetMuscleGroup = "N/A";
+        }
+        final String equipmentRequired;
+        if (exercise.getEquipmentRequired() != null) {
+            equipmentRequired = exercise.getEquipmentRequired();
+        }
+        else {
+            equipmentRequired = "Bodyweight";
+        }
         final String targetSummary = String.format("%d sets x %d reps (%d mins) | Target: %s | Equip: %s",
                 exercise.getSets(), exercise.getReps(), exercise.getDurationMinutes(),
-                exercise.getTargetMuscleGroup() != null ? exercise.getTargetMuscleGroup() : "N/A",
-                exercise.getEquipmentRequired() != null ? exercise.getEquipmentRequired() : "Bodyweight");
+                targetMuscleGroup,
+                equipmentRequired);
         final JLabel setsLabel = new JLabel("<html><center>" + targetSummary + "</center></html>",
                 SwingConstants.CENTER);
         setsLabel.setFont(new Font("SansSerif", Font.BOLD, BODY_FONT_SIZE));
@@ -314,10 +335,13 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         topBox.add(Box.createRigidArea(new Dimension(0, 4)));
         topBox.add(setsLabel);
 
-        final String instructions = (exercise.getInstructions() != null
-                && !exercise.getInstructions().trim().isEmpty())
-                ? exercise.getInstructions()
-                : "Perform this movement with proper posture, controlled cadence, and full range of motion.";
+        final String instructions;
+        if (exercise.getInstructions() != null && !exercise.getInstructions().trim().isEmpty()) {
+            instructions = exercise.getInstructions();
+        }
+        else {
+            instructions = "Perform this movement with proper posture, controlled cadence, and full range of motion.";
+        }
 
         final JLabel instLabel = new JLabel("<html><body style='width: 360px; text-align: left; color: #333333;'>"
                 + instructions + "</body></html>");
@@ -372,14 +396,22 @@ public class WorkoutsView extends JPanel implements PropertyChangeListener {
         return viewName;
     }
 
-    public void setRecommendationController(final RecommendationController recommendationController) {
-        this.recommendationController = recommendationController;
+    public void setRecommendWorkoutPlanController(
+            final RecommendWorkoutPlanController recommendWorkoutPlanController) {
+        this.recommendWorkoutPlanController = recommendWorkoutPlanController;
     }
 
+    /**
+     * Sets the user's preferred workout duration, used for plans that don't specify their own.
+     *
+     * @param minutes the preferred duration in minutes; falls back to the default if not positive
+     */
     public void setUserPreferredDuration(final int minutes) {
-        this.userPreferredDuration = minutes > 0 ? minutes : DEFAULT_PREFERRED_DURATION;
+        if (minutes > 0) {
+            this.userPreferredDuration = minutes;
+        }
+        else {
+            this.userPreferredDuration = DEFAULT_PREFERRED_DURATION;
+        }
     }
 }
-
-
-

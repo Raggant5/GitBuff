@@ -3,8 +3,6 @@ package interface_adapter.nutrition.food;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.FoodUnit;
-
 public class FoodEditorState {
 
     private Integer editingFoodEntryId;
@@ -82,7 +80,7 @@ public class FoodEditorState {
             final String servingLabel,
             final double servingGrams,
             final FoodMacroAmounts nutrition,
-            final FoodUnit unit,
+            final FoodUnitOption unit,
             final double quantity
     ) {
         this.foodName = newFoodName;

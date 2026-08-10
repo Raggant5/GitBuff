@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import use_case.DataAccessException;
 import use_case.nutrition.food.FoodEntryInputData;
 import use_case.nutrition.food.FoodNutritionInput;
+import use_case.EventPublisher;
+import use_case.nutrition.meal.MealChangedEvent;
 
 public class AddMealInteractorTest {
 
@@ -45,7 +47,7 @@ public class AddMealInteractorTest {
             }
         };
 
-        new AddMealInteractor(presenter, dataAccess, new MealFactory(), new FoodEntryFactory()).execute(inputData);
+        new AddMealInteractor(presenter, dataAccess, new MealFactory(), new FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
 
         assertEquals(1, dataAccess.savedMeals.size());
         assertEquals(1, dataAccess.savedFoodEntries.size());
@@ -71,7 +73,7 @@ public class AddMealInteractorTest {
             }
         };
 
-        new AddMealInteractor(presenter, dataAccess, new MealFactory(), new FoodEntryFactory()).execute(inputData);
+        new AddMealInteractor(presenter, dataAccess, new MealFactory(), new FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
     }
 
     @Test
@@ -93,7 +95,7 @@ public class AddMealInteractorTest {
             }
         };
 
-        new AddMealInteractor(presenter, dataAccess, new MealFactory(), new FoodEntryFactory()).execute(inputData);
+        new AddMealInteractor(presenter, dataAccess, new MealFactory(), new FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
         assertTrue(failed[0]);
     }
 
@@ -116,7 +118,7 @@ public class AddMealInteractorTest {
             }
         };
 
-        new AddMealInteractor(presenter, dataAccess, new MealFactory(), new FoodEntryFactory()).execute(inputData);
+        new AddMealInteractor(presenter, dataAccess, new MealFactory(), new FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
         assertTrue(failed[0]);
     }
 
@@ -149,7 +151,7 @@ public class AddMealInteractorTest {
             }
         };
 
-        new AddMealInteractor(presenter, failingDataAccess, new MealFactory(), new FoodEntryFactory())
+        new AddMealInteractor(presenter, failingDataAccess, new MealFactory(), new FoodEntryFactory(), new FakeMealEventPublisher())
                 .execute(inputData);
         assertTrue(failed[0]);
     }
@@ -174,6 +176,13 @@ public class AddMealInteractorTest {
             foodEntry.setId(id);
             savedFoodEntries.add(foodEntry);
             return id;
+        }
+    }
+
+    private static final class FakeMealEventPublisher implements EventPublisher<MealChangedEvent> {
+        @Override
+        public void publish(MealChangedEvent event) {
+            // these tests don't assert on calendar/dashboard side effects
         }
     }
 }

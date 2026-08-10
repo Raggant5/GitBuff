@@ -23,7 +23,7 @@ public interface ShareProgressUserDataAccessInterface {
      * @param username username
      * @return count of logged workouts
      */
-    int getTotalCompletedWorkouts(final String username);
+    int getTotalCompletedWorkouts(String username);
 
     /**
      * Gets all-time total minutes worked out for user.
@@ -31,7 +31,7 @@ public interface ShareProgressUserDataAccessInterface {
      * @param username username
      * @return total minutes worked out
      */
-    double getTotalMinutesWorkedOut(final String username);
+    double getTotalMinutesWorkedOut(String username);
 
     /**
      * Gets logged workout list for user.
@@ -39,5 +39,5 @@ public interface ShareProgressUserDataAccessInterface {
      * @param username username
      * @return list of logged workouts
      */
-    List<LoggedWorkout> getWorkoutsForUser(final String username);
+    List<LoggedWorkout> getWorkoutsForUser(String username);
 }

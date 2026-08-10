@@ -5,6 +5,7 @@ import java.util.List;
 
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.nutrition.food.FoodEntryDisplayData;
+import interface_adapter.nutrition.food.FoodEnumMapper;
 import interface_adapter.nutrition.food.FoodNutritionDisplayData;
 import use_case.nutrition.food.FoodEntryData;
 import use_case.nutrition.meal.prepare_edit_meal.PrepareEditMealOutputBoundary;
@@ -29,7 +30,7 @@ public class PrepareEditMealPresenter implements PrepareEditMealOutputBoundary {
             final FoodNutritionDisplayData nutrition = new FoodNutritionDisplayData(food.getNutrition().getCalories(),
                     food.getNutrition().getProtein(), food.getNutrition().getCarbs(), food.getNutrition().getFat());
             foodEntries.add(new FoodEntryDisplayData(food.getId(), food.getFoodName(), nutrition,
-                    food.getQuantity(), food.getUnit(), food.getGrams()));
+                    food.getQuantity(), FoodEnumMapper.toOption(food.getUnit()), food.getGrams()));
         }
 
         final MealEditorState mealEditorState = mealEditorViewModel.getState();

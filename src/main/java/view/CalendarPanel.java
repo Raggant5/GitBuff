@@ -26,17 +26,12 @@ import interface_adapter.calendar.CalendarViewModel;
 
 /**
  * Swing panel rendering the current month's calendar with each day's scheduled events.
- *
- * <p>Reads {@link CalendarEventDisplayData} from {@link CalendarState}, rather than the
- * {@code entity.CalendarEvent} entity, so this view-layer class does not depend on the entity
- * layer.
  */
 public class CalendarPanel extends JPanel implements PropertyChangeListener {
-    private static final int DAYS_PER_WEEK = 7;
+    private static final int DAYS_IN_WEEK = 7;
+    private static final int DAY_BOX_COLOUR = 0x69ed0;
     private static final int DAY_BOX_WIDTH = 100;
     private static final int DAY_BOX_HEIGHT = 80;
-    private static final Color ALTERNATING_DAY_COLOR = new Color(6, 158, 208);
-
     private final CalendarViewModel calendarViewModel;
 
     public CalendarPanel(CalendarViewModel calendarViewModel) {
@@ -77,6 +72,7 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
 
         revalidate();
         repaint();
+
     }
 
     private JPanel dayBox(int dayNumber, List<String> toDos) {
@@ -88,7 +84,7 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
             dayBox.setBackground(Color.WHITE);
         }
         else {
-            dayBox.setBackground(ALTERNATING_DAY_COLOR);
+            dayBox.setBackground(new Color(DAY_BOX_COLOUR));
         }
 
         dayBox.setBorder(
@@ -108,9 +104,8 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     }
 
     private JPanel weekDayBox() {
-        final JPanel weekDaysBox = new JPanel(new GridLayout(1, DAYS_PER_WEEK));
-        final String[] weekDays = {
-            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
+        final JPanel weekDaysBox = new JPanel(new GridLayout(1, DAYS_IN_WEEK));
+        final String[] weekDays = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
         };
 
         for (String weekDay : weekDays) {
@@ -126,7 +121,7 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         return weekDaysBox;
     }
 
-    private JPanel monthTitleBox(String month) {
+    private JPanel monthBox(String month) {
         final JPanel monthBox = new JPanel(new BorderLayout());
         final JLabel monthLabel = new JLabel(month, SwingConstants.CENTER);
         monthBox.add(monthLabel, BorderLayout.CENTER);
@@ -134,15 +129,8 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         return monthBox;
     }
 
-    private int whichDayMonthBegins() {
-        final YearMonth currentMonth = YearMonth.now();
-        final DayOfWeek firstWeekday = currentMonth.atDay(1).getDayOfWeek();
-
-        return firstWeekday.getValue() % DAYS_PER_WEEK;
-    }
-
-    private JPanel monthGrid(Map<LocalDate, List<CalendarEventDisplayData>> calendarEvents) {
-        final JPanel monthBox = new JPanel(new GridLayout(0, DAYS_PER_WEEK));
+    private JPanel monthBox(Map<LocalDate, List<CalendarEventDisplayData>> calendarEvents) {
+        final JPanel monthBox = new JPanel(new GridLayout(0, DAYS_IN_WEEK));
 
         final int dayMonthBegins = whichDayMonthBegins();
 
@@ -167,15 +155,22 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         return monthBox;
     }
 
+    private int whichDayMonthBegins() {
+        final YearMonth currentMonth = YearMonth.now();
+        final DayOfWeek firstWeekday = currentMonth.atDay(1).getDayOfWeek();
+
+        return firstWeekday.getValue() % DAYS_IN_WEEK;
+    }
+
     private JPanel mainBox(Map<LocalDate, List<CalendarEventDisplayData>> calendarEvents) {
         final JPanel mainBox = new JPanel(new BorderLayout());
         final JPanel calendarBody = new JPanel(new BorderLayout());
 
         calendarBody.add(weekDayBox(), BorderLayout.NORTH);
-        calendarBody.add(monthGrid(calendarEvents), BorderLayout.CENTER);
+        calendarBody.add(monthBox(calendarEvents), BorderLayout.CENTER);
 
         mainBox.add(
-                monthTitleBox(LocalDate.now().getMonth().toString()),
+                monthBox(LocalDate.now().getMonth().toString()),
                 BorderLayout.NORTH);
         mainBox.add(calendarBody, BorderLayout.CENTER);
 

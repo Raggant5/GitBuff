@@ -1,26 +1,13 @@
 package use_case.calendar.load_events;
 
-/**
- * Input data required to load a user's calendar events.
- */
 public class LoadCalendarEventsInputData {
-    private final String userId;
+    private final String userID;
 
-    /**
-     * Creates input data for the load-calendar-events use case.
-     *
-     * @param userId the user whose events are requested
-     */
-    public LoadCalendarEventsInputData(String userId) {
-        this.userId = userId;
+    public LoadCalendarEventsInputData(String userID) {
+        this.userID = userID;
     }
 
-    /**
-     * Returns the user identifier.
-     *
-     * @return the user identifier
-     */
-    public String getUserId() {
-        return this.userId;
+    public String getUserID() {
+        return this.userID;
     }
 }

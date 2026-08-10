@@ -15,5 +15,5 @@ public interface ShareProgressInputBoundary {
      *
      * @param recipientEmail recipient email address
      */
-    void sendShareEmail(final String recipientEmail);
+    void sendShareEmail(String recipientEmail);
 }

@@ -15,14 +15,16 @@ import entity.ActivityLevel;
 import entity.FitnessGoal;
 import entity.Gender;
 import entity.UnitSystem;
-import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.workouts.WorkoutsViewModel;
 import use_case.profile.EditProfileInputBoundary;
 import use_case.profile.EditProfileInputData;
-import use_case.recommendation.RecommendationInputBoundary;
 
 /**
- * Unit tests for the Profile Controller.
+ * Unit tests for the Profile Controller. Recommendation refresh after a profile save is no
+ * longer this controller's job - {@code use_case.profile.EditProfileInteractor} publishes a
+ * {@code ProfileUpdatedEvent} and
+ * {@code use_case.profile.RecommendationRefreshOnProfileUpdateObserver} reacts; see
+ * {@code EditProfileInteractorTest} for that behavior.
  */
 public class ProfileControllerTest {
 
@@ -68,8 +70,7 @@ public class ProfileControllerTest {
         final FakeEditProfileInteractor interactor = new FakeEditProfileInteractor(new CountDownLatch(1));
         final ProfileController controller = new ProfileController(interactor);
         final WorkoutsViewModel workoutsViewModel = new WorkoutsViewModel();
-        controller.setRecommendationDependencies(
-                new RecommendationController(new FakeRecommendationInteractor()), workoutsViewModel);
+        controller.setWorkoutsViewModel(workoutsViewModel);
 
         controller.execute(TEST_HEIGHT, TEST_WEIGHT, ActivityLevelOption.VERY_ACTIVE,
                 FitnessGoalOption.MUSCLE_AND_STRENGTH_GAIN, "/tmp/pic.png", LocalDate.of(2000, 1, 1),
@@ -133,27 +134,6 @@ public class ProfileControllerTest {
         public void execute(final EditProfileInputData editProfileInputData) {
             this.executeCalled = true;
             this.receivedInputData = editProfileInputData;
-            if (this.latch != null) {
-                this.latch.countDown();
-            }
-        }
-    }
-
-    private static final class FakeRecommendationInteractor implements RecommendationInputBoundary {
-        private final CountDownLatch latch;
-        private boolean executeCalled;
-
-        FakeRecommendationInteractor() {
-            this.latch = null;
-        }
-
-        FakeRecommendationInteractor(final CountDownLatch latch) {
-            this.latch = latch;
-        }
-
-        @Override
-        public void execute() {
-            this.executeCalled = true;
             if (this.latch != null) {
                 this.latch.countDown();
             }

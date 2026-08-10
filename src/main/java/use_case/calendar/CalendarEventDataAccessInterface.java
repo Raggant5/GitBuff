@@ -5,17 +5,14 @@ import java.util.List;
 
 import entity.CalendarEvent;
 
-/**
- * Provides persistence operations required by the calendar use cases.
- */
 public interface CalendarEventDataAccessInterface {
+
     /**
-     * Adds an all-day event to the calendar belonging to a user.
-     *
-     * @param userId the user whose calendar receives the event
-     * @param title the event title
-     * @param description the event description
-     * @param activityDate the date on which the activity is scheduled
+     * Add CalendarEvent Use Case.
+     * @param userId id of user to add event for
+     * @param title the name of the event
+     * @param description description of event
+     * @param activityDate date of event
      */
     void addCalendarEvent(
             String userId,
@@ -24,18 +21,16 @@ public interface CalendarEventDataAccessInterface {
             LocalDate activityDate);
 
     /**
-     * Removes an event from the calendar belonging to a user.
-     *
-     * @param userId the user who owns the calendar
-     * @param eventId the identifier of the event to remove
+     * Delete Event From Calendar Use Case.
+     * @param userId id of user for event deletion
+     * @param eventId id of event to delete
      */
     void removeCalendarEvent(String userId, String eventId);
 
     /**
-     * Returns all calendar events belonging to a user.
-     *
-     * @param userId the user whose events are requested
-     * @return the user's calendar events
+     * Get User Events From Calendar Use Case.
+     * @param userID id of the user to get events for
+     * @return a list of CalendarEvents
      */
-    List<CalendarEvent> getUserEvents(String userId);
+    List<CalendarEvent> getUserEvents(String userID);
 }

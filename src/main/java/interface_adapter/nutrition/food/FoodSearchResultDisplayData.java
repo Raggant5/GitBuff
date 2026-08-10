@@ -1,7 +1,5 @@
 package interface_adapter.nutrition.food;
 
-import entity.FoodUnit;
-
 /**
  * DTO for a food search result, so panels/state in this layer don't need to depend
  * on the use case's FoodSearchResultData directly.
@@ -12,7 +10,7 @@ public class FoodSearchResultDisplayData {
     private final String servingLabel;
     private final double servingGrams;
     private final FoodMacroAmounts nutrition;
-    private final FoodUnit unit;
+    private final FoodUnitOption unit;
     private final double quantity;
 
     public FoodSearchResultDisplayData(
@@ -20,7 +18,7 @@ public class FoodSearchResultDisplayData {
             String servingLabel,
             double servingGrams,
             FoodMacroAmounts nutrition,
-            FoodUnit unit,
+            FoodUnitOption unit,
             double quantity
     ) {
         this.foodName = foodName;
@@ -47,7 +45,7 @@ public class FoodSearchResultDisplayData {
         return nutrition;
     }
 
-    public FoodUnit getUnit() {
+    public FoodUnitOption getUnit() {
         return unit;
     }
 

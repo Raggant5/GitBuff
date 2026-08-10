@@ -69,8 +69,22 @@ public class SignupPresenter implements SignupOutputBoundary {
     @Override
     public void switchToLoginView(final String username, final String password) {
         final LoginState loginState = this.loginViewModel.getState();
-        loginState.setUsername(username == null ? "" : username);
-        loginState.setPassword(password == null ? "" : password);
+        final String safeUsername;
+        if (username == null) {
+            safeUsername = "";
+        }
+        else {
+            safeUsername = username;
+        }
+        final String safePassword;
+        if (password == null) {
+            safePassword = "";
+        }
+        else {
+            safePassword = password;
+        }
+        loginState.setUsername(safeUsername);
+        loginState.setPassword(safePassword);
         loginState.setLoginError("");
         this.loginViewModel.setState(loginState);
         this.loginViewModel.firePropertyChanged();

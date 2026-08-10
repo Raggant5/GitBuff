@@ -9,9 +9,12 @@ import entity.FoodNutrition;
 import entity.Meal;
 import entity.MealFactory;
 import use_case.DataAccessException;
+import use_case.EventPublisher;
 import use_case.nutrition.food.FoodEntryData;
 import use_case.nutrition.food.FoodEntryInputData;
 import use_case.nutrition.food.FoodNutritionData;
+import use_case.nutrition.meal.MealChangeType;
+import use_case.nutrition.meal.MealChangedEvent;
 
 public class AddMealInteractor implements AddMealInputBoundary {
 
@@ -19,17 +22,20 @@ public class AddMealInteractor implements AddMealInputBoundary {
     private final AddMealDataAccessInterface mealDataAccessObject;
     private final MealFactory mealFactory;
     private final FoodEntryFactory foodEntryFactory;
+    private final EventPublisher<MealChangedEvent> mealEventPublisher;
 
     public AddMealInteractor(
             final AddMealOutputBoundary addMealPresenter,
             final AddMealDataAccessInterface mealDataAccessObject,
             final MealFactory mealFactory,
-            final FoodEntryFactory foodEntryFactory
+            final FoodEntryFactory foodEntryFactory,
+            final EventPublisher<MealChangedEvent> mealEventPublisher
     ) {
         this.addMealPresenter = addMealPresenter;
         this.mealDataAccessObject = mealDataAccessObject;
         this.mealFactory = mealFactory;
         this.foodEntryFactory = foodEntryFactory;
+        this.mealEventPublisher = mealEventPublisher;
     }
 
     @Override
@@ -62,6 +68,8 @@ public class AddMealInteractor implements AddMealInputBoundary {
 
                 this.addMealPresenter.prepareSuccessView(new AddMealOutputData(mealId, meal.getUserId(),
                         meal.getDate(), meal.getName(), savedFoodEntries));
+                this.mealEventPublisher.publish(new MealChangedEvent(
+                        meal.getUserId(), mealId, meal.getName(), meal.getDate(), MealChangeType.ADDED));
             }
             catch (DataAccessException exc) {
                 this.addMealPresenter.prepareFailView("Unable to save meal. Please try again.");

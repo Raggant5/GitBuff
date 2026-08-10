@@ -49,7 +49,7 @@ final class DaoTestSupport {
         user.setPreferredWorkoutDurationMinutes(45);
         user.setPrivacySettings(Set.of(PrivacySetting.values()[0]));
 
-        new SQLiteUserDataAccessObject().save(user);
+        new SqliteUserDataAccessObject().save(user);
         return user;
     }
 

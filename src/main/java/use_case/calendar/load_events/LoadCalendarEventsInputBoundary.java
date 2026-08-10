@@ -1,13 +1,9 @@
 package use_case.calendar.load_events;
 
-/**
- * Defines the input boundary for loading a user's calendar events.
- */
 public interface LoadCalendarEventsInputBoundary {
     /**
-     * Loads the calendar events for the requested user.
-     *
-     * @param inputData data identifying the user whose events are requested
+     * Loads Calendar Event Use Case.
+     * @param inputData the data necessary to load events such as meal data
      */
     void loadCalendarEvents(LoadCalendarEventsInputData inputData);
 }

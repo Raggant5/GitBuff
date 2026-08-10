@@ -17,7 +17,7 @@ public interface AiWorkoutDataAccessInterface {
      * @param user the user requesting recommendations
      * @return a list of structured workout plans
      */
-    List<WorkoutPlan> generateWorkoutPlans(final User user);
+    List<WorkoutPlan> generateWorkoutPlans(User user);
 
     /**
      * Generates a list of structured workout plans for the given user
@@ -27,5 +27,5 @@ public interface AiWorkoutDataAccessInterface {
      * @param numberOfDays number of days to generate
      * @return a list of structured workout plans
      */
-    List<WorkoutPlan> generateWorkoutPlans(final User user, final int numberOfDays);
+    List<WorkoutPlan> generateWorkoutPlans(User user, int numberOfDays);
 }

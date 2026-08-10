@@ -7,15 +7,6 @@ import java.util.Set;
 
 /**
  * The state for the Profile View Model.
- *
- * <p>Holds the interface_adapter-layer {@code *Option} enums ({@link ActivityLevelOption},
- * {@link FitnessGoalOption}, {@link GenderOption}, {@link UnitSystemOption},
- * {@link EquipmentOption}, {@link DietaryRestrictionOption}, {@link PrivacySettingOption})
- * rather than the {@code entity.*} enums they mirror, so this interface_adapter-layer class -
- * and {@code view.ProfileView}, which reads it - does not depend on the entity layer.
- * {@link ProfileController} and {@code interface_adapter.profile.ProfilePresenter} are
- * responsible for translating to/from the entity enums (via {@link ProfileEnumMapper}) at the
- * use case boundary.
  */
 public class ProfileState {
 
@@ -177,5 +168,3 @@ public class ProfileState {
         this.saveConfirmation = saveConfirmation;
     }
 }
-
-

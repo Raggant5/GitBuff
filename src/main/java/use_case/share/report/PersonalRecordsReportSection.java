@@ -1,11 +1,7 @@
 package use_case.share.report;
 
 /**
- * Leaf {@link ReportSection} presenting the user's all-time personal records.
- *
- * <p>Included in the report only when the user has enabled
- * {@code PrivacySetting.SHARE_PERSONAL_RECORDS}; see
- * {@code use_case.share.ShareProgressInteractor}.
+ * Leaf ReportSection presenting the user's all-time personal records.
  */
 public class PersonalRecordsReportSection implements ReportSection {
 

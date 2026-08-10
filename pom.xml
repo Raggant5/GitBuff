@@ -111,6 +111,7 @@
                         <configuration>
                             <formats>
                                 <format>HTML</format>
+                                <format>CSV</format>
                             </formats>
                         </configuration>
                     </execution>

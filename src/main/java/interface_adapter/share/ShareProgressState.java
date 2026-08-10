@@ -8,7 +8,7 @@ public class ShareProgressState {
     private String previewText = "";
     private String profilePicturePath = "";
     private String statusMessage = "";
-    private boolean isSuccess = false;
+    private boolean isSuccess;
 
     /**
      * Gets preview text.

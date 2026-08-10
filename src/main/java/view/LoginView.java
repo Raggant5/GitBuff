@@ -185,12 +185,10 @@ public class LoginView extends JPanel implements ActionListener, PropertyChangeL
         if (workoutsViewModel != null) {
             workoutsViewModel.addPropertyChangeListener(evt -> {
                 if (evt.getNewValue() instanceof WorkoutsState) {
+                    this.statusLabel.setText("");
                     final WorkoutsState state = (WorkoutsState) evt.getNewValue();
                     if (state.isLoading()) {
                         this.statusLabel.setText("Loading workout schedule...");
-                    }
-                    else {
-                        this.statusLabel.setText("");
                     }
                 }
             });

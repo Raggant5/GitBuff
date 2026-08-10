@@ -4,14 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Composite node in the {@link ReportSection} tree.
- *
- * <p>Aggregates any number of child {@link ReportSection}s - leaves or further composites -
- * and renders them one after another, prefixed by an optional heading. This is the
- * "composite" half of the Composite design pattern: it implements the same {@link ReportSection}
- * interface as its children, so callers such as
- * {@code use_case.share.ShareProgressInteractor} never need to distinguish a single section
- * from a group of sections.
+ * Composite node in the ReportSection tree. Aggregates any number of child ReportSections -
+ * leaves or further composites - and renders them one after another, prefixed by an optional
+ * heading.
  */
 public class CompositeReportSection implements ReportSection {
 
@@ -40,7 +35,14 @@ public class CompositeReportSection implements ReportSection {
 
     @Override
     public boolean hasContent() {
-        return this.children.stream().anyMatch(ReportSection::hasContent);
+        boolean found = false;
+        for (final ReportSection child : this.children) {
+            if (child.hasContent()) {
+                found = true;
+                break;
+            }
+        }
+        return found;
     }
 
     @Override
