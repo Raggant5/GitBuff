@@ -2,37 +2,36 @@ package use_case.nutrition.meal.edit_meal;
 
 import java.util.List;
 
-import entity.FoodEntry;
-import entity.Meal;
+import use_case.nutrition.food.FoodEntryInputData;
 
 public class EditMealInputData {
 
-    private final Meal meal;
+    private final int mealId;
     private final String name;
-    private final List<FoodEntry> foodEntries;
-    private final List<FoodEntry> foodEntriesToDelete;
+    private final List<FoodEntryInputData> foodEntries;
+    private final List<Integer> foodEntryIdsToDelete;
 
-    public EditMealInputData(Meal meal, String name, List<FoodEntry> foodEntries,
-                             List<FoodEntry> foodEntriesToDelete) {
-        this.meal = meal;
+    public EditMealInputData(int mealId, String name, List<FoodEntryInputData> foodEntries,
+                             List<Integer> foodEntryIdsToDelete) {
+        this.mealId = mealId;
         this.name = name;
         this.foodEntries = foodEntries;
-        this.foodEntriesToDelete = foodEntriesToDelete;
+        this.foodEntryIdsToDelete = foodEntryIdsToDelete;
     }
 
-    public Meal getMeal() {
-        return meal;
+    public int getMealId() {
+        return mealId;
     }
 
     public String getName() {
         return name;
     }
 
-    public List<FoodEntry> getFoodEntries() {
+    public List<FoodEntryInputData> getFoodEntries() {
         return foodEntries;
     }
 
-    public List<FoodEntry> getFoodEntriesToDelete() {
-        return foodEntriesToDelete;
+    public List<Integer> getFoodEntryIdsToDelete() {
+        return foodEntryIdsToDelete;
     }
 }

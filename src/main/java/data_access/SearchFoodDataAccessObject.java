@@ -24,13 +24,29 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
     private static final String API_URL = "https://calorieapiadmin.com";
     private static final int LIMIT = 5;
     private static final int SKIP = 0;
+    private static final String MEAL_KEY = "meal";
+    private static final String MACROS_KEY = "macros";
     private final OkHttpClient client = new OkHttpClient();
 
     @Override
-    public List<FoodSearchResult> searchFood(String searchQuery) throws IOException {
-
+    public List<FoodSearchResult> searchFood(final String searchQuery) {
         final String token = loadKeyFromDotEnv("NUTRITION_API_KEY");
+        List<FoodSearchResult> results;
+        if (token == null || token.isBlank()) {
+            results = new MockSearchFoodDataAccessObject().searchFood(searchQuery);
+        }
+        else {
+            try {
+                results = fetchFromApi(searchQuery, token);
+            }
+            catch (final IOException exc) {
+                results = new MockSearchFoodDataAccessObject().searchFood(searchQuery);
+            }
+        }
+        return results;
+    }
 
+    private List<FoodSearchResult> fetchFromApi(final String searchQuery, final String token) throws IOException {
         final Request request = new Request.Builder()
                 .url(String.format(
                         "%s/api/v1/public/search/foods?q=%s&limit=%d&skip=%d&match_mode=any&verified_only=true",
@@ -41,18 +57,14 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
                 .addHeader("Authorization", token)
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = this.client.newCall(request).execute()) {
 
             if (!response.isSuccessful()) {
-                throw new IOException(
-                        "Search food result failed: " + response);
+                throw new IOException("Search food result failed: " + response);
             }
 
-            final JSONObject responseBody =
-                    new JSONObject(response.body().string());
-
+            final JSONObject responseBody = new JSONObject(response.body().string());
             final JSONArray foods = responseBody.getJSONArray("data");
-
             final List<FoodSearchResult> results = new ArrayList<>();
 
             for (int i = 0; i < foods.length(); i++) {
@@ -62,15 +74,15 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
                         food.getString("name"),
                         food.getString("serving"),
                         food.getDouble("serving_size"),
-                        food.getJSONObject("meal").getDouble("calories"),
-                        food.getJSONObject("meal")
-                                .getJSONObject("macros")
+                        food.getJSONObject(MEAL_KEY).getDouble("calories"),
+                        food.getJSONObject(MEAL_KEY)
+                                .getJSONObject(MACROS_KEY)
                                 .getDouble("protein"),
-                        food.getJSONObject("meal")
-                                .getJSONObject("macros")
+                        food.getJSONObject(MEAL_KEY)
+                                .getJSONObject(MACROS_KEY)
                                 .getDouble("carbs"),
-                        food.getJSONObject("meal")
-                                .getJSONObject("macros")
+                        food.getJSONObject(MEAL_KEY)
+                                .getJSONObject(MACROS_KEY)
                                 .getDouble("fat")
                 ));
             }
@@ -79,23 +91,22 @@ public class SearchFoodDataAccessObject implements SearchFoodDataAccessInterface
         }
     }
 
-    private String loadKeyFromDotEnv(String apiKeyName) {
+    private String loadKeyFromDotEnv(final String apiKeyName) {
         final File envFile = new File(".env");
-        if (!envFile.exists()) {
-            return null;
-        }
-        try (Scanner scanner = new Scanner(envFile, StandardCharsets.UTF_8)) {
-            while (scanner.hasNextLine()) {
-                final String line = scanner.nextLine().trim();
-                if (line.startsWith(apiKeyName + "=")) {
-                    return line.substring(
-                            (apiKeyName + "=").length()).trim();
+        String result = null;
+        if (envFile.exists()) {
+            try (Scanner scanner = new Scanner(envFile, StandardCharsets.UTF_8)) {
+                while (scanner.hasNextLine()) {
+                    final String line = scanner.nextLine().trim();
+                    if (line.startsWith(apiKeyName + "=")) {
+                        result = line.substring((apiKeyName + "=").length()).trim();
+                    }
                 }
             }
+            catch (final IOException ignored) {
+                result = null;
+            }
         }
-        catch (Exception ignored) {
-            // Return null if .env cannot be read
-        }
-        return null;
+        return result;
     }
 }

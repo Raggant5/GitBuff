@@ -14,8 +14,9 @@ public class DeleteFoodPresenter implements DeleteFoodOutputBoundary {
 
     @Override
     public void prepareSuccessView(DeleteFoodOutputData deleteFoodOutputData) {
-        mealEditorViewModel.getState().removeFoodEntry(deleteFoodOutputData.getFoodEntry());
-        mealEditorViewModel.getState().addFoodEntryToBeDeleted(deleteFoodOutputData.getFoodEntry());
+        final Integer id = deleteFoodOutputData.getId();
+        mealEditorViewModel.getState().removeFoodEntryById(id);
+        mealEditorViewModel.getState().addFoodEntryToBeDeleted(id);
         mealEditorViewModel.firePropertyChanged();
     }
 }

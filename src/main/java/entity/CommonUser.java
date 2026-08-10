@@ -30,6 +30,12 @@ public class CommonUser implements User {
     private int preferredWorkoutDurationMinutes;
     private Set<PrivacySetting> privacySettings;
 
+    /**
+     * Constructs a CommonUser instance.
+     *
+     * @param name username.
+     * @param password user password.
+     */
     public CommonUser(final String name, final String password) {
         this.name = name;
         this.password = password;

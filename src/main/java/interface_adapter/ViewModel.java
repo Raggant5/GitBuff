@@ -17,7 +17,7 @@ public class ViewModel<T> {
     /**
      * Constructs a ViewModel instance.
      *
-     * @param viewName name identifying the view
+     * @param viewName name identifying the view.
      */
     public ViewModel(final String viewName) {
         this.viewName = viewName;
@@ -26,7 +26,7 @@ public class ViewModel<T> {
     /**
      * Gets the view name.
      *
-     * @return view name string
+     * @return view name string.
      */
     public String getViewName() {
         return this.viewName;
@@ -35,7 +35,7 @@ public class ViewModel<T> {
     /**
      * Gets the state object.
      *
-     * @return state object instance
+     * @return state object instance.
      */
     public T getState() {
         return this.state;
@@ -44,7 +44,7 @@ public class ViewModel<T> {
     /**
      * Sets the state object.
      *
-     * @param state state object instance
+     * @param state state object instance.
      */
     public void setState(final T state) {
         this.state = state;
@@ -60,7 +60,7 @@ public class ViewModel<T> {
     /**
      * Fires a property changed event with a specific property name.
      *
-     * @param propertyName property identifier label
+     * @param propertyName property identifier label.
      */
     public void firePropertyChanged(final String propertyName) {
         this.support.firePropertyChange(propertyName, null, this.state);
@@ -69,7 +69,7 @@ public class ViewModel<T> {
     /**
      * Adds a PropertyChangeListener to this ViewModel.
      *
-     * @param listener listener instance to be added
+     * @param listener listener instance to be added.
      */
     public void addPropertyChangeListener(final PropertyChangeListener listener) {
         this.support.addPropertyChangeListener(listener);

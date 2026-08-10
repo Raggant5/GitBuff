@@ -1,18 +1,18 @@
 package use_case.nutrition.food;
 
-public class FoodNutritionInputData {
+/**
+ * Groups the raw, unvalidated calories/protein/carbs/fat form strings for a food entry.
+ * Only used at the Add/Edit Food boundary, where the interactor validates each field and
+ * reports per-field errors - everywhere else already-valid data flows as FoodNutritionData.
+ */
+public class FoodNutritionInput {
 
     private final String calories;
     private final String protein;
     private final String carbs;
     private final String fat;
 
-    public FoodNutritionInputData(
-            String calories,
-            String protein,
-            String carbs,
-            String fat
-    ) {
+    public FoodNutritionInput(String calories, String protein, String carbs, String fat) {
         this.calories = calories;
         this.protein = protein;
         this.carbs = carbs;

@@ -26,18 +26,18 @@ public class Exercise {
     /**
      * Constructor for AI-generated exercises.
      *
-     * @param name               exercise name
-     * @param sets               number of sets (nullable)
-     * @param reps               number of reps (nullable)
-     * @param durationMinutes    duration in minutes
-     * @param targetMuscleGroup  target muscle group
-     * @param equipmentRequired  equipment needed
-     * @param instructions       step-by-step instructions
-     * @param videoUrl           YouTube video URL
-     * @param category           workout category
-     * @param subCategory        specific sub-category
-     * @param intensityLevel     intensity level
-     * @param equipmentType      equipment type
+     * @param name exercise name.
+     * @param sets number of sets (nullable).
+     * @param reps number of reps (nullable).
+     * @param durationMinutes duration in minutes.
+     * @param targetMuscleGroup target muscle group.
+     * @param equipmentRequired equipment needed.
+     * @param instructions step-by-step instructions.
+     * @param videoUrl YouTube video URL.
+     * @param category workout category.
+     * @param subCategory specific sub-category.
+     * @param intensityLevel intensity level.
+     * @param equipmentType equipment type.
      */
     public Exercise(final String name, final Integer sets, final Integer reps,
                     final int durationMinutes, final String targetMuscleGroup,
@@ -60,54 +60,119 @@ public class Exercise {
         this.id = null;
     }
 
+    /**
+     * Gets exercise ID.
+     *
+     * @return id integer.
+     */
     public Integer getId() {
         return this.id;
     }
 
+    /**
+     * Gets exercise name.
+     *
+     * @return name string.
+     */
     public String getName() {
         return this.name;
     }
 
+    /**
+     * Gets sets.
+     *
+     * @return sets integer.
+     */
     public Integer getSets() {
         return this.sets;
     }
 
+    /**
+     * Gets reps.
+     *
+     * @return reps integer.
+     */
     public Integer getReps() {
         return this.reps;
     }
 
+    /**
+     * Gets duration in minutes.
+     *
+     * @return duration integer.
+     */
     public int getDurationMinutes() {
         return this.durationMinutes;
     }
 
+    /**
+     * Gets target muscle group.
+     *
+     * @return target muscle group string.
+     */
     public String getTargetMuscleGroup() {
         return this.targetMuscleGroup;
     }
 
+    /**
+     * Gets required equipment.
+     *
+     * @return equipment string.
+     */
     public String getEquipmentRequired() {
         return this.equipmentRequired;
     }
 
+    /**
+     * Gets exercise instructions.
+     *
+     * @return instructions string.
+     */
     public String getInstructions() {
         return this.instructions;
     }
 
+    /**
+     * Gets video URL.
+     *
+     * @return video URL string.
+     */
     public String getVideoUrl() {
         return this.videoUrl;
     }
 
+    /**
+     * Gets workout category.
+     *
+     * @return category string.
+     */
     public String getCategory() {
         return this.category;
     }
 
+    /**
+     * Gets sub-category.
+     *
+     * @return sub-category string.
+     */
     public String getSubCategory() {
         return this.subCategory;
     }
 
+    /**
+     * Gets intensity level.
+     *
+     * @return intensity level string.
+     */
     public String getIntensityLevel() {
         return this.intensityLevel;
     }
 
+    /**
+     * Gets equipment type.
+     *
+     * @return equipment type string.
+     */
     public String getEquipmentType() {
         return this.equipmentType;
     }

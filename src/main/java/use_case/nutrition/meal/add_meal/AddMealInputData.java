@@ -3,16 +3,17 @@ package use_case.nutrition.meal.add_meal;
 import java.time.LocalDate;
 import java.util.List;
 
-import entity.FoodEntry;
+import use_case.nutrition.food.FoodEntryInputData;
 
 public class AddMealInputData {
 
     private final String name;
     private final String userId;
     private final LocalDate date;
-    private final List<FoodEntry> foodEntriesForMeal;
+    private final List<FoodEntryInputData> foodEntriesForMeal;
 
-    public AddMealInputData(String name, String userId, LocalDate date, List<FoodEntry> foodEntriesForMeal) {
+    public AddMealInputData(String name, String userId, LocalDate date,
+                            List<FoodEntryInputData> foodEntriesForMeal) {
         this.name = name;
         this.userId = userId;
         this.date = date;
@@ -31,7 +32,7 @@ public class AddMealInputData {
         return name;
     }
 
-    public List<FoodEntry> getFoodEntries() {
+    public List<FoodEntryInputData> getFoodEntries() {
         return foodEntriesForMeal;
     }
 

@@ -1,5 +1,7 @@
 package use_case.nutrition.meal.delete_meal;
 
+import use_case.DataAccessException;
+
 public class DeleteMealInteractor implements DeleteMealInputBoundary {
 
     private final DeleteMealOutputBoundary deleteMealPresenter;
@@ -13,7 +15,12 @@ public class DeleteMealInteractor implements DeleteMealInputBoundary {
 
     @Override
     public void execute(DeleteMealInputData deleteMealInputData) {
-        mealDataAccessObject.deleteMeal(deleteMealInputData.getMealId());
-        deleteMealPresenter.prepareSuccessView(new DeleteMealOutputData(deleteMealInputData.getMealId()));
+        try {
+            mealDataAccessObject.deleteMeal(deleteMealInputData.getMealId());
+            deleteMealPresenter.prepareSuccessView(new DeleteMealOutputData(deleteMealInputData.getMealId()));
+        }
+        catch (DataAccessException exc) {
+            deleteMealPresenter.prepareFailView("Unable to delete meal. Please try again.");
+        }
     }
 }

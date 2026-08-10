@@ -12,7 +12,7 @@ public class RecommendationController {
     /**
      * Constructs a RecommendationController instance.
      *
-     * @param recommendationUseCaseInteractor interactor boundary for recommendation logic
+     * @param recommendationUseCaseInteractor interactor boundary for recommendation logic.
      */
     public RecommendationController(final RecommendationInputBoundary recommendationUseCaseInteractor) {
         this.recommendationUseCaseInteractor = recommendationUseCaseInteractor;
@@ -23,12 +23,5 @@ public class RecommendationController {
      */
     public void execute() {
         this.recommendationUseCaseInteractor.execute();
-    }
-
-    /**
-     * Executes meal recommendations refresh only.
-     */
-    public void executeMealRecommendationsOnly() {
-        this.recommendationUseCaseInteractor.executeMealRecommendationsOnly();
     }
 }

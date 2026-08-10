@@ -12,13 +12,13 @@ import data_access.Datainitializer;
 public final class Main {
 
     private Main() {
-        // Utility class constructor
+        // Utility class constructor.
     }
 
     /**
      * Builds and runs the application.
      *
-     * @param args command line arguments
+     * @param args command line arguments.
      */
     public static void main(final String[] args) {
         final AppBuilder appBuilder = new AppBuilder();
@@ -41,6 +41,7 @@ public final class Main {
                 .addAddFoodUseCase()
                 .addAddMealUseCase()
                 .addEditFoodUseCase()
+                .addChangeServingSizeUseCase()
                 .addEditMealUseCase()
                 .addDeleteMealUseCase()
                 .addDeleteFoodUseCase()
@@ -56,7 +57,7 @@ public final class Main {
         try {
             Datainitializer.initialize();
         }
-        catch (SQLException exc) {
+        catch (final SQLException exc) {
             exc.printStackTrace();
         }
 

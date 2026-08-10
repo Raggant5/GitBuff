@@ -8,6 +8,8 @@ public class FoodSearchResult {
     private final double protein;
     private final double carbs;
     private final double fat;
+    private final FoodUnit unit = FoodUnit.DEFAULT_SERVING;
+    private final double quantity = 1;
 
     public FoodSearchResult(String name, String servingLabel, double servingGrams, double calories,
                             double protein, double carbs, double fat) {
@@ -46,5 +48,13 @@ public class FoodSearchResult {
 
     public double getServingFat() {
         return fat;
+    }
+
+    public FoodUnit getUnit() {
+        return unit;
+    }
+
+    public double getQuantity() {
+        return quantity;
     }
 }

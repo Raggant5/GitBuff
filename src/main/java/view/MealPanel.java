@@ -7,6 +7,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import interface_adapter.nutrition.food.FoodEntryDisplayData;
 import interface_adapter.nutrition.meal.DeleteMealController;
 import interface_adapter.nutrition.meal.MealDisplayData;
 import interface_adapter.nutrition.meal.PrepareEditMealController;
@@ -20,10 +21,29 @@ public class MealPanel extends JPanel {
         final JLabel nameLabel = new JLabel("Meal: " + meal.getName());
         final JLabel dateLabel = new JLabel("Date: " + meal.getDate());
 
+        double totalCalories = 0;
+        double totalProtein = 0;
+        double totalFat = 0;
+        double totalCarbs = 0;
+        for (FoodEntryDisplayData food : meal.getFoodEntries()) {
+            totalCalories += Double.parseDouble(food.getNutrition().getCalories());
+            totalProtein += Double.parseDouble(food.getNutrition().getProtein());
+            totalFat += Double.parseDouble(food.getNutrition().getFat());
+            totalCarbs += Double.parseDouble(food.getNutrition().getCarbs());
+        }
+        final JLabel caloriesLabel = new JLabel("Calories: " + totalCalories);
+        final JLabel proteinLabel = new JLabel("Protein: " + totalProtein);
+        final JLabel fatLabel = new JLabel("Fat: " + totalFat);
+        final JLabel carbsLabel = new JLabel("Carbs: " + totalCarbs);
+
         final JPanel mealInfoPanel = new JPanel();
         mealInfoPanel.setLayout(new FlowLayout());
         mealInfoPanel.add(nameLabel);
         mealInfoPanel.add(dateLabel);
+        mealInfoPanel.add(caloriesLabel);
+        mealInfoPanel.add(proteinLabel);
+        mealInfoPanel.add(fatLabel);
+        mealInfoPanel.add(carbsLabel);
         add(mealInfoPanel, BorderLayout.NORTH);
 
         final JPanel buttonPanel = new JPanel();
@@ -31,11 +51,11 @@ public class MealPanel extends JPanel {
         final JButton deleteButton = new JButton("Delete Meal");
 
         editButton.addActionListener(evt -> {
-            prepareEditMealController.execute(meal.getEntity());
+            prepareEditMealController.execute(meal.getId());
         });
 
         deleteButton.addActionListener(evt -> {
-            deleteMealController.execute(meal.getEntity());
+            deleteMealController.execute(meal.getId());
         });
 
         buttonPanel.add(editButton);

@@ -8,8 +8,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
-import entity.LoggedWorkout;
 import interface_adapter.MainViewManagerModel;
 import interface_adapter.log_workout.workout.DeleteWorkoutController;
 import interface_adapter.log_workout.workout.LoggedWorkoutDisplayData;
@@ -59,7 +60,11 @@ public class ViewWorkoutsView extends JPanel implements PropertyChangeListener {
 
         workoutListContainer = new JPanel();
         workoutListContainer.setLayout(new BoxLayout(workoutListContainer, BoxLayout.Y_AXIS));
-        add(workoutListContainer, BorderLayout.CENTER);
+
+        final JScrollPane workoutScrollPane = new JScrollPane(workoutListContainer);
+        workoutScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        workoutScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        add(workoutScrollPane, BorderLayout.CENTER);
     }
 
     @Override
@@ -72,9 +77,9 @@ public class ViewWorkoutsView extends JPanel implements PropertyChangeListener {
 
         workoutListContainer.removeAll();
         errorLabel.setText(state.getError());
-        for (LoggedWorkout workout : state.getWorkouts()) {
-            workoutListContainer.add(new WorkoutPanel(new LoggedWorkoutDisplayData(workout),
-                    prepareEditWorkoutController, deleteWorkoutController));
+        for (LoggedWorkoutDisplayData workout : state.getWorkouts()) {
+            workoutListContainer.add(new WorkoutPanel(workout, prepareEditWorkoutController,
+                    deleteWorkoutController));
         }
 
         workoutListContainer.revalidate();

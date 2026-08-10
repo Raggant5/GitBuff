@@ -1,6 +1,7 @@
 package use_case.log_workout.exercise_performed.prepare_edit_exercise;
 
-import entity.ExercisePerformed;
+import use_case.log_workout.StrengthDetailsData;
+import use_case.log_workout.StrengthDetailsInput;
 
 public class PrepareEditExerciseInteractor implements PrepareEditExerciseInputBoundary {
 
@@ -12,12 +13,33 @@ public class PrepareEditExerciseInteractor implements PrepareEditExerciseInputBo
 
     @Override
     public void execute(PrepareEditExerciseInputData inputData) {
-        final ExercisePerformed exercise = inputData.getExercisePerformed();
-        presenter.prepareSuccessView(new PrepareEditExerciseOutputData(exercise));
+        final StrengthDetailsInput input = inputData.getStrengthDetailsInput();
+        final StrengthDetailsData data = new StrengthDetailsData(parseInt(input.getSets()),
+                parseInt(input.getReps()), parseDouble(input.getWeight()));
+        presenter.prepareSuccessView(new PrepareEditExerciseOutputData(inputData.getId(),
+                inputData.getExerciseName(), data, inputData.getDurationMins(), inputData.getDistanceKm(),
+                inputData.getIsCardio()));
     }
 
-    @Override
-    public void switchToAddExerciseEditor() {
-        presenter.switchToAddExerciseEditor();
+    private Integer parseInt(String value) {
+        Integer result;
+        try {
+            result = Integer.parseInt(value);
+        }
+        catch (NumberFormatException exc) {
+            result = null;
+        }
+        return result;
+    }
+
+    private Double parseDouble(String value) {
+        Double result;
+        try {
+            result = Double.parseDouble(value);
+        }
+        catch (NumberFormatException exc) {
+            result = null;
+        }
+        return result;
     }
 }

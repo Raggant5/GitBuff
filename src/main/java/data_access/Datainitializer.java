@@ -1,6 +1,7 @@
 package data_access;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -16,7 +17,7 @@ public final class Datainitializer {
     /**
      * Creates every required database table if it does not already exist.
      *
-     * @throws SQLException if database initialization fails
+     * @throws SQLException if database initialization fails.
      */
     public static void initialize() throws SQLException {
         try (Connection connection = Database.connect();
@@ -45,6 +46,13 @@ public final class Datainitializer {
                             NOT NULL DEFAULT 45
                     );
                     """);
+
+            ensureColumnExists(
+                    connection,
+                    "users",
+                    "total_workout_minutes",
+                    "REAL NOT NULL DEFAULT 0"
+            );
 
             statement.execute("""
                     CREATE TABLE IF NOT EXISTS user_equipment (
@@ -155,6 +163,37 @@ public final class Datainitializer {
                     """);
 
             System.out.println("Database initialized.");
+        }
+    }
+
+    private static void ensureColumnExists(
+            final Connection connection,
+            final String tableName,
+            final String columnName,
+            final String columnDefinition
+    ) throws SQLException {
+        boolean columnExists = false;
+
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(
+                     "PRAGMA table_info(" + tableName + ")"
+             )) {
+            while (resultSet.next()) {
+                if (columnName.equals(resultSet.getString("name"))) {
+                    columnExists = true;
+                    break;
+                }
+            }
+        }
+
+        if (!columnExists) {
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(
+                        "ALTER TABLE " + tableName
+                                + " ADD COLUMN " + columnName
+                                + " " + columnDefinition
+                );
+            }
         }
     }
 }

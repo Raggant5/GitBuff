@@ -1,17 +1,48 @@
 package use_case.nutrition.food.edit_food;
 
-import entity.FoodEntry;
+import entity.FoodUnit;
+import use_case.nutrition.food.FoodNutritionData;
 
 public class EditFoodOutputData {
 
-    private final FoodEntry food;
+    private final Integer id;
+    private final String foodName;
+    private final FoodNutritionData nutrition;
+    private final double quantity;
+    private final FoodUnit unit;
+    private final double grams;
 
-    public EditFoodOutputData(FoodEntry food) {
-        this.food = food;
+    public EditFoodOutputData(Integer id, String foodName, FoodNutritionData nutrition, double quantity,
+                              FoodUnit unit, double grams) {
+        this.id = id;
+        this.foodName = foodName;
+        this.nutrition = nutrition;
+        this.quantity = quantity;
+        this.unit = unit;
+        this.grams = grams;
     }
 
-    public FoodEntry getFood() {
-        return food;
+    public Integer getId() {
+        return id;
     }
 
+    public String getFoodName() {
+        return foodName;
+    }
+
+    public FoodNutritionData getNutrition() {
+        return nutrition;
+    }
+
+    public double getQuantity() {
+        return quantity;
+    }
+
+    public FoodUnit getUnit() {
+        return unit;
+    }
+
+    public double getGrams() {
+        return grams;
+    }
 }

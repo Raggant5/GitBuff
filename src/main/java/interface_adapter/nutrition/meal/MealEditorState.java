@@ -3,25 +3,25 @@ package interface_adapter.nutrition.meal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import entity.FoodEntry;
-import entity.FoodEntryFactory;
-import entity.Meal;
+import interface_adapter.nutrition.food.FoodEntryDisplayData;
 
 /**
  * The state for the Add FoodEntry View Model / Add Meal Use Case.
  */
 public class MealEditorState {
 
-    private Meal editingMeal;
+    private Integer editingMealId;
     private LocalDate date;
     private String name = "";
-    private List<FoodEntry> foodEntriesForMeal = new ArrayList<>();
-    private List<FoodEntry> foodEntriesDeleteStage = new ArrayList<>();
+    private List<FoodEntryDisplayData> foodEntriesForMeal = new ArrayList<>();
+    private List<Integer> foodEntriesDeleteStage = new ArrayList<>();
     private String errorMessage = "";
     private Boolean showFoodEditor = false;
+    private int nextTempId = -1;
 
-    public List<FoodEntry> getFoodEntriesForMeal() {
+    public List<FoodEntryDisplayData> getFoodEntriesForMeal() {
         return foodEntriesForMeal;
     }
 
@@ -29,45 +29,67 @@ public class MealEditorState {
      * Adding another food entry into the list of foods associated with the meal.
      * @param foodEntry the food to be added
      */
-    public void addFoodEntry(FoodEntry foodEntry) {
+    public void addFoodEntry(FoodEntryDisplayData foodEntry) {
         foodEntriesForMeal.add(foodEntry);
     }
 
-    public void setFoodEntriesForMeal(List<FoodEntry> foodEntriesForMeal) {
+    public int getNextTempId() {
+        return nextTempId;
+    }
+
+    public void setNextTempId(int nextTempId) {
+        this.nextTempId = nextTempId;
+    }
+
+    public void setFoodEntriesForMeal(List<FoodEntryDisplayData> foodEntriesForMeal) {
         this.foodEntriesForMeal = foodEntriesForMeal;
     }
 
     /**
-     * Remove the given food entry from the meal being edited.
-     * @param foodEntry the food entry to be removed
+     * Removes the food entry with the given id from the meal being edited.
+     * @param id the id of the food entry to be removed
      */
-    public void removeFoodEntry(FoodEntry foodEntry) {
-        foodEntriesForMeal.remove(foodEntry);
+    public void removeFoodEntryById(Integer id) {
+        foodEntriesForMeal.removeIf(foodEntry -> Objects.equals(foodEntry.getId(), id));
     }
 
-    public List<FoodEntry> getFoodEntriesDeleteStage() {
+    /**
+     * Replaces the food entry matching the given food entry's id with the given food entry.
+     * @param foodEntry the updated food entry
+     */
+    public void replaceFoodEntry(FoodEntryDisplayData foodEntry) {
+        for (int i = 0; i < foodEntriesForMeal.size(); i++) {
+            if (Objects.equals(foodEntriesForMeal.get(i).getId(), foodEntry.getId())) {
+                foodEntriesForMeal.set(i, foodEntry);
+                break;
+            }
+        }
+    }
+
+    public List<Integer> getFoodEntriesDeleteStage() {
         return foodEntriesDeleteStage;
     }
 
     /**
-     * Adds a food entry to be deleted upon saving a meal.
-     * @param foodEntry food entry to be deleted upon saving a meal
+     * Marks the food entry with the given id to be deleted upon saving a meal.
+     * @param id id of the food entry to be deleted upon saving a meal
      */
-    public void addFoodEntryToBeDeleted(FoodEntry foodEntry) {
-        foodEntriesDeleteStage.add(foodEntry);
+    public void addFoodEntryToBeDeleted(Integer id) {
+        foodEntriesDeleteStage.add(id);
     }
 
     /**
      * Setting values back to their defaults as to reuse the object for more adding/editing meals.
      */
     public void reset() {
-        editingMeal = null;
+        editingMealId = null;
         date = null;
         name = "";
         foodEntriesForMeal = new ArrayList<>();
         errorMessage = "";
         showFoodEditor = false;
         foodEntriesDeleteStage = new ArrayList<>();
+        nextTempId = -1;
     }
 
     public boolean getShowFoodEditor() {
@@ -78,12 +100,12 @@ public class MealEditorState {
         this.showFoodEditor = showFoodEditor;
     }
 
-    public Meal getEditingMeal() {
-        return editingMeal;
+    public Integer getEditingMealId() {
+        return editingMealId;
     }
 
-    public void setEditingMeal(Meal editingMeal) {
-        this.editingMeal = editingMeal;
+    public void setEditingMealId(Integer editingMealId) {
+        this.editingMealId = editingMealId;
     }
 
     public LocalDate getDate() {

@@ -1,5 +1,7 @@
 package use_case.log_workout.exercise_performed.edit_exercise;
 
+import use_case.log_workout.exercise_performed.ExerciseValidationErrors;
+
 public interface EditExerciseOutputBoundary {
 
     /**
@@ -10,8 +12,8 @@ public interface EditExerciseOutputBoundary {
 
     /**
      * Prepares the failure view.
-     * @param errorMessage reason the edit failed
+     * @param errors per-field reason the edit failed
      */
-    void prepareFailView(String errorMessage);
+    void prepareFailView(ExerciseValidationErrors errors);
 
 }

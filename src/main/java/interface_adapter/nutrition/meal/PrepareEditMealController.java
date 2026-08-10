@@ -1,6 +1,5 @@
 package interface_adapter.nutrition.meal;
 
-import entity.Meal;
 import use_case.nutrition.meal.prepare_edit_meal.PrepareEditMealInputBoundary;
 import use_case.nutrition.meal.prepare_edit_meal.PrepareEditMealInputData;
 
@@ -14,10 +13,10 @@ public class PrepareEditMealController {
 
     /**
      * Executes the Prepare Edit Meal Use Case.
-     * @param meal the meal to be edited
+     * @param mealId the id of the meal to edit
      */
-    public void execute(Meal meal) {
-        prepareEditMealInteractor.execute(new PrepareEditMealInputData(meal));
+    public void execute(int mealId) {
+        prepareEditMealInteractor.execute(new PrepareEditMealInputData(mealId));
     }
 
 }

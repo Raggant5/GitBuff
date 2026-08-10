@@ -2,6 +2,7 @@ package use_case.signup;
 
 import entity.User;
 import entity.UserFactory;
+import use_case.DataAccessException;
 
 /**
  * Interactor implementing business rules for the Signup Use Case.
@@ -29,19 +30,25 @@ public class SignupInteractor implements SignupInputBoundary {
 
     @Override
     public void execute(final SignupInputData signupInputData) {
-        if (this.userDataAccessObject.existsByName(signupInputData.getUsername())) {
-            this.userPresenter.prepareFailView("User already exists.");
-        }
-        else if (!signupInputData.getPassword().equals(signupInputData.getRepeatPassword())) {
-            this.userPresenter.prepareFailView("Passwords don't match.");
-        }
-        else {
-            final User user = this.userFactory.create(signupInputData.getUsername(), signupInputData.getPassword());
-            this.userDataAccessObject.save(user);
-            this.userDataAccessObject.setCurrentUsername(user.getName());
+        try {
+            if (this.userDataAccessObject.existsByName(signupInputData.getUsername())) {
+                this.userPresenter.prepareFailView("User already exists.");
+            }
+            else if (!signupInputData.getPassword().equals(signupInputData.getRepeatPassword())) {
+                this.userPresenter.prepareFailView("Passwords don't match.");
+            }
+            else {
+                final User user =
+                        this.userFactory.create(signupInputData.getUsername(), signupInputData.getPassword());
+                this.userDataAccessObject.save(user);
+                this.userDataAccessObject.setCurrentUsername(user.getName());
 
-            final SignupOutputData signupOutputData = new SignupOutputData(user.getName(), false);
-            this.userPresenter.prepareSuccessView(signupOutputData);
+                final SignupOutputData signupOutputData = new SignupOutputData(user.getName(), false);
+                this.userPresenter.prepareSuccessView(signupOutputData);
+            }
+        }
+        catch (final DataAccessException exception) {
+            this.userPresenter.prepareFailView("Unable to sign up right now. Please try again.");
         }
     }
 

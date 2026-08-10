@@ -49,4 +49,13 @@ public class FoodNutrition {
     public void setFat(double fat) {
         this.fat = fat;
     }
+
+    /**
+     * Scales all nutrition values by the given ratio, e.g. when the serving size changes.
+     * @param ratio the factor to scale calories, protein, carbs, and fat by
+     * @return a new FoodNutrition with each value multiplied by ratio
+     */
+    public FoodNutrition scaledTo(double ratio) {
+        return new FoodNutrition(calories * ratio, protein * ratio, carbs * ratio, fat * ratio);
+    }
 }

@@ -22,6 +22,7 @@ import interface_adapter.nutrition.meal.MealEditorState;
 import interface_adapter.nutrition.meal.MealEditorViewModel;
 
 public class MealEditorView extends JPanel implements PropertyChangeListener {
+    private static final int TEXT_FIELD_COL = 20;
     private final String viewName = "meal editor";
     private final String foodsListName = "food list";
     private final String foodEditorName = "food editor";
@@ -57,7 +58,7 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
             }
         });
 
-        mealNameField = new JTextField(20);
+        mealNameField = new JTextField(TEXT_FIELD_COL);
         final JLabel mealNameLabel = new JLabel("Meal Name");
         errorLabel = new JLabel("");
         setLayout(new BorderLayout());
@@ -72,18 +73,19 @@ public class MealEditorView extends JPanel implements PropertyChangeListener {
         final JPanel buttonPanel = new JPanel(new FlowLayout());
         final JButton addFoodButton = new JButton("Add Food");
         addFoodButton.addActionListener(evt -> {
-            prepareEditFoodController.switchToAddFoodEditor();
+            final MealEditorState state = mealEditorViewModel.getState();
+            state.setShowFoodEditor(true);
+            mealEditorViewModel.firePropertyChanged();
         });
 
         final JButton saveButton = new JButton("Save Meal");
         saveButton.addActionListener(evt -> {
             final MealEditorState mealEditorState = mealEditorViewModel.getState();
-            if (mealEditorState.getEditingMeal() == null) {
-                this.addMealController.execute(mealEditorState.getName(), mealEditorState.getFoodEntriesForMeal(),
-                        mealEditorState.getFoodEntriesDeleteStage());
+            if (mealEditorState.getEditingMealId() == null) {
+                this.addMealController.execute(mealEditorState.getName(), mealEditorState.getFoodEntriesForMeal());
             }
             else {
-                this.editMealController.execute(mealEditorState.getEditingMeal(), mealEditorState.getName(),
+                this.editMealController.execute(mealEditorState.getEditingMealId(), mealEditorState.getName(),
                         mealEditorState.getFoodEntriesForMeal(), mealEditorState.getFoodEntriesDeleteStage());
             }
         });

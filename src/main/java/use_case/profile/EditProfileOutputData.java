@@ -37,7 +37,7 @@ public class EditProfileOutputData {
     /**
      * Constructs an EditProfileOutputData instance from a saved user.
      *
-     * @param user the user whose saved profile fields populate this output data
+     * @param user the user whose saved profile fields populate this output data.
      */
     public EditProfileOutputData(final User user) {
         this.username = user.getName();
@@ -57,62 +57,137 @@ public class EditProfileOutputData {
         this.privacySettings = user.getPrivacySettings();
     }
 
+    /**
+     * Gets username string.
+     *
+     * @return username string.
+     */
     public String getUsername() {
         return this.username;
     }
 
+    /**
+     * Gets height float.
+     *
+     * @return height float.
+     */
     public float getHeight() {
         return this.height;
     }
 
+    /**
+     * Gets weight float.
+     *
+     * @return weight float.
+     */
     public float getWeight() {
         return this.weight;
     }
 
+    /**
+     * Gets activity level.
+     *
+     * @return activity level.
+     */
     public ActivityLevel getActivityLevel() {
         return this.activityLevel;
     }
 
+    /**
+     * Gets fitness goal.
+     *
+     * @return fitness goal.
+     */
     public FitnessGoal getGoal() {
         return this.goal;
     }
 
+    /**
+     * Gets profile picture path.
+     *
+     * @return profile picture path string.
+     */
     public String getProfilePicturePath() {
         return this.profilePicturePath;
     }
 
+    /**
+     * Gets date of birth.
+     *
+     * @return date of birth.
+     */
     public LocalDate getDateOfBirth() {
         return this.dateOfBirth;
     }
 
+    /**
+     * Gets gender.
+     *
+     * @return gender.
+     */
     public Gender getGender() {
         return this.gender;
     }
 
+    /**
+     * Gets bio text.
+     *
+     * @return bio string.
+     */
     public String getBio() {
         return this.bio;
     }
 
+    /**
+     * Gets preferred unit system.
+     *
+     * @return preferred unit system.
+     */
     public UnitSystem getPreferredUnitSystem() {
         return this.preferredUnitSystem;
     }
 
+    /**
+     * Gets available equipment set.
+     *
+     * @return equipment set.
+     */
     public Set<Equipment> getEquipment() {
         return this.equipment;
     }
 
+    /**
+     * Gets dietary restrictions set.
+     *
+     * @return dietary restrictions set.
+     */
     public Set<DietaryRestriction> getDietaryRestrictions() {
         return this.dietaryRestrictions;
     }
 
+    /**
+     * Gets preferred workout days.
+     *
+     * @return workout days set.
+     */
     public Set<DayOfWeek> getPreferredWorkoutDays() {
         return this.preferredWorkoutDays;
     }
 
+    /**
+     * Gets preferred workout duration in minutes.
+     *
+     * @return duration in minutes.
+     */
     public int getPreferredWorkoutDurationMinutes() {
         return this.preferredWorkoutDurationMinutes;
     }
 
+    /**
+     * Gets privacy settings set.
+     *
+     * @return privacy settings set.
+     */
     public Set<PrivacySetting> getPrivacySettings() {
         return this.privacySettings;
     }
