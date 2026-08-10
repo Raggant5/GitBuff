@@ -3,6 +3,8 @@ package interface_adapter;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
+import javax.swing.SwingUtilities;
+
 /**
  * The ViewModel for our Clean Architecture implementation.
  *
@@ -54,7 +56,7 @@ public class ViewModel<T> {
      * Fires a property changed event for the state of this ViewModel.
      */
     public void firePropertyChanged() {
-        this.support.firePropertyChange("state", null, this.state);
+        runOnEdt(() -> this.support.firePropertyChange("state", null, this.state));
     }
 
     /**
@@ -63,7 +65,16 @@ public class ViewModel<T> {
      * @param propertyName property identifier label.
      */
     public void firePropertyChanged(final String propertyName) {
-        this.support.firePropertyChange(propertyName, null, this.state);
+        runOnEdt(() -> this.support.firePropertyChange(propertyName, null, this.state));
+    }
+
+    private void runOnEdt(final Runnable dispatch) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            dispatch.run();
+        }
+        else {
+            SwingUtilities.invokeLater(dispatch);
+        }
     }
 
     /**

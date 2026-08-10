@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import interface_adapter.nutrition.food.FoodEntryDisplayData;
+import interface_adapter.nutrition.food.FoodEnumMapper;
 import use_case.nutrition.food.FoodEntryInputData;
 import use_case.nutrition.food.FoodNutritionInput;
 import use_case.nutrition.meal.edit_meal.EditMealInputBoundary;
@@ -31,7 +32,7 @@ public class EditMealController {
             final FoodNutritionInput nutrition = new FoodNutritionInput(food.getNutrition().getCalories(),
                     food.getNutrition().getProtein(), food.getNutrition().getCarbs(), food.getNutrition().getFat());
             foods.add(new FoodEntryInputData(food.getId(), food.getFoodName(), nutrition, food.getQuantity(),
-                    food.getUnit(), food.getGrams()));
+                    FoodEnumMapper.toEntity(food.getUnit()), food.getGrams()));
         }
         editMealInteractor.execute(new EditMealInputData(mealId, name, foods, foodEntryIdsToDelete));
     }

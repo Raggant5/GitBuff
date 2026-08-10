@@ -3,13 +3,7 @@ package interface_adapter.calendar;
 import java.time.LocalDate;
 
 /**
- * Display-only view of a calendar event, so state and view classes in this layer don't need
- * to depend on the {@code entity.CalendarEvent} entity directly.
- *
- * <p>Mirrors the same DTO convention already used elsewhere in the codebase (for example
- * {@code interface_adapter.log_workout.exercise.ExercisePerformedDisplayData} and
- * {@code interface_adapter.nutrition.food.FoodEntryDisplayData}): the presenter converts use
- * case output data into this type, and only this type crosses into the state/view classes.
+ * Display-only view of a calendar event.
  */
 public class CalendarEventDisplayData {
 
@@ -57,6 +51,3 @@ public class CalendarEventDisplayData {
         return this.activityDate;
     }
 }
-
-
-

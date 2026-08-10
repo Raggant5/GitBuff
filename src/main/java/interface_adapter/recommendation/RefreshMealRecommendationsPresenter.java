@@ -1,7 +1,12 @@
 package interface_adapter.recommendation;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import interface_adapter.nutrition.MealRecommendationDisplayData;
 import interface_adapter.nutrition.NutritionState;
 import interface_adapter.nutrition.NutritionViewModel;
+import use_case.recommendation.MealRecommendationData;
 import use_case.recommendation.RefreshMealRecommendationsOutputBoundary;
 import use_case.recommendation.RefreshMealRecommendationsOutputData;
 
@@ -29,7 +34,11 @@ public class RefreshMealRecommendationsPresenter implements RefreshMealRecommend
         nutritionState.setBmi(outputData.getBmi());
         nutritionState.setDailyCalorieTarget(outputData.getDailyCalorieTarget());
         nutritionState.setDailyProteinGrams(outputData.getDailyProteinGrams());
-        nutritionState.setMealRecommendations(outputData.getMealRecommendations());
+        final List<MealRecommendationDisplayData> mealRecommendations = new ArrayList<>();
+        for (final MealRecommendationData meal : outputData.getMealRecommendations()) {
+            mealRecommendations.add(toDisplayData(meal));
+        }
+        nutritionState.setMealRecommendations(mealRecommendations);
         nutritionState.setMessage("");
         this.nutritionViewModel.firePropertyChanged();
     }
@@ -39,5 +48,9 @@ public class RefreshMealRecommendationsPresenter implements RefreshMealRecommend
         final NutritionState nutritionState = this.nutritionViewModel.getState();
         nutritionState.setMessage(errorMessage);
         this.nutritionViewModel.firePropertyChanged();
+    }
+
+    private MealRecommendationDisplayData toDisplayData(final MealRecommendationData meal) {
+        return new MealRecommendationDisplayData(meal.getTitle(), meal.getReadyInMinutes(), meal.getSourceUrl());
     }
 }

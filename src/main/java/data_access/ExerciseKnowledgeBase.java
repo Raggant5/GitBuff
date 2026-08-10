@@ -14,17 +14,7 @@ import entity.User;
  * Static reference data and pure lookup logic for generating workout/exercise content: which
  * exercises belong to which workout "type" (running, biking, upper, lower, hiit, ...), how a
  * workout title or exercise name maps onto a type/category/intensity/equipment, and which
- * workout types/titles/descriptions suit each {@link FitnessGoal}.
- *
- * <p>This was previously ~250 lines of static maps plus a dozen categorization methods embedded
- * directly in {@code AiWorkoutDataAccessObject}, which also had to make two live HTTP calls, do
- * manual JSON parsing, and choose between the AI-generated plan and a deterministic fallback -
- * five responsibilities in one 1,100+ line class. Extracting the reference data and pure lookup
- * functions here (no I/O, no mutable state) means both
- * {@code AiWorkoutDataAccessObject} (parsing the Gemini response) and
- * {@link FallbackWorkoutPlanStrategy} (generating a plan with no API call at all) share exactly
- * one implementation of "what exercises make up a 'lower body' day", instead of the two
- * near-identical copies that existed before.
+ * workout types/titles/descriptions suit each FitnessGoal.
  */
 public final class ExerciseKnowledgeBase {
 
@@ -314,23 +304,56 @@ public final class ExerciseKnowledgeBase {
 
             for (int i = 0; i < Math.min(MAX_EXERCISES_PER_WORKOUT, exerciseNames.length); i++) {
                 final String name = exerciseNames[i];
-                final String inst = (instructions != null && i < instructions.length) ? instructions[i]
-                        : "Perform " + name + " with proper form.";
+                final String inst;
+                if (instructions != null && i < instructions.length) {
+                    inst = instructions[i];
+                }
+                else {
+                    inst = "Perform " + name + " with proper form.";
+                }
+                final String searchQuery;
+                if (searchQueries != null && i < searchQueries.length) {
+                    searchQuery = searchQueries[i];
+                }
+                else {
+                    searchQuery = name.replace(" ", "+");
+                }
                 final String videoUrl = "https://www.youtube.com/results?search_query="
-                        + (searchQueries != null && i < searchQueries.length
-                        ? searchQueries[i] : name.replace(" ", "+")) + "+exercise+tutorial";
+                        + searchQuery + "+exercise+tutorial";
 
-                String equipmentType = (equipmentTypes != null && i < equipmentTypes.length)
-                        ? equipmentTypes[i] : "BODYWEIGHT";
+                String equipmentType;
+                if (equipmentTypes != null && i < equipmentTypes.length) {
+                    equipmentType = equipmentTypes[i];
+                }
+                else {
+                    equipmentType = "BODYWEIGHT";
+                }
 
                 if (!userHasEquipment(user, equipmentType)) {
                     equipmentType = "BODYWEIGHT";
                 }
 
-                final String category = (categories != null && i < categories.length) ? categories[i] : "GENERAL";
-                final String subCategory = (subCategories != null && i < subCategories.length)
-                        ? subCategories[i] : "GENERAL";
-                final String intensity = (intensities != null && i < intensities.length) ? intensities[i] : "MEDIUM";
+                final String category;
+                if (categories != null && i < categories.length) {
+                    category = categories[i];
+                }
+                else {
+                    category = "GENERAL";
+                }
+                final String subCategory;
+                if (subCategories != null && i < subCategories.length) {
+                    subCategory = subCategories[i];
+                }
+                else {
+                    subCategory = "GENERAL";
+                }
+                final String intensity;
+                if (intensities != null && i < intensities.length) {
+                    intensity = intensities[i];
+                }
+                else {
+                    intensity = "MEDIUM";
+                }
 
                 exercises.add(new Exercise(name, DEFAULT_SETS, DEFAULT_REPS,
                         DEFAULT_EX_DURATION, "Various", equipmentType,
@@ -376,23 +399,27 @@ public final class ExerciseKnowledgeBase {
      * @return true if the requirement is bodyweight-only or the user's equipment matches it
      */
     public static boolean userHasEquipment(final User user, final String equipmentType) {
+        boolean result;
         if (equipmentType == null || "BODYWEIGHT".equalsIgnoreCase(equipmentType)
                 || "BODYWEIGHT_ONLY".equalsIgnoreCase(equipmentType)) {
-            return true;
+            result = true;
         }
-        if (user == null || user.getEquipment() == null || user.getEquipment().isEmpty()) {
-            return false;
+        else if (user == null || user.getEquipment() == null || user.getEquipment().isEmpty()) {
+            result = false;
         }
-        for (final Object eq : user.getEquipment()) {
-            if (eq != null) {
-                final String eqStr = eq.toString().toUpperCase();
-                final String reqType = equipmentType.toUpperCase();
-                if (eqStr.contains(reqType) || reqType.contains(eqStr)) {
-                    return true;
+        else {
+            result = false;
+            for (final Object eq : user.getEquipment()) {
+                if (eq != null) {
+                    final String eqStr = eq.toString().toUpperCase();
+                    final String reqType = equipmentType.toUpperCase();
+                    if (eqStr.contains(reqType) || reqType.contains(eqStr)) {
+                        result = true;
+                    }
                 }
             }
         }
-        return false;
+        return result;
     }
 
     /**

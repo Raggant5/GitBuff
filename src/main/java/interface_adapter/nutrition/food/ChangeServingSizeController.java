@@ -1,6 +1,5 @@
 package interface_adapter.nutrition.food;
 
-import entity.FoodUnit;
 import use_case.nutrition.food.change_serving_size.ChangeServingSizeInputBoundary;
 import use_case.nutrition.food.change_serving_size.ChangeServingSizeInputData;
 
@@ -22,9 +21,9 @@ public class ChangeServingSizeController {
      * @param servingCarbs the current per-serving carbs before the change
      * @param servingFat the current per-serving fat before the change
      */
-    public void execute(FoodUnit unit, double originalServingGrams, double servingGrams, double servingCalories,
-                        double servingProtein, double servingCarbs, double servingFat) {
-        changeServingSizeInteractor.execute(new ChangeServingSizeInputData(unit, originalServingGrams,
-                servingGrams, servingCalories, servingProtein, servingCarbs, servingFat));
+    public void execute(FoodUnitOption unit, double originalServingGrams, double servingGrams,
+                        double servingCalories, double servingProtein, double servingCarbs, double servingFat) {
+        changeServingSizeInteractor.execute(new ChangeServingSizeInputData(FoodEnumMapper.toEntity(unit),
+                originalServingGrams, servingGrams, servingCalories, servingProtein, servingCarbs, servingFat));
     }
 }

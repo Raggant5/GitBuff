@@ -7,5 +7,7 @@ public class LoadCalendarEventsInputData {
         this.userID = userID;
     }
 
-    public String getUserID() {return this.userID;}
+    public String getUserID() {
+        return this.userID;
+    }
 }

@@ -20,6 +20,6 @@ public class PrepareEditFoodController {
         final FoodNutritionInput nutrition = new FoodNutritionInput(food.getNutrition().getCalories(),
                 food.getNutrition().getProtein(), food.getNutrition().getCarbs(), food.getNutrition().getFat());
         prepareEditFoodInteractor.execute(new PrepareEditFoodInputData(food.getId(), food.getFoodName(),
-                nutrition, food.getQuantity(), food.getUnit(), food.getGrams()));
+                nutrition, food.getQuantity(), FoodEnumMapper.toEntity(food.getUnit()), food.getGrams()));
     }
 }

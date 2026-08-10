@@ -22,7 +22,8 @@ public class EditFoodPresenter implements EditFoodOutputBoundary {
                 outputData.getNutrition().getProtein(), outputData.getNutrition().getCarbs(),
                 outputData.getNutrition().getFat());
         final FoodEntryDisplayData updated = new FoodEntryDisplayData(outputData.getId(), outputData.getFoodName(),
-                nutrition, outputData.getQuantity(), outputData.getUnit(), outputData.getGrams());
+                nutrition, outputData.getQuantity(), FoodEnumMapper.toOption(outputData.getUnit()),
+                outputData.getGrams());
 
         final MealEditorState state = mealEditorViewModel.getState();
         state.replaceFoodEntry(updated);

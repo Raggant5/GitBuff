@@ -17,7 +17,6 @@ import com.google.api.services.calendar.model.EventAttendee;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.EventReminder;
 import com.google.api.services.calendar.model.Events;
-
 import entity.CalendarEvent;
 import use_case.calendar.CalendarEventDataAccessInterface;
 
@@ -99,22 +98,29 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
 
         final CalendarList calendarList = getCalendarService().calendarList().list().execute();
 
+        String result = null;
+        boolean found = false;
         for (final CalendarListEntry calendar : calendarList.getItems()) {
-            if (calendarDescription.equals(calendar.getDescription())) {
-                return calendar.getId();
+            if (!found && calendarDescription.equals(calendar.getDescription())) {
+                result = calendar.getId();
+                found = true;
             }
         }
 
-        final com.google.api.services.calendar.model.Calendar newCalendar =
-                new com.google.api.services.calendar.model.Calendar()
-                        .setSummary("GitBuff - " + userId)
-                        .setDescription(calendarDescription)
-                        .setTimeZone(TIME_ZONE);
+        if (!found) {
+            final com.google.api.services.calendar.model.Calendar newCalendar =
+                    new com.google.api.services.calendar.model.Calendar()
+                            .setSummary("GitBuff - " + userId)
+                            .setDescription(calendarDescription)
+                            .setTimeZone(TIME_ZONE);
 
-        return getCalendarService().calendars()
-                .insert(newCalendar)
-                .execute()
-                .getId();
+            result = getCalendarService().calendars()
+                    .insert(newCalendar)
+                    .execute()
+                    .getId();
+        }
+
+        return result;
     }
 
     @Override
@@ -163,8 +169,7 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
                 }
 
                 pageToken = googleEvents.getNextPageToken();
-            }
-            while (pageToken != null);
+            } while (pageToken != null);
 
             return userEvents;
         }
@@ -176,15 +181,18 @@ public class GoogleCalendarDataAccessObject implements CalendarEventDataAccessIn
     private LocalDate getActivityDate(final Event googleEvent) {
         final DateTime allDayDate = googleEvent.getStart().getDate();
 
+        final LocalDate result;
         if (allDayDate != null) {
-            return LocalDate.parse(allDayDate.toStringRfc3339());
+            result = LocalDate.parse(allDayDate.toStringRfc3339());
         }
+        else {
+            final DateTime dateTime = googleEvent.getStart().getDateTime();
 
-        final DateTime dateTime = googleEvent.getStart().getDateTime();
-
-        return Instant.ofEpochMilli(dateTime.getValue())
-                .atZone(ZoneId.of(TIME_ZONE))
-                .toLocalDate();
+            result = Instant.ofEpochMilli(dateTime.getValue())
+                    .atZone(ZoneId.of(TIME_ZONE))
+                    .toLocalDate();
+        }
+        return result;
     }
 
     private Calendar getCalendarService() {

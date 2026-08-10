@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import use_case.DataAccessException;
 import use_case.nutrition.food.FoodEntryInputData;
 import use_case.nutrition.food.FoodNutritionInput;
+import use_case.EventPublisher;
+import use_case.nutrition.meal.MealChangedEvent;
 import use_case.nutrition.meal.get_meals.ViewMealDataAccessInterface;
 
 public class EditMealInteractorTest {
@@ -50,7 +52,7 @@ public class EditMealInteractorTest {
         };
 
         new EditMealInteractor(presenter, editDataAccess, viewDataAccess,
-                new entity.FoodEntryFactory()).execute(inputData);
+                new entity.FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
 
         assertEquals(1, editDataAccess.savedNewEntries.size());
         assertTrue(editDataAccess.editedEntries.stream().anyMatch(food -> food.getId() == 2));
@@ -81,7 +83,7 @@ public class EditMealInteractorTest {
         };
 
         new EditMealInteractor(presenter, editDataAccess, viewDataAccess,
-                new entity.FoodEntryFactory()).execute(inputData);
+                new entity.FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
 
         assertEquals(1, editDataAccess.savedNewEntries.size());
         assertTrue(editDataAccess.editedEntries.isEmpty());
@@ -111,7 +113,7 @@ public class EditMealInteractorTest {
         };
 
         new EditMealInteractor(presenter, editDataAccess, viewDataAccess,
-                new entity.FoodEntryFactory()).execute(inputData);
+                new entity.FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
     }
 
     @Test
@@ -137,7 +139,7 @@ public class EditMealInteractorTest {
         };
 
         new EditMealInteractor(presenter, editDataAccess, viewDataAccess,
-                new entity.FoodEntryFactory()).execute(inputData);
+                new entity.FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
 
         assertEquals(List.of(3), editDataAccess.deletedIds);
     }
@@ -165,7 +167,7 @@ public class EditMealInteractorTest {
         };
 
         new EditMealInteractor(presenter, editDataAccess, viewDataAccess,
-                new entity.FoodEntryFactory()).execute(inputData);
+                new entity.FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
         assertTrue(failed[0]);
     }
 
@@ -192,7 +194,7 @@ public class EditMealInteractorTest {
         };
 
         new EditMealInteractor(presenter, editDataAccess, viewDataAccess,
-                new entity.FoodEntryFactory()).execute(inputData);
+                new entity.FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
         assertTrue(failed[0]);
     }
 
@@ -221,7 +223,7 @@ public class EditMealInteractorTest {
         };
 
         new EditMealInteractor(presenter, failingDataAccess, viewDataAccess,
-                new entity.FoodEntryFactory()).execute(inputData);
+                new entity.FoodEntryFactory(), new FakeMealEventPublisher()).execute(inputData);
         assertTrue(failed[0]);
     }
 
@@ -275,6 +277,13 @@ public class EditMealInteractorTest {
 
             editedMeal = meal;
             return meal;
+        }
+    }
+
+    private static final class FakeMealEventPublisher implements EventPublisher<MealChangedEvent> {
+        @Override
+        public void publish(MealChangedEvent event) {
+            // these tests don't assert on calendar side effects
         }
     }
 }

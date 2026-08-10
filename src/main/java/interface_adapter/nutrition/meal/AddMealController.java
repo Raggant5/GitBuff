@@ -6,7 +6,7 @@ import java.util.List;
 
 import interface_adapter.login.LoginViewModel;
 import interface_adapter.nutrition.food.FoodEntryDisplayData;
-import use_case.dashboard.DashboardInputBoundary;
+import interface_adapter.nutrition.food.FoodEnumMapper;
 import use_case.nutrition.food.FoodEntryInputData;
 import use_case.nutrition.food.FoodNutritionInput;
 import use_case.nutrition.meal.add_meal.AddMealInputBoundary;
@@ -19,23 +19,19 @@ public class AddMealController {
 
     private final AddMealInputBoundary addMealInteractor;
     private final LoginViewModel loginViewModel;
-    private final DashboardInputBoundary dashboardInteractor;
 
     /**
      * Constructs an AddMealController.
      *
      * @param addMealInteractor interactor for adding meals
      * @param loginViewModel view model containing the logged-in user
-     * @param dashboardInteractor interactor for refreshing dashboard data
      */
     public AddMealController(
             final AddMealInputBoundary addMealInteractor,
-            final LoginViewModel loginViewModel,
-            final DashboardInputBoundary dashboardInteractor
+            final LoginViewModel loginViewModel
     ) {
         this.addMealInteractor = addMealInteractor;
         this.loginViewModel = loginViewModel;
-        this.dashboardInteractor = dashboardInteractor;
     }
 
     /**
@@ -53,7 +49,7 @@ public class AddMealController {
             final FoodNutritionInput nutrition = new FoodNutritionInput(food.getNutrition().getCalories(),
                     food.getNutrition().getProtein(), food.getNutrition().getCarbs(), food.getNutrition().getFat());
             foods.add(new FoodEntryInputData(food.getId(), food.getFoodName(), nutrition, food.getQuantity(),
-                    food.getUnit(), food.getGrams()));
+                    FoodEnumMapper.toEntity(food.getUnit()), food.getGrams()));
         }
 
         final String username =
@@ -68,9 +64,5 @@ public class AddMealController {
                 );
 
         this.addMealInteractor.execute(inputData);
-
-        if (this.dashboardInteractor != null) {
-            this.dashboardInteractor.execute(username);
-        }
     }
 }

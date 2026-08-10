@@ -39,9 +39,13 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
     private static final int VERTICAL_GAP = 10;
 
     private static final int SIDEBAR_PREFERRED_WIDTH = 320;
+    private static final int SIDE_BAR_MINIMUM_WIDTH = 200;
     private static final int CHART_MIN_WIDTH = 200;
     private static final int CHART_MIN_HEIGHT = 150;
+    private static final int CALENDAR_MIN_WIDTH = 400;
+    private static final double CALORIE_AXIS_UPPER_MARGIN = 0.15;
 
+    private static final String CALORIES = "Calories";
     private final String viewName = "dashboard";
 
     private final JPanel calorieChartContainer = new JPanel(new BorderLayout());
@@ -77,9 +81,9 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         // Left Side: Nutrition Charts stacked vertically with lower minimum width to enable dragging
         final JPanel chartsSideSection = new JPanel(new GridLayout(2, 1, HORIZONTAL_GAP, VERTICAL_GAP));
         chartsSideSection.setPreferredSize(new Dimension(SIDEBAR_PREFERRED_WIDTH, 0));
-        chartsSideSection.setMinimumSize(new Dimension(200, 0));
+        chartsSideSection.setMinimumSize(new Dimension(SIDE_BAR_MINIMUM_WIDTH, 0));
 
-        this.calorieChartContainer.setBorder(BorderFactory.createTitledBorder("Calories"));
+        this.calorieChartContainer.setBorder(BorderFactory.createTitledBorder(CALORIES));
         this.macroChartContainer.setBorder(BorderFactory.createTitledBorder("Today's Macronutrients"));
         this.calendarContainer.setBorder(BorderFactory.createTitledBorder("Calendar Schedule"));
 
@@ -88,7 +92,7 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
 
         // Right Side: Calendar Panel
         this.calendarContainer.add(calendarPanel, BorderLayout.CENTER);
-        this.calendarContainer.setMinimumSize(new Dimension(400, 0));
+        this.calendarContainer.setMinimumSize(new Dimension(CALENDAR_MIN_WIDTH, 0));
 
         // Horizontal Split Pane (Vertical Divider Bar)
         final JSplitPane splitPane = new JSplitPane(
@@ -149,7 +153,8 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         }
         else if (macroData == null || hasNoMacroData(macroData)) {
             this.macroChartContainer.add(
-                    new JLabel("No macronutrient data available for today.", SwingConstants.CENTER), BorderLayout.CENTER);
+                    new JLabel("No macronutrient data available for today.", SwingConstants.CENTER),
+                    BorderLayout.CENTER);
         }
         else {
             this.macroChartContainer.add(createMacroChart(macroData), BorderLayout.CENTER);
@@ -167,11 +172,11 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
         for (final Map.Entry<LocalDate, Double> entry : caloriesByDate.entrySet()) {
-            dataset.addValue(entry.getValue(), "Calories", entry.getKey().toString());
+            dataset.addValue(entry.getValue(), CALORIES, entry.getKey().toString());
         }
 
         final JFreeChart chart = ChartFactory.createBarChart(
-                "Calories Eaten Per Day", "Date", "Calories", dataset);
+                "Calories Eaten Per Day", "Date", CALORIES, dataset);
 
         final CategoryPlot plot = chart.getCategoryPlot();
         final NumberAxis calorieAxis = (NumberAxis) plot.getRangeAxis();
@@ -180,7 +185,7 @@ public class DashboardView extends JPanel implements PropertyChangeListener {
         calorieAxis.setAutoRangeIncludesZero(true);
         calorieAxis.setAutoRangeStickyZero(true);
         calorieAxis.setLowerMargin(0.0);
-        calorieAxis.setUpperMargin(0.15);
+        calorieAxis.setUpperMargin(CALORIE_AXIS_UPPER_MARGIN);
         calorieAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         final ChartPanel chartPanel = new ChartPanel(chart);

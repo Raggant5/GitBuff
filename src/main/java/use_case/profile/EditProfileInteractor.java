@@ -2,6 +2,7 @@ package use_case.profile;
 
 import entity.User;
 import use_case.DataAccessException;
+import use_case.EventPublisher;
 
 /**
  * The Edit Profile Interactor. Saves profile details.
@@ -10,17 +11,21 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
 
     private final ProfileUserDataAccessInterface userDataAccessObject;
     private final EditProfileOutputBoundary profilePresenter;
+    private final EventPublisher<ProfileUpdatedEvent> profileEventPublisher;
 
     /**
      * Constructs an EditProfileInteractor instance.
      *
      * @param userDataAccessObject profile data access object
      * @param profileOutputBoundary profile output boundary presenter
+     * @param profileEventPublisher publisher notified once a profile is saved
      */
     public EditProfileInteractor(final ProfileUserDataAccessInterface userDataAccessObject,
-                                 final EditProfileOutputBoundary profileOutputBoundary) {
+                                 final EditProfileOutputBoundary profileOutputBoundary,
+                                 final EventPublisher<ProfileUpdatedEvent> profileEventPublisher) {
         this.userDataAccessObject = userDataAccessObject;
         this.profilePresenter = profileOutputBoundary;
+        this.profileEventPublisher = profileEventPublisher;
     }
 
     @Override
@@ -63,5 +68,6 @@ public class EditProfileInteractor implements EditProfileInputBoundary {
 
         final EditProfileOutputData outputData = new EditProfileOutputData(user);
         this.profilePresenter.prepareSuccessView(outputData);
+        this.profileEventPublisher.publish(new ProfileUpdatedEvent(username));
     }
 }

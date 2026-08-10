@@ -26,12 +26,12 @@ import interface_adapter.calendar.CalendarViewModel;
 
 /**
  * Swing panel rendering the current month's calendar with each day's scheduled events.
- *
- * <p>Reads {@link CalendarEventDisplayData} from {@link CalendarState}, rather than the
- * {@code entity.CalendarEvent} entity, so this view-layer class does not depend on the entity
- * layer.
  */
 public class CalendarPanel extends JPanel implements PropertyChangeListener {
+    private static final int DAYS_IN_WEEK = 7;
+    private static final int DAY_BOX_COLOUR = 0x69ed0;
+    private static final int DAY_BOX_WIDTH = 100;
+    private static final int DAY_BOX_HEIGHT = 80;
     private final CalendarViewModel calendarViewModel;
 
     public CalendarPanel(CalendarViewModel calendarViewModel) {
@@ -45,8 +45,8 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     private void displayState(CalendarState state) {
         removeAll();
 
-        List<CalendarEventDisplayData> eventsList = state.getCalendarEvents();
-        Map<LocalDate, List<CalendarEventDisplayData>> eventsMap = new HashMap<>();
+        final List<CalendarEventDisplayData> eventsList = state.getCalendarEvents();
+        final Map<LocalDate, List<CalendarEventDisplayData>> eventsMap = new HashMap<>();
 
         for (CalendarEventDisplayData event : eventsList) {
             if (event.getActivityDate() == null) {
@@ -76,25 +76,27 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     }
 
     private JPanel dayBox(int dayNumber, List<String> toDos) {
-        JPanel dayBox = new JPanel();
+        final JPanel dayBox = new JPanel();
 
         dayBox.setLayout(new BoxLayout(dayBox, BoxLayout.Y_AXIS));
 
-        if (dayNumber % 2 == 0)
+        if (dayNumber % 2 == 0) {
             dayBox.setBackground(Color.WHITE);
-        else
-            dayBox.setBackground(new Color(6, 158, 208));
+        }
+        else {
+            dayBox.setBackground(new Color(DAY_BOX_COLOUR));
+        }
 
         dayBox.setBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
-        dayBox.setPreferredSize(new Dimension(100, 80));
+        dayBox.setPreferredSize(new Dimension(DAY_BOX_WIDTH, DAY_BOX_HEIGHT));
 
-        JLabel dayNumberLabel = new JLabel(String.valueOf(dayNumber));
+        final JLabel dayNumberLabel = new JLabel(String.valueOf(dayNumber));
         dayBox.add(dayNumberLabel);
 
         for (String toDo: toDos) {
-            JLabel toDoLabel = new JLabel(toDo);
+            final JLabel toDoLabel = new JLabel(toDo);
             dayBox.add(toDoLabel);
         }
 
@@ -102,9 +104,8 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
     }
 
     private JPanel weekDayBox() {
-        final JPanel weekDaysBox = new JPanel(new GridLayout(1, 7));
-        final String[] weekDays = {
-                "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+        final JPanel weekDaysBox = new JPanel(new GridLayout(1, DAYS_IN_WEEK));
+        final String[] weekDays = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
         };
 
         for (String weekDay : weekDays) {
@@ -128,36 +129,37 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
         return monthBox;
     }
 
-    private int whichDayMonthBegins() {
-        YearMonth currentMonth = YearMonth.now();
-        DayOfWeek firstWeekday = currentMonth.atDay(1).getDayOfWeek();
-
-        return firstWeekday.getValue() % 7;
-    }
-
     private JPanel monthBox(Map<LocalDate, List<CalendarEventDisplayData>> calendarEvents) {
-        JPanel monthBox = new JPanel(new GridLayout(0, 7));
+        final JPanel monthBox = new JPanel(new GridLayout(0, DAYS_IN_WEEK));
 
-        int dayMonthBegins = whichDayMonthBegins();
+        final int dayMonthBegins = whichDayMonthBegins();
 
         for (int i = 0; i < dayMonthBegins; i++) {
             monthBox.add(new JPanel());
         }
 
-        YearMonth month = YearMonth.now();
+        final YearMonth month = YearMonth.now();
 
         for (int day = 1; day <= month.lengthOfMonth(); day++) {
-            LocalDate date = month.atDay(day);
-            List<String> toDos = new ArrayList<>();
+            final LocalDate date = month.atDay(day);
+            final List<String> toDos = new ArrayList<>();
 
             if (calendarEvents.containsKey(date)) {
-                for (CalendarEventDisplayData event : calendarEvents.get(date))
+                for (CalendarEventDisplayData event : calendarEvents.get(date)) {
                     toDos.add(event.getTitle());
+                }
             }
 
             monthBox.add(dayBox(day, toDos));
         }
         return monthBox;
+    }
+
+    private int whichDayMonthBegins() {
+        final YearMonth currentMonth = YearMonth.now();
+        final DayOfWeek firstWeekday = currentMonth.atDay(1).getDayOfWeek();
+
+        return firstWeekday.getValue() % DAYS_IN_WEEK;
     }
 
     private JPanel mainBox(Map<LocalDate, List<CalendarEventDisplayData>> calendarEvents) {
@@ -177,10 +179,7 @@ public class CalendarPanel extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        CalendarState state = (CalendarState) event.getNewValue();
+        final CalendarState state = (CalendarState) event.getNewValue();
         displayState(state);
     }
 }
-
-
-

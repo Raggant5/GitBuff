@@ -16,13 +16,9 @@ import entity.WorkoutPlan;
 import use_case.recommendation.WorkoutPlanGenerationStrategy;
 
 /**
- * Deterministic, no-network {@link WorkoutPlanGenerationStrategy}: builds a week of workout
- * plans purely from {@link ExerciseKnowledgeBase}, driven by the user's fitness goal and
- * preferred workout days.
- *
- * <p>Extracted from {@code AiWorkoutDataAccessObject.getFallbackPlans}, which
- * {@code AiWorkoutDataAccessObject} now delegates to when the Gemini API is unavailable,
- * unconfigured, or fails - see {@link AiWorkoutDataAccessObject}.
+ * Deterministic, no-network WorkoutPlanGenerationStrategy: builds a week of workout plans
+ * purely from ExerciseKnowledgeBase, driven by the user's fitness goal and preferred workout
+ * days.
  */
 public class FallbackWorkoutPlanStrategy implements WorkoutPlanGenerationStrategy {
 
@@ -69,7 +65,13 @@ public class FallbackWorkoutPlanStrategy implements WorkoutPlanGenerationStrateg
             targetDuration = user.getPreferredWorkoutDurationMinutes();
         }
 
-        final FitnessGoal goal = user != null ? user.getGoal() : FitnessGoal.MAINTAIN_GENERAL_FITNESS;
+        final FitnessGoal goal;
+        if (user != null) {
+            goal = user.getGoal();
+        }
+        else {
+            goal = FitnessGoal.MAINTAIN_GENERAL_FITNESS;
+        }
         final String[] workoutTypes = ExerciseKnowledgeBase.getWorkoutTypesForGoal(goal, DEFAULT_WORKOUT_TYPES);
         final String[] workoutTitles = ExerciseKnowledgeBase.getWorkoutTitlesForGoal(goal, DEFAULT_WORKOUT_TITLES);
         final String[] workoutDescs =

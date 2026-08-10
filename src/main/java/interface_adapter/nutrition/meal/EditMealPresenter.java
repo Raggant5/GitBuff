@@ -4,26 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import interface_adapter.MainViewManagerModel;
-import interface_adapter.calendar.CalendarController;
 import interface_adapter.nutrition.food.FoodEntryDisplayData;
+import interface_adapter.nutrition.food.FoodEnumMapper;
 import interface_adapter.nutrition.food.FoodNutritionDisplayData;
 import use_case.nutrition.food.FoodEntryData;
 import use_case.nutrition.meal.edit_meal.EditMealOutputBoundary;
 import use_case.nutrition.meal.edit_meal.EditMealOutputData;
 
+/**
+ * Presenter for the Edit Meal Use Case.
+ */
 public class EditMealPresenter implements EditMealOutputBoundary {
 
     private final ViewMealsViewModel viewMealsViewModel;
     private final MealEditorViewModel mealEditorViewModel;
     private final MainViewManagerModel mainViewManagerModel;
-    private final CalendarController calendarController;
 
     public EditMealPresenter(ViewMealsViewModel viewMealsViewModel, MealEditorViewModel mealEditorViewModel,
-                             MainViewManagerModel mainViewManagerModel, CalendarController calendarController) {
+                             MainViewManagerModel mainViewManagerModel) {
         this.viewMealsViewModel = viewMealsViewModel;
         this.mealEditorViewModel = mealEditorViewModel;
         this.mainViewManagerModel = mainViewManagerModel;
-        this.calendarController = calendarController;
     }
 
     @Override
@@ -33,7 +34,7 @@ public class EditMealPresenter implements EditMealOutputBoundary {
             final FoodNutritionDisplayData nutrition = new FoodNutritionDisplayData(food.getNutrition().getCalories(),
                     food.getNutrition().getProtein(), food.getNutrition().getCarbs(), food.getNutrition().getFat());
             foodEntries.add(new FoodEntryDisplayData(food.getId(), food.getFoodName(), nutrition,
-                    food.getQuantity(), food.getUnit(), food.getGrams()));
+                    food.getQuantity(), FoodEnumMapper.toOption(food.getUnit()), food.getGrams()));
         }
         final MealDisplayData updatedMeal = new MealDisplayData(outputData.getId(), outputData.getDate(),
                 outputData.getName(), foodEntries);
@@ -43,10 +44,6 @@ public class EditMealPresenter implements EditMealOutputBoundary {
         viewMealsViewModel.firePropertyChanged();
         mealEditorViewModel.getState().reset();
         mealEditorViewModel.firePropertyChanged();
-
-        if (calendarController != null) {
-            calendarController.updateMeal(updatedMeal.getId(), updatedMeal.getName(), updatedMeal.getDate());
-        }
 
         mainViewManagerModel.setState("nutrition");
         mainViewManagerModel.firePropertyChanged();

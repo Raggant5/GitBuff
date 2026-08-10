@@ -10,19 +10,19 @@ public interface ShareProgressOutputBoundary {
      *
      * @param outputData output data containing formatted preview text and image path
      */
-    void preparePreviewView(final ShareProgressOutputData outputData);
+    void preparePreviewView(ShareProgressOutputData outputData);
 
     /**
      * Prepares success view after sending email.
      *
      * @param message success message
      */
-    void prepareSendSuccessView(final String message);
+    void prepareSendSuccessView(String message);
 
     /**
      * Prepares failure view.
      *
      * @param errorMessage error message
      */
-    void prepareFailView(final String errorMessage);
+    void prepareFailView(String errorMessage);
 }

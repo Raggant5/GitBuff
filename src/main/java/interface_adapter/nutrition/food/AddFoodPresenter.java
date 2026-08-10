@@ -32,7 +32,8 @@ public class AddFoodPresenter implements AddFoodEntryOutputBoundary {
                 outputData.getNutrition().getProtein(), outputData.getNutrition().getCarbs(),
                 outputData.getNutrition().getFat());
         final FoodEntryDisplayData food = new FoodEntryDisplayData(id, outputData.getFoodName(),
-                nutrition, outputData.getQuantity(), outputData.getUnit(), outputData.getGrams());
+                nutrition, outputData.getQuantity(), FoodEnumMapper.toOption(outputData.getUnit()),
+                outputData.getGrams());
 
         currentState.addFoodEntry(food);
         currentState.setShowFoodEditor(false);

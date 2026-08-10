@@ -29,7 +29,7 @@ public class PrepareEditFoodPresenter implements PrepareEditFoodOutputBoundary {
         state.setFoodName(outputData.getFoodName());
         final FoodServingDetails servingDetails = state.getServingDetails();
         servingDetails.setQuantity(String.valueOf(outputData.getQuantity()));
-        servingDetails.setUnit(outputData.getUnit());
+        servingDetails.setUnit(FoodEnumMapper.toOption(outputData.getUnit()));
         servingDetails.setTotalGramsDisplay(String.valueOf(outputData.getGrams()));
         final double quantity = outputData.getQuantity();
         if (quantity != 0) {

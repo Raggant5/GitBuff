@@ -6,7 +6,6 @@ import java.util.Set;
 
 import javax.swing.SwingWorker;
 
-import interface_adapter.recommendation.RecommendationController;
 import interface_adapter.workouts.WorkoutsState;
 import interface_adapter.workouts.WorkoutsViewModel;
 import use_case.profile.EditProfileInputBoundary;
@@ -14,17 +13,10 @@ import use_case.profile.EditProfileInputData;
 
 /**
  * The controller for the Edit Profile Use Case.
- *
- * <p>Accepts the interface_adapter-layer {@code *Option} enums from {@code view.ProfileView}
- * and translates them to the entity-layer enums, via {@link ProfileEnumMapper}, only when
- * building {@link EditProfileInputData} - the DTO the use case layer expects. This is the only
- * place in this class that touches the entity layer, and it does so through the mapper rather
- * than importing {@code entity.*} directly.
  */
 public class ProfileController {
 
     private final EditProfileInputBoundary editProfileUseCaseInteractor;
-    private RecommendationController recommendationController;
     private WorkoutsViewModel workoutsViewModel;
 
     /**
@@ -37,14 +29,12 @@ public class ProfileController {
     }
 
     /**
-     * Sets recommendation dependencies for triggering schedule updates.
+     * Sets the workouts view model, used only to show a loading indicator while the profile
+     * save (and the workout-plan regeneration it triggers) is in progress.
      *
-     * @param recommendationController controller to execute recommendations
      * @param workoutsViewModel view model for workout state
      */
-    public void setRecommendationDependencies(final RecommendationController recommendationController,
-                                              final WorkoutsViewModel workoutsViewModel) {
-        this.recommendationController = recommendationController;
+    public void setWorkoutsViewModel(final WorkoutsViewModel workoutsViewModel) {
         this.workoutsViewModel = workoutsViewModel;
     }
 
@@ -101,9 +91,6 @@ public class ProfileController {
             @Override
             protected Void doInBackground() {
                 editProfileUseCaseInteractor.execute(inputData);
-                if (recommendationController != null) {
-                    recommendationController.execute();
-                }
                 return null;
             }
         };

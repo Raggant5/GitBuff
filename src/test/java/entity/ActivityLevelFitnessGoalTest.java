@@ -33,4 +33,14 @@ public class ActivityLevelFitnessGoalTest {
     public void maintainGoalHasNoCalorieAdjustment() {
         assertEquals(0, FitnessGoal.MAINTAIN_GENERAL_FITNESS.getDailyCalorieAdjustment());
     }
+
+    @Test
+    public void activityLevelToStringReturnsDescription() {
+        assertEquals(ActivityLevel.NOT_ACTIVE.getDescription(), ActivityLevel.NOT_ACTIVE.toString());
+    }
+
+    @Test
+    public void fitnessGoalToStringReturnsDisplayName() {
+        assertEquals("Lose Weight", FitnessGoal.LOSE_WEIGHT.toString());
+    }
 }

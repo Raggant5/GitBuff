@@ -6,21 +6,18 @@ import entity.ExercisePerformed;
 import entity.LoggedWorkout;
 
 /**
- * Leaf {@link ReportSection} presenting the user's completed workouts.
- *
- * <p>Included in the report only when the user has enabled
- * {@code PrivacySetting.SHARE_WORKOUT_LOGS}; see {@code use_case.share.ShareProgressInteractor}.
+ * Leaf ReportSection presenting the user's completed workouts.
  */
 public class WorkoutLogReportSection implements ReportSection {
 
-    private static final String BULLET = " \u2022 Date: ";
+    private static final String BULLET = " • Date: ";
 
     private final List<LoggedWorkout> workouts;
 
     /**
      * Constructs a workout-log section.
      *
-     * @param workouts the user's logged workouts, possibly empty or {@code null}
+     * @param workouts the user's logged workouts, possibly empty
      */
     public WorkoutLogReportSection(final List<LoggedWorkout> workouts) {
         this.workouts = workouts;
@@ -33,7 +30,13 @@ public class WorkoutLogReportSection implements ReportSection {
 
     @Override
     public String render() {
-        final int totalWorkouts = this.workouts != null ? this.workouts.size() : 0;
+        final int totalWorkouts;
+        if (this.workouts != null) {
+            totalWorkouts = this.workouts.size();
+        }
+        else {
+            totalWorkouts = 0;
+        }
 
         final StringBuilder builder = new StringBuilder();
         builder.append("--- COMPLETED WORKOUTS ---\n");

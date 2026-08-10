@@ -2,8 +2,6 @@ package use_case.recommendation;
 
 import java.util.List;
 
-import entity.MealRecommendation;
-
 /**
  * Output Data for the Refresh Meal Recommendations Use Case.
  */
@@ -12,7 +10,7 @@ public class RefreshMealRecommendationsOutputData {
     private final double bmi;
     private final int dailyCalorieTarget;
     private final int dailyProteinGrams;
-    private final List<MealRecommendation> mealRecommendations;
+    private final List<MealRecommendationData> mealRecommendations;
 
     /**
      * Constructs a RefreshMealRecommendationsOutputData instance.
@@ -24,7 +22,7 @@ public class RefreshMealRecommendationsOutputData {
      */
     public RefreshMealRecommendationsOutputData(final double bmi, final int dailyCalorieTarget,
                                                 final int dailyProteinGrams,
-                                                final List<MealRecommendation> mealRecommendations) {
+                                                final List<MealRecommendationData> mealRecommendations) {
         this.bmi = bmi;
         this.dailyCalorieTarget = dailyCalorieTarget;
         this.dailyProteinGrams = dailyProteinGrams;
@@ -43,7 +41,7 @@ public class RefreshMealRecommendationsOutputData {
         return this.dailyProteinGrams;
     }
 
-    public List<MealRecommendation> getMealRecommendations() {
+    public List<MealRecommendationData> getMealRecommendations() {
         return this.mealRecommendations;
     }
 }

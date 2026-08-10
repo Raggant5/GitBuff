@@ -1,24 +1,31 @@
 package use_case.calendar.load_events;
 
-import entity.CalendarEvent;
-import use_case.calendar.CalendarEventDataAccessInterface;
-
+import java.util.ArrayList;
 import java.util.List;
 
+import entity.CalendarEvent;
+import use_case.calendar.CalendarEventData;
+import use_case.calendar.CalendarEventDataAccessInterface;
+
 public class LoadCalendarEventsInteractor implements LoadCalendarEventsInputBoundary {
-    private final CalendarEventDataAccessInterface calendarDAO;
+    private final CalendarEventDataAccessInterface calendarDataAccessObject;
     private final LoadCalendarEventsOutputBoundary outputBoundary;
 
-    public LoadCalendarEventsInteractor(CalendarEventDataAccessInterface calendarDAO, LoadCalendarEventsOutputBoundary outputBoundary) {
-        this.calendarDAO = calendarDAO;
+    public LoadCalendarEventsInteractor(CalendarEventDataAccessInterface calendarDataAccessObject,
+                                        LoadCalendarEventsOutputBoundary outputBoundary) {
+        this.calendarDataAccessObject = calendarDataAccessObject;
         this.outputBoundary = outputBoundary;
     }
 
     @Override
     public void loadCalendarEvents(LoadCalendarEventsInputData inputData) {
         try {
-            List<CalendarEvent> calendarEvents = calendarDAO.getUserEvents(inputData.getUserID());
-            LoadCalendarEventsOutputData outputData = new LoadCalendarEventsOutputData(calendarEvents);
+            final List<CalendarEvent> calendarEvents = calendarDataAccessObject.getUserEvents(inputData.getUserID());
+            final List<CalendarEventData> calendarEventsData = new ArrayList<>();
+            for (CalendarEvent event : calendarEvents) {
+                calendarEventsData.add(CalendarEventData.from(event));
+            }
+            final LoadCalendarEventsOutputData outputData = new LoadCalendarEventsOutputData(calendarEventsData);
             outputBoundary.prepareSuccessView(outputData);
         }
         catch (IllegalStateException exception) {

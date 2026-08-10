@@ -14,5 +14,5 @@ public interface ShareEmailDataAccessInterface {
      * @param imagePath optional image file path (nullable)
      * @return true if sent successfully, false otherwise
      */
-    boolean sendEmail(final String recipientEmail, final String subject, final String bodyText, final String imagePath);
+    boolean sendEmail(String recipientEmail, String subject, String bodyText, String imagePath);
 }

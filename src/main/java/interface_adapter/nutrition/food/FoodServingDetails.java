@@ -1,7 +1,5 @@
 package interface_adapter.nutrition.food;
 
-import entity.FoodUnit;
-
 /**
  * Contains serving-size/quantity/unit math for the food editor: given per-serving macros,
  * a quantity, and a unit, derives the displayed totals and keeps them in sync as any of
@@ -28,7 +26,7 @@ public class FoodServingDetails {
     private String totalFatDisplay = NUTRITIONAL_DEFAULT_VALUE;
 
     private String quantity = "1";
-    private FoodUnit unit = FoodUnit.GRAM;
+    private FoodUnitOption unit = FoodUnitOption.GRAM;
 
     /**
      * Resets the values when the food editor is no longer needed for reuse later.
@@ -50,7 +48,7 @@ public class FoodServingDetails {
         totalFatDisplay = NUTRITIONAL_DEFAULT_VALUE;
 
         quantity = "1";
-        unit = FoodUnit.GRAM;
+        unit = FoodUnitOption.GRAM;
     }
 
     public String getServingLabel() {
@@ -223,7 +221,7 @@ public class FoodServingDetails {
         recalculateTotals();
     }
 
-    public FoodUnit getUnit() {
+    public FoodUnitOption getUnit() {
         return unit;
     }
 
@@ -231,7 +229,7 @@ public class FoodServingDetails {
      * Sets the unit to be displayed.
      * @param unit the new unit for the food to be measured in
      */
-    public void setUnit(FoodUnit unit) {
+    public void setUnit(FoodUnitOption unit) {
         this.unit = unit;
     }
 
